@@ -2,7 +2,7 @@
 
 #include <vector>
 
-using namespace std;
+#include "GridItem.h"
 
 /*
 Classe chargée de gérer le repère de coordonnées permettant de situer les tags par rapport aux capteurs
@@ -19,6 +19,11 @@ class Grid
     Largeur de la grille (axe X)
     */
     int aWidth;
+
+    /*
+    Matrice 2D symbolisant la grille
+    */
+   vector<GridItem> aGrid;
 
     public:
 
