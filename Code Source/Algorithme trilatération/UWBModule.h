@@ -6,7 +6,7 @@
 Classe chargée d'implémenter un item plaçable dans le repère virtuel de la zone de sécurité
 */
 
-class GridItem
+class UWBModule
 {
     private:
     
@@ -27,7 +27,7 @@ class GridItem
     pPosition - position de l'item dans le repère
     pName - nom de l'item
     */
-    GridItem(string pName, V3 pPosition);
+    UWBModule(string pName, V3 pPosition);
 
     /*
     Renvoie la position de l'item

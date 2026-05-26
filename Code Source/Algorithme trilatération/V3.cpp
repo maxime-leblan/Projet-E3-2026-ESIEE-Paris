@@ -27,10 +27,12 @@ V3 prodVect(const V3 & a, const V3 & b)  { return V3(a.y * b.z - b.y * a.z, a.z 
 
 // V3 gCoordonateSystemVector = V3(0, 1);
 
+/*
 bool isInFirstHalfOfTrigoCircle(V3 pVector)
 {
 	return prodScal(gCoordonateSystemVector, pVector) >= 0;
 }
+*/
 
 float getAngle(V3 pVector)
 {
