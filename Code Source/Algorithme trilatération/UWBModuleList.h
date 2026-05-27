@@ -1,7 +1,7 @@
 #pragma once
 
-#include <unordered_map>
 #include <vector>
+#include <unordered_map>
 
 #include "UWBModule.h"
 
@@ -12,7 +12,7 @@ class UWBModuleList
     /*
     Dictionnaire contenant la liste des modules UWB
     */
-    unordered_map<string, UWBModule> aUWBModuleList;
+    unordered_map<int, UWBModule> aUWBModuleList;
 
     public:
 
@@ -27,19 +27,21 @@ class UWBModuleList
     int size();
 
     /*
-    Renvoie le module associé au nom passé en paramètre
+    Renvoie le module associé à l'identifiant passé en paramètre
+    pId - identifiant du module que l'on veut récupérer
     */
-    UWBModule getModule(string pModuleName);
+    UWBModule getModule(int pId);
 
     /*
     Renvoie la liste des modules qui lorsqu'ils sont passé en paramètre de la fonction pFunction, celle-ci renvoie vrai
     */
-    vector<string> findAll(bool (&pFunction)(UWBModule));
+    vector<int> findAll(bool (&pFunction)(UWBModule));
 
     /*
     Ajoute un module à la liste des modules
+    pId - identifiant du module que l'on veut 
     */
-    void addModule(string pModuleName, UWBModule pModule);
+    void addModule(int pId, UWBModule pModule);
 
 
 };

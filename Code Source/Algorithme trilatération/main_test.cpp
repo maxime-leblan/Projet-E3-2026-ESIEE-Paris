@@ -13,22 +13,22 @@ int main()
 {
     // on instancie les capteurs
     UWBModuleList vSensors = UWBModuleList();
-    UWBModule vTag1 = UWBModule("5", V3(9, 6, 3));
+    UWBModule vTag1 = UWBModule(1, V3(9, 6, 3));
     vector<V3> vSensorsPosition = {V3(3, 0, 1), V3(0, 3, 0), V3(3, 6, 0), V3(6, 3, 0)};
 
     // on les ajoute dans la liste des capteurs
     for (int i = 1; i <= NUMBER_OF_SENSORS; i++)
     {
-        UWBModule vTemp = UWBModule(to_string(i), vSensorsPosition[i - 1]);
-        vSensors.addModule(vTemp.getName(), vTemp);
+        UWBModule vTemp = UWBModule(i, vSensorsPosition[i - 1]);
+        vSensors.addModule(vTemp.getId(), vTemp);
     }
 
     // on calcule les distances réelles entre chaque capteur
-    unordered_map<string, float> vDistances;
+    unordered_map<int, float> vDistances;
 
     for (int i = 1; i <= NUMBER_OF_SENSORS; i++)
     {
-        vDistances[to_string(i)] = (vSensors.getModule(to_string(i)).getPosition() - vTag1.getPosition()).norm();
+        vDistances[i] = (vSensors.getModule(i).getPosition() - vTag1.getPosition()).norm();
     }
 
     // on récupère les coordonnées du vTag1 avec notre algorithme de triangulation

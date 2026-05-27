@@ -23,7 +23,7 @@ pSensors - liste des modules jouants le rôle de capteurs
 pDistances - liste des distances de chaque capteur avec le module de position indéterminée
 Return : les coordonnées du module dont on ne connaît pas la position
 */
-V3 trilateration3D(UWBModuleList pSensors, unordered_map<string, float> pDistances);
+V3 trilateration3D(UWBModuleList pSensors, unordered_map<int, float> pDistances);
 
 /*
 Initialise les valeurs de la matrice A avec les positions des capteurs UWB
@@ -36,4 +36,4 @@ Initialise les valeurs de la matrice B avec les positions des capteurs UWB et le
 pSensors - liste des modules jouants le rôle de capteurs
 pDistances - liste des distances de chaque capteur avec le module de position indéterminée
 */
-void initMatrixB(UWBModuleList pSensors, unordered_map<string, float> pDistances);
+void initMatrixB(UWBModuleList pSensors, unordered_map<int, float> pDistances);

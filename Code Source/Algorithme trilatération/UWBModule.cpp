@@ -2,15 +2,15 @@
 
 UWBModule::UWBModule() {}
 
-UWBModule::UWBModule(string pName, V3 pPosition)
+UWBModule::UWBModule(int pId, V3 pPosition)
 {
-    aName = pName;
+    aId = pId;
     aPosition = pPosition;
 }
 
-string UWBModule::getName() const
+int UWBModule::getId() const
 {
-    return aName;
+    return aId;
 }
 
 V3 UWBModule::getPosition() const

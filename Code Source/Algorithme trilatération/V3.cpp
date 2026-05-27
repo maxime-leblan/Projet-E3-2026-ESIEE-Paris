@@ -3,11 +3,11 @@
 
 float V3::getCoordonateNumber(int pNumber)
 {
-	if (pNumber == 1)
+	if (pNumber == AXIS_X)
 	{
 		return x;
 	}
-	else if (pNumber == 2)
+	else if (pNumber == AXIS_Y)
 	{
 		return y;
 	}

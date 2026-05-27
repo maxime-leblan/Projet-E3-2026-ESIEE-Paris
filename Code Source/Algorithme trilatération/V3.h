@@ -4,6 +4,9 @@
 #include <ostream>
 
 #define NUMBER_OF_COORDONATES 3
+#define AXIS_X 1
+#define AXIS_Y 2
+#define AXIS_Z 3
 
 using namespace std;
 

@@ -7,19 +7,19 @@ int UWBModuleList::size()
     return aUWBModuleList.size();
 }
 
-UWBModule UWBModuleList::getModule(string pModuleName)
+UWBModule UWBModuleList::getModule(int pId)
 {
-    return aUWBModuleList[pModuleName];
+    return aUWBModuleList[pId];
 }
 
-void UWBModuleList::addModule(string pModuleName, UWBModule pModule)
+void UWBModuleList::addModule(int pId, UWBModule pModule)
 {
-    aUWBModuleList[pModuleName] = pModule;
+    aUWBModuleList[pId] = pModule;
 }
 
-vector<string>UWBModuleList::findAll(bool (&pFunction)(UWBModule))
+vector<int>UWBModuleList::findAll(bool (&pFunction)(UWBModule))
 {
-    vector<string> vResTab;
+    vector<int> vResTab;
 
     for (auto it = aUWBModuleList.begin(); it != aUWBModuleList.end(); it++)
     {

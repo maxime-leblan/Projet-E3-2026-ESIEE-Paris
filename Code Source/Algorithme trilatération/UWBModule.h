@@ -11,11 +11,11 @@ Classe chargée d'implémenter un item plaçable dans le repère virtuel de la z
 class UWBModule
 {
     private:
-    
+
     /*
-    Nom du module
+    Identifiant du module
     */
-    string aName;
+    int aId;
 
     /*
     Position du module
@@ -32,14 +32,14 @@ class UWBModule
     /*
     Constructeur par défaut de la classe. Attribut une position du module
     pPosition - position du module dans le repère
-    pName - nom du module
+    pId - identifiant du module
     */
-    UWBModule(string pName, V3 pPosition);
+    UWBModule(int pId, V3 pPosition);
 
     /*
-    Renvoie le nom du module
+    Renvoie l'identifiant du module
     */
-    string getName() const;
+    int getId() const;
 
     /*
     Renvoie la position du module
