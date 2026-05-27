@@ -51,12 +51,12 @@ V3 prodVect(const V3 & a, const V3 & b);
 /*
 Indique si le vecteur passé en paramètre est orienté dans la première moitié du cercle trigo (i.e. entre [0, pi])
 */
-bool isInFirstHalfOfTrigoCircle(V3 pVector);
+// bool isInFirstHalfOfTrigoCircle(V3 pVector);
 
 /*
 Renvoie l'angle correspondant au vecteur passé en paramètre (l'angle appartient à [0, 2*pi])
 */
-float getAngle(V3 pVector);
+// float getAngle(V3 pVector);
 
 /*
 Renvoie un vecteur dont les coordonnées sont (cos(a), sin(a)) si a est l'angle passé en paramètre

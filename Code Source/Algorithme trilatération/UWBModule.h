@@ -25,6 +25,11 @@ class UWBModule
     public:
 
     /*
+    Constructeur naturel (ne fait rien)
+    */
+    UWBModule();
+
+    /*
     Constructeur par défaut de la classe. Attribut une position du module
     pPosition - position du module dans le repère
     pName - nom du module

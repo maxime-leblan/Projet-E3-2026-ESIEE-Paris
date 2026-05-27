@@ -49,7 +49,7 @@ bool isInFirstHalfOfTrigoCircle(V3 pVector)
 	return prodScal(gCoordonateSystemVector, pVector) >= 0;
 }
 */
-
+/*
 float getAngle(V3 pVector)
 {
 	float vFirstHalfAngle = acos(pVector.getX());
@@ -62,6 +62,8 @@ float getAngle(V3 pVector)
 		return vFirstHalfAngle + 2*(M_PI - vFirstHalfAngle);
 	}
 }
+*/
+
 
 // V3 getVectorFromAngle(float pAngle) { return V3(cos(pAngle), sin(pAngle)); }
 
