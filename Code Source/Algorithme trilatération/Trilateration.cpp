@@ -9,8 +9,8 @@ Matrix<float, 6, 1> gB;
 V3 trilateration3D(UWBModuleList pSensors, unordered_map<string, float> pDistances)
 {
     initMatrixB(pSensors, pDistances);
-    Matrix<float, 3, 1> vX = ((gA.transpose() * gA).inverse()) * (gA.transpose() * gB);
-    return V3(vX(1, 1), vX(2, 1), vX(3, 1));
+    Matrix<float, 3, 1> vX = ((gA.transpose().eval() * gA).inverse().eval()) * (gA.transpose().eval() * gB);
+    return V3(vX(0, 0), vX(1, 0), vX(2, 0));
 }
 
 void initMatrixA(UWBModuleList pSensors)
@@ -33,7 +33,7 @@ void initMatrixA(UWBModuleList pSensors)
                 vISensor = vMinISensor;
             }
             
-            gA(i_line, i_coord) = 2 * (pSensors.getModule(to_string(vISensor)).getPosition().getCoordonateNumber(i_coord) - 
+            gA(i_line-1, i_coord-1) = 2 * (pSensors.getModule(to_string(vISensor)).getPosition().getCoordonateNumber(i_coord) - 
                                         pSensors.getModule(to_string(vMinISensor - 1)).getPosition().getCoordonateNumber(i_coord));
 
             vISensor++;
@@ -65,7 +65,7 @@ void initMatrixB(UWBModuleList pSensors, unordered_map<string, float> pDistances
         vSensorPositionFromFirstPattern = pSensors.getModule(to_string(vISensor)).getPosition();
         vSensorPositionFromSecondPattern = pSensors.getModule(to_string(vMinISensor - 1)).getPosition();
 
-        gA(i_line, 1) = (vSensorPositionFromFirstPattern.getCoordonateNumber(1) * vSensorPositionFromFirstPattern.getCoordonateNumber(1) +
+        gB(i_line - 1, 0) = (vSensorPositionFromFirstPattern.getCoordonateNumber(1) * vSensorPositionFromFirstPattern.getCoordonateNumber(1) +
                         vSensorPositionFromFirstPattern.getCoordonateNumber(2) * vSensorPositionFromFirstPattern.getCoordonateNumber(2) + 
                         vSensorPositionFromFirstPattern.getCoordonateNumber(3) * vSensorPositionFromFirstPattern.getCoordonateNumber(3)) - 
                         (vSensorPositionFromSecondPattern.getCoordonateNumber(1) * vSensorPositionFromSecondPattern.getCoordonateNumber(1) + 
