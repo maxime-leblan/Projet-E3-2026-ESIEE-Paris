@@ -32,6 +32,7 @@ int main()
     }
 
     // on récupère les coordonnées du vTag1 avec notre algorithme de triangulation
+    initMatrixA(vSensors);
     V3 vRealTag1 = trilateration3D(vSensors, vDistances);
 
     V3 vTag1Position = vTag1.getPosition();
