@@ -1,5 +1,7 @@
 #include "UWBModule.h"
 
+UWBModule::UWBModule() {}
+
 UWBModule::UWBModule(string pName, V3 pPosition)
 {
     aName = pName;

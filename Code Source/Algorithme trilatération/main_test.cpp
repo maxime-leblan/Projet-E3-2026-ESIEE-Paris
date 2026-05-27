@@ -19,7 +19,7 @@ int main()
     // on les ajoute dans la liste des capteurs
     for (int i = 1; i <= NUMBER_OF_SENSORS; i++)
     {
-        UWBModule vTemp = UWBModule(to_string(i), vSensorsPosition[i]);
+        UWBModule vTemp = UWBModule(to_string(i), vSensorsPosition[i - 1]);
         vSensors.addModule(vTemp.getName(), vTemp);
     }
 

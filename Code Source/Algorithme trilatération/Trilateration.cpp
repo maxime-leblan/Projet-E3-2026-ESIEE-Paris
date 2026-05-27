@@ -1,4 +1,10 @@
 #include "Trilateration.h"
+#include <Eigen/Dense>
+#include <string>
+#include <unordered_map>
+
+Matrix<float, 6, 3> gA;
+Matrix<float, 6, 1> gB;
 
 V3 trilateration3D(UWBModuleList pSensors, unordered_map<string, float> pDistances)
 {

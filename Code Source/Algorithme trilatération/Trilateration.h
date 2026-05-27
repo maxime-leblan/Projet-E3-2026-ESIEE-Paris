@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Eigen/Core>
-
 #include "UWBModuleList.h"
 
 using namespace Eigen;
@@ -9,12 +8,12 @@ using namespace Eigen;
 /*
 Matrice contenant les coeffs du membre gauche des équations du système linéaire des équations des sphères de triangulations
 */
-Matrix<float, 6, 3> gA;
+extern Matrix<float, 6, 3> gA;
 
 /*
 Matrice contenant les coeffs du membre droit des équations du système linéaire des équations des sphères de triangulations
 */
-Matrix<float, 6, 1> gB;
+extern Matrix<float, 6, 1> gB;
 
 /*
 Calcule et renvoie les coordonnées d'un module en 3D en utilisant l'algorithme de trilatération
