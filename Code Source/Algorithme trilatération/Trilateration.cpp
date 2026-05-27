@@ -2,6 +2,7 @@
 
 V3 trilateration3D(UWBModuleList pSensors, unordered_map<string, float> pDistances)
 {
+    initMatrixB(pSensors, pDistances);
     Matrix<float, 3, 1> vX = ((gA.transpose() * gA).inverse()) * (gA.transpose() * gB);
     return V3(vX(1, 1), vX(2, 1), vX(3, 1));
 }
