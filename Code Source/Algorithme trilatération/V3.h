@@ -3,6 +3,8 @@
 #include <cmath>
 #include <ostream>
 
+#define NUMBER_OF_COORDONATES 3
+
 using namespace std;
 
 struct V3 
@@ -18,6 +20,12 @@ struct V3
 	float getX() const { return x; }
 	float getY() const { return y; }
 	float getZ() const { return z; }
+
+	/*
+	Renvoie la coordonnée numéro pNumber
+	pNumber - indice de la coordonnée que l'on veut récupérer (>= 1)
+	*/
+	float getCoordonateNumber(int pNumber);
 };
 
 // comparaison sur des flottants... traitement sp�cial

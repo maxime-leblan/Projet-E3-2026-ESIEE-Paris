@@ -1,6 +1,22 @@
 #include <iostream>
 #include "V3.h"
 
+float V3::getCoordonateNumber(int pNumber)
+{
+	if (pNumber == 1)
+	{
+		return x;
+	}
+	else if (pNumber == 2)
+	{
+		return y;
+	}
+	else
+	{
+		return z;
+	}
+}
+
 // comparaison sur des flottants... traitement sp�cial
 
 bool operator == (const V3 & a, const V3 & b)

@@ -6,6 +6,11 @@ UWBModule::UWBModule(string pName, V3 pPosition)
     aPosition = pPosition;
 }
 
+string UWBModule::getName() const
+{
+    return aName;
+}
+
 V3 UWBModule::getPosition() const
 {
     return aPosition;

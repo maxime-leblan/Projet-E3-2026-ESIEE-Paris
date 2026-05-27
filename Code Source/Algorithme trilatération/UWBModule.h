@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "V3.h"
 
 /*
@@ -11,31 +13,36 @@ class UWBModule
     private:
     
     /*
-    Nom de l'item
+    Nom du module
     */
     string aName;
 
     /*
-    Position de l'item sur la grille
+    Position du module
     */
     V3 aPosition;
 
     public:
 
     /*
-    Constructeur par défaut de la classe. Attribut une position à l'item
-    pPosition - position de l'item dans le repère
-    pName - nom de l'item
+    Constructeur par défaut de la classe. Attribut une position du module
+    pPosition - position du module dans le repère
+    pName - nom du module
     */
     UWBModule(string pName, V3 pPosition);
 
     /*
-    Renvoie la position de l'item
+    Renvoie le nom du module
+    */
+    string getName() const;
+
+    /*
+    Renvoie la position du module
     */
     V3 getPosition() const;
 
     /*
-    Modifie la position de l'item
+    Modifie la position du module
     */
     void setPosition(V3 pNewPosition);
 };

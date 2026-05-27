@@ -2,6 +2,11 @@
 
 UWBModuleList::UWBModuleList() {}
 
+int UWBModuleList::size()
+{
+    return aUWBModuleList.size();
+}
+
 UWBModule UWBModuleList::getModule(string pModuleName)
 {
     return aUWBModuleList[pModuleName];

@@ -22,6 +22,11 @@ class UWBModuleList
     UWBModuleList();
 
     /*
+    Renvoie le nombre d'éléments stockés dans la liste
+    */
+    int size();
+
+    /*
     Renvoie le module associé au nom passé en paramètre
     */
     UWBModule getModule(string pModuleName);
