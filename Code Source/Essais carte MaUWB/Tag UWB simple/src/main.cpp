@@ -93,36 +93,6 @@ void loop() {
     }
 }
 
-
-/*
-void loop() {
-    Serial.println("\n--- Tentative d'envoi automatique ---");
-    Serial.println("Envoi au module UWB -> AT");
-    
-    // println ajoute automatiquement le \r\n parfait requis par le module
-    UWBSerial.println("AT"); 
-
-    // On attend la réponse pendant 1 seconde
-    String response = "";
-    unsigned long startTime = millis();
-    while (millis() - startTime < 1000) {
-        while (UWBSerial.available()) {
-            response += (char)UWBSerial.read();
-        }
-    }
-
-    // Affichage du résultat
-    if (response.length() > 0) {
-        Serial.print("Réponse du module UWB <- ");
-        Serial.println(response);
-    } else {
-        Serial.println("Réponse du module UWB <- (Le module n'a rien répondu...)");
-    }
-
-    delay(1000); // Attente avant la prochaine tentative
-}
-*/
-
 String sendATCommand(String command, const int timeout) {
     String response = "";
     Serial.print("Envoi au module UWB -> "); 

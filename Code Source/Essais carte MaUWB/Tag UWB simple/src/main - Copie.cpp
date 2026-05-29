@@ -19,7 +19,7 @@ String sendATCommand(String command, const int timeout);
 void updateScreen(String role, String value);
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(115200); // ou 115200
     
     // --- PROTECTION ESP32-S3 ---
     // On attend max 4 secondes sans rien faire pour laisser le temps au port USB
@@ -41,7 +41,7 @@ void setup() {
     
     // On met un délai de 2 secondes pour laisser le courant se stabiliser 
     // sur l'écran et le module UWB avant de leur parler
-    delay(2000);  
+    delay(2000); 
 
     Serial.println("Etape 2 : Initialisation du port serie UWB...");
     UWBSerial.begin(115200, SERIAL_8N1, UWB_RX, UWB_TX);
@@ -60,38 +60,68 @@ void setup() {
     Serial.println("OLED initialise avec succes !");
     updateScreen("INITIALISATION", "Configuration UWB...");
 
-    // 3. Configuration du module UWB en Ancre
-    Serial.println("Configuration de l'Ancre UWB...");
+    // 3. Configuration du module UWB en Tag
+    Serial.println("Configuration du Tag UWB...");
     sendATCommand("AT+RESTORE", 2000);
-    sendATCommand("AT+SETCFG=0,1,0,1", 2000); // ID:0, Role:Ancre(1), Rate:850K(0), Filter:ON(1)
+    sendATCommand("AT+SETCFG=1,0,0,1", 2000); // ID:1, Role:Tag(0), Rate:850K(0), Filter:ON(1)
     sendATCommand("AT+SETCAP=10,25,1", 2000); // Mode paquet étendu pour envoyer des données
     sendATCommand("AT+SAVE", 1000);
     sendATCommand("AT+RESTART", 2000);
 
-    updateScreen("ANCRE 0", "En attente du Tag...");
+    updateScreen("TAG 1", "Pret. Recherche...");
 }
 
+
 void loop() {
+    // Le module STM32 envoie continuellement la distance quand il trouve une ancre
     if (UWBSerial.available()) {
         String data = UWBSerial.readStringUntil('\n');
-        // Serial.println("Données Brute :\n" + data);
         data.trim();
 
-        // Serial.println("Données avant traitement :\n" + data);
-
-        // Quand l'Ancre reçoit une donnée radio, elle l'imprime sous la forme :
-        // AT+RANGE=...,...,...,...,range:(33,...),...
-        int dataIndex = data.indexOf("range:(");
-        if (dataIndex != -1) {
-            // On extrait tout ce qui se trouve après "range:("
-            String distanceValue = data.substring(dataIndex + 7);
-            Serial.println("Distance reçue : " + distanceValue);
+        // Si la trame contient "m" (pour mètres) ou "range:"
+        if (data.indexOf("m") != -1) {
+            Serial.println("Trame recue : " + data);
             
-            // Affichage local sur l'Ancre
-            updateScreen("ANCRE 0 (Fixe)", distanceValue);
+            // Affichage local sur le Tag
+            updateScreen("TAG 1 (Mobile)", data);
+            
+            // Envoi de la donnée à l'Ancre
+            // Format du message envoyé : D:1.25m
+            String msg = "D:" + data;
+            sendATCommand("AT+DATA=" + String(msg.length()) + "," + msg, 200);
         }
     }
 }
+
+
+/*
+void loop() {
+    Serial.println("\n--- Tentative d'envoi automatique ---");
+    Serial.println("Envoi au module UWB -> AT");
+    
+    // println ajoute automatiquement le \r\n parfait requis par le module
+    UWBSerial.println("AT"); 
+
+    // On attend la réponse pendant 1 seconde
+    String response = "";
+    unsigned long startTime = millis();
+    while (millis() - startTime < 1000) {
+        while (UWBSerial.available()) {
+            response += (char)UWBSerial.read();
+        }
+    }
+
+    // Affichage du résultat
+    if (response.length() > 0) {
+        Serial.print("Réponse du module UWB <- ");
+        Serial.println(response);
+    } else {
+        Serial.println("Réponse du module UWB <- (Le module n'a rien répondu...)");
+    }
+
+    delay(1000); // Attente avant la prochaine tentative
+}
+*/
 
 String sendATCommand(String command, const int timeout) {
     String response = "";
@@ -119,7 +149,7 @@ void updateScreen(String role, String value) {
     display.println(role);
     display.println("---------------------");
     display.println("");
-    display.setTextSize(1); 
+    display.setTextSize(1); // Mettre à 2 si le texte est trop petit
     display.println(value);
     display.display();
 }
