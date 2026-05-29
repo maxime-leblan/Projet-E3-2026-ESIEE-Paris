@@ -85,7 +85,6 @@ lv_obj_t * polygone_exclusion;
 lv_obj_t * mosaique; 
 lv_obj_t * pelleteuse;
 lv_obj_t * visuel_capteurs[4];
-lv_obj_t * sim_calib_capteurs[4][2];
 lv_obj_t * cadre_alerte_global;
 lv_obj_t * label_vide; 
 bool alarme_danger = false; 
@@ -528,6 +527,8 @@ void setup() {
       
       calib_state = 0; 
     }
+  });
+
 
   server.begin(); 
 
