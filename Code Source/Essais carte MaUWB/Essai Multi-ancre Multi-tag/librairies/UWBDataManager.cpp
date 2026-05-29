@@ -33,46 +33,12 @@ std::vector<int> getDataFromString(const std::string& texte, const std::string& 
     return entiersExtraits;
 }
 
-/*
-int getDistanceFromAnchor(string pTagData, int pAnchorId)
+int getDistanceFromAnchor(vector<int> pTagData, int pAnchorId)
 {
-    char vStartFlag = '(';
-    char vEndFlag = ')';
-    string vDistance = "-1";
-    int i = 0;
-    int vCurrentId = 0;
-    bool vInTagData = false;
-
-    while (i < BUFFER)
-    {
-        if (pTagData[i] == vEndFlag)
-        {
-            return stoi(vDistance);
-        }
-        else if (vInTagData)
-        {
-            if (pTagData[i] == ',')
-            {
-                if (vCurrentId == pAnchorId)
-                {
-                    return stoi(vDistance);
-                }
-                else
-                {
-                    vCurrentId++;
-                    vDistance = "";
-                }
-            }
-            else
-            {
-                vDistance += pTagData[i];
-            }
-        }
-        else if (pTagData[i] == vStartFlag)
-        {
-            vInTagData = true;
-        }
-        i++;
-    }
+    return pTagData[FIRST_TAG_DISTANCE_INDEX + pAnchorId];
 }
-*/
+
+int getTagIdFromTagData(vector<int> pTagData)
+{
+    return pTagData[TAG_ID_INDEX];
+}
