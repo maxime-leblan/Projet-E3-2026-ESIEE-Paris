@@ -85,7 +85,7 @@ void loop() {
         if (dataIndex != -1) {
             // On extrait tout ce qui se trouve après "range:("
             String distanceValue = data.substring(dataIndex + 7);
-            Serial.println("Distance reçue : " + distanceValue);
+            Serial.println("Distance reçue : " + data);
             
             // Affichage local sur l'Ancre
             updateScreen("ANCRE 0 (Fixe)", distanceValue);
