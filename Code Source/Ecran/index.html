@@ -6,15 +6,15 @@
     <title>Hub Control</title>
     <style>
         :root {
-            --bg: #121212; --panel: #1e1e1e; --primary: #0288d1; --danger: #d32f2f; 
+            --bg: #121212; --panel: #1e1e1e; --primary: #0288d1; --danger: #d32f2f;
             --success: #388e3c; --text: #fff; --muted: #aaa; --border: #333;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; -webkit-tap-highlight-color: transparent;}
         body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column;}
-        
+       
         .header { background: var(--panel); padding: 15px; text-align: center; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid var(--border); display:flex; align-items:center; justify-content:center; position:relative; }
-        .back-btn { background: transparent; border: none; color: var(--primary); font-size: 1rem; cursor: pointer; padding: 10px; position: absolute; left: 5px; top: 50px; transform: translateY(-50%); font-weight: bold; width: auto; margin: 0; z-index: 10;}
-        
+        .back-btn { background: transparent; border: none; color: var(--primary); font-size: 1rem; cursor: pointer; padding: 10px; position: absolute; left: 5px; top: 50%; transform: translateY(-50%); font-weight: bold; width: auto; margin: 0; z-index: 10;}
+       
         .view { display: none; flex: 1; flex-direction: column; padding: 20px; overflow-y: auto; }
         .view.active { display: flex; }
 
@@ -23,21 +23,19 @@
         button.danger { background: var(--danger); }
         button.success { background: var(--success); }
         button.outline { background: transparent; border: 1px solid var(--muted); }
-        
+       
         input, select { background: var(--bg); border: 1px solid var(--border); color: #fff; padding: 15px; border-radius: 8px; width: 100%; margin-bottom: 15px; font-size: 1rem;}
         input[type="file"] { padding: 10px; font-size: 0.9rem;}
         label { color: var(--muted); font-size: 0.9rem; margin-bottom: 5px; display: block;}
 
-        /* Canvas Standard */
         .canvas-container { position: relative; width: 100%; aspect-ratio: 800/480; background: #000; border: 2px solid var(--border); border-radius: 8px; overflow: hidden; touch-action: none; margin-bottom: 15px;}
         canvas { width: 100%; height: 100%; display: block;}
 
-        /* Editeur FullScreen (Mode Edit) */
         .fs-editor { position: fixed; inset: 0; background: #000; z-index: 1000; display: none; flex-direction: column; }
         .fs-editor.active { display: flex; }
         .fs-canvas-box { flex: 1; width: 100%; position: relative; touch-action: none; overflow: hidden; border-bottom: 2px solid var(--border);}
         .fs-controls { background: var(--panel); padding: 15px; display: flex; flex-direction: column; gap: 10px; }
-        
+       
         .row { display: flex; gap: 10px; align-items: center; justify-content: space-between;}
         .col { flex: 1; }
 
@@ -91,7 +89,7 @@
             <input type="text" id="c_nom" placeholder="Ex: Pelle 15t">
             <label>Nom de l'opérateur</label>
             <input type="text" id="c_op" placeholder="Votre nom">
-            
+           
             <div style="background:var(--panel); padding:15px; border-radius:8px; border:1px solid var(--border); margin-bottom:15px;">
                 <label style="color:var(--text); font-weight:bold; margin-bottom:10px;">Image de la machine (Optionnel)</label>
                 <input type="file" id="c_img_file" accept="image/png, image/jpeg">
@@ -101,7 +99,7 @@
                 </div>
                 <p style="font-size:0.75rem; color:var(--muted);">L'image sera automatiquement redimensionnée à ces dimensions réelles sur l'écran.</p>
             </div>
-            
+           
             <button onclick="requestTags()">Suivant</button>
         </div>
     </div>
@@ -128,7 +126,7 @@
 
     <div id="view-calib-edit" class="view">
         <div class="header"><button class="back-btn" onclick="cancelCalib()">◀ Annuler</button>Aperçu de la zone</div>
-        
+       
         <p style="text-align:center; color:var(--muted); font-size:0.85rem; margin-bottom:10px;">Les points jaunes définissent votre machine.</p>
 
         <div class="canvas-container" id="normalCanvasHost">
@@ -141,7 +139,7 @@
 
     <div id="fullscreenEditor" class="fs-editor">
         <div class="header">Mode Édition<button class="success" style="width:auto; margin:0; padding:8px 15px; position:absolute; right:10px;" onclick="exitEditMode()">Terminer</button></div>
-        
+       
         <div class="fs-canvas-box" id="fsCanvasHost">
             </div>
 
@@ -165,11 +163,11 @@
 
     <script>
         const P_METER = 19.2, CX = 400, CY = 240;
-        let newCalib = { zone: [], v_width: 5, v_length: 8, image: "" };
+        let newCalib = { zone: [], sensors: [], v_width: 5, v_length: 8, image: "" };
         let activeCalibs = [];
         let pollingTimer = null;
-        let editingCalibIndex = -1; 
-        
+        let editingCalibIndex = -1;
+       
         // Canvas & Editeur
         const cvs = document.getElementById('radarCanvas');
         const ctx = cvs.getContext('2d');
@@ -183,7 +181,7 @@
         // Fichier image uploadé
         let pendingImageFile = null;
 
-        // SYNC HEURE 
+        // SYNC HEURE
         window.onload = () => {
             fetch('/api/time', {
                 method: 'POST',
@@ -271,7 +269,8 @@
 
         function editExistingCalib(i) {
             editingCalibIndex = i;
-            newCalib = JSON.parse(JSON.stringify(activeCalibs[i])); 
+            newCalib = JSON.parse(JSON.stringify(activeCalibs[i]));
+            editPointIdx = 0;
             document.getElementById('normalCanvasHost').appendChild(cvs);
             nav('view-calib-edit');
             drawCanvas();
@@ -303,7 +302,7 @@
             }
 
             editingCalibIndex = -1;
-            newCalib = { zone: [], v_width: 5, v_length: 8, image: "" };
+            newCalib = { zone: [], sensors: [], v_width: 5, v_length: 8, image: "" };
             document.getElementById('c_nom').value = "";
             document.getElementById('c_op').value = "";
             document.getElementById('c_img_file').value = "";
@@ -323,21 +322,23 @@
             let fileInput = document.getElementById('c_img_file');
             if(fileInput.files.length > 0) {
                 pendingImageFile = fileInput.files[0];
-                newCalib.image = "img_" + Date.now() + ".bin"; 
-            } else {
-                newCalib.image = ""; 
+                newCalib.image = "img_" + Date.now() + ".bin";
+            } else if (!newCalib.image) {
+                newCalib.image = "default.bin";
             }
+
+            document.getElementById('btnStartCalib').disabled = true;
 
             saveDraft();
             nav('view-calib-tags');
             let sel = document.getElementById('tagSelect');
             sel.innerHTML = "<option value=''>Recherche en cours...</option>";
-            
+           
             try {
                 let res = await fetch('/api/hub/tags');
                 let tags = await res.json();
                 tags.sort((a,b) => a.dist - b.dist);
-                
+               
                 sel.innerHTML = "<option value=''>-- Choisissez un tag --</option>";
                 tags.forEach(t => { sel.innerHTML += `<option value="${t.id}">Tag #${t.id} (à ${t.dist}m)</option>`; });
             } catch(e) { sel.innerHTML = "<option value=''>Erreur communication Hub</option>"; }
@@ -346,6 +347,7 @@
         function checkTag() { document.getElementById('btnStartCalib').disabled = (document.getElementById('tagSelect').value === ""); }
 
         async function confirmCalib() {
+            if(document.getElementById('tagSelect').value === "") return alert("Veuillez sélectionner un tag !");
             if(!confirm("Cela calibre directement à votre position. Continuer ?")) return;
             nav('view-calib-wait');
             await fetch('/api/hub/start', {method: 'POST'});
@@ -359,7 +361,7 @@
                 if(data.status === "done") {
                     clearInterval(pollingTimer);
                     newCalib.zone = data.points;
-                    newCalib.sensors = data.sensors;
+                    newCalib.sensors = data.sensors; // Capteurs fournis par le HUB !
                     saveDraft();
                     document.getElementById('normalCanvasHost').appendChild(cvs);
                     nav('view-calib-edit');
@@ -379,7 +381,6 @@
             let btn = document.getElementById('btnSave');
             btn.disabled = true;
 
-            // Convertir et envoyer l'image si elle existe
             if(pendingImageFile) {
                 btn.innerText = "Création de l'image...";
                 try {
@@ -391,54 +392,52 @@
             try {
                 let res = await fetch('/api/calibrations');
                 let all = await res.json();
-                
-                if (editingCalibIndex >= 0) all[editingCalibIndex] = newCalib; 
-                else all.push(newCalib); 
-                
+               
+                if (editingCalibIndex >= 0) all[editingCalibIndex] = newCalib;
+                else all.push(newCalib);
+               
                 let resPost = await fetch('/api/calibrations', { method: 'POST', body: JSON.stringify(all) });
                 if(resPost.ok) {
-                    localStorage.removeItem('draftCalib'); // Nettoie le brouillon
+                    localStorage.removeItem('draftCalib'); 
                     alert("Configuration sauvegardée et envoyée à l'écran !");
                     nav('view-home');
                 }
             } catch(e) { alert("Erreur de sauvegarde"); }
-            
+           
             btn.disabled = false;
             btn.innerText = "Valider & Sauvegarder";
         }
 
-        // --- IMAGE CONVERTER (RGB565 .BIN) ---
+        // --- IMAGE CONVERTER : AVEC TRANSPARENCE ALPHA (0x05) ---
         function processAndUploadImage(file, widthM, heightM, filename) {
             return new Promise((resolve, reject) => {
                 let pxW = Math.round(widthM * P_METER);
+                if (pxW % 2 !== 0) pxW++; // Alignement pair
                 let pxH = Math.round(heightM * P_METER);
+
                 let img = new Image();
                 img.onload = async () => {
                     let c = document.createElement('canvas'); c.width = pxW; c.height = pxH;
                     let ctx2 = c.getContext('2d'); ctx2.drawImage(img, 0, 0, pxW, pxH);
                     let data = ctx2.getImageData(0,0,pxW,pxH).data;
-                    let buffer = new ArrayBuffer(4 + pxW * pxH * 2);
+                    
+                    // LVGL CF_TRUE_COLOR_ALPHA (0x05) -> 3 octets par pixels (2 RGB + 1 Alpha)
+                    let buffer = new ArrayBuffer(4 + pxW * pxH * 3);
                     let view = new DataView(buffer);
                     let u8 = new Uint8Array(buffer);
-                    let header = 4 | (pxW << 10) | (pxH << 21);
 
-                    u8[0] = header & 0xFF;
-                    u8[1] = (header >> 8) & 0xFF;
-                    u8[2] = (header >> 16) & 0xFF;
-                    u8[3] = (header >> 24) & 0xFF;
+                    let header = 5 | (pxW << 10) | (pxH << 21);
+                    u8[0] = header & 0xFF; u8[1] = (header >> 8) & 0xFF; u8[2] = (header >> 16) & 0xFF; u8[3] = (header >> 24) & 0xFF;
 
                     let offset = 4;
                     for(let i=0; i<data.length; i+=4) {
-                        let r = data[i] >> 3;
-                        let g = data[i+1] >> 2;
-                        let b = data[i+2] >> 3;
-                        let rgb565 = (r << 11) | (g << 5) | b;
-
-                        view.setUint16(offset, rgb565, true); 
-                        offset += 2;
+                        let r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+                        let rgb565 = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
+                        
+                        view.setUint16(offset, rgb565, true);
+                        view.setUint8(offset + 2, a); // Le canal transparent
+                        offset += 3;
                     }
-
-
 
                     let blob = new Blob([buffer], {type: 'application/octet-stream'});
                     let fd = new FormData(); fd.append('data', blob, filename);
@@ -452,7 +451,7 @@
         // --- EDITEUR CANVAS FULLSCREEN & NORMAL ---
         function enterEditMode() {
             editMode = true;
-            historyStack = []; // Reset historique CTRL+Z
+            historyStack = []; 
             document.getElementById('fsCanvasHost').appendChild(cvs);
             document.getElementById('fullscreenEditor').classList.add('active');
             updatePointUI();
@@ -471,21 +470,19 @@
 
         function drawCanvas() {
             ctx.clearRect(0,0,800,480);
-            
-            // Grille Mètrique
+           
             ctx.strokeStyle = '#333'; ctx.lineWidth = 1;
             for(let i=CX%P_METER; i<800; i+=P_METER) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,480); ctx.stroke(); }
             for(let i=CY%P_METER; i<480; i+=P_METER) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(800,i); ctx.stroke(); }
-            
-            //Les 4 capteurs virtuels dictés par le Hub.
-            ctx.fillStyle = '#fbc02d'; 
-            if (newCalib.sensors && newCalib.sensors.length > 0) { 
-                newCalib.sensors.forEach(s => { 
-                    let p = mToP(s); ctx.fillRect(p.x-8, p.y-8, 16, 16); 
-                }); 
-            } 
+           
+            // Les Capteurs virtuels dynamiques issus du Hub !
+            ctx.fillStyle = '#fbc02d';
+            if (newCalib.sensors && newCalib.sensors.length > 0) {
+                newCalib.sensors.forEach(s => {
+                    let p = mToP(s); ctx.fillRect(p.x-8, p.y-8, 16, 16);
+                });
+            }
 
-            // Zone Exclusion
             let z = newCalib.zone;
             if(!z || z.length===0) return;
 
@@ -493,15 +490,14 @@
             let start = mToP(z[0]);
             ctx.moveTo(start.x, start.y);
             for(let i=1; i<z.length; i++) { let p = mToP(z[i]); ctx.lineTo(p.x, p.y); }
-            ctx.closePath(); // VERROUILLAGE DE LA BOUCLE
+            ctx.closePath(); 
             ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3; ctx.stroke();
 
-            // Points
             for(let i=0; i<z.length; i++) {
                 let p = mToP(z[i]);
-                ctx.beginPath(); 
+                ctx.beginPath();
                 ctx.arc(p.x, p.y, (editMode && i===editPointIdx) ? 14 : 5, 0, Math.PI*2);
-                ctx.fillStyle = (editMode && i===editPointIdx) ? '#0288d1' : (editMode ? '#fbc02d' : '#ef4444'); 
+                ctx.fillStyle = (editMode && i===editPointIdx) ? '#0288d1' : (editMode ? '#fbc02d' : '#ef4444');
                 ctx.fill();
             }
         }
@@ -518,7 +514,7 @@
 
         function prevEditPoint() { let len = newCalib.zone.length; editPointIdx = (editPointIdx - 1 + len) % len; updatePointUI(); }
         function nextEditPoint() { let len = newCalib.zone.length; editPointIdx = (editPointIdx + 1) % len; updatePointUI(); }
-        
+       
         function manualPointUpdate() {
             saveHistoryState();
             let x = parseFloat(document.getElementById('editPtX').value)||0;
@@ -555,16 +551,16 @@
 
         function handleDown(pos) {
             let z = newCalib.zone;
-            let minD = 40; draggedPt = -1; // Tolérance augmentée
+            let minD = 40; draggedPt = -1; 
             for(let i=0; i<z.length; i++) {
                 let px = mToP(z[i]);
                 let d = Math.hypot(px.x - pos.x, px.y - pos.y);
                 if(d < minD) { minD = d; draggedPt = i; }
             }
-            if(draggedPt !== -1) { 
-                saveHistoryState(); // On sauvegarde l'état avant de commencer à glisser
-                editPointIdx = draggedPt; 
-                updatePointUI(); 
+            if(draggedPt !== -1) {
+                saveHistoryState(); 
+                editPointIdx = draggedPt;
+                updatePointUI();
             }
         }
 
