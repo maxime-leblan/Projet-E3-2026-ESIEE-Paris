@@ -1,7 +1,4 @@
 #include "Trilateration.h"
-#include <Eigen/Dense>
-#include <string>
-#include <unordered_map>
 
 Matrix<float, 6, 3> gA;
 Matrix<float, 6, 1> gB;

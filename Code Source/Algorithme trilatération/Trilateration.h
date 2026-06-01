@@ -1,6 +1,9 @@
 #pragma once
 
 #include <Eigen/Core>
+#include <Eigen/Dense>
+#include <string>
+
 #include "UWBModuleList.h"
 
 using namespace Eigen;
