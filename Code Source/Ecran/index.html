@@ -222,18 +222,27 @@
         async function loadCalibsHistory() {
             nav('view-hist-calib');
             let list = document.getElementById('calibHistList');
-            list.innerHTML = "Chargement...";
+            list.innerHTML = `
+                <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                    <tr><th style="text-align:left; color:#aaa;">Date</th><th style="text-align:left; color:#aaa;">Action</th><th style="text-align:left; color:#aaa;">Machine</th><th style="text-align:left; color:#aaa;">Par</th></tr>
+                </table>`;
+            let table = list.querySelector('table');
+           
             try {
-                let res = await fetch('/api/calibrations');
-                activeCalibs = await res.json();
-                list.innerHTML = "";
-                if(activeCalibs.length === 0) list.innerHTML = "Aucun historique.";
-                activeCalibs.forEach((c, i) => {
-                    list.innerHTML += `<div class="list-item" onclick="viewOldCalib(${i})">
-                        <strong>${c.nom}</strong><br>
-                        <span style="font-size:0.8rem; color:var(--muted)">Par: ${c.operateur} - Le: ${c.date}</span>
-                    </div>`;
-                });
+                let res = await fetch('/api/config_log');
+                let text = await res.text();
+                let lines = text.trim().split('\n');
+                if(lines.length <= 1) { list.innerHTML = "Aucun historique."; return; }
+               
+                for(let i=1; i<lines.length; i++){
+                    let cols = lines[i].split(',');
+                    if(cols.length >= 4) {
+                        let actionTxt = cols[1];
+                        // La couleur s'adapte au mot clé trouvé dans l'action
+                        let color = actionTxt.includes("Suppression") ? "var(--danger)" : (actionTxt.includes("Création") ? "var(--success)" : "var(--primary)");
+                        table.innerHTML += `<tr><td>${cols[0]}</td><td style="color:${color}; font-weight:bold; font-size:0.85rem;">${actionTxt}</td><td>${cols[2]}</td><td>${cols[3]}</td></tr>`;
+                    }
+                }
             } catch(e) { list.innerHTML = "Erreur."; }
         }
 
@@ -278,11 +287,31 @@
 
         async function deleteCalib(i) {
             if(!confirm("Supprimer cette configuration définitivement ?")) return;
+            
+            let calibToDelete = activeCalibs[i];
             activeCalibs.splice(i, 1);
+            
             try {
+                // Journalise la suppression ET détruit l'image
+                let params = new URLSearchParams();
+                params.append('action', 'Suppression');
+                params.append('nom', calibToDelete.nom);
+                params.append('op', calibToDelete.operateur);
+                if(calibToDelete.image) params.append('image', calibToDelete.image);
+                
+                await fetch('/api/config_action', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: params 
+                });
+
+                // 2. Mise à jour du fichier JSON global des machines actives
                 let res = await fetch('/api/calibrations', { method: 'POST', body: JSON.stringify(activeCalibs) });
-                if(res.ok) { alert("Supprimé."); loadManageConfigs(); }
-            } catch(e) { alert("Erreur."); }
+                if(res.ok) { 
+                    alert("Configuration et image supprimées avec succès."); 
+                    loadManageConfigs(); 
+                }
+            } catch(e) { alert("Erreur lors de la suppression."); }
         }
 
         // --- NOUVELLE CALIBRATION ---
@@ -385,7 +414,7 @@
                 btn.innerText = "Création de l'image...";
                 try {
                     await processAndUploadImage(pendingImageFile, newCalib.v_width, newCalib.v_length, newCalib.image);
-                } catch(e) { alert("Erreur lors de la création de l'image."); btn.disabled=false; btn.innerText="Valider & Sauvegarder"; return;}
+                } catch(e) { alert("Erreur d'image."); btn.disabled=false; btn.innerText="Valider & Sauvegarder"; return;}
             }
 
             btn.innerText = "Sauvegarde...";
@@ -393,11 +422,36 @@
                 let res = await fetch('/api/calibrations');
                 let all = await res.json();
                
-                if (editingCalibIndex >= 0) all[editingCalibIndex] = newCalib;
-                else all.push(newCalib);
+                let actionStr = 'Création';
+                if (editingCalibIndex >= 0) {
+                    let oldC = all[editingCalibIndex];
+                    let changes = [];
+                    // On compare les éléments mathématiquement
+                    if(JSON.stringify(oldC.zone) !== JSON.stringify(newCalib.zone)) changes.push("Zone");
+                    if(JSON.stringify(oldC.sensors) !== JSON.stringify(newCalib.sensors)) changes.push("Capteurs");
+                    if(oldC.image !== newCalib.image) changes.push("Image");
+                    if(oldC.nom !== newCalib.nom) changes.push("Nom");
+                    
+                    actionStr = 'Modif (' + (changes.length > 0 ? changes.join(' + ') : 'Générale') + ')';
+                    
+                    all[editingCalibIndex] = newCalib;
+                } else {
+                    all.push(newCalib);
+                }
                
                 let resPost = await fetch('/api/calibrations', { method: 'POST', body: JSON.stringify(all) });
                 if(resPost.ok) {
+                    let params = new URLSearchParams();
+                    params.append('action', actionStr);
+                    params.append('nom', newCalib.nom);
+                    params.append('op', newCalib.operateur);
+                   
+                    await fetch('/api/config_action', { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: params 
+                    });
+
                     localStorage.removeItem('draftCalib'); 
                     alert("Configuration sauvegardée et envoyée à l'écran !");
                     nav('view-home');
@@ -407,6 +461,7 @@
             btn.disabled = false;
             btn.innerText = "Valider & Sauvegarder";
         }
+
 
         // --- IMAGE CONVERTER : AVEC TRANSPARENCE ALPHA (0x05) ---
         function processAndUploadImage(file, widthM, heightM, filename) {

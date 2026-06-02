@@ -58,6 +58,7 @@ AsyncWebServer server(80);
 struct TagGraphique {
   lv_obj_t * point;
   lv_obj_t * label_id;
+  lv_obj_t * label_z;
   int id_actuel;
   bool en_alarme;
   bool utilise; // Permet de savoir si le Hub utilise ce tag en ce moment
@@ -284,6 +285,11 @@ void initialiser_composant_tag(int index, lv_obj_t * parent) {
   lv_obj_set_style_text_font(tags_ui[index].label_id, &lv_font_montserrat_10, 0); // Police adaptée
   lv_obj_set_style_text_color(tags_ui[index].label_id, lv_color_hex(0xFFFFFF), 0);
   lv_obj_center(tags_ui[index].label_id);
+
+  tags_ui[index].label_z = lv_label_create(parent);
+  lv_obj_set_style_text_color(tags_ui[index].label_z, lv_color_hex(0xFFFFFF), 0);
+  lv_obj_set_style_text_font(tags_ui[index].label_z, LV_FONT_DEFAULT, 0);
+  lv_obj_add_flag(tags_ui[index].label_z, LV_OBJ_FLAG_HIDDEN);
  
   tags_ui[index].utilise = false;
   tags_ui[index].en_alarme = false;
@@ -362,7 +368,10 @@ void construire_menu_vehicules() {
     lv_obj_add_flag(polygone_exclusion, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(pelleteuse, LV_OBJ_FLAG_HIDDEN);
     for(int i=0; i<MAX_CAPTEURS; i++) lv_obj_add_flag(visuel_capteurs[i], LV_OBJ_FLAG_HIDDEN);
-    for(int i=0; i<MAX_TAGS; i++) lv_obj_add_flag(tags_ui[i].point, LV_OBJ_FLAG_HIDDEN);
+    for(int i=0; i<MAX_TAGS; i++) {
+      lv_obj_add_flag(tags_ui[i].point, LV_OBJ_FLAG_HIDDEN);
+      if(tags_ui[i].label_z) lv_obj_add_flag(tags_ui[i].label_z, LV_OBJ_FLAG_HIDDEN);
+    }
     return;
   }
  
@@ -475,6 +484,38 @@ void setup() {
     calib_state = 0; request->send(200, "text/plain", "Annulé");
   });
 
+    // 1. Lire le journal des configurations
+  server.on("/api/config_log", HTTP_GET, [](AsyncWebServerRequest *request){
+    if (SD_MMC.exists("/config_log.csv")) request->send(SD_MMC, "/config_log.csv", "text/csv");
+    else request->send(200, "text/csv", "Date,Action,Machine,Operateur\n");
+  });
+
+  // 2. L'API pour journaliser une action ET supprimer l'image si besoin
+  server.on("/api/config_action", HTTP_POST, [](AsyncWebServerRequest *request){
+    String act = request->hasParam("action", true) ? request->getParam("action", true)->value() : "Action";
+    String nom = request->hasParam("nom", true) ? request->getParam("nom", true)->value() : "Inconnu";
+    String op = request->hasParam("op", true) ? request->getParam("op", true)->value() : "Inconnu";
+    
+    // On écrit dans le fichier d'historique dédié
+    File f = SD_MMC.open("/config_log.csv", FILE_APPEND);
+    if (f) {
+      if (f.size() == 0) f.println("Date,Action,Machine,Operateur");
+      f.printf("%s,%s,%s,%s\n", obtenirHeure().c_str(), act.c_str(), nom.c_str(), op.c_str());
+      f.close();
+    }
+
+    // Si c'est une suppression, on détruit physiquement le fichier .bin
+    if(act == "Suppression" && request->hasParam("image", true)){
+      String img = request->getParam("image", true)->value();
+      if(img.length() > 0 && img != "default.bin") {
+        String path = "/" + img;
+        if(SD_MMC.exists(path)) SD_MMC.remove(path);
+      }
+    }
+    request->send(200, "text/plain", "OK");
+  });
+
+
   server.on("/api/hub/status", HTTP_GET, [](AsyncWebServerRequest *request){
     if (calib_state == 0) { request->send(200, "application/json", "{\"status\":\"idle\"}"); }
     else if (calib_state == 1) { request->send(200, "application/json", "{\"status\":\"wait\"}"); }
@@ -556,21 +597,21 @@ void loop() {
     alarme_danger = false;
     
     // Le hub envoie 3 tags avec des positions différentes
-    struct SimTag { int id; float x; float y; bool alarme; };
+    struct SimTag { int id; float x; float y; float z; bool alarme; };
     SimTag hub_tags[3];
     
     if (etape_simulation == 0) {
-      hub_tags[0] = {101, 10.0, 5.0, false};
-      hub_tags[1] = {105, -5.0, 8.0, false};
-      hub_tags[2] = {110, 15.0, -10.0, false};
+      hub_tags[0] = {101, 10.0, 5.0, 0, false};
+      hub_tags[1] = {105, -5.0, 8.0, 0, false};
+      hub_tags[2] = {110, 15.0, -10.0, 0, false};
     } else if (etape_simulation == 1) {
-      hub_tags[0] = {101, 3.5, 2.0, true}; // Alarme
-      hub_tags[1] = {105, -2.0, 5.0, false};
-      hub_tags[2] = {110, 12.0, -8.0, false};
+      hub_tags[0] = {101, 3.5, 2.0, 0, true}; // Alarme
+      hub_tags[1] = {105, -2.0, 5.0, 5, false};
+      hub_tags[2] = {110, 12.0, -8.0, 4, false};
     } else {
-      hub_tags[0] = {101, -12.0, -8.0, false};
-      hub_tags[1] = {105, -8.0, -5.0, false};
-      hub_tags[2] = {110, 10.0, -15.0, false};
+      hub_tags[0] = {101, -12.0, -8.0, -2, false};
+      hub_tags[1] = {105, -8.0, -5.0, 6, false};
+      hub_tags[2] = {110, 10.0, -10.0, -1.5, false};
     }
 
     // Réinitialise tous les tags affichés
@@ -584,11 +625,29 @@ void loop() {
       
       lv_label_set_text_fmt(tags_ui[ui_idx].label_id, "%d", hub_tags[i].id);
       int px_x = CENTRE_X + (int)(hub_tags[i].x * PIXELS_PER_METER);
-      int px_y = CENTRE_Y - (int)(hub_tags[i].y * PIXELS_PER_METER); 
-      
+      int px_y = CENTRE_Y - (int)(hub_tags[i].y * PIXELS_PER_METER);
+
+      // Ecriture altitude.
+      String texte_hauteur = "";
+
+      if (hub_tags[i].z > 0.05) {
+        texte_hauteur = LV_SYMBOL_UP + String(" ") + String(abs(hub_tags[i].z), 1) + "m";
+      } else if (hub_tags[i].z < -0.05) {
+        texte_hauteur = LV_SYMBOL_DOWN  + String(" ") + String(abs(hub_tags[i].z), 1) + "m";
+      }
+      // Affichage point
       lv_obj_align(tags_ui[ui_idx].point, LV_ALIGN_CENTER, px_x - CENTRE_X, px_y - CENTRE_Y);
       lv_obj_clear_flag(tags_ui[ui_idx].point, LV_OBJ_FLAG_HIDDEN);
       lv_obj_move_foreground(tags_ui[ui_idx].point); 
+
+      lv_label_set_text(tags_ui[ui_idx].label_z, texte_hauteur.c_str());
+
+      // Affichage altitude
+
+      lv_obj_align_to(tags_ui[ui_idx].label_z, tags_ui[ui_idx].point, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
+      lv_obj_clear_flag(tags_ui[ui_idx].label_z, LV_OBJ_FLAG_HIDDEN);
+      lv_obj_move_foreground(tags_ui[ui_idx].label_z); 
+
 
       if(hub_tags[i].alarme) {
         alarme_danger = true;
@@ -598,7 +657,10 @@ void loop() {
 
     // Cache les tags non utilisés
     for(int i=0; i<MAX_TAGS; i++) {
-      if(!tags_ui[i].utilise) lv_obj_add_flag(tags_ui[i].point, LV_OBJ_FLAG_HIDDEN);
+      if(!tags_ui[i].utilise) {
+        lv_obj_add_flag(tags_ui[i].point, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(tags_ui[i].label_z, LV_OBJ_FLAG_HIDDEN);
+      }
     }
    
     etape_simulation++;
