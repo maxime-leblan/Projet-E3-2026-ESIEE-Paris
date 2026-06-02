@@ -10,6 +10,7 @@ void setup() {
   // 1. Vérification de la RAM interne classique
   Serial.printf("RAM interne libre : %d octets\n", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
   
+  /*
   // 2. Vérification de la PSRAM (La force du WROVER)
   if (psramInit()) {
     Serial.println("-> PSRAM détectée et activée avec succès !");
@@ -18,6 +19,7 @@ void setup() {
   } else {
     Serial.println("-> Échec de l'activation de la PSRAM. Vérifie tes build_flags.");
   }
+  */
 }
 
 void loop() {
