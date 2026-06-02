@@ -70,6 +70,11 @@
         <table id="warnTable">
             <tr><th>Date</th><th>Tag</th><th>Pos X</th><th>Pos Y</th></tr>
         </table>
+        <button id="btnBackToTop" onclick="scrollToTopWarn()" 
+        style="display:none; position:fixed; bottom:30px; right:30px; 
+        width:50px; height:50px; border-radius:25px; background:var(--primary); 
+        color:#fff; border:none; font-size:24px; box-shadow:0 4px 10px rgba(0,0,0,0.4); 
+        cursor:pointer; z-index:1000; transition:0.3s;">↑</button>
     </div>
 
     <div id="view-hist-calib" class="view">
@@ -202,49 +207,140 @@
             }
         }
 
-        // --- HISTORIQUE WARNINGS ---
+        // ==========================================
+        // VIRTUAL SCROLLER POUR L'HISTORIQUE WARNINGS
+        // ==========================================
+        let allWarningsArray = [];
+        let warnRowHeight = 40; // Hauteur estimée d'une ligne de tableau en pixels
+        let lastRenderedStart = -1;
+
         async function loadWarnings() {
             nav('view-hist-warn');
             let table = document.getElementById('warnTable');
-            table.innerHTML = "<tr><th>Date</th><th>Tag</th><th>Pos X</th><th>Pos Y</th></tr>";
+            table.innerHTML = "<tr><th>Date</th><th>Tag</th><th>Pos X</th><th>Pos Y</th></tr><tr><td colspan='4' style='text-align:center;'>Chargement...</td></tr>";
+
             try {
                 let res = await fetch('/api/warnings');
                 let text = await res.text();
                 let lines = text.trim().split('\n');
-                for(let i=1; i<lines.length; i++){
+                
+                allWarningsArray = [];
+                // On lit le CSV à l'envers pour avoir les alertes les plus récentes en haut
+                for(let i = lines.length - 1; i >= 1; i--) {
                     let cols = lines[i].split(',');
-                    if(cols.length >= 4) table.innerHTML += `<tr><td>${cols[0]}</td><td>${cols[1]}</td><td>${cols[2]}</td><td>${cols[3]}</td></tr>`;
+                    if(cols.length >= 4) allWarningsArray.push(cols);
                 }
-            } catch(e) { table.innerHTML += "<tr><td colspan='4'>Erreur de lecture</td></tr>"; }
+
+                if (allWarningsArray.length === 0) {
+                    table.innerHTML = "<tr><th>Date</th><th>Tag</th><th>Pos X</th><th>Pos Y</th></tr><tr><td colspan='4' style='text-align:center; color:var(--muted);'>Aucune alerte</td></tr>";
+                    return;
+                }
+
+                // Démarre la surveillance du scroll
+                lastRenderedStart = -1;
+                setupVirtualScroll();
+            } catch(e) { 
+                table.innerHTML = "<tr><th>Date</th><th>Tag</th><th>Pos X</th><th>Pos Y</th></tr><tr><td colspan='4' style='text-align:center;'>Erreur de lecture</td></tr>"; 
+            }
         }
 
-        // --- HISTORIQUE CALIBRAGES ---
+        function setupVirtualScroll() {
+            let view = document.getElementById('view-hist-warn');
+            view.scrollTop = 0; // Remet le scroll tout en haut
+            
+            // Écouteur de défilement très léger (requestAnimationFrame évite les lags)
+            view.onscroll = () => {
+                window.requestAnimationFrame(() => renderWarnChunk(view));
+            };
+            
+            renderWarnChunk(view); // Premier affichage
+        }
+
+        function renderWarnChunk(view) {
+            let table = document.getElementById('warnTable');
+            let btnTop = document.getElementById('btnBackToTop');
+            
+            // Afficher/Cacher le bouton "Remonter" si on est descendu de 500 pixels
+            if(view.scrollTop > 500) btnTop.style.display = 'block';
+            else btnTop.style.display = 'none';
+
+            // --- LA MAGIE DES MATHÉMATIQUES ---
+            let viewHeight = view.clientHeight || 600;
+            let scrollTop = view.scrollTop;
+            
+            // On affiche ~15 lignes invisibles au dessus et en dessous pour que le scroll reste fluide
+            let buffer = 15;
+            let startIdx = Math.max(0, Math.floor(scrollTop / warnRowHeight) - buffer);
+            let endIdx = Math.min(allWarningsArray.length, Math.floor((scrollTop + viewHeight) / warnRowHeight) + buffer);
+
+            // Optimisation : On ne redessine pas si on n'a pas fait défiler assez de lignes
+            if (Math.abs(startIdx - lastRenderedStart) < 5 && endIdx < allWarningsArray.length) return;
+            lastRenderedStart = startIdx;
+
+            let html = "<tr><th>Date</th><th>Tag</th><th>Pos X</th><th>Pos Y</th></tr>";
+
+            // 1. ESPACE VIDE EN HAUT : on crée une fausse ligne géante qui remplace les anciennes !
+            if (startIdx > 0) {
+                html += `<tr style="height:${startIdx * warnRowHeight}px"><td colspan="4"></td></tr>`;
+            }
+
+            // 2. LIGNES VISIBLES : On dessine uniquement ce que l'œil peut voir
+            for(let i = startIdx; i < endIdx; i++) {
+                let cols = allWarningsArray[i];
+                html += `<tr style="height:${warnRowHeight}px"><td>${cols[0]}</td><td style="color:var(--danger); font-weight:bold;">#${cols[1]}</td><td>${cols[2]}</td><td>${cols[3]}</td></tr>`;
+            }
+
+            // 3. ESPACE VIDE EN BAS : Une fausse ligne géante pour simuler la taille restante du fichier
+            let remaining = allWarningsArray.length - endIdx;
+            if (remaining > 0) {
+                html += `<tr style="height:${remaining * warnRowHeight}px"><td colspan="4"></td></tr>`;
+            }
+
+            table.innerHTML = html;
+        }
+
+        // Fonction liée au nouveau bouton pour remonter en douceur
+        function scrollToTopWarn() {
+            let view = document.getElementById('view-hist-warn');
+            view.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- HISTORIQUE CALIBRAGES (Le Journal) ---
         async function loadCalibsHistory() {
             nav('view-hist-calib');
             let list = document.getElementById('calibHistList');
-            list.innerHTML = `
-                <table style="width:100%; border-collapse:collapse; margin-top:10px;">
-                    <tr><th style="text-align:left; color:#aaa;">Date</th><th style="text-align:left; color:#aaa;">Action</th><th style="text-align:left; color:#aaa;">Machine</th><th style="text-align:left; color:#aaa;">Par</th></tr>
-                </table>`;
-            let table = list.querySelector('table');
-           
+            list.innerHTML = "<div class='loader'></div>";
+            
             try {
                 let res = await fetch('/api/config_log');
                 let text = await res.text();
                 let lines = text.trim().split('\n');
-                if(lines.length <= 1) { list.innerHTML = "Aucun historique."; return; }
-               
-                for(let i=1; i<lines.length; i++){
+                
+                if(lines.length <= 1) { 
+                    list.innerHTML = "<p style='text-align:center; color:var(--muted); margin-top:20px;'>Aucun historique récent.</p>"; 
+                    return; 
+                }
+                
+                let html = `<table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                    <tr><th style="text-align:left; color:#aaa; padding-bottom:10px;">Date</th><th style="text-align:left; color:#aaa; padding-bottom:10px;">Action</th><th style="text-align:left; color:#aaa; padding-bottom:10px;">Machine</th><th style="text-align:left; color:#aaa; padding-bottom:10px;">Par</th></tr>`;
+                
+                // On lit à l'envers (du plus récent au plus ancien) pour éviter de devoir scroller !
+                for(let i = lines.length - 1; i >= 1; i--) {
                     let cols = lines[i].split(',');
-                    if(cols.length >= 4) {
+                    // Sécurité anti-lignes vides ou cassées
+                    if(cols.length >= 4 && cols[0].trim() !== "") {
                         let actionTxt = cols[1];
-                        // La couleur s'adapte au mot clé trouvé dans l'action
                         let color = actionTxt.includes("Suppression") ? "var(--danger)" : (actionTxt.includes("Création") ? "var(--success)" : "var(--primary)");
-                        table.innerHTML += `<tr><td>${cols[0]}</td><td style="color:${color}; font-weight:bold; font-size:0.85rem;">${actionTxt}</td><td>${cols[2]}</td><td>${cols[3]}</td></tr>`;
+                        html += `<tr><td style="padding:8px 0; border-bottom:1px solid var(--border);">${cols[0]}</td><td style="color:${color}; font-weight:bold; font-size:0.85rem; padding:8px 0; border-bottom:1px solid var(--border);">${actionTxt}</td><td style="padding:8px 0; border-bottom:1px solid var(--border);">${cols[2]}</td><td style="padding:8px 0; border-bottom:1px solid var(--border);">${cols[3]}</td></tr>`;
                     }
                 }
-            } catch(e) { list.innerHTML = "Erreur."; }
+                html += `</table>`;
+                
+                list.innerHTML = html;
+                
+            } catch(e) { list.innerHTML = "<p style='text-align:center; color:var(--danger); margin-top:20px;'>Erreur de chargement.</p>"; }
         }
+
 
         function viewOldCalib(i) {
             newCalib = JSON.parse(JSON.stringify(activeCalibs[i]));
@@ -295,14 +391,14 @@
                 // Journalise la suppression ET détruit l'image
                 let params = new URLSearchParams();
                 params.append('action', 'Suppression');
-                params.append('nom', calibToDelete.nom);
-                params.append('op', calibToDelete.operateur);
+                params.append('nom', calibToDelete.nom.replace(/./g, ' '));
+                params.append('op', calibToDelete.operateur.replace(/./g, ' '));
                 if(calibToDelete.image) params.append('image', calibToDelete.image);
                 
                 await fetch('/api/config_action', { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: params 
+                    body: params.toString()
                 });
 
                 // 2. Mise à jour du fichier JSON global des machines actives
@@ -443,13 +539,13 @@
                 if(resPost.ok) {
                     let params = new URLSearchParams();
                     params.append('action', actionStr);
-                    params.append('nom', newCalib.nom);
-                    params.append('op', newCalib.operateur);
+                    params.append('nom', newCalib.nom.replace(/./g, ' '));
+                    params.append('op', newCalib.operateur.replace(/./g, ' '));
                    
                     await fetch('/api/config_action', { 
                         method: 'POST', 
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: params 
+                        body: params.toString() 
                     });
 
                     localStorage.removeItem('draftCalib'); 

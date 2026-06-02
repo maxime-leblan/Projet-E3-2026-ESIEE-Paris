@@ -93,6 +93,7 @@ lv_obj_t * mosaique;
 lv_obj_t * pelleteuse;
 lv_obj_t * cadre_alerte_global;
 lv_obj_t * label_vide;
+lv_obj_t * label_titre_config;
 bool alarme_danger = false;
 bool flag_recharger_ui = false;
 
@@ -254,6 +255,9 @@ static void btn_select_vehicule_cb(lv_event_t * e) {
   String chemin = "A:/" + liste_vehicules[idx].fichier_image;
   lv_img_set_src(pelleteuse, chemin.c_str());
 
+  //Changement de titre :
+  lv_label_set_text(label_titre_config, liste_vehicules[idx].nom.c_str());
+
   // Affiche dynamiquement les capteurs
   for(int i=0; i<MAX_CAPTEURS; i++) lv_obj_add_flag(visuel_capteurs[i], LV_OBJ_FLAG_HIDDEN);
   for(int i=0; i<liste_vehicules[idx].nb_capteurs; i++) {
@@ -339,6 +343,12 @@ void lv_create_main_gui(void) {
   lv_obj_set_style_text_color(label_vide, lv_color_hex(0x888888), 0);
   lv_obj_align(label_vide, LV_ALIGN_CENTER, 0, 0);
 
+  //Titre en haut à gauche :
+  label_titre_config = lv_label_create(scr_radar);
+  lv_obj_align(label_titre_config, LV_ALIGN_TOP_LEFT, 15, 15); // 15 pixels de marge
+  lv_obj_set_style_text_color(label_titre_config, lv_color_hex(0xFFFFFF), 0); // Texte blanc
+  lv_label_set_text(label_titre_config, "Aucune configuration"); // Texte par défaut
+
   // Instanciation des 30 tags
   for(int i=0; i<MAX_TAGS; i++) {
       initialiser_composant_tag(i, scr_radar);
@@ -367,6 +377,7 @@ void construire_menu_vehicules() {
     lv_obj_clear_flag(label_vide, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(polygone_exclusion, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(pelleteuse, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(label_titre_config, LV_OBJ_FLAG_HIDDEN);
     for(int i=0; i<MAX_CAPTEURS; i++) lv_obj_add_flag(visuel_capteurs[i], LV_OBJ_FLAG_HIDDEN);
     for(int i=0; i<MAX_TAGS; i++) {
       lv_obj_add_flag(tags_ui[i].point, LV_OBJ_FLAG_HIDDEN);
@@ -393,6 +404,9 @@ void construire_menu_vehicules() {
   lv_line_set_points(polygone_exclusion, liste_vehicules[id_vehicule_actif].zone_pixels, liste_vehicules[id_vehicule_actif].nb_points);
   String chemin = "A:/" + liste_vehicules[id_vehicule_actif].fichier_image;
   lv_img_set_src(pelleteuse, chemin.c_str());
+
+  // Changement de titre
+  lv_label_set_text(label_titre_config, liste_vehicules[id_vehicule_actif].nom.c_str());
 
   for(int i=0; i<MAX_CAPTEURS; i++) lv_obj_add_flag(visuel_capteurs[i], LV_OBJ_FLAG_HIDDEN);
   for(int i=0; i<liste_vehicules[id_vehicule_actif].nb_capteurs; i++) {
