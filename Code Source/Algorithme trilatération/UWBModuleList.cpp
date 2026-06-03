@@ -17,6 +17,11 @@ void UWBModuleList::addModule(int pId, UWBModule pModule)
     aUWBModuleList[pId] = pModule;
 }
 
+void UWBModuleList::setModulePosition(int pModuleId, V3 pNewPosition)
+{
+    aUWBModuleList[pModuleId].setPosition(pNewPosition);
+}
+
 vector<int>UWBModuleList::findAll(bool (&pFunction)(UWBModule))
 {
     vector<int> vResTab;
@@ -30,4 +35,16 @@ vector<int>UWBModuleList::findAll(bool (&pFunction)(UWBModule))
     }
 
     return vResTab;
+}
+
+vector<int> UWBModuleList::giveModuleIdList()
+{
+    vector<int> vModuleIdList;
+
+    for (auto it = aUWBModuleList.begin(); it != aUWBModuleList.end(); it++)
+    {
+        vModuleIdList.push_back(it->first);
+    }
+
+    return vModuleIdList;
 }

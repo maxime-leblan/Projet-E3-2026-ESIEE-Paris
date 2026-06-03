@@ -38,10 +38,22 @@ class UWBModuleList
     vector<int> findAll(bool (&pFunction)(UWBModule));
 
     /*
+    Renvoie la liste des identifiants des modules stockés dans la liste
+    */
+    vector<int> giveModuleIdList();
+
+    /*
     Ajoute un module à la liste des modules
     pId - identifiant du module que l'on veut 
     */
     void addModule(int pId, UWBModule pModule);
+
+    /*
+    Modifie la position du module dont l'identifiant est passé en paramètre
+    pModuleId - identifiant du module dont on veut modifier la position
+    pNewPosition - nouvelle position que l'on veut donner au module
+    */
+    void setModulePosition(int pModuleId, V3 pNewPosition);
 
 
 };
