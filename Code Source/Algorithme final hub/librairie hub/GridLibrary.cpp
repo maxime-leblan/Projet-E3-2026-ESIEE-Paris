@@ -4,7 +4,7 @@ void initAnchorsCoordinates(UWBModuleList & pAnchors, unordered_map<string, floa
 {
     // on récupère les véritables identifiants des ancres, auquels on accédera par les indices de la liste de 0 à 3
     vector<int> vAnchorIdList = pAnchors.giveModuleIdList();
-    // on trie la liste pour ensuite pouvoir obtenir les bonnes distances dans pDistances car les clés sont de la forme : "1-2"
+    // on trie la liste pour ensuite pouvoir obtenir les bonnes distances dans pDistances car les clés sont de la forme : "12"
     sort(vAnchorIdList.begin(), vAnchorIdList.end());
 
     // on fixe les coordonnées de la première ancre à (0, 0, 0)
