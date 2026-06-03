@@ -39,6 +39,7 @@ V3 operator - (const V3 & a)               {  return V3( -a.x, -a.y, -a.z); }
 // produit scalaire / vectoriel
  
 float prodScal(const V3 & a, const V3 & b)  { return a.x * b.x + a.y * b.y + a.z * b.z; }
+float prodScal2D(const V3 & a, const V3 & b)  { return a.x * b.x + a.y * b.y; }
 V3 prodVect(const V3 & a, const V3 & b)  { return V3(a.y * b.z - b.y * a.z, a.z * b.x - b.z * a.x, a.x * b.y - b.x * a.y); }
 
 // V3 gCoordonateSystemVector = V3(0, 1);

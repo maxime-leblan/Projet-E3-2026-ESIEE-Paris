@@ -18,6 +18,7 @@ struct V3
 	V3() {} 
 
 	float norm() const          { return sqrt(x*x + y*y + z*z); }
+	float norm2D() const { return sqrt(x*x + y*y); }
 	void  normalize()     { float n = norm();  x /= n;    y /= n;    z /= n;}
 	V3    getNormalized() const { float n = norm();  return V3(x/n, y/n, z/n); }
 	float getX() const { return x; }
@@ -46,6 +47,7 @@ V3 operator - (const V3 & a);  // - unaire
 
 // produit scalaire
 float prodScal(const V3 & a, const V3 & b);
+float prodScal2D(const V3 & a, const V3 & b);
 V3 prodVect(const V3 & a, const V3 & b);
 
 // vecteur orienté dans l'arc de cercle ayant pour angle pi (donc il est entre [0, pi] sur le cercle trigo)
