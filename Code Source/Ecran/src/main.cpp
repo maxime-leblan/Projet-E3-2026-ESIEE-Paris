@@ -314,6 +314,7 @@ void lv_create_main_gui(void) {
   lv_obj_set_style_border_color(cadre_alerte_global, lv_color_hex(0xFF0000), 0);
   lv_obj_set_style_border_width(cadre_alerte_global, 10, 0);
   lv_obj_add_flag(cadre_alerte_global, LV_OBJ_FLAG_HIDDEN);
+  lv_obj_clear_flag(cadre_alerte_global, LV_OBJ_FLAG_CLICKABLE);
  
   lv_obj_t * btn_veh = lv_btn_create(scr_radar);
   lv_obj_set_size(btn_veh, 100, 60);

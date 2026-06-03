@@ -12,7 +12,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; -webkit-tap-highlight-color: transparent;}
         body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column;}
        
-        .header { background: var(--panel); padding: 15px; text-align: center; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid var(--border); display:flex; align-items:center; justify-content:center; position:relative; }
+        .header { background: var(--panel); padding: 15px; text-align: right; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid var(--border); display:flex; align-items:center; justify-content:flex-end; position:relative; }
         .back-btn { background: transparent; border: none; color: var(--primary); font-size: 1rem; cursor: pointer; padding: 10px; position: absolute; left: 5px; top: 50%; transform: translateY(-50%); font-weight: bold; width: auto; margin: 0; z-index: 10;}
        
         .view { display: none; flex: 1; flex-direction: column; padding: 20px; overflow-y: auto; }
@@ -46,6 +46,10 @@
         table { width: 100%; border-collapse: collapse; margin-top: 10px;}
         th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); font-size: 0.9rem;}
         th { color: var(--muted); }
+
+        input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; height: 20px; width: 20px; border-radius: 50%; background: var(--primary); cursor: pointer; margin-top: -8px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: var(--border); border-radius: 2px; }
     </style>
 </head>
 <body>
@@ -129,6 +133,28 @@
         </div>
     </div>
 
+    <div id="view-calib-align" class="view">
+        <div class="header" style="justify-content: flex-end;">
+            <button class="back-btn" onclick="cancelCalib()">◀ Annuler</button>Étape 1 : Alignement
+        </div>
+        
+        <p style="text-align:right; color:var(--primary); font-weight:bold; font-size:1rem; margin-top:10px; margin-bottom:5px;">
+            Placez les capteurs pour faire correspondre à la réalité.
+        </p>
+        <p style="text-align:right; color:var(--muted); font-size:0.8rem; margin-bottom:15px;">
+            (Glissez sur le radar avec le doigt. Vous modifierez la forme à l'étape suivante.)
+        </p>
+
+        <div class="canvas-container" id="alignCanvasHost"></div>
+
+        <div style="background:var(--panel); padding:15px; border-radius:8px; margin-bottom:15px;">
+            <label style="text-align:center; margin-bottom:15px; display:block; font-weight:bold;">Rotation de l'ensemble (0 à 360°)</label>
+            <input type="range" min="0" max="360" value="0" id="alignRotation" oninput="updateAlignRotation()" style="width: 100%; height: 10px; background: #444; border-radius: 5px; outline: none;">
+        </div>
+        
+        <button class="success" onclick="validateAlignment()">Valider et passer à l'Étape 2</button>
+    </div>
+
     <div id="view-calib-edit" class="view">
         <div class="header"><button class="back-btn" onclick="cancelCalib()">◀ Annuler</button>Aperçu de la zone</div>
        
@@ -186,14 +212,16 @@
         // Fichier image uploadé
         let pendingImageFile = null;
 
+        let alignMode = false;
+        let globalTx = 0; let globalTy = 0; let globalAngle = 0;
+        let isDraggingAlign = false; let lastAlignTouch = null;
+
         // SYNC HEURE
-        window.onload = () => {
-            fetch('/api/time', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: 'ts=' + Math.floor(Date.now()/1000)
-            });
-        };
+        fetch('/api/time', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'ts=' + Math.floor(Date.now()/1000)
+        }).catch(e => console.log("Erreur sync heure"));
 
         function nav(id) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -220,7 +248,7 @@
             table.innerHTML = "<tr><th>Date</th><th>Tag</th><th>Pos X</th><th>Pos Y</th></tr><tr><td colspan='4' style='text-align:center;'>Chargement...</td></tr>";
 
             try {
-                let res = await fetch('/api/warnings');
+                let res = await fetch('/api/warnings?t=' + Date.now());
                 let text = await res.text();
                 let lines = text.trim().split('\n');
                 
@@ -312,7 +340,7 @@
             list.innerHTML = "<div class='loader'></div>";
             
             try {
-                let res = await fetch('/api/config_log');
+                let res = await fetch('/api/config_log?t=' + Date.now());
                 let text = await res.text();
                 let lines = text.trim().split('\n');
                 
@@ -355,7 +383,7 @@
             let list = document.getElementById('manageList');
             list.innerHTML = "Chargement...";
             try {
-                let res = await fetch('/api/calibrations');
+                let res = await fetch('/api/calibrations?t=' + Date.now());
                 activeCalibs = await res.json();
                 list.innerHTML = "";
                 if(activeCalibs.length === 0) list.innerHTML = "Aucune configuration sauvegardée.";
@@ -376,8 +404,14 @@
             editingCalibIndex = i;
             newCalib = JSON.parse(JSON.stringify(activeCalibs[i]));
             editPointIdx = 0;
+            bgImgObj = null;
+
+            alignMode = true;
+            globalTx = 0; globalTy = 0; globalAngle = 0;
+            if(document.getElementById('alignRotation')) document.getElementById('alignRotation').value = 0;
+            
             document.getElementById('normalCanvasHost').appendChild(cvs);
-            nav('view-calib-edit');
+            nav('view-calib-align');
             drawCanvas();
         }
 
@@ -391,8 +425,8 @@
                 // Journalise la suppression ET détruit l'image
                 let params = new URLSearchParams();
                 params.append('action', 'Suppression');
-                params.append('nom', calibToDelete.nom.replace(/./g, ' '));
-                params.append('op', calibToDelete.operateur.replace(/./g, ' '));
+                params.append('nom', calibToDelete.nom.replace(/,/g, ' '));
+                params.append('op', calibToDelete.operateur.replace(/,/g, ' '));
                 if(calibToDelete.image) params.append('image', calibToDelete.image);
                 
                 await fetch('/api/config_action', { 
@@ -417,9 +451,9 @@
                 if(confirm("Une configuration non terminée a été trouvée. Voulez-vous la reprendre ?")) {
                     newCalib = JSON.parse(draft);
                     editingCalibIndex = -1;
-                    document.getElementById('normalCanvasHost').appendChild(cvs);
-                    nav('view-calib-edit');
-                    drawCanvas();
+                    pendingImageFile = null;
+                    
+                    startAlignMode();
                     return;
                 } else {
                     localStorage.removeItem('draftCalib');
@@ -479,26 +513,103 @@
             pollingTimer = setInterval(pollHubStatus, 1000);
         }
 
+        function startAlignMode() {
+            alignMode = true;
+            globalTx = 0; globalTy = 0; globalAngle = 0;
+            if(document.getElementById('alignRotation')) document.getElementById('alignRotation').value = 0;
+
+            document.getElementById('alignCanvasHost').appendChild(cvs);
+            nav('view-calib-align');
+
+            // Chargement de l'image ET forçage du dessin initial
+            if (pendingImageFile) {
+                bgImgObj = new Image();
+                bgImgObj.onload = () => { drawCanvas(); };
+                bgImgObj.onerror = () => { bgImgObj = null; drawCanvas(); };
+                bgImgObj.src = URL.createObjectURL(pendingImageFile);
+            } else { 
+                bgImgObj = null; 
+            }
+            drawCanvas(); // Affichage du rectangle bleu immédiat
+        }
+
         async function pollHubStatus() {
             try {
                 let res = await fetch('/api/hub/status');
                 let data = await res.json();
                 if(data.status === "done") {
                     clearInterval(pollingTimer);
-                    newCalib.zone = data.points;
-                    newCalib.sensors = data.sensors; // Capteurs fournis par le HUB !
+                    newCalib.zone = data.points || [];
+                    newCalib.sensors = data.sensors || [];
                     saveDraft();
-                    document.getElementById('normalCanvasHost').appendChild(cvs);
-                    nav('view-calib-edit');
-                    drawCanvas();
+                    startAlignMode();
                 }
             } catch(e){}
+        }
+
+        function editExistingCalib(i) {
+            editingCalibIndex = i;
+            newCalib = JSON.parse(JSON.stringify(activeCalibs[i]));
+            editPointIdx = 0;
+            pendingImageFile = null; // Pas d'image modifiable en édition pure
+            startAlignMode();
         }
 
         async function cancelCalib() {
             clearInterval(pollingTimer);
             await fetch('/api/hub/cancel', {method: 'POST'});
             nav('view-home');
+        }
+
+        // --- MATHS D'ALIGNEMENT GLOBAL SÉCURISÉES ---
+        function getTransformed(pt) {
+            let x = parseFloat(pt.x);
+            let y = parseFloat(pt.y);
+            if (isNaN(x) || isNaN(y)) return {x:0, y:0};
+            
+            let angle = isNaN(globalAngle) ? 0 : globalAngle;
+            let tx = isNaN(globalTx) ? 0 : globalTx;
+            let ty = isNaN(globalTy) ? 0 : globalTy;
+
+            let cosA = Math.cos(angle);
+            let sinA = Math.sin(angle);
+            let rx = x * cosA - y * sinA;
+            let ry = x * sinA + y * cosA;
+            return { x: rx + tx, y: ry + ty };
+        }
+
+        function updateAlignRotation() {
+            let val = parseFloat(document.getElementById('alignRotation').value);
+            globalAngle = (isNaN(val) ? 0 : val) * (Math.PI / 180);
+            drawCanvas();
+        }
+
+        function validateAlignment() {
+            // 1. Applique mathématiquement la déformation
+            if (newCalib.zone) {
+                for (let i=0; i<newCalib.zone.length; i++) newCalib.zone[i] = getTransformed(newCalib.zone[i]);
+            }
+            if (newCalib.sensors) {
+                for (let i=0; i<newCalib.sensors.length; i++) newCalib.sensors[i] = getTransformed(newCalib.sensors[i]);
+            }
+            
+            // 2. SAUVEGARDE L'OFFSET POUR L'ESP32
+            newCalib.image_offset = {
+                x: parseFloat((-globalTx).toFixed(2)) || 0,
+                y: parseFloat((-globalTy).toFixed(2)) || 0,
+                angle: parseFloat((-globalAngle * (180 / Math.PI)).toFixed(2)) || 0
+            };
+            
+            // 3. Passe à l'Étape 2 (édition)
+            globalTx = 0; globalTy = 0; globalAngle = 0; alignMode = false;
+            document.getElementById('normalCanvasHost').appendChild(cvs);
+            nav('view-calib-edit');
+            drawCanvas();
+        }
+
+        function moveAlign(dx, dy) {
+            globalTx += dx; globalTy += dy;
+            drawCanvas();
         }
 
         // --- SAUVEGARDE GLOBALE ---
@@ -539,8 +650,8 @@
                 if(resPost.ok) {
                     let params = new URLSearchParams();
                     params.append('action', actionStr);
-                    params.append('nom', newCalib.nom.replace(/./g, ' '));
-                    params.append('op', newCalib.operateur.replace(/./g, ' '));
+                    params.append('nom', newCalib.nom.replace(/,/g, ' '));
+                    params.append('op', newCalib.operateur.replace(/,/g, ' '));
                    
                     await fetch('/api/config_action', { 
                         method: 'POST', 
@@ -621,35 +732,105 @@
 
         function drawCanvas() {
             ctx.clearRect(0,0,800,480);
-           
+            
+            let pxW = newCalib.v_width * P_METER
+            let pxH = newCalib.v_length * P_METER
+
+            //Dessin du rectangle du véhicule
+            ctx.strokeStyle = '#0288d1'; // Bleu clair
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]); // Traits en pointillés
+            ctx.strokeRect(CX - pxW/2, CY - pxH/2, pxW, pxH);
+            ctx.setLineDash([]); // Réinitialisation
+
+            //Dessin de l'image de fond :
+            if (bgImgObj && bgImgObj.complete) {
+                ctx.globalAlpha = 0.4; //Transaprence 40%
+                ctx.drawImage(bgImgObj, CX-pxW/2, CY-pxH/2, pxW, pxH);
+                ctx.globalAlpha = 1.0 // Reset transparence
+            }
+
             ctx.strokeStyle = '#333'; ctx.lineWidth = 1;
             for(let i=CX%P_METER; i<800; i+=P_METER) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,480); ctx.stroke(); }
             for(let i=CY%P_METER; i<480; i+=P_METER) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(800,i); ctx.stroke(); }
+
+            let ptsZone = newCalib.zone || [];
+            let ptsSensors = newCalib.sensors || [];
+
+            if (alignMode) {
+                ptsZone = ptsZone.map(pt => getTransformed(pt));
+                ptsSensors = ptsSensors.map(pt => getTransformed(pt));
+            }
            
-            // Les Capteurs virtuels dynamiques issus du Hub !
+            // Les Capteurs jaunes virtuels dynamiques issus du Hub 
             ctx.fillStyle = '#fbc02d';
-            if (newCalib.sensors && newCalib.sensors.length > 0) {
-                newCalib.sensors.forEach(s => {
+            if (ptsSensors.length > 0) {
+                ptsSensors.forEach(s => {
                     let p = mToP(s); ctx.fillRect(p.x-8, p.y-8, 16, 16);
                 });
             }
 
-            let z = newCalib.zone;
-            if(!z || z.length===0) return;
-
+            if(ptsZone.length===0) return;
+            
+            //Zone d'exclusion
             ctx.beginPath();
-            let start = mToP(z[0]);
+            let start = mToP(ptsZone[0]);
             ctx.moveTo(start.x, start.y);
-            for(let i=1; i<z.length; i++) { let p = mToP(z[i]); ctx.lineTo(p.x, p.y); }
-            ctx.closePath(); 
-            ctx.strokeStyle = '#ef4444'; ctx.lineWidth = 3; ctx.stroke();
+            for(let i=1; i<ptsZone.length; i++){
+                let p = mToP(ptsZone[i]);
+                ctx.lineTo(p.x, p.y);
+            }
+            ctx.closePath();
 
-            for(let i=0; i<z.length; i++) {
-                let p = mToP(z[i]);
+            if (alignMode) {
+                ctx.strokeStyle = '#fbc02d';
+                ctx.setLineDash([5,5])
+            } else {
+                ctx.strokeStyle = '#ef4444'
+                ctx.setLineDash([]);
+            }
+
+            ctx.lineWidth = 3; 
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            for(let i=0; i<ptsZone.length; i++) {
+                let p = mToP(ptsZone[i]);
                 ctx.beginPath();
-                ctx.arc(p.x, p.y, (editMode && i===editPointIdx) ? 14 : 5, 0, Math.PI*2);
-                ctx.fillStyle = (editMode && i===editPointIdx) ? '#0288d1' : (editMode ? '#fbc02d' : '#ef4444');
+
+                if (alignMode) {
+                    ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
+                    ctx.fillStyle = '#fbc02d'
+                } else {
+                    let isSelected = (editMode === true && Number(i) === Number(editPointIdx));
+
+                    let radius = isSelected ? 14 : 5;
+                    let color = isSelected ? '#0288d1' : (editMode ? '#fbc02d' : '#ef4444');
+                    ctx.arc(p.x, p.y, radius, 0, Math.PI*2);
+                    ctx.fillStyle = color
+                }
+
                 ctx.fill();
+            }
+
+            // 4. BOÎTE DE DÉLIMITATION POUR L'ÉTAPE 1 
+            if (alignMode) { 
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity; 
+                [...ptsZone, ...ptsSensors].forEach(pt => { 
+                    let p = mToP(pt); 
+                    if(p.x < minX) minX = p.x; 
+                    if(p.x > maxX) maxX = p.x; 
+                    if(p.y < minY) minY = p.y; 
+                    if(p.y > maxY) maxY = p.y; 
+                }); 
+
+                if (minX !== Infinity) { 
+                    ctx.strokeStyle = '#0288d1'; 
+                    ctx.lineWidth = 2; 
+                    ctx.setLineDash([5, 5]); 
+                    ctx.strokeRect(minX - 10, minY - 10, (maxX - minX) + 20, (maxY - minY) + 20); 
+                    ctx.setLineDash([]); 
+                }
             }
         }
 
@@ -657,14 +838,16 @@
         function updatePointUI() {
             if(!newCalib.zone || newCalib.zone.length === 0) return;
             let pt = newCalib.zone[editPointIdx];
-            document.getElementById('editPointId').innerText = `Pt ${editPointIdx+1} / ${newCalib.zone.length}`;
-            document.getElementById('editPtX').value = pt.x.toFixed(1);
-            document.getElementById('editPtY').value = pt.y.toFixed(1);
+            if(pt) {
+                document.getElementById('editPointId').innerText = `Pt ${Number(editPointIdx)+1} / ${newCalib.zone.length}`;
+                document.getElementById('editPtX').value = parseFloat(pt.x).toFixed(1);
+                document.getElementById('editPtY').value = parseFloat(pt.y).toFixed(1);
+            }
             drawCanvas();
         }
 
-        function prevEditPoint() { let len = newCalib.zone.length; editPointIdx = (editPointIdx - 1 + len) % len; updatePointUI(); }
-        function nextEditPoint() { let len = newCalib.zone.length; editPointIdx = (editPointIdx + 1) % len; updatePointUI(); }
+        function prevEditPoint() { let len = newCalib.zone.length; editPointIdx = (Number(editPointIdx) - 1 + len) % len; updatePointUI(); }
+        function nextEditPoint() { let len = newCalib.zone.length; editPointIdx = (Number(editPointIdx) + 1) % len; updatePointUI(); }
        
         function manualPointUpdate() {
             saveHistoryState();
@@ -689,39 +872,47 @@
             }
         }
 
-        // --- TACTILE CANVAS ---
+        // --- TACTILE CANVAS (Multiplexé) ---
         function getEventPos(e) {
             let rect = cvs.getBoundingClientRect();
             let evt = e.touches ? e.touches[0] : e;
             return { x: (evt.clientX - rect.left) * (cvs.width / rect.width), y: (evt.clientY - rect.top) * (cvs.height / rect.height) };
         }
 
-        cvs.addEventListener('touchstart', e => { if(editMode){ e.preventDefault(); handleDown(getEventPos(e)); }}, {passive: false});
-        cvs.addEventListener('touchmove', e => { if(editMode){ e.preventDefault(); handleMove(getEventPos(e)); }}, {passive: false});
-        cvs.addEventListener('touchend', () => { draggedPt = -1; });
+        cvs.addEventListener('touchstart', e => { 
+            e.preventDefault(); let pos = getEventPos(e);
+            if(alignMode) { isDraggingAlign = true; lastAlignTouch = pos; } // Etape 1
+            else if(editMode) handleDown(pos); // Etape 2
+        }, {passive: false});
+
+        cvs.addEventListener('touchmove', e => { 
+            e.preventDefault(); let pos = getEventPos(e);
+            if(alignMode && isDraggingAlign) {
+                // Déplacement global (pixels -> mètres)
+                globalTx += (pos.x - lastAlignTouch.x) / P_METER;
+                globalTy -= (pos.y - lastAlignTouch.y) / P_METER; 
+                lastAlignTouch = pos;
+                drawCanvas();
+            } else if(editMode) handleMove(pos);
+        }, {passive: false});
+
+        cvs.addEventListener('touchend', () => { isDraggingAlign = false; draggedPt = -1; });
 
         function handleDown(pos) {
-            let z = newCalib.zone;
-            let minD = 40; draggedPt = -1; 
+            let z = newCalib.zone; let minD = 40; draggedPt = -1;
             for(let i=0; i<z.length; i++) {
                 let px = mToP(z[i]);
-                let d = Math.hypot(px.x - pos.x, px.y - pos.y);
-                if(d < minD) { minD = d; draggedPt = i; }
+                if(Math.hypot(px.x - pos.x, px.y - pos.y) < minD) { minD = Math.hypot(px.x - pos.x, px.y - pos.y); draggedPt = i; }
             }
-            if(draggedPt !== -1) {
-                saveHistoryState(); 
-                editPointIdx = draggedPt;
-                updatePointUI();
-            }
+            if(draggedPt !== -1) { saveHistoryState(); editPointIdx = Number(draggedPt); updatePointUI(); }
         }
 
         function handleMove(pos) {
             if(draggedPt !== -1) {
                 let newM = pToM(pos);
                 newCalib.zone[draggedPt] = {x: parseFloat(newM.x.toFixed(1)), y: parseFloat(newM.y.toFixed(1))};
-                let len = newCalib.zone.length;
-                if(draggedPt === 0) newCalib.zone[len-1] = newCalib.zone[0];
-                if(draggedPt === len-1) newCalib.zone[0] = newCalib.zone[len-1];
+                if(draggedPt === 0) newCalib.zone[newCalib.zone.length-1] = newCalib.zone[0];
+                if(draggedPt === newCalib.zone.length-1) newCalib.zone[0] = newCalib.zone[newCalib.zone.length-1];
                 updatePointUI();
             }
         }
