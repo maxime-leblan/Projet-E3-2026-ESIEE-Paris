@@ -1,4 +1,4 @@
-(footprint "JUMPER CAN"
+(footprint "Jumper CAN"
 	(version 20260206)
 	(generator "pcbnew")
 	(generator_version "10.0")
@@ -7,7 +7,7 @@
 		(at 0 -0.5 0)
 		(unlocked yes)
 		(layer "F.SilkS")
-		(uuid "42e55b79-526e-4df6-95ac-0f4ba17f8213")
+		(uuid "3eac9bbb-92fa-49bc-9d76-d9285fbbc9b5")
 		(effects
 			(font
 				(size 1 1)
@@ -15,11 +15,11 @@
 			)
 		)
 	)
-	(property "Value" "JUMPER CAN"
+	(property "Value" "Jumper CAN"
 		(at 0 1 0)
 		(unlocked yes)
 		(layer "F.Fab")
-		(uuid "61565f40-0423-4369-a8df-2f2522ee7a94")
+		(uuid "c28e4464-dd58-4b44-afd2-2ac282b51782")
 		(effects
 			(font
 				(size 1 1)
@@ -32,7 +32,7 @@
 		(unlocked yes)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "cc18d1c2-1815-49cb-9b2f-20f187017eac")
+		(uuid "cc92fe14-64c3-464b-8a13-4103c8a0a2eb")
 		(effects
 			(font
 				(size 1 1)
@@ -40,12 +40,12 @@
 			)
 		)
 	)
-	(property "Description" ""
+	(property "Description" "jumper pour resistance 120 ohm"
 		(at 0 0 0)
 		(unlocked yes)
 		(layer "F.Fab")
 		(hide yes)
-		(uuid "bef5dc96-cddf-46d6-bcb8-35e216c73450")
+		(uuid "87f04366-b3b3-4ad2-b190-68fa786cac5c")
 		(effects
 			(font
 				(size 1 1)
@@ -58,7 +58,7 @@
 		(at 0 2.5 0)
 		(unlocked yes)
 		(layer "F.Fab")
-		(uuid "b1236316-68cb-4085-8375-76e30555e1fa")
+		(uuid "c7c21333-c4d0-4bb0-9047-499ba776b171")
 		(effects
 			(font
 				(size 1 1)
@@ -72,7 +72,7 @@
 		(drill 1.11)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
-		(uuid "71218da4-879a-4bf5-99ab-676b0fb88d18")
+		(uuid "47c651e3-88ce-4e12-b7bc-a002b4817a71")
 	)
 	(pad "J2" thru_hole circle
 		(at 0 10)
@@ -80,7 +80,7 @@
 		(drill 1.11)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
-		(uuid "502dd5ab-5b48-40a0-80ad-1353ec7dc252")
+		(uuid "7a88b48a-f26a-43f7-92ca-f0e119f42b45")
 	)
 	(pad "NC" thru_hole circle
 		(at 0 4.92)
@@ -88,7 +88,7 @@
 		(drill 1.11)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
-		(uuid "1b3a71c6-48ed-4994-8446-c08d665b2451")
+		(uuid "893f340e-726b-4bb1-aea7-cbaa1f10b86a")
 	)
 	(embedded_fonts no)
 )
