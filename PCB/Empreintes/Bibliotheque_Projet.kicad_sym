@@ -30,7 +30,7 @@
 				(justify left top)
 			)
 		)
-		(property "Footprint" "BMP581"
+		(property "Footprint" ""
 			(at 26.67 -84.76 0)
 			(show_name no)
 			(do_not_autoplace no)

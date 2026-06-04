@@ -1,4 +1,0 @@
-(fp_lib_table
-  (version 7)
-  (lib (name "Empreintes_PCB") (type "KiCad") (uri "${KIPRJMOD}/../Empreintes_PCB.pretty") (options "") (descr ""))
-)
