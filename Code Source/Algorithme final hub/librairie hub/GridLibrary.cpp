@@ -44,12 +44,18 @@ void initAnchorsCoordinates(UWBModuleList & pAnchors, unordered_map<string, floa
 void initAnchorsCoordinatesWithGD(UWBModuleList & pAnchors, unordered_map<string, float> pDistances, int pIter, float pAlpha)
 {
     // on utilise l'algorithme standard pour que les ancres ait déjà une position proche de la réalité
-    initAnchorsCoordinates(pAnchors, pDistances);
+    // initAnchorsCoordinates(pAnchors, pDistances);
 
     // on récupère les véritables identifiants des ancres, auquels on accédera par les indices de la liste de 0 à 3
     vector<int> vAnchorIdList = pAnchors.giveModuleIdList();
     // on trie la liste pour ensuite pouvoir obtenir les bonnes distances dans pDistances car les clés sont de la forme : "12"
     sort(vAnchorIdList.begin(), vAnchorIdList.end());
+
+    // on donne des positions arbitraire et probablement fausses aux ancres
+    pAnchors.setModulePosition(vAnchorIdList[0], V3(0, 0, 0));
+    pAnchors.setModulePosition(vAnchorIdList[1], V3(1, 0, 0)); 
+    pAnchors.setModulePosition(vAnchorIdList[2], V3(1, 1, 0)); 
+    pAnchors.setModulePosition(vAnchorIdList[3], V3(1, 1, 1)); 
 
     for (int vIter = 0; vIter < pIter; vIter++)
     {
@@ -92,10 +98,21 @@ void initAnchorsCoordinatesWithGD(UWBModuleList & pAnchors, unordered_map<string
         }
 
         // Mise à jour des positions (P = P - alpha * Gradient)
-        // On commence la boucle à i = 1 pour laisser l'Ancre 1 fixe à (0,0,0) comme origine.
         for (int i = 1; i < 4; i++)
         {
             V3 vNewPos = vPos[i] - (vGradients[i] * pAlpha);
+            
+            // APPLICATION DES CONTRAINTES DE REPÈRE :
+            if (i == 1) // Ancre 2 : on force y et z à 0 (axe X)
+            {
+                vNewPos = V3(vNewPos.x, 0.0f, 0.0f);
+            }
+            else if (i == 2) // Ancre 3 : on force z à 0 (plan XY)
+            {
+                vNewPos = V3(vNewPos.x, vNewPos.y, 0.0f);
+            }
+            // L'Ancre 4 (i == 3) reste totalement libre en 3D (x, y, z)
+
             pAnchors.setModulePosition(vAnchorIdList[i], vNewPos);
         }
     }
