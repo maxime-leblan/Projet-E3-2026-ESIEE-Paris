@@ -5,7 +5,7 @@
 	(uuid "84605c1a-5009-408b-9a0f-13132cab7487")
 	(paper "A4")
 	(lib_symbols
-		(symbol "BMP581:BMP581"
+		(symbol "Bibliotheque_Projet:BMP581"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -33,7 +33,7 @@
 					(justify left top)
 				)
 			)
-			(property "Footprint" "BMP581"
+			(property "Footprint" "Bibliotheque_Projet:BMP581"
 				(at 26.67 -84.76 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1596,164 +1596,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Connector_Generic:Conn_01x02"
-			(pin_names
-				(offset 1.016)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "J"
-				(at 0 2.54 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "Conn_01x02"
-				(at 0 -5.08 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_keywords" "connector"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "ki_fp_filters" "Connector*:*_1x??_*"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(symbol "Conn_01x02_1_1"
-				(rectangle
-					(start -1.27 1.27)
-					(end 1.27 -3.81)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(rectangle
-					(start -1.27 0.127)
-					(end 0 -0.127)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 -2.413)
-					(end 0 -2.667)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(pin passive line
-					(at -5.08 0 0)
-					(length 3.81)
-					(name "Pin_1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -5.08 -2.54 0)
-					(length 3.81)
-					(name "Pin_2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Device:R"
 			(pin_numbers
 				(hide yes)
@@ -2863,16 +2705,6 @@
 	)
 	(wire
 		(pts
-			(xy 140.97 43.18) (xy 128.27 43.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6afb2112-4500-4e55-b9f1-996273fb56d4")
-	)
-	(wire
-		(pts
 			(xy 91.44 95.25) (xy 91.44 146.05)
 		)
 		(stroke
@@ -2953,7 +2785,7 @@
 	)
 	(wire
 		(pts
-			(xy 128.27 43.18) (xy 128.27 40.64)
+			(xy 140.97 40.64) (xy 140.97 83.82)
 		)
 		(stroke
 			(width 0)
@@ -2983,7 +2815,7 @@
 	)
 	(wire
 		(pts
-			(xy 128.27 40.64) (xy 224.79 40.64)
+			(xy 140.97 40.64) (xy 224.79 40.64)
 		)
 		(stroke
 			(width 0)
@@ -3000,16 +2832,6 @@
 			(type default)
 		)
 		(uuid "c12ea5aa-98a9-4510-9d6d-da770b5d2dd1")
-	)
-	(wire
-		(pts
-			(xy 140.97 83.82) (xy 140.97 43.18)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c3b40ec4-f124-4b9e-a333-4fc974193c8c")
 	)
 	(wire
 		(pts
@@ -3300,7 +3122,7 @@
 		)
 	)
 	(symbol
-		(lib_id "BMP581:BMP581")
+		(lib_id "Bibliotheque_Projet:BMP581")
 		(at 49.53 143.51 0)
 		(unit 1)
 		(body_style 1)
@@ -3331,7 +3153,7 @@
 				)
 			)
 		)
-		(property "Footprint" "BMP581"
+		(property "Footprint" "Bibliotheque_Projet:BMP581"
 			(at 76.2 228.27 0)
 			(hide yes)
 			(show_name no)
@@ -3996,7 +3818,7 @@
 				)
 			)
 		)
-		(property "Value" "XIAO-ESP32-S3-Plus-SMD"
+		(property "Value" "XIAO-ESP32-S3-Plus-DIP"
 			(at 160.655 78.74 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4172,88 +3994,6 @@
 			(project "Ouvrier"
 				(path "/84605c1a-5009-408b-9a0f-13132cab7487"
 					(reference "U1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector_Generic:Conn_01x02")
-		(at 49.53 39.37 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "c6e0f961-c178-44c8-a534-5d3acd3e940f")
-		(property "Reference" "J1"
-			(at 52.07 39.3699 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "Conn_01x02"
-			(at 52.07 41.9099 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Bibliotheque_Projet:CONN-TH_2P-P5.00_L7.6-W10.0"
-			(at 49.53 39.37 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 49.53 39.37 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 49.53 39.37 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "188883c1-18b8-45a1-a441-9839addd1fa9")
-		)
-		(pin "1"
-			(uuid "61e379e0-a366-43aa-8aab-3cc4d7475502")
-		)
-		(instances
-			(project "Ouvrier"
-				(path "/84605c1a-5009-408b-9a0f-13132cab7487"
-					(reference "J1")
 					(unit 1)
 				)
 			)
