@@ -1,5 +1,4 @@
 (fp_lib_table
-	(version 7)
-	(lib (name "Empreintes") (type "KiCad") (uri "C:/Users/benoi/Documents/GitHub/Projet-E3-2026-ESIEE-Paris/PCB/Empreintes.pretty") (options "") (descr ""))
-	(lib (name "Empreintes_PCB") (type "KiCad") (uri "C:/Users/benoi/Documents/GitHub/Projet-E3-2026-ESIEE-Paris/PCB/Empreintes/Empreintes_PCB.pretty") (options "") (descr ""))
+  (version 7)
+  (lib (name "Empreintes_PCB") (type "KiCad") (uri "${KIPRJMOD}/../Empreintes_PCB.pretty") (options "") (descr ""))
 )
