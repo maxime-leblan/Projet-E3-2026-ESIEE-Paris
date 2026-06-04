@@ -490,7 +490,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "test2.kicad_pro",
+    "filename": "Ancre.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -657,18 +657,18 @@
     "subpart_id_separator": 0,
     "top_level_sheets": [
       {
-        "filename": "test2.kicad_sch",
-        "name": "test2",
+        "filename": "Ancre.kicad_sch",
+        "name": "Ancre",
         "uuid": "d2e8c312-f361-4e5e-b264-be30272b880a"
       }
     ],
-    "used_designators": "JP1,U5",
+    "used_designators": "JP1,U5-7",
     "variants": []
   },
   "sheets": [
     [
       "d2e8c312-f361-4e5e-b264-be30272b880a",
-      "test2"
+      "Ancre"
     ]
   ],
   "text_variables": {},
