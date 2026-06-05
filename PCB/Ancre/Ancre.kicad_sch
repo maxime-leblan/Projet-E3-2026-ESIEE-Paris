@@ -461,29 +461,27 @@
 			(on_board yes)
 			(in_pos_files yes)
 			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "IC"
-				(at 24.13 7.62 0)
+			(property "Reference" "IC1"
+				(at 13.97 7.62 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify left top)
 				)
 			)
 			(property "Value" "TCAN1051VDRQ1"
-				(at 24.13 5.08 0)
+				(at 13.97 5.08 0)
 				(show_name no)
 				(do_not_autoplace no)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify left top)
 				)
 			)
-			(property "Footprint" "SOIC127P600X175-8N"
+			(property "Footprint" "ancre2:SOIC127P600X175-8N (1)"
 				(at 24.13 -94.92 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -686,7 +684,7 @@
 						)
 					)
 				)
-				(pin no_connect line
+				(pin passive line
 					(at 27.94 -7.62 180)
 					(length 5.08)
 					(name "NC"
@@ -2076,6 +2074,12 @@
 		(uuid "04d26d9e-5381-4988-a6f1-20bf5e3e631f")
 	)
 	(junction
+		(at 135.89 58.42)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "0ec936ee-3bf8-46f3-9a4a-9ea35a6d5219")
+	)
+	(junction
 		(at 58.42 62.23)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2104,6 +2108,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "8d396997-7b4a-47e4-8520-6898c8d83456")
+	)
+	(junction
+		(at 134.62 55.88)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "abfda165-86ea-4a09-9e55-51d67264d3a0")
 	)
 	(junction
 		(at 67.31 62.23)
@@ -2169,7 +2179,7 @@
 	)
 	(wire
 		(pts
-			(xy 138.43 55.88) (xy 129.54 55.88)
+			(xy 138.43 55.88) (xy 134.62 55.88)
 		)
 		(stroke
 			(width 0)
@@ -2219,16 +2229,6 @@
 	)
 	(wire
 		(pts
-			(xy 105.41 99.06) (xy 105.41 60.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "27486cb7-12da-4b50-aae8-3cd5fe0c42e0")
-	)
-	(wire
-		(pts
 			(xy 105.41 60.96) (xy 104.14 60.96)
 		)
 		(stroke
@@ -2266,6 +2266,16 @@
 			(type default)
 		)
 		(uuid "39a904af-63fa-448d-bce0-a6edf51ef3cc")
+	)
+	(wire
+		(pts
+			(xy 105.41 60.96) (xy 105.41 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3e82975c-cf19-48aa-bd1f-61d634ec4373")
 	)
 	(wire
 		(pts
@@ -2369,6 +2379,16 @@
 	)
 	(wire
 		(pts
+			(xy 242.57 88.9) (xy 242.57 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5d2d6dd4-8a5e-41e1-8c04-55a2465a34df")
+	)
+	(wire
+		(pts
 			(xy 128.27 68.58) (xy 123.19 68.58)
 		)
 		(stroke
@@ -2399,6 +2419,16 @@
 	)
 	(wire
 		(pts
+			(xy 134.62 55.88) (xy 134.62 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "69d20454-177f-4662-9f9e-6660df7b12f1")
+	)
+	(wire
+		(pts
 			(xy 198.12 60.96) (xy 198.12 68.58)
 		)
 		(stroke
@@ -2426,6 +2456,16 @@
 			(type default)
 		)
 		(uuid "7ca3d35e-0bde-4d59-8ffa-1c84dcb72d15")
+	)
+	(wire
+		(pts
+			(xy 134.62 55.88) (xy 129.54 55.88)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7f537336-3300-4f2d-95a5-c3b06a35f23d")
 	)
 	(wire
 		(pts
@@ -2479,6 +2519,16 @@
 	)
 	(wire
 		(pts
+			(xy 135.89 45.72) (xy 137.16 45.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a02a8431-9dc4-466d-8eb4-7631a1f3b2d6")
+	)
+	(wire
+		(pts
 			(xy 74.93 86.36) (xy 186.69 86.36)
 		)
 		(stroke
@@ -2486,6 +2536,16 @@
 			(type default)
 		)
 		(uuid "a3783f63-0548-4670-96f7-515e0f40146f")
+	)
+	(wire
+		(pts
+			(xy 134.62 43.18) (xy 137.16 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aca18d16-53a5-4197-b731-ee9340223156")
 	)
 	(wire
 		(pts
@@ -2559,7 +2619,7 @@
 	)
 	(wire
 		(pts
-			(xy 130.81 58.42) (xy 138.43 58.42)
+			(xy 130.81 58.42) (xy 135.89 58.42)
 		)
 		(stroke
 			(width 0)
@@ -2576,6 +2636,26 @@
 			(type default)
 		)
 		(uuid "c4ae220d-ede2-406b-91bf-cdbab0b8bef7")
+	)
+	(wire
+		(pts
+			(xy 135.89 58.42) (xy 138.43 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c844e6da-e027-4777-832e-5b4ae30d76df")
+	)
+	(wire
+		(pts
+			(xy 242.57 95.25) (xy 248.92 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ca38d18c-6804-47e5-a421-a078eaf28a7f")
 	)
 	(wire
 		(pts
@@ -2596,6 +2676,16 @@
 			(type default)
 		)
 		(uuid "d5606292-a209-489c-a98f-3b682b73b477")
+	)
+	(wire
+		(pts
+			(xy 135.89 58.42) (xy 135.89 45.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d5add904-e39c-42db-822f-62c0d1cea27e")
 	)
 	(wire
 		(pts
@@ -2636,6 +2726,16 @@
 			(type default)
 		)
 		(uuid "e349081a-0c33-4a4e-a7bd-3dbb8c9a7093")
+	)
+	(wire
+		(pts
+			(xy 242.57 92.71) (xy 248.92 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e34b769e-7844-4277-8e99-4679cd559c56")
 	)
 	(wire
 		(pts
@@ -3182,6 +3282,121 @@
 		)
 	)
 	(symbol
+		(lib_id "easyeda2kicad:DB301V-5.0-2P")
+		(at 252.73 93.98 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "3c5a97c6-d04a-41d2-8092-7c6fa93f2fde")
+		(property "Reference" "U7"
+			(at 257.81 92.7099 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "DB301V-5.0-2P"
+			(at 257.81 95.2499 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "ancre2:CONN-TH_2P-P5.00_L7.6-W10.0 (1)"
+			(at 252.73 102.87 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://lcsc.com/product-detail/Screw-terminal_DIBO-DB301V-5-0-2P_C395882.html"
+			(at 252.73 105.41 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 252.73 93.98 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "DORABO(地博电气)"
+			(at 252.73 107.95 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "DB301V-5.0-2P-BU-S"
+			(at 252.73 110.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part" "C395882"
+			(at 252.73 113.03 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "6d001adb-77c9-41ae-9fff-fc3d335f95de")
+		)
+		(pin "2"
+			(uuid "28658ce4-14ae-44c0-91a6-dc9cfd33eae8")
+		)
+		(instances
+			(project "Ancre"
+				(path "/d2e8c312-f361-4e5e-b264-be30272b880a"
+					(reference "U7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GNDREF")
 		(at 146.05 106.68 0)
 		(unit 1)
@@ -3339,6 +3554,85 @@
 	)
 	(symbol
 		(lib_id "power:GNDREF")
+		(at 242.57 95.25 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "5d26ab7d-23d0-4d0a-8b12-5c50b6df1d4f")
+		(property "Reference" "#PWR012"
+			(at 242.57 101.6 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GNDREF"
+			(at 245.11 96.5199 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 242.57 95.25 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 242.57 95.25 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
+			(at 242.57 95.25 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "741e722a-b266-4b7f-9f3b-f2fdb792d00e")
+		)
+		(instances
+			(project "Ancre"
+				(path "/d2e8c312-f361-4e5e-b264-be30272b880a"
+					(reference "#PWR012")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GNDREF")
 		(at 240.03 76.2 0)
 		(unit 1)
 		(body_style 1)
@@ -3411,6 +3705,120 @@
 			(project "Ancre"
 				(path "/d2e8c312-f361-4e5e-b264-be30272b880a"
 					(reference "#PWR09")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "easyeda2kicad:DB301V-5.0-2P")
+		(at 140.97 44.45 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "72b97959-dfef-42e9-aec5-4853b683a788")
+		(property "Reference" "U6"
+			(at 146.05 43.1799 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "DB301V-5.0-2P"
+			(at 146.05 45.7199 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "ancre2:CONN-TH_2P-P5.00_L7.6-W10.0 (1)"
+			(at 140.97 53.34 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" "https://lcsc.com/product-detail/Screw-terminal_DIBO-DB301V-5-0-2P_C395882.html"
+			(at 140.97 55.88 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" ""
+			(at 140.97 44.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Manufacturer" "DORABO(地博电气)"
+			(at 140.97 58.42 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "MPN" "DB301V-5.0-2P-BU-S"
+			(at 140.97 60.96 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "LCSC Part" "C395882"
+			(at 140.97 63.5 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "c433e706-712e-4e69-b9e9-213081698b46")
+		)
+		(pin "2"
+			(uuid "76e55617-004c-45bc-9b23-417b84825226")
+		)
+		(instances
+			(project "Ancre"
+				(path "/d2e8c312-f361-4e5e-b264-be30272b880a"
+					(reference "U6")
 					(unit 1)
 				)
 			)
@@ -3732,6 +4140,84 @@
 			(project "Ancre"
 				(path "/d2e8c312-f361-4e5e-b264-be30272b880a"
 					(reference "U1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+12V")
+		(at 242.57 88.9 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "9263347d-e1bf-4c5d-ae75-ea3c0c3c4134")
+		(property "Reference" "#PWR010"
+			(at 242.57 92.71 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+12V"
+			(at 242.57 83.82 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 242.57 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 242.57 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+12V\""
+			(at 242.57 88.9 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "1abbaf37-211c-4169-9b38-5270edb6f50d")
+		)
+		(instances
+			(project "Ancre"
+				(path "/d2e8c312-f361-4e5e-b264-be30272b880a"
+					(reference "#PWR010")
 					(unit 1)
 				)
 			)
