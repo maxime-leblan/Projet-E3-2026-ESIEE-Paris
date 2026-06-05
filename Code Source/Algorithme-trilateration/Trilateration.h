@@ -1,7 +1,12 @@
 #pragma once
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
+#ifdef ARDUINO
+    #include <ArduinoEigenDense.h>
+#else
+    #include <Eigen/Core>
+    #include <Eigen/Dense>
+#endif
+
 #include <string>
 
 #include "UWBModuleList.h"

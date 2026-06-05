@@ -1,9 +1,14 @@
 #pragma once
 
-#include <Arduino.h>
 #include <unordered_map>
 #include <string>
-#include "../../Algorithme trilatération/Trilateration.h" // Contient V3, UWBModuleList, etc.
+
+#ifdef ARDUINO
+    #include <Trilateration.h>
+#else
+    #include "../../Algorithme-trilateration/Trilateration.h" // Contient V3, UWBModuleList, etc.
+#endif
+
 #include "Polygone.hpp"      // Ta classe Polygone
 
 namespace ListeDistance {

@@ -1,10 +1,15 @@
 #pragma once
 
 #include <algorithm>
-#include <Eigen/Core> // taper dans le terminal "dpkg -L libeigen3-dev" pour trouver l'emplacement de la librairie
-#include <Eigen/Dense>
-
-#include "../../Algorithme-trilateration/UWBModuleList.h"
+    
+#ifdef ARDUINO
+    #include <UWBModuleList.h>
+    #include <ArduinoEigenDense.h>
+#else
+    #include "../../Algorithme-trilateration/UWBModuleList.h"
+    #include <Eigen/Core> // taper dans le terminal "dpkg -L libeigen3-dev" pour trouver l'emplacement de la librairie
+    #include <Eigen/Dense>
+#endif
 
 using namespace Eigen;
 

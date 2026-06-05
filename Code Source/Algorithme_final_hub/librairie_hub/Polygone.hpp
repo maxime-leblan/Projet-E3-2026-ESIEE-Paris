@@ -3,7 +3,12 @@
 #include <vector>
 #include <algorithm>
 
-#include "../../Algorithme-trilateration/V3.h"
+#ifdef ARDUINO
+    #include <V3.h>
+#else
+    #include "../../Algorithme-trilateration/V3.h"
+#endif
+
 
 class Polygone 
 {
