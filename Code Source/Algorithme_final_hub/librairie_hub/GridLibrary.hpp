@@ -1,8 +1,12 @@
 #pragma once
 
 #include <algorithm>
+#include <Eigen/Core> // taper dans le terminal "dpkg -L libeigen3-dev" pour trouver l'emplacement de la librairie
+#include <Eigen/Dense>
 
-#include "../../Algorithme trilatération/UWBModuleList.h"
+#include "../../Algorithme-trilateration/UWBModuleList.h"
+
+using namespace Eigen;
 
 /*
 Attribue aux 4 ancres virtuelles des coordonnées à partir des distances entre chaque ancre réelle. 
@@ -21,3 +25,10 @@ pIter - nombre d'itérations de la descente de gradient
 pAlpha - vitesse d'apprentissage
 */
 void initAnchorsCoordinatesWithGD(UWBModuleList & pAnchors, unordered_map<string, float> pDistances, int pIter, float pAlpha);
+
+/*
+Renvoie la matrice de rotation pour transformer le vecteur pStartVector en pResultVector
+pStartVector - vecteur d'origine
+
+*/
+Matrix<float, 3, 3> giveRotationalMatrix(V3 pStartVector, V3 pResultVector);

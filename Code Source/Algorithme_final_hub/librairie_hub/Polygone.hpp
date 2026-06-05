@@ -3,7 +3,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "../../Algorithme trilatération/V3.h"
+#include "../../Algorithme-trilateration/V3.h"
 
 class Polygone 
 {

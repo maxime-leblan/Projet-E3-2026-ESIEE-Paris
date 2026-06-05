@@ -117,3 +117,16 @@ void initAnchorsCoordinatesWithGD(UWBModuleList & pAnchors, unordered_map<string
         }
     }
 }
+
+Matrix<float, 3, 3> giveRotationalMatrix(V3 pStartVector, V3 pResultVector)
+{
+    V3 vUnitStartVector = pStartVector.getNormalized();
+    V3 vUnitResultVector = pResultVector.getNormalized();
+    Matrix<float, 3, 3> vR;
+    V3 vRotationalAxis = prodVect(vUnitStartVector, vUnitResultVector);
+    float vAngleCosinus = prodScal(vUnitStartVector, vUnitResultVector);
+    //Matrix<float
+
+    return vR;
+
+}
