@@ -462,6 +462,150 @@
 			)
 		)
 	)
+	(footprint "Bibliotheque_Projet:Batterie"
+		(layer "F.Cu")
+		(uuid "4c6c1db2-b355-44f1-8db2-78c1aa5daedf")
+		(at 152 101)
+		(property "Reference" "J1"
+			(at 0 -0.5 0)
+			(unlocked yes)
+			(layer "F.SilkS")
+			(uuid "76ca9cab-5212-47a8-803e-9210bcb1c867")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.1)
+				)
+			)
+		)
+		(property "Value" "Batterie"
+			(at 0 1 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(uuid "9e7602df-2b7b-400a-a9a3-331ccf6e02ff")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "55746cce-f663-4629-b629-e3b0b47bd4eb")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "Description" "Pads batterie"
+			(at 0 0 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "3f4fc982-eb5e-4081-a51a-dbe764c11fbf")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property ki_fp_filters "Connector*:*_1x??_*")
+		(path "/b4430af5-f244-45e2-96b9-bb1c0c8d2abd")
+		(sheetname "/")
+		(sheetfile "Ouvrier.kicad_sch")
+		(units
+			(unit
+				(name "A")
+				(pins "Bat-" "Bat+")
+			)
+		)
+		(duplicate_pad_numbers_are_jumpers no)
+		(fp_rect
+			(start -4 4)
+			(end 4 9.5)
+			(stroke
+				(width 0.1)
+				(type default)
+			)
+			(fill no)
+			(layer "F.SilkS")
+			(uuid "93844842-0cfe-495f-bda9-96f5464d9063")
+		)
+		(fp_text user "Bat-"
+			(at 0 6 0)
+			(unlocked yes)
+			(layer "F.SilkS")
+			(uuid "94f08025-26bf-4792-9046-3d2bade40f7b")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.1)
+				)
+				(justify left bottom)
+			)
+		)
+		(fp_text user "Bat+"
+			(at 0 8.5 0)
+			(unlocked yes)
+			(layer "F.SilkS")
+			(uuid "949169d4-ba53-451a-a9dd-1f6c375d9748")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.1)
+				)
+				(justify left bottom)
+			)
+		)
+		(fp_text user "${REFERENCE}"
+			(at 0 2.5 0)
+			(unlocked yes)
+			(layer "F.Fab")
+			(uuid "5ea997c8-df83-40e8-bf3d-478ff39c57be")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(pad "Bat+" thru_hole roundrect
+			(at -1 8)
+			(size 3.27 1.27)
+			(drill 0.8
+				(offset -1 0)
+			)
+			(layers "*.Cu" "*.Mask")
+			(remove_unused_layers no)
+			(roundrect_rratio 0.15)
+			(net "unconnected-(J1-Pin_2-PadBat+)")
+			(pinfunction "Pin_2_Bat+")
+			(pintype "passive")
+			(uuid "bdc108d4-3a07-4c03-adb5-bb1a798deb06")
+		)
+		(pad "Bat-" thru_hole roundrect
+			(at -1 5.5)
+			(size 3.27 1.27)
+			(drill 0.8
+				(offset -1 0)
+			)
+			(layers "*.Cu" "*.Mask")
+			(remove_unused_layers no)
+			(roundrect_rratio 0.15)
+			(net "unconnected-(J1-Pin_1-PadBat-)")
+			(pinfunction "Pin_1_Bat-")
+			(pintype "passive")
+			(uuid "34a3900a-ac9a-4ebb-b904-b42c88f02121")
+		)
+		(embedded_fonts no)
+	)
 	(footprint "Bibliotheque_Projet:XIAO nRF52840 sense plus"
 		(layer "F.Cu")
 		(uuid "75c5b0f6-35d6-4a4e-8747-ed1961f71bbc")
