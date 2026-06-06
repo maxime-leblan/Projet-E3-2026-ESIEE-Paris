@@ -2671,6 +2671,12 @@
 		(uuid "1aea0389-966d-4d43-a821-98ee4cf35a7b")
 	)
 	(junction
+		(at 236.22 80.01)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "2f942285-0af0-44de-b6be-2af06e3356d5")
+	)
+	(junction
 		(at 224.79 57.15)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2693,6 +2699,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "8eb3ef11-cdae-4290-bfbe-51c231c1e877")
+	)
+	(junction
+		(at 236.22 90.17)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "9627f884-a844-475e-879b-0e3037ec58c3")
 	)
 	(junction
 		(at 185.42 91.44)
@@ -2742,6 +2754,16 @@
 	)
 	(wire
 		(pts
+			(xy 227.33 87.63) (xy 227.33 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0d29523c-bfb6-44f5-8cb9-8cdc62a1c2a3")
+	)
+	(wire
+		(pts
 			(xy 64.77 125.73) (xy 64.77 118.11)
 		)
 		(stroke
@@ -2772,13 +2794,13 @@
 	)
 	(wire
 		(pts
-			(xy 245.11 123.19) (xy 245.11 120.65)
+			(xy 140.97 91.44) (xy 132.08 91.44)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "1e9468f4-500f-45b0-a3f1-5eda7833a326")
+		(uuid "2af084d9-ccd1-42f7-9442-b36718ecc792")
 	)
 	(wire
 		(pts
@@ -2892,6 +2914,16 @@
 	)
 	(wire
 		(pts
+			(xy 132.08 91.44) (xy 132.08 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5842a231-a1cb-4a4d-90b3-c94f6000e522")
+	)
+	(wire
+		(pts
 			(xy 120.65 50.8) (xy 224.79 50.8)
 		)
 		(stroke
@@ -2899,16 +2931,6 @@
 			(type default)
 		)
 		(uuid "5b4613ad-db9c-4c04-b371-de8d643f0bc1")
-	)
-	(wire
-		(pts
-			(xy 245.11 120.65) (xy 251.46 120.65)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5d5f532e-f14f-49a9-88aa-f55e3866a869")
 	)
 	(wire
 		(pts
@@ -2932,6 +2954,36 @@
 	)
 	(wire
 		(pts
+			(xy 132.08 137.16) (xy 208.28 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "69d0c3fc-a8fc-4b22-bdc0-063857490e80")
+	)
+	(wire
+		(pts
+			(xy 237.49 144.78) (xy 237.49 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "70e40770-8f45-476b-956f-af78f6d340ce")
+	)
+	(wire
+		(pts
+			(xy 215.9 137.16) (xy 227.33 137.16)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "721cecff-ec0d-4f75-b0e5-be1b6d89bb24")
+	)
+	(wire
+		(pts
 			(xy 91.44 95.25) (xy 91.44 146.05)
 		)
 		(stroke
@@ -2949,6 +3001,16 @@
 			(type default)
 		)
 		(uuid "7380d595-4374-4088-81f7-6bbc972a91ae")
+	)
+	(wire
+		(pts
+			(xy 237.49 129.54) (xy 237.49 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "74cf37e5-595b-445d-b5aa-5a4a5b290d72")
 	)
 	(wire
 		(pts
@@ -2972,6 +3034,16 @@
 	)
 	(wire
 		(pts
+			(xy 236.22 80.01) (xy 236.22 82.55)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7c6285ce-46ee-45ca-9360-ba54169cb75e")
+	)
+	(wire
+		(pts
 			(xy 250.19 53.34) (xy 252.73 53.34)
 		)
 		(stroke
@@ -2992,6 +3064,16 @@
 	)
 	(wire
 		(pts
+			(xy 260.35 99.06) (xy 266.7 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8820ce7c-a348-4d15-93fb-2b627da90e5a")
+	)
+	(wire
+		(pts
 			(xy 67.31 118.11) (xy 72.39 118.11)
 		)
 		(stroke
@@ -2999,6 +3081,16 @@
 			(type default)
 		)
 		(uuid "8a360984-26a5-41e4-843c-e9d0e7b0d0eb")
+	)
+	(wire
+		(pts
+			(xy 251.46 107.95) (xy 265.43 107.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8dd93892-5a74-455a-9982-b51c2a4aff87")
 	)
 	(wire
 		(pts
@@ -3042,6 +3134,26 @@
 	)
 	(wire
 		(pts
+			(xy 236.22 85.09) (xy 236.22 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "af4d3316-51ee-44bd-8122-dabfec6f6169")
+	)
+	(wire
+		(pts
+			(xy 236.22 72.39) (xy 236.22 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bcd8cb48-1a54-4f96-8722-fcf1681242ce")
+	)
+	(wire
+		(pts
 			(xy 140.97 40.64) (xy 224.79 40.64)
 		)
 		(stroke
@@ -3082,6 +3194,16 @@
 	)
 	(wire
 		(pts
+			(xy 251.46 105.41) (xy 260.35 105.41)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c7b5b563-c57b-4009-b768-3ebe78a75928")
+	)
+	(wire
+		(pts
 			(xy 64.77 118.11) (xy 67.31 118.11)
 		)
 		(stroke
@@ -3112,6 +3234,16 @@
 	)
 	(wire
 		(pts
+			(xy 260.35 105.41) (xy 260.35 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d51dbc15-740d-4552-8237-dc01ac47783b")
+	)
+	(wire
+		(pts
 			(xy 67.31 125.73) (xy 67.31 118.11)
 		)
 		(stroke
@@ -3119,6 +3251,16 @@
 			(type default)
 		)
 		(uuid "d959940b-d515-4b06-82b9-8c2e44fb752b")
+	)
+	(wire
+		(pts
+			(xy 237.49 90.17) (xy 236.22 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "de049b60-817e-4f04-a880-2650ae9bf634")
 	)
 	(wire
 		(pts
@@ -3162,6 +3304,26 @@
 	)
 	(wire
 		(pts
+			(xy 236.22 90.17) (xy 227.33 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "eef171df-4581-419c-9faf-89db4465aba7")
+	)
+	(wire
+		(pts
+			(xy 236.22 80.01) (xy 227.33 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f54ca414-67d0-4b0f-bff5-f6948fd7378e")
+	)
+	(wire
+		(pts
 			(xy 181.61 106.68) (xy 220.98 106.68)
 		)
 		(stroke
@@ -3189,6 +3351,85 @@
 			(type default)
 		)
 		(uuid "ffc75867-c177-4a83-a02f-269a90e64301")
+	)
+	(symbol
+		(lib_id "power:+3V3")
+		(at 236.22 72.39 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "5a6fc27c-6bf2-4e5f-8675-ba5d195d631f")
+		(property "Reference" "#PWR09"
+			(at 232.41 72.39 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 240.03 72.3899 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 236.22 72.39 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 236.22 72.39 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 236.22 72.39 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "a2d45493-d0d2-436f-a856-d3db64205950")
+		)
+		(instances
+			(project "Ouvrier"
+				(path "/84605c1a-5009-408b-9a0f-13132cab7487"
+					(reference "#PWR09")
+					(unit 1)
+				)
+			)
+		)
 	)
 	(symbol
 		(lib_id "power:GNDREF")
@@ -3270,7 +3511,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 219.71 142.24 90)
+		(at 212.09 137.16 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3281,7 +3522,7 @@
 		(fields_autoplaced yes)
 		(uuid "62cba616-9a82-427c-ba2d-96ae38774dd5")
 		(property "Reference" "R1"
-			(at 219.71 135.89 90)
+			(at 212.09 130.81 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3291,7 +3532,7 @@
 			)
 		)
 		(property "Value" "180"
-			(at 219.71 138.43 90)
+			(at 212.09 133.35 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3301,7 +3542,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
-			(at 219.71 144.018 90)
+			(at 212.09 138.938 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3312,7 +3553,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 219.71 142.24 0)
+			(at 212.09 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3323,7 +3564,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 219.71 142.24 0)
+			(at 212.09 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3540,7 +3781,7 @@
 	)
 	(symbol
 		(lib_id "Bibliotheque_Projet:CMT-8504-100-SMT-TR")
-		(at 232.41 82.55 0)
+		(at 236.22 82.55 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3551,7 +3792,7 @@
 		(fields_autoplaced yes)
 		(uuid "915b480e-ef1a-47ea-9a7a-2269d3420edd")
 		(property "Reference" "LS2"
-			(at 248.92 74.93 0)
+			(at 252.73 74.93 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3561,7 +3802,7 @@
 			)
 		)
 		(property "Value" "CMT-8504-100-SMT-TR"
-			(at 248.92 77.47 0)
+			(at 252.73 77.47 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3571,7 +3812,7 @@
 			)
 		)
 		(property "Footprint" "Bibliotheque_Projet:Buzzer CMS"
-			(at 261.62 177.47 0)
+			(at 265.43 177.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3583,7 +3824,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.sameskydevices.com/product/resource/cmt-8504-100-smt-tr.pdf"
-			(at 261.62 277.47 0)
+			(at 265.43 277.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3595,7 +3836,7 @@
 			)
 		)
 		(property "Description" "8.5 mm, 5 Vo-p, 100 dB, Surface Mount (SMT), Magnetic Audio Transducer Buzzer"
-			(at 232.41 82.55 0)
+			(at 236.22 82.55 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3606,7 +3847,7 @@
 			)
 		)
 		(property "Height" "4.5"
-			(at 261.62 477.47 0)
+			(at 265.43 477.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3618,7 +3859,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "Same Sky"
-			(at 261.62 577.47 0)
+			(at 265.43 577.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3630,7 +3871,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "CMT-8504-100-SMT-TR"
-			(at 261.62 677.47 0)
+			(at 265.43 677.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3642,7 +3883,7 @@
 			)
 		)
 		(property "Mouser Part Number" "490-CMT-8504100SMTTR"
-			(at 261.62 777.47 0)
+			(at 265.43 777.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3654,7 +3895,7 @@
 			)
 		)
 		(property "Mouser Price/Stock" "https://www.mouser.co.uk/ProductDetail/Same-Sky/CMT-8504-100-SMT-TR?qs=P1JMDcb91o7N%2FrNVZpuJrw%3D%3D"
-			(at 261.62 877.47 0)
+			(at 265.43 877.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3666,7 +3907,7 @@
 			)
 		)
 		(property "Arrow Part Number" "CMT-8504-100-SMT-TR"
-			(at 261.62 977.47 0)
+			(at 265.43 977.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3678,7 +3919,7 @@
 			)
 		)
 		(property "Arrow Price/Stock" "https://www.arrow.com/en/products/cmt-8504-100-smt-tr/cui-devices.html?utm_currency=USD&region=nac"
-			(at 261.62 1077.47 0)
+			(at 265.43 1077.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3712,7 +3953,7 @@
 	)
 	(symbol
 		(lib_id "Bibliotheque_Projet:2N2222B")
-		(at 234.95 130.81 0)
+		(at 227.33 137.16 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -3723,7 +3964,7 @@
 		(fields_autoplaced yes)
 		(uuid "a5322e1b-f957-4df2-866c-32552ab08344")
 		(property "Reference" "Q1"
-			(at 248.92 129.5399 0)
+			(at 241.3 135.8899 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3734,7 +3975,7 @@
 			)
 		)
 		(property "Value" "2N2222B"
-			(at 248.92 132.0799 0)
+			(at 241.3 138.4299 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -3745,7 +3986,7 @@
 			)
 		)
 		(property "Footprint" "Bibliotheque_Projet:2N2222B"
-			(at 248.92 232.08 0)
+			(at 241.3 238.43 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3757,7 +3998,7 @@
 			)
 		)
 		(property "Datasheet" "https://diotec.com/request/datasheet/2n2222a.pdf"
-			(at 248.92 332.08 0)
+			(at 241.3 338.43 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3769,7 +4010,7 @@
 			)
 		)
 		(property "Description" "NPN General purpose transistor . IC 150 mA . f 	100 MHz"
-			(at 234.95 130.81 0)
+			(at 227.33 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3780,7 +4021,7 @@
 			)
 		)
 		(property "Height" "7.5"
-			(at 248.92 532.08 0)
+			(at 241.3 538.43 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3792,7 +4033,7 @@
 			)
 		)
 		(property "Mouser Part Number" "637-2N2222A"
-			(at 248.92 632.08 0)
+			(at 241.3 638.43 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3804,7 +4045,7 @@
 			)
 		)
 		(property "Mouser Price/Stock" "https://www.mouser.co.uk/ProductDetail/Diotec-Semiconductor/2N2222A?qs=OlC7AqGiEDmNlRSTGL2dYg%3D%3D"
-			(at 248.92 732.08 0)
+			(at 241.3 738.43 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3816,7 +4057,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "Diotec"
-			(at 248.92 832.08 0)
+			(at 241.3 838.43 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3828,7 +4069,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "2N2222A"
-			(at 248.92 932.08 0)
+			(at 241.3 938.43 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4017,7 +4258,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDREF")
-		(at 251.46 120.65 0)
+		(at 237.49 152.4 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4028,7 +4269,7 @@
 		(fields_autoplaced yes)
 		(uuid "bd060594-c3f7-4e84-bc66-5533ace27e99")
 		(property "Reference" "#PWR02"
-			(at 251.46 127 0)
+			(at 237.49 158.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4039,7 +4280,7 @@
 			)
 		)
 		(property "Value" "GNDREF"
-			(at 251.46 125.73 0)
+			(at 237.49 157.48 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4049,7 +4290,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 251.46 120.65 0)
+			(at 237.49 152.4 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4060,7 +4301,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 251.46 120.65 0)
+			(at 237.49 152.4 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4071,7 +4312,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
-			(at 251.46 120.65 0)
+			(at 237.49 152.4 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4656,8 +4897,165 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+3V3")
+		(at 265.43 107.95 270)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e9ad8ef6-e421-4156-be76-2eed0a3c18f4")
+		(property "Reference" "#PWR08"
+			(at 261.62 107.95 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "+3V3"
+			(at 269.24 107.9499 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 265.43 107.95 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 265.43 107.95 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3V3\""
+			(at 265.43 107.95 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "a7ff7f8e-2539-421e-ac47-d9388e6b2443")
+		)
+		(instances
+			(project "Ouvrier"
+				(path "/84605c1a-5009-408b-9a0f-13132cab7487"
+					(reference "#PWR08")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GNDREF")
+		(at 266.7 99.06 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "edc9a65d-1e8d-48f5-9e5f-c976c492ce6b")
+		(property "Reference" "#PWR05"
+			(at 266.7 105.41 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GNDREF"
+			(at 266.7 104.14 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 266.7 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 266.7 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
+			(at 266.7 99.06 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "c75c1c66-d4fb-4884-9945-36b009dba3eb")
+		)
+		(instances
+			(project "Ouvrier"
+				(path "/84605c1a-5009-408b-9a0f-13132cab7487"
+					(reference "#PWR05")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Diode:1N914")
-		(at 223.52 83.82 270)
+		(at 227.33 83.82 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -4668,7 +5066,7 @@
 		(fields_autoplaced yes)
 		(uuid "f5adc7f1-3628-4850-98d4-ba25041bf102")
 		(property "Reference" "D1"
-			(at 226.06 82.5499 90)
+			(at 229.87 82.5499 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4679,7 +5077,7 @@
 			)
 		)
 		(property "Value" "1N914"
-			(at 226.06 85.0899 90)
+			(at 229.87 85.0899 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -4690,7 +5088,7 @@
 			)
 		)
 		(property "Footprint" "Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal"
-			(at 219.075 83.82 0)
+			(at 222.885 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4701,7 +5099,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.vishay.com/docs/85622/1n914.pdf"
-			(at 223.52 83.82 0)
+			(at 227.33 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4712,7 +5110,7 @@
 			)
 		)
 		(property "Description" "100V 0.3A Small Signal Fast Switching Diode, DO-35"
-			(at 223.52 83.82 0)
+			(at 227.33 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4723,7 +5121,7 @@
 			)
 		)
 		(property "Sim.Device" "D"
-			(at 223.52 83.82 0)
+			(at 227.33 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4734,7 +5132,7 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
-			(at 223.52 83.82 0)
+			(at 227.33 83.82 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
