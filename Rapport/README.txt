@@ -1,0 +1,1 @@
+Si vous souhaitez pouvoir éditer un fichier PDF généré à partir d'un code LateX mais que vous ne savez pas comment faire, suivez les instructions de cette vidéo : https://youtu.be/4lyHIQl4VM8?si=imaUseh2YWp0xvRk
