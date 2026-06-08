@@ -53,7 +53,7 @@ unordered_map<string, float> makeDistanceTabFromCoordinates(vector<V3> pCoordina
 
 void printTab(vector<V3> pSensors)
 {
-    for (int i = 1; i <= 4; i++)
+    for (int i = 1; i <= pSensors.size(); i++)
     {
         V3 vCoordAnchor = pSensors[i];
         cout << "Ancre " << i << " : " << vCoordAnchor << "\n";
@@ -143,4 +143,19 @@ int main()
     printTabUWB(vSensors);
     cout << "Erreurs algo descente de gradient (en \% par rapport à la vrai distance): \n";
     printDict(giveErrors(vRealDistances, makeDistanceTabFromCoordinates(giveCoordinates(vSensors))));
+
+    // --------------------------------------------------------------------------------
+    // Application d'une matrice de rotation sur une liste de points
+    cout << "\nPartie rotation de points :\n";
+
+    // vecteurs représentant l'angle de la rotation
+    V3 vStartVector = V3(-5, -1, 3);
+    V3 vResultVector = V3(-5, 5, -2);
+
+    // liste des points que l'on veut déplacer par rotation axiale
+    vector<V3> vPointsList = {V3(-2, -4, 3), V3(-3, 3, 3), V3(-1, 2, 3)};
+
+    // on applique la rotation sur chacun de ces points
+    vPointsList = applyRotationOnPoints(vPointsList, giveRotationalMatrix(vStartVector, vResultVector));
+    printTab(vPointsList);
 }

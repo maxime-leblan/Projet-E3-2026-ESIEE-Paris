@@ -11,7 +11,7 @@
 #define AXIS_Z 3
 
 using namespace std;
-using namespace Eigen;
+// using namespace Eigen;
 
 struct V3 
 {
@@ -45,8 +45,8 @@ V3 operator + (const V3 & a, const V3 & b);
 V3 operator - (const V3 & a, const V3 & b);
 V3 operator * (float      a, const V3 & b);
 V3 operator * (const V3 & a, float      b);
-V3 operator * (const V3 & a, const Matrix<float, 3, 3> & b);
-V3 operator * (const Matrix<float, 3, 3> & a, const V3 & b);
+V3 operator * (const V3 & a, const Eigen::Matrix<float, 3, 3> & b);
+V3 operator * (const Eigen::Matrix<float, 3, 3> & a, const V3 & b);
 V3 operator / (const V3 & a, float      b);
 V3 operator - (const V3 & a);  // - unaire
 

@@ -32,7 +32,7 @@ V3 operator + (const V3 & a, const V3 & b) {  return V3(a.x + b.x, a.y + b.y, a.
 V3 operator - (const V3 & a, const V3 & b) {  return V3(a.x - b.x, a.y - b.y, a.z - b.z); }
 V3 operator * (float      a, const V3 & b) {  return V3(a   * b.x, a   * b.y, a * b.z); }
 V3 operator * (const V3 & a, float      b) {  return V3(a.x * b  , a.y * b, a.z * b);   }
-V3 operator * (const V3 & a, const Matrix<float, 3, 3> & b)
+V3 operator * (const V3 & a, const Eigen::Matrix<float, 3, 3> & b)
 {
 	vector<float> vResult;
 	float vCurrentSum = 0;
@@ -49,7 +49,7 @@ V3 operator * (const V3 & a, const Matrix<float, 3, 3> & b)
 
 	return V3(vResult[0], vResult[1], vResult[2]);
 }
-V3 operator * (const Matrix<float, 3, 3> & a, const V3 & b) { return b * a; }
+V3 operator * (const Eigen::Matrix<float, 3, 3> & a, const V3 & b) { return b * a; }
 V3 operator / (const V3 & a, float      b) {  return V3(a.x / b  , a.y / b, a.z / b);   }
 V3 operator - (const V3 & a)               {  return V3( -a.x, -a.y, -a.z); }
 

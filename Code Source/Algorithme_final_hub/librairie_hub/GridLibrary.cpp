@@ -1,6 +1,6 @@
 #include "GridLibrary.hpp"
 
-vector<V3> applyRotationOnPoints(vector<V3> pPoints, Matrix<float, 3, 3> pRotationalMatrix)
+vector<V3> applyRotationOnPoints(vector<V3> pPoints, Eigen::Matrix<float, 3, 3> pRotationalMatrix)
 {
     vector<V3> vNewPoints;
 
@@ -130,11 +130,11 @@ void initAnchorsCoordinatesWithGD(UWBModuleList & pAnchors, unordered_map<string
     }
 }
 
-Matrix<float, 3, 3> giveRotationalMatrix(V3 pStartVector, V3 pResultVector)
+Eigen::Matrix<float, 3, 3> giveRotationalMatrix(V3 pStartVector, V3 pResultVector)
 {
     V3 vUnitStartVector = pStartVector.getNormalized();
     V3 vUnitResultVector = pResultVector.getNormalized();
-    Matrix<float, 3, 3> vR;
+    Eigen::Matrix<float, 3, 3> vR;
 
     // on calcule la valeur du vecteur qui modélise l'axe de rotation auquel le vecteur pStartVector devra tourner pour donner le pResultVector
     V3 vRotationalAxis = prodVect(vUnitStartVector, vUnitResultVector);
@@ -142,12 +142,12 @@ Matrix<float, 3, 3> giveRotationalMatrix(V3 pStartVector, V3 pResultVector)
     // puis on calcule le cosinus de l'angle entre pStartVector et pResultVector
     float vAngleCosinus = prodScal(vUnitStartVector, vUnitResultVector);
 
-    Matrix<float, 3, 3> vAntiSymmetric;
+    Eigen::Matrix<float, 3, 3> vAntiSymmetric;
     vAntiSymmetric << 0.0f, -vRotationalAxis.getZ(), vRotationalAxis.getY(),
                     vRotationalAxis.getZ(), 0.0f, -vRotationalAxis.getX(),
                     -vRotationalAxis.getY(), vRotationalAxis.getX(), 0.0f;
     
-    Matrix<float, 3, 3> vIdentity = Matrix<float, 3, 3>::Identity();
+    Eigen::Matrix<float, 3, 3> vIdentity = Eigen::Matrix<float, 3, 3>::Identity();
 
     vR = vIdentity + vAntiSymmetric + (1/(1 + vAngleCosinus)) * (vAntiSymmetric * vAntiSymmetric);
     
