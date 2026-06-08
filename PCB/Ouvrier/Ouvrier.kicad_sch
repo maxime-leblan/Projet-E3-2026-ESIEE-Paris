@@ -3738,7 +3738,7 @@
 				)
 			)
 		)
-		(property "Value" "470"
+		(property "Value" "680"
 			(at 212.09 133.35 90)
 			(show_name no)
 			(do_not_autoplace no)
