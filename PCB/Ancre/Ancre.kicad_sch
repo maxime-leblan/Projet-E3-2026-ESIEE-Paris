@@ -3275,7 +3275,7 @@
 				)
 			)
 		)
-		(property "Value" "R"
+		(property "Value" "4.7K"
 			(at 111.506 50.8 90)
 			(show_name no)
 			(do_not_autoplace no)
