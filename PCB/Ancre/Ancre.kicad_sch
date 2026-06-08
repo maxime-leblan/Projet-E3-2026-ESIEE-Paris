@@ -2252,16 +2252,22 @@
 		(uuid "37a44780-ac5b-4da2-8eba-ecfaead1fd92")
 	)
 	(junction
-		(at 123.19 60.96)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "45136677-e3d8-4433-8d13-fa75ba98f151")
-	)
-	(junction
 		(at 58.42 54.61)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7544d162-e1f9-4780-85a9-e9663af9b953")
+	)
+	(junction
+		(at 120.65 62.23)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7cdec4ba-d34b-4dbe-9735-c61d22112aa0")
+	)
+	(junction
+		(at 105.41 67.31)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "839d7540-46ce-4152-a8e8-a35ba19f9632")
 	)
 	(junction
 		(at 198.12 60.96)
@@ -2295,6 +2301,16 @@
 	)
 	(wire
 		(pts
+			(xy 123.19 66.04) (xy 128.27 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "01325910-627c-4793-885d-cdde6f4d0caf")
+	)
+	(wire
+		(pts
 			(xy 120.65 55.88) (xy 120.65 53.34)
 		)
 		(stroke
@@ -2322,16 +2338,6 @@
 			(type default)
 		)
 		(uuid "0e18b8ee-c51c-4ae4-a63d-0ab6eaa74b4f")
-	)
-	(wire
-		(pts
-			(xy 120.65 60.96) (xy 123.19 60.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0eca19fb-3ca7-4a90-93f7-04424600efd7")
 	)
 	(wire
 		(pts
@@ -2405,6 +2411,26 @@
 	)
 	(wire
 		(pts
+			(xy 123.19 60.96) (xy 123.19 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2a52fb07-b478-442b-b009-009ab02db924")
+	)
+	(wire
+		(pts
+			(xy 105.41 67.31) (xy 105.41 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2de668c0-a000-41ae-98b8-6537381d7f0c")
+	)
+	(wire
+		(pts
 			(xy 205.74 52.07) (xy 210.82 52.07)
 		)
 		(stroke
@@ -2435,7 +2461,7 @@
 	)
 	(wire
 		(pts
-			(xy 105.41 60.96) (xy 105.41 99.06)
+			(xy 105.41 60.96) (xy 105.41 67.31)
 		)
 		(stroke
 			(width 0)
@@ -2452,16 +2478,6 @@
 			(type default)
 		)
 		(uuid "3ea19d51-293d-44e2-b2d8-2e89ec9bd1c0")
-	)
-	(wire
-		(pts
-			(xy 123.19 68.58) (xy 123.19 60.96)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3fe0ae7a-6dc9-419c-9d04-707907224183")
 	)
 	(wire
 		(pts
@@ -2505,7 +2521,7 @@
 	)
 	(wire
 		(pts
-			(xy 120.65 58.42) (xy 120.65 60.96)
+			(xy 120.65 58.42) (xy 120.65 62.23)
 		)
 		(stroke
 			(width 0)
@@ -2522,6 +2538,16 @@
 			(type default)
 		)
 		(uuid "4de17315-702b-4b07-86a3-86dd7f04e7c6")
+	)
+	(wire
+		(pts
+			(xy 120.65 62.23) (xy 120.65 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4e281f35-fa6e-4bc7-b46a-eda36091521e")
 	)
 	(wire
 		(pts
@@ -2575,16 +2601,6 @@
 	)
 	(wire
 		(pts
-			(xy 128.27 68.58) (xy 123.19 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5d9c2226-162a-4fc3-a31c-ebf5814a41b4")
-	)
-	(wire
-		(pts
 			(xy 181.61 115.57) (xy 189.23 115.57)
 		)
 		(stroke
@@ -2622,6 +2638,16 @@
 			(type default)
 		)
 		(uuid "771a64b8-e2f6-44df-93af-8e5b6963cba6")
+	)
+	(wire
+		(pts
+			(xy 120.65 68.58) (xy 128.27 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7c892ac2-9d3d-4a92-9b04-8401f397f49e")
 	)
 	(wire
 		(pts
@@ -2765,13 +2791,13 @@
 	)
 	(wire
 		(pts
-			(xy 128.27 66.04) (xy 128.27 62.23)
+			(xy 120.65 62.23) (xy 130.81 62.23)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "bcf0eefb-e069-456f-a3aa-c8288e50b30d")
+		(uuid "bb62eec3-71f4-4d3c-99be-dfbf740f8616")
 	)
 	(wire
 		(pts
@@ -2885,6 +2911,26 @@
 	)
 	(wire
 		(pts
+			(xy 101.6 74.93) (xy 101.6 78.74)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dc4c5152-b703-43b2-ac55-6ea80abf798f")
+	)
+	(wire
+		(pts
+			(xy 101.6 67.31) (xy 105.41 67.31)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e2262562-c384-432e-89ae-990b5c3e88fe")
+	)
+	(wire
+		(pts
 			(xy 210.82 59.69) (xy 210.82 60.96)
 		)
 		(stroke
@@ -2952,16 +2998,6 @@
 			(type default)
 		)
 		(uuid "f6086ed5-a6eb-4f1c-bc0e-c69fa34b8211")
-	)
-	(wire
-		(pts
-			(xy 128.27 62.23) (xy 130.81 62.23)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f7af49c3-88f4-4918-82e5-6973fa34baf6")
 	)
 	(wire
 		(pts
@@ -4550,6 +4586,165 @@
 			(project "Ancre"
 				(path "/d2e8c312-f361-4e5e-b264-be30272b880a"
 					(reference "U5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 101.6 71.12 180)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "ab0ca529-18c5-4608-bd72-422eb7798f77")
+		(property "Reference" "C5"
+			(at 91.694 69.088 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "100nF"
+			(at 91.694 71.628 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Capacitor_THT:C_Axial_L3.8mm_D2.6mm_P7.50mm_Horizontal"
+			(at 100.6348 67.31 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 101.6 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 101.6 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "2"
+			(uuid "5317df68-e854-4074-95fd-218371908e8d")
+		)
+		(pin "1"
+			(uuid "ef194c84-20eb-4ffa-b156-ba0439029d7d")
+		)
+		(instances
+			(project "Ancre"
+				(path "/d2e8c312-f361-4e5e-b264-be30272b880a"
+					(reference "C5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GNDREF")
+		(at 101.6 78.74 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(uuid "b73bbca6-937b-4ed2-a08e-b2ccbbe65b2d")
+		(property "Reference" "#PWR06"
+			(at 101.6 85.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GNDREF"
+			(at 91.186 79.756 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 101.6 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 101.6 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
+			(at 101.6 78.74 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "f26a6fd5-9015-4aa9-a3b9-6a36d644f270")
+		)
+		(instances
+			(project "Ancre"
+				(path "/d2e8c312-f361-4e5e-b264-be30272b880a"
+					(reference "#PWR06")
 					(unit 1)
 				)
 			)
