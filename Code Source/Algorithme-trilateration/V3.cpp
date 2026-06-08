@@ -1,7 +1,7 @@
 #include <iostream>
 #include "V3.h"
 
-float V3::getCoordonateNumber(int pNumber)
+float V3::getCoordonateNumber(int pNumber) const
 {
 	if (pNumber == AXIS_X)
 	{
@@ -32,6 +32,24 @@ V3 operator + (const V3 & a, const V3 & b) {  return V3(a.x + b.x, a.y + b.y, a.
 V3 operator - (const V3 & a, const V3 & b) {  return V3(a.x - b.x, a.y - b.y, a.z - b.z); }
 V3 operator * (float      a, const V3 & b) {  return V3(a   * b.x, a   * b.y, a * b.z); }
 V3 operator * (const V3 & a, float      b) {  return V3(a.x * b  , a.y * b, a.z * b);   }
+V3 operator * (const V3 & a, const Matrix<float, 3, 3> & b)
+{
+	vector<float> vResult;
+	float vCurrentSum = 0;
+
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			vCurrentSum += b(i, j) * a.getCoordonateNumber(j+1);
+		}
+		vResult.push_back(vCurrentSum);
+		vCurrentSum = 0;
+	}
+
+	return V3(vResult[0], vResult[1], vResult[2]);
+}
+V3 operator * (const Matrix<float, 3, 3> & a, const V3 & b) { return b * a; }
 V3 operator / (const V3 & a, float      b) {  return V3(a.x / b  , a.y / b, a.z / b);   }
 V3 operator - (const V3 & a)               {  return V3( -a.x, -a.y, -a.z); }
 

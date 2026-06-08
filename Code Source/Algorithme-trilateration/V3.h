@@ -2,6 +2,8 @@
 
 #include <cmath>
 #include <ostream>
+#include <Eigen/Core> // taper dans le terminal "dpkg -L libeigen3-dev" pour trouver l'emplacement de la librairie
+#include <Eigen/Dense>
 
 #define NUMBER_OF_COORDONATES 3
 #define AXIS_X 1
@@ -9,6 +11,7 @@
 #define AXIS_Z 3
 
 using namespace std;
+using namespace Eigen;
 
 struct V3 
 {
@@ -29,7 +32,7 @@ struct V3
 	Renvoie la coordonnée numéro pNumber
 	pNumber - indice de la coordonnée que l'on veut récupérer (>= 1)
 	*/
-	float getCoordonateNumber(int pNumber);
+	float getCoordonateNumber(int pNumber) const;
 };
 
 // comparaison sur des flottants... traitement sp�cial
@@ -42,6 +45,8 @@ V3 operator + (const V3 & a, const V3 & b);
 V3 operator - (const V3 & a, const V3 & b);
 V3 operator * (float      a, const V3 & b);
 V3 operator * (const V3 & a, float      b);
+V3 operator * (const V3 & a, const Matrix<float, 3, 3> & b);
+V3 operator * (const Matrix<float, 3, 3> & a, const V3 & b);
 V3 operator / (const V3 & a, float      b);
 V3 operator - (const V3 & a);  // - unaire
 

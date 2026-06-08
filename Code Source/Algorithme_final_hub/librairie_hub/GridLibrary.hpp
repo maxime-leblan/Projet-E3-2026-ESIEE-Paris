@@ -14,6 +14,18 @@
 using namespace Eigen;
 
 /*
+Renvoie la matrice de rotation pour transformer le vecteur pStartVector en pResultVector
+pStartVector - vecteur d'origine
+pResultVector - vecteur final que l'on obtient après avoir multiplié pStartVector par la matrice de rotation renvoyée par la fonction
+*/
+Matrix<float, 3, 3> giveRotationalMatrix(V3 pStartVector, V3 pResultVector);
+
+/*
+Renvoie une copie de la liste des points après application de la matrice de rotation
+*/
+vector<V3> applyRotationOnPoints(vector<V3> pPoints, Matrix<float, 3, 3> pRotationalMatrix);
+
+/*
 Attribue aux 4 ancres virtuelles des coordonnées à partir des distances entre chaque ancre réelle. 
 Pour cela, la fonction utilise l'algorithme MDS (Multidimensional Scaling).
 pAnchors - liste des ancres virtuelles
@@ -30,10 +42,3 @@ pIter - nombre d'itérations de la descente de gradient
 pAlpha - vitesse d'apprentissage
 */
 void initAnchorsCoordinatesWithGD(UWBModuleList & pAnchors, unordered_map<string, float> pDistances, int pIter, float pAlpha);
-
-/*
-Renvoie la matrice de rotation pour transformer le vecteur pStartVector en pResultVector
-pStartVector - vecteur d'origine
-
-*/
-Matrix<float, 3, 3> giveRotationalMatrix(V3 pStartVector, V3 pResultVector);

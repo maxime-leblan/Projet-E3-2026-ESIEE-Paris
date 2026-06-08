@@ -3,15 +3,7 @@
 
 /*
 Commande de compilation : 
-g++ -std=c++17 \
-  -I . \
-  -I "../../Algorithme trilatération" \
-  main_test.cpp \
-  GridLibrary.cpp \
-  "../../Algorithme trilatération/UWBModuleList.cpp" \
-  "../../Algorithme trilatération/UWBModule.cpp" \
-  "../../Algorithme trilatération/V3.cpp" \
-  -o main_test
+g++ -std=c++17 -I . -I /usr/include/eigen3 -I "../../Algorithme-trilateration" main_test.cpp GridLibrary.cpp "../../Algorithme-trilateration/UWBModuleList.cpp" "../../Algorithme-trilateration/UWBModule.cpp" "../../Algorithme-trilateration/V3.cpp" -o main_test
 */
 
 unordered_map<string, float> giveErrors(unordered_map<string, float> pRealDistances, unordered_map<string, float> pComputedDistances)
