@@ -2,8 +2,13 @@
 
 #include <cmath>
 #include <ostream>
-#include <Eigen/Core> // taper dans le terminal "dpkg -L libeigen3-dev" pour trouver l'emplacement de la librairie
-#include <Eigen/Dense>
+
+#ifdef ARDUINO
+    #include <ArduinoEigenDense.h>
+#else
+    #include <Eigen/Core> // taper dans le terminal "dpkg -L libeigen3-dev" pour trouver l'emplacement de la librairie
+    #include <Eigen/Dense>
+#endif
 
 #define NUMBER_OF_COORDONATES 3
 #define AXIS_X 1

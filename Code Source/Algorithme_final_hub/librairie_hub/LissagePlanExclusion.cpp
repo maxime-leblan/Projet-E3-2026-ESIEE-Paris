@@ -1,6 +1,8 @@
 #include "LissagePlanExclusion.hpp"
 #include <iostream>
 
+#pragma GCC optimize ("O0")
+
 namespace LissageVehicule {
 
     // --- FONCTION 1 : LE PLAN MOYEN (Régression Orthogonale via ACP) ---

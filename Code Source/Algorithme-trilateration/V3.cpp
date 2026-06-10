@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include "V3.h"
 
 float V3::getCoordonateNumber(int pNumber) const
@@ -34,7 +35,7 @@ V3 operator * (float      a, const V3 & b) {  return V3(a   * b.x, a   * b.y, a 
 V3 operator * (const V3 & a, float      b) {  return V3(a.x * b  , a.y * b, a.z * b);   }
 V3 operator * (const V3 & a, const Eigen::Matrix<float, 3, 3> & b)
 {
-	vector<float> vResult;
+	std::vector<float> vResult;
 	float vCurrentSum = 0;
 
 	for (int i = 0; i < 3; i++)
