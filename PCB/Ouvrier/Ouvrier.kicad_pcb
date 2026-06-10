@@ -1430,7 +1430,7 @@
 				)
 			)
 		)
-		(property "Value" "330R"
+		(property "Value" "1k"
 			(at 5.08 2.37 0)
 			(layer "F.Fab")
 			(uuid "0c9a9197-888f-48b8-a936-df1c8c0c8fcc")

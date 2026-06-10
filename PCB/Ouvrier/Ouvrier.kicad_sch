@@ -4629,7 +4629,7 @@
 				)
 			)
 		)
-		(property "Value" "330R"
+		(property "Value" "1k"
 			(at 207.01 113.03 90)
 			(show_name no)
 			(do_not_autoplace no)
