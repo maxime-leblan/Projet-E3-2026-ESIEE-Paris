@@ -1,5 +1,17 @@
 #include "GridLibrary.hpp"
 
+vector<V3> applyRotationOnPoints(vector<V3> pPoints, Eigen::Matrix<float, 3, 3> pRotationalMatrix)
+{
+    vector<V3> vNewPoints;
+
+    for (int i = 0; i < pPoints.size(); i++)
+    {
+        vNewPoints.push_back(pPoints[i] * pRotationalMatrix);
+    }
+
+    return vNewPoints;
+}
+
 void initAnchorsCoordinates(UWBModuleList & pAnchors, unordered_map<string, float> pDistances)
 {
     // on récupère les véritables identifiants des ancres, auquels on accédera par les indices de la liste de 0 à 3
@@ -118,15 +130,27 @@ void initAnchorsCoordinatesWithGD(UWBModuleList & pAnchors, unordered_map<string
     }
 }
 
-Matrix<float, 3, 3> giveRotationalMatrix(V3 pStartVector, V3 pResultVector)
+Eigen::Matrix<float, 3, 3> giveRotationalMatrix(V3 pStartVector, V3 pResultVector)
 {
     V3 vUnitStartVector = pStartVector.getNormalized();
     V3 vUnitResultVector = pResultVector.getNormalized();
-    Matrix<float, 3, 3> vR;
-    V3 vRotationalAxis = prodVect(vUnitStartVector, vUnitResultVector);
-    float vAngleCosinus = prodScal(vUnitStartVector, vUnitResultVector);
-    //Matrix<float
+    Eigen::Matrix<float, 3, 3> vR;
 
+    // on calcule la valeur du vecteur qui modélise l'axe de rotation auquel le vecteur pStartVector devra tourner pour donner le pResultVector
+    V3 vRotationalAxis = prodVect(vUnitStartVector, vUnitResultVector);
+
+    // puis on calcule le cosinus de l'angle entre pStartVector et pResultVector
+    float vAngleCosinus = prodScal(vUnitStartVector, vUnitResultVector);
+
+    Eigen::Matrix<float, 3, 3> vAntiSymmetric;
+    vAntiSymmetric << 0.0f, -vRotationalAxis.getZ(), vRotationalAxis.getY(),
+                    vRotationalAxis.getZ(), 0.0f, -vRotationalAxis.getX(),
+                    -vRotationalAxis.getY(), vRotationalAxis.getX(), 0.0f;
+    
+    Eigen::Matrix<float, 3, 3> vIdentity = Eigen::Matrix<float, 3, 3>::Identity();
+
+    vR = vIdentity + vAntiSymmetric + (1/(1 + vAngleCosinus)) * (vAntiSymmetric * vAntiSymmetric);
+    
     return vR;
 
 }

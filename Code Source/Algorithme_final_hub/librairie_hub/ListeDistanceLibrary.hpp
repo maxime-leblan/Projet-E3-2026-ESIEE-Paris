@@ -1,32 +1,39 @@
 #pragma once
 
+#include <Arduino.h>
+#include <vector>
 #include <unordered_map>
-#include <string>
+#include <algorithm>
 
 #ifdef ARDUINO
-    #include <Trilateration.h>
+    #include <UWBModuleList.h>
+    #include <V3.h>
 #else
-    #include "../../Algorithme-trilateration/Trilateration.h" // Contient V3, UWBModuleList, etc.
+    #include "../../Algorithme-trilateration/UWBModuleList.h"
+    #include "../../Algorithme-trilateration/V3.h"
 #endif
-
-#include "Polygone.hpp"      // Ta classe Polygone
 
 namespace ListeDistance {
 
-    /*
-     * Calcule la distance de chaque tag par rapport au rectangle formé par les capteurs
-     * et génère la chaîne JSON.
-     * pTagsPositions - Map contenant l'ID du tag et sa position 3D (V3)
-     * pRectangleCapteurs - Le polygone 2D construit avec les positions des capteurs
-     * Return : Une String contenant le JSON ex: [{"id":101, "dist":3.25}, {"id":102, "dist":0.00}]
-     */
-    String generateTagsDistanceJson(const std::unordered_map<int, V3>& pTagsPositions, Polygone& pRectangleCapteurs);
+    // Structure pour lier un Tag à sa distance calculée par rapport au centre des ancres
+    struct TagTrie {
+        int id;
+        float distanceAuCentre;
+        V3 position;
+    };
 
-    /*
-     * Construit le polygone à partir de la liste des capteurs, calcule les distances,
-     * et envoie le résultat sur le port Série pour l'écran.
+    /**
+     * Calcule le centre géométrique des 4 ancres en faisant la moyenne de leurs coordonnées.
      */
-    void sendDistancesToScreen(const std::unordered_map<int, V3>& pTagsPositions, const UWBModuleList& pSensors);
+    V3 obtenirCentreAncres(UWBModuleList& pAncres);
+
+    /**
+     * Calcule la distance de chaque tag par rapport au centre des ancres,
+     * trie la liste du plus proche au plus lointain, et l'envoie via UART (Serial).
+     */
+    void envoyerDistancesTrieesUART(
+        UWBModuleList& pAncres, 
+        const std::unordered_map<int, V3>& pPositionsTags
+    );
 
 }
-

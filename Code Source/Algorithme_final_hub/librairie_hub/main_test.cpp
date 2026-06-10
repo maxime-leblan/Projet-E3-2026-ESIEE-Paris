@@ -3,15 +3,7 @@
 
 /*
 Commande de compilation : 
-g++ -std=c++17 \
-  -I . \
-  -I "../../Algorithme trilatération" \
-  main_test.cpp \
-  GridLibrary.cpp \
-  "../../Algorithme trilatération/UWBModuleList.cpp" \
-  "../../Algorithme trilatération/UWBModule.cpp" \
-  "../../Algorithme trilatération/V3.cpp" \
-  -o main_test
+g++ -std=c++17 -I . -I /usr/include/eigen3 -I "../../Algorithme-trilateration" main_test.cpp GridLibrary.cpp "../../Algorithme-trilateration/UWBModuleList.cpp" "../../Algorithme-trilateration/UWBModule.cpp" "../../Algorithme-trilateration/V3.cpp" -o main_test
 */
 
 unordered_map<string, float> giveErrors(unordered_map<string, float> pRealDistances, unordered_map<string, float> pComputedDistances)
@@ -61,19 +53,19 @@ unordered_map<string, float> makeDistanceTabFromCoordinates(vector<V3> pCoordina
 
 void printTab(vector<V3> pSensors)
 {
-    for (int i = 1; i <= 4; i++)
+    for (int i = 0; i < pSensors.size(); i++)
     {
         V3 vCoordAnchor = pSensors[i];
-        cout << "Ancre " << i << " : " << vCoordAnchor << "\n";
+        cout << "Ancre " << (i+1) << " : " << vCoordAnchor << "\n";
     }
 }
 
 void printTabUWB(UWBModuleList pSensors)
 {
-    for (int i = 1; i <= 4; i++)
+    for (int i = 0; i < pSensors.size(); i++)
     {
         V3 vCoordAnchor = pSensors.getModule(i).getPosition();
-        cout << "Ancre " << i << " : " << vCoordAnchor << "\n";
+        cout << "Ancre " << (i+1) << " : " << vCoordAnchor << "\n";
     }
 }
 
@@ -151,4 +143,19 @@ int main()
     printTabUWB(vSensors);
     cout << "Erreurs algo descente de gradient (en \% par rapport à la vrai distance): \n";
     printDict(giveErrors(vRealDistances, makeDistanceTabFromCoordinates(giveCoordinates(vSensors))));
+
+    // --------------------------------------------------------------------------------
+    // Application d'une matrice de rotation sur une liste de points
+    cout << "\nPartie rotation de points :\n";
+
+    // vecteurs représentant l'angle de la rotation
+    V3 vStartVector = V3(-5, -1, 3);
+    V3 vResultVector = V3(-5, 5, -2);
+
+    // liste des points que l'on veut déplacer par rotation axiale
+    vector<V3> vPointsList = {V3(-2, -4, 3), V3(-3, 3, 3), V3(-1, 2, 3)};
+
+    // on applique la rotation sur chacun de ces points
+    vPointsList = applyRotationOnPoints(vPointsList, giveRotationalMatrix(vStartVector, vResultVector));
+    printTab(vPointsList);
 }
