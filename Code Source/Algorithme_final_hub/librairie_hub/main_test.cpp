@@ -53,19 +53,19 @@ unordered_map<string, float> makeDistanceTabFromCoordinates(vector<V3> pCoordina
 
 void printTab(vector<V3> pSensors)
 {
-    for (int i = 1; i <= pSensors.size(); i++)
+    for (int i = 0; i < pSensors.size(); i++)
     {
         V3 vCoordAnchor = pSensors[i];
-        cout << "Ancre " << i << " : " << vCoordAnchor << "\n";
+        cout << "Ancre " << (i+1) << " : " << vCoordAnchor << "\n";
     }
 }
 
 void printTabUWB(UWBModuleList pSensors)
 {
-    for (int i = 1; i <= 4; i++)
+    for (int i = 0; i < pSensors.size(); i++)
     {
         V3 vCoordAnchor = pSensors.getModule(i).getPosition();
-        cout << "Ancre " << i << " : " << vCoordAnchor << "\n";
+        cout << "Ancre " << (i+1) << " : " << vCoordAnchor << "\n";
     }
 }
 

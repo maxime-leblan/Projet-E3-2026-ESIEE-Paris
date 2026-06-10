@@ -44,4 +44,9 @@ int main()
     // on affiche nos résultat dans l'environnement 3D
     // view3DEnvironment(vFinalPointsList, vFinalVectorsList);
     view3DEnvironment(convertPointsListAxisToRayLib(vFinalPointsList), convertVectorsListAxisToRayLib(vFinalVectorsList));
+
+    for (int i = 0; i < vFinalPointsList.size(); i++)
+    {
+      cout << "Point " << i << " : " << vFinalPointsList[i] << "\n";
+    }
 }
