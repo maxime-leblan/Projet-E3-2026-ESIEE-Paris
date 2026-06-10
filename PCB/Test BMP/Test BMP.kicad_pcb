@@ -1526,7 +1526,7 @@
 	(segment
 		(start 140.1975 88.87)
 		(end 140.5 88.5675)
-		(width 0.3)
+		(width 0.4)
 		(layer "F.Cu")
 		(net "Net-(J1-Pin_2)")
 		(uuid "0e609135-85cc-47ef-aa25-c81bc206a0d5")
@@ -1654,7 +1654,7 @@
 	(segment
 		(start 138 88.87)
 		(end 140.1975 88.87)
-		(width 0.2)
+		(width 0.4)
 		(layer "F.Cu")
 		(net "Net-(J1-Pin_2)")
 		(uuid "ff66ed7f-77ee-4390-a0d2-c49048cefb9c")
