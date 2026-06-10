@@ -1,0 +1,36 @@
+\usepackage[french]{babel}
+
+%Choix du thème de la police (sans serif, petites capitales dans les titres...) 
+\usepackage{amssymb} 
+% Des symboles mathématiques
+\usepackage{graphicx}
+% Pour insérer des images
+\usepackage{multicol}
+% Pour gérer facilement un environnement à n colonnes
+\usepackage{booktabs}
+% Pour des beaux tableaux
+\usepackage{esvect} 
+% Pour de belles flèches sur les vecteurs
+\usepackage{esdiff}
+% Pour de beaux symboles de dérivation
+\usepackage{siunitx}
+% Pour l'utilisation des unités du système international
+\sisetup{output-decimal-marker={,},inter-unit-product=\ensuremath{{}\cdot{}}}
+% Quelques réglages pour l'affichage des unités
+
+% Pour régler les marges de l'article
+\usepackage{geometry}
+\geometry{hmargin=2cm,vmargin=1.7cm}
+% Pour les couleurs
+\usepackage{color}
+% Pour les indentations
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+\newtcolorbox{indentation}[1][]{
+	blanker, left=1cm, borderline west={0.5mm}{0.6cm}{black!50}, breakable,
+	before skip=2ex plus 0.1ex, after skip=2ex plus 0.1ex, #1
+}
+% Commande pour utiliser une indentation :
+% \begin{indentation}
+%     <texte>
+% \end{indentation}

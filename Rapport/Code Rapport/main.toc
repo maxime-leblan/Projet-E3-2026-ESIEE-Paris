@@ -1,0 +1,5 @@
+\babel@toc {french}{}\relax 
+\contentsline {section}{\numberline {1}Introduction}{3}{}%
+\contentsline {section}{\numberline {2}Hardware}{3}{}%
+\contentsline {section}{\numberline {3}Software}{3}{}%
+\contentsline {section}{\numberline {4}Conclusion}{3}{}%
