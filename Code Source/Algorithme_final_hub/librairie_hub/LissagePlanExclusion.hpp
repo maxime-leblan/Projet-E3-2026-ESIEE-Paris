@@ -12,13 +12,10 @@
     #include "../../Algorithme-trilateration/V3.h"
 #endif
 
-namespace LissageVehicule {
+// Ajout de la classe Polygone
+#include "Polygone.hpp"
 
-    // Structure pour renvoyer les coordonnées 2D finales prêtes pour l'écran
-    struct Point2D {
-        float x;
-        float y;
-    };
+namespace LissageVehicule {
 
     // Représente le repère local de notre "Plan Moyen"
     struct PlanLocal {
@@ -39,8 +36,8 @@ namespace LissageVehicule {
 
     /**
      * FONCTION 2 : Projette les points sur le plan moyen, calcule le périmètre,
-     * et génère exactement 64 points espacés uniformément (où point 64 == point 1).
+     * génère 64 points espacés uniformément, les repasse en 3D et crée le Polygone !
      */
-    std::vector<Point2D> echantillonner64Points(const PlanLocal& plan, const std::vector<V3>& points3D);
+    Polygone echantillonner64Points(int pId, const PlanLocal& plan, const std::vector<V3>& points3D);
 
 }
