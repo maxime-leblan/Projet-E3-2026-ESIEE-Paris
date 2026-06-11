@@ -1,0 +1,239 @@
+\documentclass[french]{article}
+\usepackage{babel}
+\def\frenchcontentsname{Sommaire}
+\usepackage{lipsum}
+\makeatletter
+\def\maketitle{%
+    \begin{center}\leavevmode
+        \normalfont
+        \rule[0pt]{\textwidth}{1pt}\par
+        {\LARGE \@title\par}%
+        {\small \@author\par}%
+        {\Large \@date\par}%
+        \rule[0pt]{\textwidth}{1pt}\par
+    \end{center}%
+}
+\makeatother
+\title{Code source}
+\author{Maxime LE BLAN}
+\date{}
+
+%Choix du thème de la police (sans serif, petites capitales dans les titres...) 
+\usepackage{amssymb} 
+% Des symboles mathématiques
+\usepackage{graphicx}
+% Pour insérer des images
+\usepackage{multicol}
+% Pour gérer facilement un environnement à n colonnes
+\usepackage{booktabs}
+% Pour des beaux tableaux
+\usepackage{esvect} 
+% Pour de belles flèches sur les vecteurs
+\usepackage{esdiff}
+% Pour de beaux symboles de dérivation
+\usepackage{siunitx}
+% Pour l'utilisation des unités du système international
+\sisetup{output-decimal-marker={,},inter-unit-product=\ensuremath{{}\cdot{}}}
+% Quelques réglages pour l'affichage des unités
+
+% Pour régler les marges de l'article
+\usepackage{geometry}
+\geometry{hmargin=2cm,vmargin=1.7cm}
+% Pour les couleurs
+\usepackage{color}
+% Pour les indentations
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+\newtcolorbox{indentation}[1][]{
+	blanker, left=1cm, borderline west={0.5mm}{0.6cm}{black!50}, breakable,
+	before skip=2ex plus 0.1ex, after skip=2ex plus 0.1ex, #1
+}
+% Commande pour utiliser une indentation :
+% \begin{indentation}
+%     <texte>
+% \end{indentation}
+
+% Pour écrire du code en Python :
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{xcolor}
+\usepackage{listings}
+
+\lstset{%
+  language=Python,
+  basicstyle   = \ttfamily,
+  keywordstyle =    \color{red!70!gray},
+  keywordstyle = [2]\color{blue},
+  commentstyle =    \color{gray}\itshape,
+  stringstyle  = \color{green!50!black},
+  numberstyle = \color{gray},
+  numbers = left,
+  frame = single,
+  framesep = 2pt,
+  breaklines = true,
+  aboveskip = 1ex,
+  xleftmargin = 0mm,
+  xrightmargin = 0mm,
+  framexleftmargin = 8mm,
+  literate        =
+                        {é}{{\'e}}{1}%
+                        {è}{{\`e}}{1}%
+                        {à}{{\`a}}{1}%
+                        {â}{{\^a}}{1}%%%
+                        {ç}{{\c{c}}}{1}%
+                        {œ}{{\oe}}{1}%
+                        {ù}{{\`u}}{1}%
+                        {É}{{\'E}}{1}%
+                        {È}{{\`E}}{1}%
+                        {À}{{\`A}}{1}%
+                        {Ç}{{\c{C}}}{1}%
+                        {Œ}{{\OE}}{1}%
+                        {Ê}{{\^E}}{1}%
+                        {ê}{{\^e}}{1}%
+                        {î}{{\^i}}{1}%
+                        {ï}{{\"i}}{1}%%%
+                        {ô}{{\^o}}{1}%
+                        {û}{{\^u}}{1}%
+}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Modules}
+\lstinputlisting{modules.py}
+Diapositive 36
+
+\section{algos\_chiffrement.py}
+\lstinputlisting{algos_1.py}
+Diapositive 37 \\
+
+\lstinputlisting{algos_2.py}
+Diapositive 38 \\
+
+\lstinputlisting{algos_3.py}
+Diapositive 39 \\
+
+\lstinputlisting{algos_4.py}
+Diapositive 40 \\
+
+\lstinputlisting{algos_5.py}
+Diapositive 41 \\
+
+\lstinputlisting{algos_6.py}
+Diapositive 42 \\
+
+\lstinputlisting{algos_7.py}
+Diapositive 43 \\
+
+\lstinputlisting{algos_8.py}
+Diapositive 44 \\
+
+\lstinputlisting{algos_9.py}
+Diapositive 45 \\
+
+\lstinputlisting{algos_10.py}
+Diapositive 46 \\
+
+\lstinputlisting{algos_11.py}
+Diapositive 47 \\
+
+\lstinputlisting{algos_12.py}
+Diapositive 48
+
+\section{serveur.py}
+\lstinputlisting{serveur_1.py}
+Diapositive 49 \\
+
+\lstinputlisting{serveur_2.py}
+Diapositive 50 \\
+
+\lstinputlisting{serveur_3.py}
+Diapositive 51 \\
+
+\lstinputlisting{serveur_4.py}
+Diapositive 52 \\
+
+\lstinputlisting{serveur_5.py}
+Diapositive 53 \\
+
+\lstinputlisting{serveur_6.py}
+Diapositive 54
+
+\section{client.py}
+\lstinputlisting{client_1.py}
+Diapositive 55 \\
+
+\lstinputlisting{client_2.py}
+Diapositive 56 \\
+
+\lstinputlisting{client_3.py}
+Diapositive 57 \\
+
+\lstinputlisting{client_4.py}
+Diapositive 58 \\
+
+\lstinputlisting{client_5.py}
+Diapositive 59 \\
+
+\lstinputlisting{client_6.py}
+Diapositive 60 \\
+
+\lstinputlisting{client_7.py}
+Diapositive 61 \\
+
+\lstinputlisting{client_8.py}
+Diapositive 62 \\
+
+\lstinputlisting{client_9.py}
+Diapositive 63 \\
+
+\lstinputlisting{client_10.py}
+Diapositive 64 \\
+
+\lstinputlisting{client_11.py}
+Diapositive 65 \\
+
+\lstinputlisting{client_12.py}
+Diapositive 66 \\
+
+\lstinputlisting{client_13.py}
+Diapositive 67 \\
+
+\lstinputlisting{client_14.py}
+Diapositive 68
+
+\section{fonctions\_utiles.py}
+\lstinputlisting{fu_1.py}
+Diapositive 69 \\
+
+\lstinputlisting{fu_2.py}
+Diapositive 70 \\
+
+\lstinputlisting{fu_3.py}
+Diapositive 71 \\
+
+\lstinputlisting{fu_4.py}
+Diapositive 72 \\
+
+\lstinputlisting{fu_5.py}
+Diapositive 73 \\
+
+\lstinputlisting{fu_6.py}
+Diapositive 74 \\
+
+\lstinputlisting{fu_7.py}
+Diapositive 75 \\
+
+\lstinputlisting{fu_8.py}
+Diapositive 76 \\
+
+\lstinputlisting{fu_9.py}
+Diapositive 77 \\
+
+\lstinputlisting{fu_10.py}
+Diapositive 78
+
+\end{document}
