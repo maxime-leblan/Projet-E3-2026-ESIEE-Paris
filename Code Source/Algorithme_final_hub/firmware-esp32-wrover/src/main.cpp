@@ -19,7 +19,7 @@ void setup() {
 
   // On crée les variables qui vont stocker toutes les informations concernant les ancres, les tags et la zone de sécurité
   // On commence par les ancres
-  UWBModuleList vAnchors = initAnchors();
+  UWBModuleList vAnchors = initAnchors("Anchors");
 
   // Puis on crée la liste des tags (vide pour le moment)
   UWBModuleList vTags;
