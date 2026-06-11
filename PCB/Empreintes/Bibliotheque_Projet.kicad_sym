@@ -709,7 +709,7 @@
 		(in_pos_files yes)
 		(duplicate_pin_numbers_are_jumpers no)
 		(property "Reference" "U"
-			(at 26.67 17.78 0)
+			(at -1.778 20.574 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -720,7 +720,7 @@
 			)
 		)
 		(property "Value" "BMP581"
-			(at 26.67 15.24 0)
+			(at -1.778 18.034 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -851,8 +851,8 @@
 		)
 		(symbol "BMP581_1_1"
 			(rectangle
-				(start 5.08 12.7)
-				(end 25.4 -15.24)
+				(start -10.16 13.97)
+				(end 10.16 -13.97)
 				(stroke
 					(width 0.254)
 					(type default)
@@ -862,9 +862,9 @@
 				)
 			)
 			(pin passive line
-				(at 0 0 0)
+				(at -15.24 10.16 0)
 				(length 5.08)
-				(name "VDDIO"
+				(name "VDD"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -880,9 +880,9 @@
 				)
 			)
 			(pin passive line
-				(at 0 -2.54 0)
+				(at -15.24 3.81 0)
 				(length 5.08)
-				(name "SCK"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -898,9 +898,9 @@
 				)
 			)
 			(pin passive line
-				(at 12.7 -20.32 90)
+				(at -15.24 -1.27 0)
 				(length 5.08)
-				(name "VSS_1"
+				(name "SCL"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -916,7 +916,7 @@
 				)
 			)
 			(pin passive line
-				(at 15.24 -20.32 90)
+				(at -15.24 -7.62 0)
 				(length 5.08)
 				(name "SDI"
 					(effects
@@ -934,9 +934,9 @@
 				)
 			)
 			(pin passive line
-				(at 17.78 -20.32 90)
+				(at 15.24 -7.62 180)
 				(length 5.08)
-				(name "SDO"
+				(name "INT"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -952,7 +952,7 @@
 				)
 			)
 			(pin passive line
-				(at 30.48 -2.54 180)
+				(at 15.24 -1.27 180)
 				(length 5.08)
 				(name "CSB"
 					(effects
@@ -970,9 +970,9 @@
 				)
 			)
 			(pin passive line
-				(at 30.48 0 180)
+				(at 15.24 3.81 180)
 				(length 5.08)
-				(name "INT"
+				(name "SDO"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -988,9 +988,9 @@
 				)
 			)
 			(pin passive line
-				(at 17.78 17.78 270)
+				(at 15.24 10.16 180)
 				(length 5.08)
-				(name "VSS_2"
+				(name "GND"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -998,42 +998,6 @@
 					)
 				)
 				(number "8"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at 15.24 17.78 270)
-				(length 5.08)
-				(name "VSS_3"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "9"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at 12.7 17.78 270)
-				(length 5.08)
-				(name "VDD"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "10"
 					(effects
 						(font
 							(size 1.27 1.27)
