@@ -1,8 +1,13 @@
-#include <HubDataStorage.hpp>
+#include "HubDataStorage.hpp"
 
-#include "../../Algorithme-trilateration/Trilateration.h"
-#include "../../Algorithme_final_hub/librairie_hub/GridLibrary.hpp"
-#include "../../Algorithme_final_hub/librairie_hub/Polygone.hpp"
+//Hugues : Test communications via WiFi.
+#include <WiFi.h>
+#include <HTTPClient.h>
+//\Hugues
+
+#include "Trilateration.h"
+#include "GridLibrary.hpp"
+#include "Polygone.hpp"
 
 void setup() {
   // Initialisation du port série à la vitesse configurée dans platformio.ini
@@ -24,6 +29,11 @@ void setup() {
 
 
   // PARTIE DE HUGUES en dessous de cette ligne de code
+  WiFi.begin("MaTouch_Radar", "12345678");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+  }
+  //\Hugues
 
 }
 

@@ -1,4 +1,6 @@
 #include "ListeDistanceLibrary.hpp"
+#include "HTTPClient.h"
+#include "ArduinoJson.h"
 
 namespace ListeDistance {
 
@@ -66,6 +68,7 @@ namespace ListeDistance {
             return a.distanceAuCentre < b.distanceAuCentre; // Trie par ordre croissant
         });
 
+        /*
         // 5. ENVOI DES DONNÉES SUR LE PORT UART (Serial)
         Serial.println("--- DEBUT TRAME UART HUB ---");
         Serial.printf("Centre Ancres calculé: X=%.2f Y=%.2f Z=%.2f\n", centreAncres.getX(), centreAncres.getY(), centreAncres.getZ());
@@ -79,6 +82,40 @@ namespace ListeDistance {
                           tag.position.getZ());
         }
         Serial.println("--- FIN TRAME UART HUB ---");
+        */
+
+        // 5. ENVOI DES DONNÉES SUR LE PORT UART (Serial)
+
+        JsonDocument doc;
+
+        for (const auto& tag : listeA_trier) {
+            JsonObject obj = doc.add<JsonObject>();
+            obj["id"] = tag.id;
+
+            // On arrondit à 2 décimales pour éviter les chiffres trop longs 
+            obj["dist"] = round(tag.distanceAuCentre * 100.0) / 100.0; 
+            obj["x"] = round(tag.position.getX() * 100.0) / 100.0; 
+            obj["y"] = round(tag.position.getY() * 100.0) / 100.0; 
+            obj["z"] = round(tag.position.getZ() * 100.0) / 100.0; 
+        } 
+    
+        // On transforme l'objet en vrai texte compréhensible par le Wi-Fi 
+        String json; 
+        serializeJson(doc, json); 
+        
+        // --- ENVOI DE LA REQUÊTE --- 
+        HTTPClient http; 
+        http.begin("http://192.168.4.1/api/update"); 
+        http.addHeader("Content-Type", "application/json"); 
+        int httpResponseCode = http.POST(json); 
+        
+        // Retour visuel 
+        if (httpResponseCode > 0) { 
+            Serial.printf("Envoi WiFi OK (Code %d) -> %s\n", httpResponseCode, json.c_str()); 
+        } else { 
+            Serial.printf("Erreur Envoi WiFi (Code %d)\n", httpResponseCode); 
+        } 
+        http.end();
     }
 
 }
