@@ -488,7 +488,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "HUB2.kicad_pro",
+    "filename": "Hub.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -643,8 +643,8 @@
     "subpart_id_separator": 0,
     "top_level_sheets": [
       {
-        "filename": "HUB2.kicad_sch",
-        "name": "HUB2",
+        "filename": "Hub.kicad_sch",
+        "name": "Hub",
         "uuid": "08f5f273-7560-4bf5-9444-cae26833cf8d"
       }
     ],
@@ -654,7 +654,7 @@
   "sheets": [
     [
       "08f5f273-7560-4bf5-9444-cae26833cf8d",
-      "HUB2"
+      "Hub"
     ]
   ],
   "text_variables": {},
