@@ -1,0 +1,361 @@
+(footprint "Connecteur male Grove_Mabee"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(property "Reference" "J1"
+		(at 1 2 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "c729c649-45dc-499d-8bb6-2f9331624797")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+		)
+	)
+	(property "Value" "Grove_Mabee Connecteur"
+		(at 0 0.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "5d3d1d00-dd5b-441d-bd1a-cd553f572571")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "9aae9b07-9d8a-4c94-98e4-2d9fd36a91ba")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" "Connector Header Surface Mount 4 position 0.079 (2.00mm)"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "2b7272d2-b4da-4646-9425-f40bb69bc7c0")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "MF" "JST Sales"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "2e53dc88-83c8-494e-8bf8-516953ef0bc3")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "MAXIMUM_PACKAGE_HEIGHT" "6.6mm"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "9b74d0ee-132c-4cd3-b1ff-31ee7bcf69cd")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Package" "NON STANDARD-4 JST"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "ea9e2195-938f-4db9-a7ee-6311489160a8")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Price" "None"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "19c1b263-1ead-4807-a949-efe32f347d0e")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Check_prices" "https://www.snapeda.com/parts/B4B-PH-SM4-TB/JST/view-part/?ref=eda"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "24c11843-e125-44c0-b572-304acc346a90")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "STANDARD" "Manufacturer Recommendations"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "7d9a56fa-46da-4b28-b455-0f7acc8985da")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "PARTREV" "N/A"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "3cbdacdc-62ab-4a60-aa8a-cbf6948198f8")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "SnapEDA_Link" "https://www.snapeda.com/parts/B4B-PH-SM4-TB/JST/view-part/?ref=snap"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "524208dd-77a9-4005-a8a1-5f56325db97d")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "MP" "B4B-PH-SM4-TB"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "b07b95de-e9cd-495d-8b01-609f610b1dbc")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Purchase-URL" "https://www.snapeda.com/api/url_track_click_mouser/?unipart_id=48901&manufacturer=JST Sales&part_name=B4B-PH-SM4-TB&search_term=b4b-ph-sm4-tb"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "cbef7a29-d424-40d8-aa39-443892d0c94e")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "MANUFACTURER" "JST"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "6ae8be28-c13c-4713-ae2a-e1b7f56095a3")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Availability" "In Stock"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "2267e1ce-b432-453c-b573-0c19f9392fb6")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "SNAPEDA_PN" "B4B-PH-SM4-TB"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "be4ca5d5-2aa8-4fb6-970b-e3cdfcd15413")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(sheetname "/")
+	(sheetfile "HUB2.kicad_sch")
+	(attr smd)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_rect
+		(start -4 4.5)
+		(end 6 12.5)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill no)
+		(layer "F.SilkS")
+		(uuid "040f0cf9-8ced-42c2-8bed-70050be069be")
+	)
+	(fp_line
+		(start -4.5 3)
+		(end -4.5 13)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.CrtYd")
+		(uuid "5840bc88-b739-41d5-89f4-c5c42563781a")
+	)
+	(fp_line
+		(start -4.5 13)
+		(end 6.5 13)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.CrtYd")
+		(uuid "46567093-802d-41e3-842e-e6399bd9439e")
+	)
+	(fp_line
+		(start 6.5 3)
+		(end -4.5 3)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.CrtYd")
+		(uuid "56eeccfc-d458-4d3b-a855-ed9601cbef65")
+	)
+	(fp_line
+		(start 6.5 13)
+		(end 6.5 3)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "F.CrtYd")
+		(uuid "f2c2ec75-76de-4824-9350-3797b636d458")
+	)
+	(fp_text user ""
+		(at 2 3.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "27fb7126-bee9-4f2c-a79b-a901af7027c8")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(fp_text user ""
+		(at 2 3.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "311dda1d-ffa6-41a0-b156-a2bd133c76c8")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(fp_text user ""
+		(at 2 3.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "9999c366-372b-4ab4-93eb-1612388d27f3")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(fp_text user ""
+		(at 2 3.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "c80b055f-f1cb-4b5a-85d7-509a2bec3c67")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole circle
+		(at 4 4.5 90)
+		(size 1.665 1.665)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "21ae1f73-bf2f-4cc3-a637-9cb58aea3239")
+	)
+	(pad "2" thru_hole circle
+		(at 2 4.5 90)
+		(size 1.665 1.665)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "5f30b438-fd20-4c3d-932c-a25f5955830d")
+	)
+	(pad "3" thru_hole circle
+		(at 0 4.5 90)
+		(size 1.665 1.665)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "05812c4d-b9f6-4223-bdf2-5129b6c8a0ab")
+	)
+	(pad "4" thru_hole circle
+		(at -2 4.5 90)
+		(size 1.665 1.665)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "620e0c2b-4d6a-49b4-90eb-76fcc9219eb4")
+	)
+	(embedded_fonts no)
+)
