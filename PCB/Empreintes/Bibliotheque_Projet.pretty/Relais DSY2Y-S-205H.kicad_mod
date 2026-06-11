@@ -1,0 +1,418 @@
+(footprint "Relais DSY2Y-S-205H"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(descr "DSY2Y-S-205L-2")
+	(tags "Relay or Contactor")
+	(property "Reference" "K1"
+		(at 8.35 -3.81 0)
+		(layer "F.SilkS")
+		(uuid "ef18077e-832e-4082-b092-4c2d653cce2b")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+			)
+		)
+	)
+	(property "Value" "DSY2Y-S-205H"
+		(at 8.35 -3.81 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "fdb2efd7-ed3a-4d72-b1b3-c688c04209f8")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+			)
+		)
+	)
+	(property "Datasheet" "http://www.sanyourelay.ca/public/products/product_list_new.php?series=3&listby=0"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "a86bab6c-7938-4220-a188-6d194a03fcce")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Description" "ULTRA-MINIATURE PC BOARD TYPE POWER RELAY"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "e5afd76e-ea3c-454d-8cce-7d82db645c8f")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Height" "12.1"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "58a82fe9-29f8-4126-af85-8b5139da0e7d")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Manufacturer_Name" "SANYOU"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "02284015-7fe0-41c7-9b6d-0604de256b0f")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Manufacturer_Part_Number" "DSY2Y-S-205L"
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "05805f47-e978-4718-9e5b-288803b558dc")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Mouser Part Number" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "42a005c1-05f6-4367-bfde-5c3f931a1284")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Mouser Price/Stock" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "61249545-f19d-4a94-950e-4651966a3227")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Arrow Part Number" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "bc2ea622-5516-49c1-bdb2-75a28a70ca2b")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Arrow Price/Stock" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "fd04897c-9394-465d-8129-0123e9b8ead2")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(sheetname "/")
+	(sheetfile "HUB2.kicad_sch")
+	(attr through_hole)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_line
+		(start -2.3 0)
+		(end -2.3 0)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "0b7471ad-3b00-4505-9ea9-00934563d457")
+	)
+	(fp_line
+		(start -2.3 0)
+		(end -2.3 0)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "cd956b5f-a22b-4366-8e3b-adb27845cc48")
+	)
+	(fp_line
+		(start -2.2 0)
+		(end -2.2 0)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "5358b35b-04c5-4294-b811-7a177f13084e")
+	)
+	(fp_line
+		(start -1.2 -8.81)
+		(end -1.2 1.19)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "ad767f2d-b90a-4f45-95d1-0abb02ef0eeb")
+	)
+	(fp_line
+		(start -1.2 1.19)
+		(end 19 1.19)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "dd8748e4-11d5-4009-828c-c5e06eea0ccc")
+	)
+	(fp_line
+		(start 19 -8.81)
+		(end -1.2 -8.81)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "76ee4d0f-5db0-431b-938c-e59951d25f77")
+	)
+	(fp_line
+		(start 19 1.19)
+		(end 19 -8.81)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "68d9a82b-6200-4f79-8541-5aae923b2723")
+	)
+	(fp_arc
+		(start -2.3 0)
+		(mid -2.25 -0.05)
+		(end -2.2 0)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "ad1266ab-a046-4467-a8d2-a538738d436a")
+	)
+	(fp_arc
+		(start -2.2 0)
+		(mid -2.25 0.05)
+		(end -2.3 0)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "3a5c58c6-dce0-45c9-9581-236a6828b4fe")
+	)
+	(fp_arc
+		(start -2.2 0)
+		(mid -2.25 0.05)
+		(end -2.3 0)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "d1363c56-2c16-401d-85a9-4fa40a73fdc6")
+	)
+	(fp_line
+		(start -3.3 -9.81)
+		(end -3.3 2.19)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "ac283a7a-3115-4d8c-ba33-423f90857501")
+	)
+	(fp_line
+		(start -3.3 2.19)
+		(end 20 2.19)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "c6d7258d-9c63-4db5-abfb-a54b29d7caf2")
+	)
+	(fp_line
+		(start 20 -9.81)
+		(end -3.3 -9.81)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "03e868a4-99c7-4d56-93a1-21080e581431")
+	)
+	(fp_line
+		(start 20 2.19)
+		(end 20 -9.81)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "7d601440-934a-4d47-86c4-592339b34056")
+	)
+	(fp_line
+		(start -1.2 -8.81)
+		(end 19 -8.81)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "a1c9abaf-d8b4-42fd-b650-8f5434f9ff2f")
+	)
+	(fp_line
+		(start -1.2 1.19)
+		(end -1.2 -8.81)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "63744637-1161-4eaf-9d59-157b64305e5c")
+	)
+	(fp_line
+		(start 19 -8.81)
+		(end 19 1.19)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "aee522e9-db33-41bb-b2df-6aef4ceb8955")
+	)
+	(fp_line
+		(start 19 1.19)
+		(end -1.2 1.19)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "64a6b0c3-d060-4482-ac2d-13dd03def870")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 8.35 -3.81 0)
+		(layer "F.Fab")
+		(uuid "94b6ae43-05dc-4c9e-a281-d0cbe2bb3162")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+			)
+		)
+	)
+	(pad "1" thru_hole circle
+		(at 0 0)
+		(size 1.5 1.5)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "bcf95654-c20f-496f-ba25-cee41c40558e")
+	)
+	(pad "4" thru_hole circle
+		(at 7.62 0)
+		(size 1.5 1.5)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "02bf72c0-0634-4893-b6f9-2142667b8021")
+	)
+	(pad "6" thru_hole circle
+		(at 12.7 0)
+		(size 1.5 1.5)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "2d380b8e-745b-4250-af42-a7217f9be803")
+	)
+	(pad "8" thru_hole circle
+		(at 17.78 0)
+		(size 1.5 1.5)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "014a4021-0ed9-40c0-9c7f-ea05293d08be")
+	)
+	(pad "9" thru_hole circle
+		(at 17.78 -7.62)
+		(size 1.5 1.5)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "ede732e3-00c1-4a70-b1f7-42fafe220883")
+	)
+	(pad "11" thru_hole circle
+		(at 12.7 -7.62)
+		(size 1.5 1.5)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "f524b57e-a998-4d70-803c-115b5914ff7c")
+	)
+	(pad "13" thru_hole circle
+		(at 7.62 -7.62)
+		(size 1.5 1.5)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "2eb27884-1ffe-4e02-9d8b-da0e63bff111")
+	)
+	(pad "16" thru_hole circle
+		(at 0 -7.62)
+		(size 1.5 1.5)
+		(drill 1)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "26adbccc-9576-4b65-b238-96cddd541817")
+	)
+	(embedded_fonts no)
+	(model "DSY2Y-S-205L.stp"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 0)
+		)
+	)
+)
