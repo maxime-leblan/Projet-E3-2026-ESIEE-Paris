@@ -29,6 +29,7 @@ bool operator == (const V3 & a, const V3 & b)
 
 // red�finition des op�rateurs standards
 
+V3& operator += (V3& a, const V3& b) { a = a + b; return a; }
 V3 operator + (const V3 & a, const V3 & b) {  return V3(a.x + b.x, a.y + b.y, a.z + b.z); }
 V3 operator - (const V3 & a, const V3 & b) {  return V3(a.x - b.x, a.y - b.y, a.z - b.z); }
 V3 operator * (float      a, const V3 & b) {  return V3(a   * b.x, a   * b.y, a * b.z); }

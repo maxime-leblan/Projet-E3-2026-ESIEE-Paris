@@ -7,6 +7,18 @@ int UWBModuleList::size()
     return aUWBModuleList.size();
 }
 
+map<int, V3> UWBModuleList::giveModulePositionList()
+{
+    map<int, V3> vModulePositionList;
+
+    for (auto it = aUWBModuleList.begin(); it != aUWBModuleList.end(); it++)
+    {
+        vModulePositionList[it->first] = it->second.getPosition();
+    }
+
+    return vModulePositionList;    
+}
+
 UWBModule UWBModuleList::getModule(int pId)
 {
     return aUWBModuleList[pId];

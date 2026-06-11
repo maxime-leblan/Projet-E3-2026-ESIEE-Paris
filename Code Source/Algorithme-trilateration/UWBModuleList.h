@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <map>
 
 #include "UWBModule.h"
 
@@ -25,6 +26,12 @@ class UWBModuleList
     Renvoie le nombre d'éléments stockés dans la liste
     */
     int size();
+
+    /*
+    Renvoie un dictionnaire contenant la liste des positions des modules de la liste avec chaque position d'un module
+    associé à son identifiant
+    */
+    map<int, V3> giveModulePositionList();
 
     /*
     Renvoie le module associé à l'identifiant passé en paramètre

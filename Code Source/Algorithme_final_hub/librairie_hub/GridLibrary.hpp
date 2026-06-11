@@ -19,11 +19,26 @@ pResultVector - vecteur final que l'on obtient après avoir multiplié pStartVec
 Eigen::Matrix<float, 3, 3> giveRotationalMatrix(V3 pStartVector, V3 pResultVector);
 
 /*
+Renvoie la position de l'épicentre des ancres passées en paramètre
+pAnchors - liste des ancres
+*/
+V3 giveEpicenterPosition(UWBModuleList pAnchors);
+
+/*
 Renvoie une copie de la liste des points après application de la matrice de rotation
 pPoints - liste de points sur lesquels on veut appliquer une rotation
 pRotationalMatrix - matrice permettant de calculer les coordonnées des points après leur rotation
 */
 vector<V3> applyRotationOnPoints(vector<V3> pPoints, Eigen::Matrix<float, 3, 3> pRotationalMatrix);
+
+/*
+Modifie les coordonnées des ancres après leur avoir appliqué une translation qui place l'épicentre des ancres
+à l'origine du repère (i.e. au point de coordonnées (0, 0, 0))
+pAnchors - référence de la liste des ancres
+*/
+void alignAnchorsCoordinatesWithGridOrigin(UWBModuleList & pAnchors);
+
+
 
 /*
 Attribue aux 4 ancres virtuelles des coordonnées à partir des distances entre chaque ancre réelle. 

@@ -1,5 +1,22 @@
 #include "GridLibrary.hpp"
 
+V3 giveEpicenterPosition(UWBModuleList pAnchors)
+{
+    map<int, V3> vModulePositionList = pAnchors.giveModulePositionList();
+
+    V3 vEpicenterPosition;
+
+    // on calcule l'épicentre des ancres (correspond à la moyenne des coordonnées des ancres)
+    for (auto it = vModulePositionList.begin(); it != vModulePositionList.end(); it++)
+    {
+        vEpicenterPosition += it->second;
+    }
+
+    vEpicenterPosition = vEpicenterPosition / (vModulePositionList.size());
+
+    return vEpicenterPosition;
+}
+
 vector<V3> applyRotationOnPoints(vector<V3> pPoints, Eigen::Matrix<float, 3, 3> pRotationalMatrix)
 {
     vector<V3> vNewPoints;
@@ -10,6 +27,24 @@ vector<V3> applyRotationOnPoints(vector<V3> pPoints, Eigen::Matrix<float, 3, 3> 
     }
 
     return vNewPoints;
+}
+
+void alignAnchorsCoordinatesWithGridOrigin(UWBModuleList & pAnchors)
+{
+    vector<int> vAnchorsIdList = pAnchors.giveModuleIdList();
+
+    V3 vEpicenterPosition = giveEpicenterPosition(pAnchors);
+
+    // on en déduit le vecteur translation
+    V3 vTranslationVector = -vEpicenterPosition;
+    V3 vNewAnchorPosition;
+
+    // on parcourt pAnchors pour mettre à jour les positions de chaque ancre après la translation
+    for (int i = 0; i < vAnchorsIdList.size(); i++)
+    {
+        vNewAnchorPosition = pAnchors.getModule(vAnchorsIdList[i]).getPosition() + vTranslationVector;
+        pAnchors.setModulePosition(vAnchorsIdList[i], vNewAnchorPosition);
+    }
 }
 
 void initAnchorsCoordinates(UWBModuleList & pAnchors, unordered_map<string, float> pDistances)
