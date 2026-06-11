@@ -1,0 +1,28 @@
+% On spécifie le type de document que l'on veut ici faire en lateX - ici un rapport en français
+\documentclass[french]{article}
+
+% On importe le code du fichier d'en tête comportant les packages
+\input{header}
+
+% On définit le nombre de sections que contient le document
+\setcounter{tocdepth}{4}
+
+\begin{document}
+
+% Code de la page de présentation du rapport
+\LARGE{Ceci est la première page !}
+
+% On passe une page pour préparer la page du sommaire
+\newpage
+\tableofcontents
+\newpage
+% On inclut ici le fichier contenant l'introduction
+\section{Introduction}
+
+\section{Hardware}
+
+\section{Software}
+
+\section{Conclusion}
+
+\end{document}

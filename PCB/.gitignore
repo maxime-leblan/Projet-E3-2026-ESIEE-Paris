@@ -1,0 +1,17 @@
+# --- Historiques et sauvegardes locales ---
+.history/
+*.bak
+*-bak
+*.lck
+
+# --- Fichiers utilisateur KiCad (propres à ton PC) ---
+# Ce fichier stocke la liste des projets récemment ouverts sur TON KiCad
+*.kicad_prl
+
+# Cache de recherche de KiCad
+fp-info-cache
+
+# --- Dossiers de fabrication (si tu veux les exclure) ---
+# Optionnel : si tu ne veux pas encombrer Git avec les Gerber à chaque export
+**/gerber/
+**/output/

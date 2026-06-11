@@ -1,0 +1,4 @@
+\beamer@sectionintoc {1}{Définitions des notions et méthodes d'implémentations}{4}{0}{1}
+\beamer@sectionintoc {2}{Premier modèle de sécurisation avec l'algorithme RSA}{8}{0}{2}
+\beamer@sectionintoc {3}{Amélioration du premier modèle avec l'algorithme AES}{19}{0}{3}
+\beamer@sectionintoc {4}{Tentative de conservation de l'intégrité des communications}{26}{0}{4}

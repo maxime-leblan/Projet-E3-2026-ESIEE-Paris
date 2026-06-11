@@ -1,0 +1,129 @@
+(footprint "Batterie"
+	(version 20260206)
+	(generator "pcbnew")
+	(generator_version "10.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 0 -0.5 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "f52efb16-9390-4cb6-9eaf-37b9e95006e5")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+		)
+	)
+	(property "Value" "Batterie"
+		(at 0 1 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "1548c24b-ef3d-4ed5-a2df-0d268d17933f")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "c9e30fa4-3c56-4bd6-9a03-d875223130e6")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "5cc05ae1-a7c2-48ae-949d-944210512d58")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(duplicate_pad_numbers_are_jumpers no)
+	(fp_rect
+		(start -4 4)
+		(end 4 9.5)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill no)
+		(layer "F.SilkS")
+		(uuid "a7351f46-0b49-4d9e-b206-017d8c3f2fee")
+	)
+	(fp_text user "Bat-"
+		(at 0 6 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "cde47a2c-028b-4546-8841-f84c786ac185")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+			(justify left bottom)
+		)
+	)
+	(fp_text user "Bat+"
+		(at 0 8.5 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "4e0191b2-cf81-4b3c-a109-a6678aeec3fd")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+			(justify left bottom)
+		)
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 2.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "b1cb95b8-7d5a-476d-82de-b40f6a671103")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "Bat+" thru_hole roundrect
+		(at -1 8)
+		(size 3.27 1.27)
+		(drill 0.8
+			(offset -1 0)
+		)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(roundrect_rratio 0.15)
+		(uuid "b8d16ab4-39be-4432-9b3f-2cad6cfc323c")
+	)
+	(pad "Bat-" thru_hole roundrect
+		(at -1 5.5)
+		(size 3.27 1.27)
+		(drill 0.8
+			(offset -1 0)
+		)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(roundrect_rratio 0.15)
+		(uuid "d5778a4a-b504-44b6-990f-9164414cda95")
+	)
+	(embedded_fonts no)
+)
