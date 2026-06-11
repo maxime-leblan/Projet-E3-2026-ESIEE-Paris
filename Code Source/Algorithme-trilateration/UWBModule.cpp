@@ -2,6 +2,12 @@
 
 UWBModule::UWBModule() {}
 
+UWBModule::UWBModule(int pId)
+{
+    aId = pId;
+    aPosition = V3(0, 0, 0);
+}
+
 UWBModule::UWBModule(int pId, V3 pPosition)
 {
     aId = pId;
