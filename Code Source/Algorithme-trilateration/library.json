@@ -1,0 +1,10 @@
+{
+    "name": "Algorithme-trilateration",
+    "version": "1.0.0",
+    "build": {
+        "srcFilter": [
+            "+<*>", 
+            "-<main_test.cpp>"
+        ]
+    }
+}
