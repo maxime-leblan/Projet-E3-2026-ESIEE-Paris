@@ -65,4 +65,45 @@ int main()
     {
       cout << "Point " << i << " : " << vFinalPointsList[i] << "\n";
     }
+    
+    // --------------------------------------------------------------------
+    // Changement de base
+    cout << "\nPartie changement de base :\n";
+    cout << "\nPoints dans la base de départ :\n";
+
+    vNewPointsList.pop_back();
+    vPointsList = vNewPointsList;
+    vNewPointsList.clear();
+
+    vector<V3> vSafeZonePoints = {V3(-1, 0, 0), V3(-2, 0, 1), V3(-3, -2, 2), V3(-4, -3, 3), V3(-5, -4, 4)};
+
+    vVectorsListA = buildVectorsListFor3DEnvironment(vPointsList);
+    vVectorsListB = buildVectorsListFor3DEnvironment(vSafeZonePoints);
+
+    vFinalVectorsList = concatenateVectorsList(vVectorsListA, vVectorsListB);
+
+    vFinalPointsList = concatenatePointsList(vPointsList, vSafeZonePoints);
+    
+    // on affiche nos résultat dans l'environnement 3D
+    view3DEnvironment(convertPointsListAxisToRayLib(vFinalPointsList), convertVectorsListAxisToRayLib(vFinalVectorsList));
+
+    // on applique maintenant le changement de base
+    V3 vFirstAxisVector = -prodVect((vSafeZonePoints[0] - vSafeZonePoints[1]),(vSafeZonePoints[2] - vSafeZonePoints[1])); 
+    vPointsList = changeCoordinateSystem(vPointsList, vFirstAxisVector);
+    vSafeZonePoints = changeCoordinateSystem(vSafeZonePoints, vFirstAxisVector);
+
+    vVectorsListA = buildVectorsListFor3DEnvironment(vPointsList);
+    vVectorsListB = buildVectorsListFor3DEnvironment(vSafeZonePoints);
+
+    vFinalVectorsList = concatenateVectorsList(vVectorsListA, vVectorsListB);
+
+    vFinalPointsList = concatenatePointsList(vPointsList, vSafeZonePoints);
+    
+    // on affiche nos résultat dans l'environnement 3D
+    view3DEnvironment(convertPointsListAxisToRayLib(vFinalPointsList), convertVectorsListAxisToRayLib(vFinalVectorsList));
+
+    for (int i = 0; i < vFinalPointsList.size(); i++)
+    {
+      cout << "Point " << i << " : " << vFinalPointsList[i] << "\n";
+    }
 }

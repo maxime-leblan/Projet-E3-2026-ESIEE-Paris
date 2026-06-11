@@ -4,7 +4,7 @@ V3 giveEpicenterPosition(UWBModuleList pAnchors)
 {
     std::map<int, V3> vModulePositionList = pAnchors.giveModulePositionList();
 
-    V3 vEpicenterPosition;
+    V3 vEpicenterPosition = V3(0.0f, 0.0f, 0.0f);
 
     // on calcule l'épicentre des ancres (correspond à la moyenne des coordonnées des ancres)
     for (auto it = vModulePositionList.begin(); it != vModulePositionList.end(); it++)
@@ -24,6 +24,49 @@ vector<V3> applyRotationOnPoints(vector<V3> pPoints, Eigen::Matrix<float, 3, 3> 
     for (int i = 0; i < pPoints.size(); i++)
     {
         vNewPoints.push_back(pPoints[i] * pRotationalMatrix);
+    }
+
+    return vNewPoints;
+}
+
+vector<V3> changeCoordinateSystem(vector<V3> pPoints, V3 pNewBasisVector)
+{
+    // on récupère le premier vecteur unitaire de la nouvelle base qui sera perpendiculaire au plan (X, Y) de notre repère
+    V3 vFirstAxisVector = pNewBasisVector.getNormalized();
+
+    // on choisit un vecteur arbitraire t en fonction de la valeur de l'abscisse du vecteur du premier axe
+    V3 vTempVector;
+    if (abs(vFirstAxisVector.getX()) < 0.9)
+    {
+        vTempVector = V3(1, 0, 0);
+    }
+    else
+    {
+        vTempVector = V3(0, 1, 0);
+    }
+
+    // on calcule les coordonnées du vecteur du 2e axe en faisant le produit vectoriel des 2 vecteurs précédents
+    V3 vSecondAxisVector = prodVect(vFirstAxisVector, vTempVector);
+    vSecondAxisVector.normalize();
+
+    // on en déduit le 3e axe en calculant le produit vectoriel des 2 premiers axes
+    V3 vThirdAxisVector = prodVect(vFirstAxisVector, vSecondAxisVector);
+    vThirdAxisVector.normalize();
+
+    // on construit la matrice de passage pour passer tous les points dans la nouvelle base
+    Eigen::Matrix<float, 3, 3> vTransitionMatrix;
+    vTransitionMatrix << vSecondAxisVector.getX(), vSecondAxisVector.getY(), vSecondAxisVector.getZ(),
+                        vThirdAxisVector.getX(), vThirdAxisVector.getY(), vThirdAxisVector.getZ(),
+                        vFirstAxisVector.getX(), vFirstAxisVector.getY(), vFirstAxisVector.getZ();
+
+    // on calcule les nouvelles coordonnées de tous les points
+    vector<V3> vNewPoints;
+    V3 vNewCurrentPoint;
+
+    for (int i = 0; i < pPoints.size(); i++)
+    {
+        vNewCurrentPoint = vTransitionMatrix * pPoints[i];
+        vNewPoints.push_back(vNewCurrentPoint);
     }
 
     return vNewPoints;

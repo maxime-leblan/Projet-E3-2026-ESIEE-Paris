@@ -32,13 +32,18 @@ pRotationalMatrix - matrice permettant de calculer les coordonnées des points a
 vector<V3> applyRotationOnPoints(vector<V3> pPoints, Eigen::Matrix<float, 3, 3> pRotationalMatrix);
 
 /*
+Change les coordonnées des points passés en paramètre pour passer dans la nouvelle base dont le vecteur du premier axe est passé en paramètre
+pPoints - points dont l'on veut passer les coordonnées dans la nouvelle base
+pNewBasisVector - vecteur d'origine (i.e. premier axe) de la nouvelle base à partir duquel on construit les 2 autres axes
+*/
+vector<V3> changeCoordinateSystem(vector<V3> pPoints, V3 pNewBasisVector);
+
+/*
 Modifie les coordonnées des ancres après leur avoir appliqué une translation qui place l'épicentre des ancres
 à l'origine du repère (i.e. au point de coordonnées (0, 0, 0))
 pAnchors - référence de la liste des ancres
 */
 void alignAnchorsCoordinatesWithGridOrigin(UWBModuleList & pAnchors);
-
-
 
 /*
 Attribue aux 4 ancres virtuelles des coordonnées à partir des distances entre chaque ancre réelle. 
