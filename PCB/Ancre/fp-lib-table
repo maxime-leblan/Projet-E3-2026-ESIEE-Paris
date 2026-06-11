@@ -1,4 +1,4 @@
 (fp_lib_table
 	(version 7)
-	(lib (name "Bibliotheque_Projet") (type "KiCad") (uri "${KIPRJMOD}/../Empreintes/Bibliotheque_PCB.pretty") (options "") (descr ""))
+	(lib (name "Bibliotheque_Projet") (type "KiCad") (uri "${KIPRJMOD}/../Empreintes/Bibliotheque_Projet.pretty") (options "") (descr ""))
 )
