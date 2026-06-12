@@ -8,348 +8,6 @@
 		(title "VigiZone_Hub_v1")
 	)
 	(lib_symbols
-		(symbol "BMP581:BMP581"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "U"
-				(at 26.67 17.78 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(property "Value" "BMP581"
-				(at 26.67 15.24 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(property "Footprint" "BMP581"
-				(at 26.67 -84.76 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(property "Datasheet" "https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp581-ds004.pdf"
-				(at 26.67 -184.76 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(property "Description" "Pressure Sensor 4.35PSI ~ 18.13PSI (30kPa ~ 125kPa) Absolute 10-WFLGA"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Height" "0.8"
-				(at 26.67 -384.76 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(property "Manufacturer_Name" "BOSCH"
-				(at 26.67 -484.76 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(property "Manufacturer_Part_Number" "BMP581"
-				(at 26.67 -584.76 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(property "Mouser Part Number" "262-BMP581"
-				(at 26.67 -684.76 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(property "Mouser Price/Stock" "https://www.mouser.co.uk/ProductDetail/Bosch-Sensortec/BMP581?qs=Li%252BoUPsLEntPL9tlFmcgXg%3D%3D"
-				(at 26.67 -784.76 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(property "Arrow Part Number" "BMP581"
-				(at 26.67 -884.76 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(property "Arrow Price/Stock" "https://www.arrow.com/en/products/bmp581/bosch-sensortec?utm_currency=USD&region=nac"
-				(at 26.67 -984.76 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify left top)
-				)
-			)
-			(symbol "BMP581_1_1"
-				(rectangle
-					(start 5.08 12.7)
-					(end 25.4 -15.24)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(pin passive line
-					(at 0 0 0)
-					(length 5.08)
-					(name "VDDIO"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 0 -2.54 0)
-					(length 5.08)
-					(name "SCK"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 12.7 -20.32 90)
-					(length 5.08)
-					(name "VSS_1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 15.24 -20.32 90)
-					(length 5.08)
-					(name "SDI"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 17.78 -20.32 90)
-					(length 5.08)
-					(name "SDO"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 30.48 -2.54 180)
-					(length 5.08)
-					(name "CSB"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 30.48 0 180)
-					(length 5.08)
-					(name "INT"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 17.78 17.78 270)
-					(length 5.08)
-					(name "VSS_2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 15.24 17.78 270)
-					(length 5.08)
-					(name "VSS_3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "9"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 12.7 17.78 270)
-					(length 5.08)
-					(name "VDD"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "10"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Bibliotheque_Projet:2N2222B"
 			(pin_names
 				(hide yes)
@@ -1010,6 +668,312 @@
 						)
 					)
 					(number "9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "Bibliotheque_Projet:BMP581"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "U"
+				(at -1.778 20.574 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Value" "BMP581"
+				(at -1.778 18.034 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Footprint" "Bibliotheque_Projet:BMP581"
+				(at 26.67 -84.76 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Datasheet" "https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp581-ds004.pdf"
+				(at 26.67 -184.76 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Description" "Pressure Sensor 4.35PSI ~ 18.13PSI (30kPa ~ 125kPa) Absolute 10-WFLGA"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Height" "0.8"
+				(at 26.67 -384.76 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Manufacturer_Name" "BOSCH"
+				(at 26.67 -484.76 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Manufacturer_Part_Number" "BMP581"
+				(at 26.67 -584.76 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Mouser Part Number" "262-BMP581"
+				(at 26.67 -684.76 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Mouser Price/Stock" "https://www.mouser.co.uk/ProductDetail/Bosch-Sensortec/BMP581?qs=Li%252BoUPsLEntPL9tlFmcgXg%3D%3D"
+				(at 26.67 -784.76 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Arrow Part Number" "BMP581"
+				(at 26.67 -884.76 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Arrow Price/Stock" "https://www.arrow.com/en/products/bmp581/bosch-sensortec?utm_currency=USD&region=nac"
+				(at 26.67 -984.76 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(symbol "BMP581_1_1"
+				(rectangle
+					(start -10.16 13.97)
+					(end 10.16 -13.97)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin passive line
+					(at -15.24 10.16 0)
+					(length 5.08)
+					(name "VDD"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 3.81 0)
+					(length 5.08)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 -1.27 0)
+					(length 5.08)
+					(name "SCL"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -15.24 -7.62 0)
+					(length 5.08)
+					(name "SDI"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 -7.62 180)
+					(length 5.08)
+					(name "INT"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 -1.27 180)
+					(length 5.08)
+					(name "CSB"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 3.81 180)
+					(length 5.08)
+					(name "SDO"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 15.24 10.16 180)
+					(length 5.08)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -4551,13 +4515,25 @@
 		(uuid "09be0fa6-2e03-4d70-961a-a80070ca0e5f")
 	)
 	(junction
+		(at 62.23 24.13)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "0eae2624-f027-434d-87c2-ff19118f5913")
+	)
+	(junction
 		(at 154.94 31.75)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "153c45e0-de8b-42e8-9bda-b0b78643c188")
 	)
 	(junction
-		(at 227.33 116.84)
+		(at 102.87 90.17)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "1540e70b-8f95-46f1-8573-c71c8bbe7a68")
+	)
+	(junction
+		(at 231.14 129.54)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "16201945-2279-409a-b65e-97cff214480c")
@@ -4569,7 +4545,7 @@
 		(uuid "1952e6f1-60f6-4493-9a1b-227b74d6b522")
 	)
 	(junction
-		(at 227.33 130.81)
+		(at 231.14 143.51)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "34589ab6-cee7-4d43-ba11-4d6b2e18c0e6")
@@ -4587,22 +4563,10 @@
 		(uuid "5e31dfeb-c494-43ce-929c-32a2e58c9dfa")
 	)
 	(junction
-		(at 64.77 78.74)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "7e8f4f52-e328-4a61-9fe7-b30382580fac")
-	)
-	(junction
 		(at 102.87 26.67)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7eb77362-98f1-4d8c-bda5-aafa1a64b3f8")
-	)
-	(junction
-		(at 74.93 78.74)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "81c6e89f-c5c6-44e9-a532-1c7ff1e34ba5")
 	)
 	(junction
 		(at 250.19 90.17)
@@ -4647,12 +4611,6 @@
 		(uuid "ad7c3b04-46a5-4ab7-8b8c-f44cbc5e71a0")
 	)
 	(junction
-		(at 52.07 71.12)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "ae4c7c66-35b4-4aca-ac60-cee43780cc86")
-	)
-	(junction
 		(at 34.29 29.21)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4665,40 +4623,16 @@
 		(uuid "d5adaefc-54d8-4c3d-b69e-3b81e2596d67")
 	)
 	(junction
-		(at 80.01 68.58)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "d87b1dda-b180-42e5-a12b-08883071986c")
-	)
-	(junction
-		(at 62.23 24.13)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "e494c741-dc56-46a5-8acb-7af11b19e927")
-	)
-	(junction
 		(at 100.33 31.75)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ee9143b4-58a6-4354-9ce4-3bcd43878b67")
 	)
 	(junction
-		(at 74.93 68.58)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "eff5ba24-f182-41f5-972b-6cbd6d883f8d")
-	)
-	(junction
 		(at 261.62 76.2)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "f1aa5bd1-1622-4365-9b20-68808158529f")
-	)
-	(junction
-		(at 82.55 68.58)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "f4c4e33a-5317-4a44-b395-8e14de20362a")
 	)
 	(junction
 		(at 121.92 31.75)
@@ -4716,13 +4650,23 @@
 	)
 	(wire
 		(pts
-			(xy 95.25 135.89) (xy 176.53 135.89)
+			(xy 99.06 135.89) (xy 176.53 135.89)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "019b0c3f-40b7-460c-853f-a64a6aa2f648")
+	)
+	(wire
+		(pts
+			(xy 43.18 77.47) (xy 43.18 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0270f20f-506b-4bd2-8ab9-bc4906d299be")
 	)
 	(wire
 		(pts
@@ -4796,16 +4740,6 @@
 	)
 	(wire
 		(pts
-			(xy 86.36 68.58) (xy 86.36 76.2)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "08e446de-c9f3-4302-8713-f18f1299cd24")
-	)
-	(wire
-		(pts
 			(xy 67.31 31.75) (xy 67.31 35.56)
 		)
 		(stroke
@@ -4813,6 +4747,16 @@
 			(type default)
 		)
 		(uuid "0a54028b-e996-4924-b926-81a14fc5eac8")
+	)
+	(wire
+		(pts
+			(xy 54.61 68.58) (xy 54.61 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0b2a36cb-9ac9-4477-8569-5367231c6111")
 	)
 	(wire
 		(pts
@@ -4866,16 +4810,6 @@
 	)
 	(wire
 		(pts
-			(xy 82.55 118.11) (xy 82.55 121.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0eff4c6b-18f2-4be7-b1fa-8c2d68c005f4")
-	)
-	(wire
-		(pts
 			(xy 127 31.75) (xy 154.94 31.75)
 		)
 		(stroke
@@ -4883,6 +4817,16 @@
 			(type default)
 		)
 		(uuid "0f8f86b0-40f8-4465-8ba9-5c82133ecb4f")
+	)
+	(wire
+		(pts
+			(xy 64.77 123.19) (xy 64.77 107.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1002ed5c-9fb6-4f42-bc30-d48942e0ca8c")
 	)
 	(wire
 		(pts
@@ -4906,23 +4850,13 @@
 	)
 	(wire
 		(pts
-			(xy 41.91 71.12) (xy 52.07 71.12)
+			(xy 43.18 77.47) (xy 30.48 77.47)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "13e4f597-4b93-4485-8bfe-13df09951012")
-	)
-	(wire
-		(pts
-			(xy 64.77 97.79) (xy 64.77 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1437bb6b-1cac-43e2-9499-82409a2f48d1")
 	)
 	(wire
 		(pts
@@ -4936,7 +4870,7 @@
 	)
 	(wire
 		(pts
-			(xy 207.01 139.7) (xy 201.93 139.7)
+			(xy 210.82 152.4) (xy 195.58 152.4)
 		)
 		(stroke
 			(width 0)
@@ -4986,6 +4920,16 @@
 	)
 	(wire
 		(pts
+			(xy 63.5 101.6) (xy 66.04 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1f4f1808-052c-4cce-b4f8-b96cfe4b91f5")
+	)
+	(wire
+		(pts
 			(xy 111.76 109.22) (xy 129.54 109.22)
 		)
 		(stroke
@@ -5006,7 +4950,7 @@
 	)
 	(wire
 		(pts
-			(xy 201.93 139.7) (xy 201.93 101.6)
+			(xy 195.58 152.4) (xy 195.58 101.6)
 		)
 		(stroke
 			(width 0)
@@ -5036,7 +4980,7 @@
 	)
 	(wire
 		(pts
-			(xy 227.33 113.03) (xy 227.33 116.84)
+			(xy 231.14 125.73) (xy 231.14 129.54)
 		)
 		(stroke
 			(width 0)
@@ -5063,16 +5007,6 @@
 			(type default)
 		)
 		(uuid "290ad53c-5c9e-4822-bf54-7519af0d3fcb")
-	)
-	(wire
-		(pts
-			(xy 52.07 71.12) (xy 54.61 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2ad22e0a-4321-4999-a0b3-d0bdb47dbc87")
 	)
 	(wire
 		(pts
@@ -5103,6 +5037,16 @@
 			(type default)
 		)
 		(uuid "30b4f322-56c9-45bc-aed3-6bc623930dde")
+	)
+	(wire
+		(pts
+			(xy 96.52 101.6) (xy 99.06 101.6)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3239bb64-7c21-4865-a6d1-9af00b895770")
 	)
 	(wire
 		(pts
@@ -5146,16 +5090,6 @@
 	)
 	(wire
 		(pts
-			(xy 80.01 68.58) (xy 82.55 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "359da2b5-8692-4489-977e-8257a992502d")
-	)
-	(wire
-		(pts
 			(xy 154.94 31.75) (xy 154.94 33.02)
 		)
 		(stroke
@@ -5166,7 +5100,27 @@
 	)
 	(wire
 		(pts
-			(xy 217.17 120.65) (xy 217.17 116.84)
+			(xy 102.87 90.17) (xy 102.87 91.44)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3841fc60-5723-4be8-9518-ef295a16067d")
+	)
+	(wire
+		(pts
+			(xy 64.77 123.19) (xy 115.57 123.19)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3ac6a529-a69f-4302-90e4-4274472e4f4d")
+	)
+	(wire
+		(pts
+			(xy 220.98 133.35) (xy 220.98 129.54)
 		)
 		(stroke
 			(width 0)
@@ -5246,16 +5200,6 @@
 	)
 	(wire
 		(pts
-			(xy 82.55 68.58) (xy 82.55 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4477371b-2e94-4cec-98c2-6f5ec1678db5")
-	)
-	(wire
-		(pts
 			(xy 46.99 132.08) (xy 173.99 132.08)
 		)
 		(stroke
@@ -5286,7 +5230,7 @@
 	)
 	(wire
 		(pts
-			(xy 217.17 130.81) (xy 227.33 130.81)
+			(xy 220.98 143.51) (xy 231.14 143.51)
 		)
 		(stroke
 			(width 0)
@@ -5346,16 +5290,6 @@
 	)
 	(wire
 		(pts
-			(xy 74.93 78.74) (xy 77.47 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "54782a9f-4129-48b3-8135-50fe58f15282")
-	)
-	(wire
-		(pts
 			(xy 243.84 91.44) (xy 243.84 90.17)
 		)
 		(stroke
@@ -5386,7 +5320,7 @@
 	)
 	(wire
 		(pts
-			(xy 227.33 116.84) (xy 227.33 123.19)
+			(xy 231.14 129.54) (xy 231.14 135.89)
 		)
 		(stroke
 			(width 0)
@@ -5413,16 +5347,6 @@
 			(type default)
 		)
 		(uuid "5c50f478-1f99-4d8c-bf15-93cda726368f")
-	)
-	(wire
-		(pts
-			(xy 80.01 68.58) (xy 80.01 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5d0ce6a8-4908-488a-b088-78026b818d80")
 	)
 	(wire
 		(pts
@@ -5456,16 +5380,6 @@
 	)
 	(wire
 		(pts
-			(xy 114.3 96.52) (xy 129.54 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5f34ed57-a821-464b-b4ce-bd13a7ec03b3")
-	)
-	(wire
-		(pts
 			(xy 175.26 73.66) (xy 175.26 133.35)
 		)
 		(stroke
@@ -5486,16 +5400,6 @@
 	)
 	(wire
 		(pts
-			(xy 80.01 123.19) (xy 115.57 123.19)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "615e0966-ed50-4b62-a334-17c97520b3fc")
-	)
-	(wire
-		(pts
 			(xy 116.84 124.46) (xy 116.84 99.06)
 		)
 		(stroke
@@ -5513,6 +5417,16 @@
 			(type default)
 		)
 		(uuid "6262d3f3-4f98-421d-8bac-40b30049c6e4")
+	)
+	(wire
+		(pts
+			(xy 59.69 90.17) (xy 66.04 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6278c74b-3d55-43cb-941b-02186e764bb9")
 	)
 	(wire
 		(pts
@@ -5556,33 +5470,13 @@
 	)
 	(wire
 		(pts
-			(xy 64.77 78.74) (xy 74.93 78.74)
+			(xy 41.91 68.58) (xy 54.61 68.58)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "67ab2485-c2bf-4e3a-993d-e280d3c3660b")
-	)
-	(wire
-		(pts
-			(xy 114.3 121.92) (xy 114.3 96.52)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "68ddf321-3117-4197-9881-538f44833c0b")
-	)
-	(wire
-		(pts
-			(xy 74.93 68.58) (xy 74.93 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "699c1e20-4757-4464-942a-54793430d275")
+		(uuid "68186197-2886-4e74-8829-1283af117b7b")
 	)
 	(wire
 		(pts
@@ -5593,16 +5487,6 @@
 			(type default)
 		)
 		(uuid "6a63903a-982d-4664-bf81-764a3fec92e1")
-	)
-	(wire
-		(pts
-			(xy 52.07 78.74) (xy 52.07 71.12)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6b529bc1-edf4-4e73-8266-ad2bd04bae3a")
 	)
 	(wire
 		(pts
@@ -5656,16 +5540,6 @@
 	)
 	(wire
 		(pts
-			(xy 52.07 78.74) (xy 64.77 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "72c09d9b-b672-461b-aaae-394a059fbec3")
-	)
-	(wire
-		(pts
 			(xy 152.4 27.94) (xy 154.94 27.94)
 		)
 		(stroke
@@ -5673,16 +5547,6 @@
 			(type default)
 		)
 		(uuid "73361690-d8b3-45a8-85b5-ce1b407a05a5")
-	)
-	(wire
-		(pts
-			(xy 41.91 68.58) (xy 74.93 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "74245afa-e08f-43e5-95db-e10e6c895ed1")
 	)
 	(wire
 		(pts
@@ -5726,33 +5590,13 @@
 	)
 	(wire
 		(pts
-			(xy 227.33 125.73) (xy 227.33 130.81)
+			(xy 231.14 138.43) (xy 231.14 143.51)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "7b21c016-5bd5-43e0-af7f-b57c3d519e37")
-	)
-	(wire
-		(pts
-			(xy 82.55 121.92) (xy 114.3 121.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7d718676-448d-4d2b-826f-34c969d5d9f5")
-	)
-	(wire
-		(pts
-			(xy 82.55 68.58) (xy 86.36 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7e69f7e6-6cb7-4f99-a355-950dbaaacdf6")
 	)
 	(wire
 		(pts
@@ -5763,16 +5607,6 @@
 			(type default)
 		)
 		(uuid "80d0586c-364d-4b49-b53d-127382ab474b")
-	)
-	(wire
-		(pts
-			(xy 74.93 77.47) (xy 74.93 78.74)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "80ef99fa-f9b1-4f32-a6fc-15f4cf0b8aa5")
 	)
 	(wire
 		(pts
@@ -5826,16 +5660,6 @@
 	)
 	(wire
 		(pts
-			(xy 44.45 60.96) (xy 44.45 134.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8524933e-c897-45a3-a6c7-5d81b321d973")
-	)
-	(wire
-		(pts
 			(xy 111.76 49.53) (xy 111.76 53.34)
 		)
 		(stroke
@@ -5873,16 +5697,6 @@
 			(type default)
 		)
 		(uuid "8c9c8d07-4b6e-4c83-8338-7662f550ee76")
-	)
-	(wire
-		(pts
-			(xy 74.93 68.58) (xy 80.01 68.58)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8e19706f-8b75-4e0c-a7ab-85131d6d9ae2")
 	)
 	(wire
 		(pts
@@ -5933,16 +5747,6 @@
 			(type default)
 		)
 		(uuid "940df4a8-a813-4963-af77-58a5c32f6222")
-	)
-	(wire
-		(pts
-			(xy 77.47 78.74) (xy 77.47 80.01)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "947796c8-7abe-4f40-9a4f-7b3021c67839")
 	)
 	(wire
 		(pts
@@ -6046,6 +5850,16 @@
 	)
 	(wire
 		(pts
+			(xy 62.23 20.32) (xy 62.23 24.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9fd9dd28-3d30-4963-b2a9-a4feebf96a84")
+	)
+	(wire
+		(pts
 			(xy 121.92 22.86) (xy 121.92 31.75)
 		)
 		(stroke
@@ -6053,6 +5867,26 @@
 			(type default)
 		)
 		(uuid "9ff84b0f-0bfe-4cf7-b476-504e1f13c5f3")
+	)
+	(wire
+		(pts
+			(xy 64.77 107.95) (xy 66.04 107.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a0050bdd-a6d8-449a-99d4-cda0b30e1e63")
+	)
+	(wire
+		(pts
+			(xy 60.96 96.52) (xy 60.96 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a01dbcc8-0c2c-4b8d-9171-e89267a7e519")
 	)
 	(wire
 		(pts
@@ -6076,7 +5910,7 @@
 	)
 	(wire
 		(pts
-			(xy 217.17 116.84) (xy 227.33 116.84)
+			(xy 220.98 129.54) (xy 231.14 129.54)
 		)
 		(stroke
 			(width 0)
@@ -6116,6 +5950,16 @@
 	)
 	(wire
 		(pts
+			(xy 66.04 96.52) (xy 60.96 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a51bc6a7-9603-4561-9fa3-f8fe4cc280ae")
+	)
+	(wire
+		(pts
 			(xy 173.99 143.51) (xy 173.99 147.32)
 		)
 		(stroke
@@ -6126,7 +5970,7 @@
 	)
 	(wire
 		(pts
-			(xy 227.33 130.81) (xy 227.33 132.08)
+			(xy 231.14 143.51) (xy 231.14 144.78)
 		)
 		(stroke
 			(width 0)
@@ -6206,7 +6050,7 @@
 	)
 	(wire
 		(pts
-			(xy 64.77 100.33) (xy 64.77 124.46)
+			(xy 63.5 101.6) (xy 63.5 124.46)
 		)
 		(stroke
 			(width 0)
@@ -6253,6 +6097,16 @@
 			(type default)
 		)
 		(uuid "be1fad9b-bfe5-4453-9b95-6f3830e0cbc0")
+	)
+	(wire
+		(pts
+			(xy 96.52 90.17) (xy 102.87 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "be2a7797-6e5b-4e4b-a9db-2858e3740867")
 	)
 	(wire
 		(pts
@@ -6316,7 +6170,17 @@
 	)
 	(wire
 		(pts
-			(xy 64.77 124.46) (xy 116.84 124.46)
+			(xy 102.87 80.01) (xy 102.87 90.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c6f55676-acfa-48fa-9729-dd9f98eb7ae2")
+	)
+	(wire
+		(pts
+			(xy 63.5 124.46) (xy 116.84 124.46)
 		)
 		(stroke
 			(width 0)
@@ -6446,7 +6310,7 @@
 	)
 	(wire
 		(pts
-			(xy 227.33 147.32) (xy 227.33 149.86)
+			(xy 231.14 160.02) (xy 231.14 162.56)
 		)
 		(stroke
 			(width 0)
@@ -6473,16 +6337,6 @@
 			(type default)
 		)
 		(uuid "d5d3143b-50ba-483a-9e49-f752f944c593")
-	)
-	(wire
-		(pts
-			(xy 80.01 118.11) (xy 80.01 123.19)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d5ea8206-b180-4a12-ab78-995daa8af231")
 	)
 	(wire
 		(pts
@@ -6596,7 +6450,7 @@
 	)
 	(wire
 		(pts
-			(xy 107.95 26.67) (xy 107.95 24.13)
+			(xy 107.95 26.67) (xy 107.95 21.59)
 		)
 		(stroke
 			(width 0)
@@ -6606,7 +6460,7 @@
 	)
 	(wire
 		(pts
-			(xy 217.17 128.27) (xy 217.17 130.81)
+			(xy 220.98 140.97) (xy 220.98 143.51)
 		)
 		(stroke
 			(width 0)
@@ -6626,13 +6480,23 @@
 	)
 	(wire
 		(pts
-			(xy 201.93 101.6) (xy 160.02 101.6)
+			(xy 195.58 101.6) (xy 160.02 101.6)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "e46ab598-5cbb-4b0f-bde2-ab4c01151873")
+	)
+	(wire
+		(pts
+			(xy 44.45 60.96) (xy 44.45 134.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e47a6d2a-4aec-4395-aa21-e152d9cc436f")
 	)
 	(wire
 		(pts
@@ -6646,7 +6510,7 @@
 	)
 	(wire
 		(pts
-			(xy 95.25 100.33) (xy 95.25 135.89)
+			(xy 99.06 101.6) (xy 99.06 135.89)
 		)
 		(stroke
 			(width 0)
@@ -6696,7 +6560,7 @@
 	)
 	(wire
 		(pts
-			(xy 214.63 139.7) (xy 217.17 139.7)
+			(xy 218.44 152.4) (xy 220.98 152.4)
 		)
 		(stroke
 			(width 0)
@@ -6733,6 +6597,16 @@
 			(type default)
 		)
 		(uuid "f0ae0a3e-54dc-481a-a905-550b84fa7286")
+	)
+	(wire
+		(pts
+			(xy 43.18 71.12) (xy 41.91 71.12)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f14bf5b3-aba4-4e62-a7c2-88150737fe0d")
 	)
 	(wire
 		(pts
@@ -6773,6 +6647,16 @@
 			(type default)
 		)
 		(uuid "f3c07471-547a-4440-ae7d-181d3490faa2")
+	)
+	(wire
+		(pts
+			(xy 60.96 80.01) (xy 102.87 80.01)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f5a4ed2a-b7c0-4133-bd8e-87a729836c3a")
 	)
 	(wire
 		(pts
@@ -6826,6 +6710,16 @@
 	)
 	(wire
 		(pts
+			(xy 96.52 96.52) (xy 129.54 96.52)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fd67ac3d-1725-4415-83b7-992b95269eff")
+	)
+	(wire
+		(pts
 			(xy 172.72 91.44) (xy 160.02 91.44)
 		)
 		(stroke
@@ -6834,19 +6728,9 @@
 		)
 		(uuid "ff7282dc-4a0b-47c5-bb51-28f8c5eeed7d")
 	)
-	(wire
-		(pts
-			(xy 77.47 118.11) (xy 77.47 138.43)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ffa5d651-c5fe-4783-99fa-0105a3249896")
-	)
 	(symbol
 		(lib_id "power:GNDREF")
-		(at 227.33 149.86 0)
+		(at 231.14 162.56 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6857,7 +6741,7 @@
 		(fields_autoplaced yes)
 		(uuid "0234e44a-1603-4421-a631-29a01e2bb6d5")
 		(property "Reference" "#PWR014"
-			(at 227.33 156.21 0)
+			(at 231.14 168.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6868,7 +6752,7 @@
 			)
 		)
 		(property "Value" "GNDREF"
-			(at 227.33 154.94 0)
+			(at 231.14 167.64 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6878,7 +6762,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 227.33 149.86 0)
+			(at 231.14 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6889,7 +6773,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 227.33 149.86 0)
+			(at 231.14 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6900,7 +6784,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
-			(at 227.33 149.86 0)
+			(at 231.14 162.56 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8153,7 +8037,7 @@
 	)
 	(symbol
 		(lib_id "Bibliotheque_Projet:Buzzer_12V")
-		(at 227.33 123.19 0)
+		(at 231.14 135.89 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8164,7 +8048,7 @@
 		(fields_autoplaced yes)
 		(uuid "2ca766e1-a860-4d79-9ef0-d93c3aeae94b")
 		(property "Reference" "LS1"
-			(at 242.57 123.1899 0)
+			(at 246.38 135.8899 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8175,7 +8059,7 @@
 			)
 		)
 		(property "Value" "Buzzer 12V"
-			(at 242.57 125.7299 0)
+			(at 246.38 138.4299 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8186,7 +8070,7 @@
 			)
 		)
 		(property "Footprint" "Bibliotheque_Projet:Buzzer 12V"
-			(at 256.54 218.11 0)
+			(at 260.35 230.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8198,7 +8082,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.sameskydevices.com/product/resource/cmt-8504-100-smt-tr.pdf"
-			(at 256.54 318.11 0)
+			(at 260.35 330.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8210,7 +8094,7 @@
 			)
 		)
 		(property "Description" "8.5 mm, 5 Vo-p, 100 dB, Surface Mount (SMT), Magnetic Audio Transducer Buzzer"
-			(at 227.33 123.19 0)
+			(at 231.14 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8221,7 +8105,7 @@
 			)
 		)
 		(property "Height" "4.5"
-			(at 256.54 518.11 0)
+			(at 260.35 530.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8233,7 +8117,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "Same Sky"
-			(at 256.54 618.11 0)
+			(at 260.35 630.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8245,7 +8129,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "CMT-8504-100-SMT-TR"
-			(at 256.54 718.11 0)
+			(at 260.35 730.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8257,7 +8141,7 @@
 			)
 		)
 		(property "Mouser Part Number" "490-CMT-8504100SMTTR"
-			(at 256.54 818.11 0)
+			(at 260.35 830.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8269,7 +8153,7 @@
 			)
 		)
 		(property "Mouser Price/Stock" "https://www.mouser.co.uk/ProductDetail/Same-Sky/CMT-8504-100-SMT-TR?qs=P1JMDcb91o7N%2FrNVZpuJrw%3D%3D"
-			(at 256.54 918.11 0)
+			(at 260.35 930.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8281,7 +8165,7 @@
 			)
 		)
 		(property "Arrow Part Number" "CMT-8504-100-SMT-TR"
-			(at 256.54 1018.11 0)
+			(at 260.35 1030.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8293,7 +8177,7 @@
 			)
 		)
 		(property "Arrow Price/Stock" "https://www.arrow.com/en/products/cmt-8504-100-smt-tr/cui-devices.html?utm_currency=USD&region=nac"
-			(at 256.54 1118.11 0)
+			(at 260.35 1130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8321,7 +8205,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDREF")
-		(at 86.36 76.2 0)
+		(at 102.87 91.44 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8329,10 +8213,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "2fdbcc06-e1fa-4cfc-bdcd-5f6110ee4215")
 		(property "Reference" "#PWR06"
-			(at 86.36 82.55 0)
+			(at 102.87 97.79 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8343,7 +8226,7 @@
 			)
 		)
 		(property "Value" "GNDREF"
-			(at 86.36 81.28 0)
+			(at 102.87 95.25 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8353,7 +8236,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 86.36 76.2 0)
+			(at 102.87 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8364,7 +8247,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 86.36 76.2 0)
+			(at 102.87 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8375,7 +8258,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
-			(at 86.36 76.2 0)
+			(at 102.87 91.44 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8392,6 +8275,190 @@
 			(project "Hub"
 				(path "/08f5f273-7560-4bf5-9444-cae26833cf8d"
 					(reference "#PWR06")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Bibliotheque_Projet:BMP581")
+		(at 81.28 100.33 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "46594573-ff45-4337-94fe-9644f250fd93")
+		(property "Reference" "U2"
+			(at 81.28 81.28 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "BMP581"
+			(at 81.28 83.82 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Bibliotheque_Projet:BMP581"
+			(at 107.95 185.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(property "Datasheet" "https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp581-ds004.pdf"
+			(at 107.95 285.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(property "Description" "Pressure Sensor 4.35PSI ~ 18.13PSI (30kPa ~ 125kPa) Absolute 10-WFLGA"
+			(at 81.28 100.33 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Height" "0.8"
+			(at 107.95 485.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(property "Manufacturer_Name" "BOSCH"
+			(at 107.95 585.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(property "Manufacturer_Part_Number" "BMP581"
+			(at 107.95 685.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(property "Mouser Part Number" "262-BMP581"
+			(at 107.95 785.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(property "Mouser Price/Stock" "https://www.mouser.co.uk/ProductDetail/Bosch-Sensortec/BMP581?qs=Li%252BoUPsLEntPL9tlFmcgXg%3D%3D"
+			(at 107.95 885.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(property "Arrow Part Number" "BMP581"
+			(at 107.95 985.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(property "Arrow Price/Stock" "https://www.arrow.com/en/products/bmp581/bosch-sensortec?utm_currency=USD&region=nac"
+			(at 107.95 1085.09 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(pin "3"
+			(uuid "82d9af15-6fce-4f06-841b-484a64c8d196")
+		)
+		(pin "2"
+			(uuid "b125ef27-940e-43d8-a816-b54fb60ff644")
+		)
+		(pin "6"
+			(uuid "8a2e400e-5059-4212-a295-cd83b8d956e3")
+		)
+		(pin "5"
+			(uuid "32943861-2e60-43eb-b4f9-41fd8d190468")
+		)
+		(pin "4"
+			(uuid "7ce2b699-bf2c-4563-88d8-9d9b188fad58")
+		)
+		(pin "8"
+			(uuid "f4d5e641-3bdb-4558-ab40-11d840f64f97")
+		)
+		(pin "1"
+			(uuid "0931bbc0-dfae-452b-af85-cf90a3f560a9")
+		)
+		(pin "7"
+			(uuid "4762fc34-60e5-4076-b1c2-fa34918218f0")
+		)
+		(instances
+			(project "Hub"
+				(path "/08f5f273-7560-4bf5-9444-cae26833cf8d"
+					(reference "U2")
 					(unit 1)
 				)
 			)
@@ -9412,7 +9479,7 @@
 	)
 	(symbol
 		(lib_id "power:+12V")
-		(at 227.33 113.03 0)
+		(at 231.14 125.73 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -9422,7 +9489,7 @@
 		(dnp no)
 		(uuid "773cef79-baaa-48e8-a0f4-2aab0303c76c")
 		(property "Reference" "#PWR015"
-			(at 227.33 116.84 0)
+			(at 231.14 129.54 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9433,7 +9500,7 @@
 			)
 		)
 		(property "Value" "+12V"
-			(at 227.076 108.458 0)
+			(at 230.886 121.158 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -9443,7 +9510,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 227.33 113.03 0)
+			(at 231.14 125.73 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9454,7 +9521,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 227.33 113.03 0)
+			(at 231.14 125.73 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9465,7 +9532,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+12V\""
-			(at 227.33 113.03 0)
+			(at 231.14 125.73 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9489,7 +9556,7 @@
 	)
 	(symbol
 		(lib_id "power:+3.3V")
-		(at 54.61 71.12 270)
+		(at 30.48 77.47 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -9500,7 +9567,7 @@
 		(fields_autoplaced yes)
 		(uuid "7b6a1531-da8c-4ce8-a2a2-02bea58c0aac")
 		(property "Reference" "#PWR020"
-			(at 50.8 71.12 0)
+			(at 34.29 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9511,18 +9578,17 @@
 			)
 		)
 		(property "Value" "+3.3V"
-			(at 58.42 71.1199 90)
+			(at 29.21 74.93 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left)
 			)
 		)
 		(property "Footprint" ""
-			(at 54.61 71.12 0)
+			(at 30.48 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9533,7 +9599,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 54.61 71.12 0)
+			(at 30.48 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9544,7 +9610,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 54.61 71.12 0)
+			(at 30.48 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9667,7 +9733,7 @@
 			)
 		)
 		(property "Value" "+3.3V"
-			(at 250.19 107.95 0)
+			(at 249.936 106.68 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10077,6 +10143,84 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GNDREF")
+		(at 54.61 71.12 0)
+		(unit 1)
+		(body_style 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "8fbc775e-b327-40a5-a021-e12e04877428")
+		(property "Reference" "#PWR027"
+			(at 54.61 77.47 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "GNDREF"
+			(at 54.61 76.2 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 54.61 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 54.61 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
+			(at 54.61 71.12 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(pin "1"
+			(uuid "c2bb9fb0-e739-4e56-8e77-18d5a57f6458")
+		)
+		(instances
+			(project "Hub"
+				(path "/08f5f273-7560-4bf5-9444-cae26833cf8d"
+					(reference "#PWR027")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Bibliotheque_Projet:Abaisseur_tension_reglable")
 		(at 140.97 22.86 0)
 		(unit 1)
@@ -10233,87 +10377,6 @@
 			(project "Hub"
 				(path "/08f5f273-7560-4bf5-9444-cae26833cf8d"
 					(reference "#PWR016")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 74.93 73.66 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "a35e0ba8-2495-403c-ad13-21d36733fb10")
-		(property "Reference" "C3"
-			(at 69.088 72.136 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "100nf"
-			(at 69.088 74.676 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Capacitor_THT:C_Axial_L3.8mm_D2.6mm_P7.50mm_Horizontal"
-			(at 75.8952 77.47 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 74.93 73.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Unpolarized capacitor"
-			(at 74.93 73.66 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "2"
-			(uuid "c80eed10-8000-427d-a9ec-dc266d82f128")
-		)
-		(pin "1"
-			(uuid "ad3702d4-d491-40c9-9ecf-21be1d4d5c4e")
-		)
-		(instances
-			(project "Hub"
-				(path "/08f5f273-7560-4bf5-9444-cae26833cf8d"
-					(reference "C3")
 					(unit 1)
 				)
 			)
@@ -10697,84 +10760,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GNDREF")
-		(at 77.47 138.43 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "bd77c594-9fbc-4388-b4f6-0e589f36be14")
-		(property "Reference" "#PWR07"
-			(at 77.47 144.78 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "GNDREF"
-			(at 77.47 143.51 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 77.47 138.43 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Datasheet" ""
-			(at 77.47 138.43 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
-			(at 77.47 138.43 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(pin "1"
-			(uuid "16b471e0-f1eb-4f50-bc97-5a94ca5c5f72")
-		)
-		(instances
-			(project "Hub"
-				(path "/08f5f273-7560-4bf5-9444-cae26833cf8d"
-					(reference "#PWR07")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Bibliotheque_Projet:BMI088")
 		(at 27.94 62.23 180)
 		(unit 1)
@@ -11032,7 +11017,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 210.82 139.7 90)
+		(at 214.63 152.4 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -11042,7 +11027,7 @@
 		(dnp no)
 		(uuid "cbee76cf-60e2-4c1a-98f8-c8de18fb3abb")
 		(property "Reference" "R3"
-			(at 211.074 142.748 90)
+			(at 214.884 155.448 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -11052,7 +11037,7 @@
 			)
 		)
 		(property "Value" "1k"
-			(at 210.82 144.78 90)
+			(at 214.63 157.48 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -11062,7 +11047,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal"
-			(at 210.82 141.478 90)
+			(at 214.63 154.178 90)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11073,7 +11058,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 210.82 139.7 0)
+			(at 214.63 152.4 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11084,7 +11069,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 210.82 139.7 0)
+			(at 214.63 152.4 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11375,7 +11360,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 62.23 24.13 0)
+		(at 62.23 20.32 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -11385,7 +11370,7 @@
 		(dnp no)
 		(uuid "d3bb796f-4554-4645-81e9-3d6bc20068f5")
 		(property "Reference" "#PWR010"
-			(at 62.23 27.94 0)
+			(at 62.23 24.13 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11396,7 +11381,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 61.722 20.066 0)
+			(at 61.722 16.256 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -11406,7 +11391,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 62.23 24.13 0)
+			(at 62.23 20.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11417,7 +11402,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 62.23 24.13 0)
+			(at 62.23 20.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11428,7 +11413,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 62.23 24.13 0)
+			(at 62.23 20.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11452,7 +11437,7 @@
 	)
 	(symbol
 		(lib_id "power:+12V")
-		(at 107.95 24.13 0)
+		(at 107.95 21.59 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -11462,7 +11447,7 @@
 		(dnp no)
 		(uuid "d766e742-0682-4e42-91a1-c0b10dfff6f2")
 		(property "Reference" "#PWR05"
-			(at 107.95 27.94 0)
+			(at 107.95 25.4 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11473,7 +11458,7 @@
 			)
 		)
 		(property "Value" "+12V"
-			(at 107.95 20.32 0)
+			(at 107.95 17.78 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -11483,7 +11468,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 107.95 24.13 0)
+			(at 107.95 21.59 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11494,7 +11479,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 107.95 24.13 0)
+			(at 107.95 21.59 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11505,7 +11490,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+12V\""
-			(at 107.95 24.13 0)
+			(at 107.95 21.59 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11683,7 +11668,7 @@
 	)
 	(symbol
 		(lib_id "Bibliotheque_Projet:2N2222B")
-		(at 217.17 139.7 0)
+		(at 220.98 152.4 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -11694,7 +11679,7 @@
 		(fields_autoplaced yes)
 		(uuid "e7a79bda-8b7d-4424-ae2f-5a38e94d000e")
 		(property "Reference" "Q2"
-			(at 231.14 138.4299 0)
+			(at 234.95 151.1299 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -11705,7 +11690,7 @@
 			)
 		)
 		(property "Value" "2N2222"
-			(at 231.14 140.9699 0)
+			(at 234.95 153.6699 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -11716,7 +11701,7 @@
 			)
 		)
 		(property "Footprint" "Bibliotheque_Projet:2N2222B"
-			(at 231.14 240.97 0)
+			(at 234.95 253.67 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11728,7 +11713,7 @@
 			)
 		)
 		(property "Datasheet" "https://diotec.com/request/datasheet/2n2222a.pdf"
-			(at 231.14 340.97 0)
+			(at 234.95 353.67 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11740,7 +11725,7 @@
 			)
 		)
 		(property "Description" "NPN General purpose transistor . IC 150 mA . f 	100 MHz"
-			(at 217.17 139.7 0)
+			(at 220.98 152.4 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11751,7 +11736,7 @@
 			)
 		)
 		(property "Sim.Device" "NPN"
-			(at 217.17 139.7 0)
+			(at 220.98 152.4 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11762,7 +11747,7 @@
 			)
 		)
 		(property "Sim.Pins" "1=E 2=B 3=C"
-			(at 217.17 139.7 0)
+			(at 220.98 152.4 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11773,7 +11758,7 @@
 			)
 		)
 		(property "Height" "7.5"
-			(at 231.14 540.97 0)
+			(at 234.95 553.67 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11785,7 +11770,7 @@
 			)
 		)
 		(property "Mouser Part Number" "637-2N2222A"
-			(at 231.14 640.97 0)
+			(at 234.95 653.67 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11797,7 +11782,7 @@
 			)
 		)
 		(property "Mouser Price/Stock" "https://www.mouser.co.uk/ProductDetail/Diotec-Semiconductor/2N2222A?qs=OlC7AqGiEDmNlRSTGL2dYg%3D%3D"
-			(at 231.14 740.97 0)
+			(at 234.95 753.67 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11809,7 +11794,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "Diotec"
-			(at 231.14 840.97 0)
+			(at 234.95 853.67 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11821,7 +11806,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "2N2222A"
-			(at 231.14 940.97 0)
+			(at 234.95 953.67 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12197,8 +12182,8 @@
 		)
 	)
 	(symbol
-		(lib_id "BMP581:BMP581")
-		(at 64.77 97.79 0)
+		(lib_id "power:+3.3V")
+		(at 59.69 90.17 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -12207,53 +12192,9 @@
 		(in_pos_files yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "f237575c-9cc8-47bc-b005-393028520fba")
-		(property "Reference" "U1"
-			(at 95.25 91.3698 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "BMP581"
-			(at 95.25 93.9098 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "projet:BMP581"
-			(at 91.44 182.55 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-			)
-		)
-		(property "Datasheet" "https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmp581-ds004.pdf"
-			(at 91.44 282.55 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-			)
-		)
-		(property "Description" "Pressure Sensor 4.35PSI ~ 18.13PSI (30kPa ~ 125kPa) Absolute 10-WFLGA"
-			(at 64.77 97.79 0)
+		(uuid "f49411d5-c7c6-4cd0-8939-32b0c6174afc")
+		(property "Reference" "#PWR028"
+			(at 63.5 90.17 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12263,8 +12204,19 @@
 				)
 			)
 		)
-		(property "Height" "0.8"
-			(at 91.44 482.55 0)
+		(property "Value" "+3.3V"
+			(at 55.88 90.1699 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 59.69 90.17 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12272,11 +12224,10 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left top)
 			)
 		)
-		(property "Manufacturer_Name" "BOSCH"
-			(at 91.44 582.55 0)
+		(property "Datasheet" ""
+			(at 59.69 90.17 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12284,11 +12235,10 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left top)
 			)
 		)
-		(property "Manufacturer_Part_Number" "BMP581"
-			(at 91.44 682.55 0)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 59.69 90.17 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12296,91 +12246,15 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(justify left top)
 			)
-		)
-		(property "Mouser Part Number" "262-BMP581"
-			(at 91.44 782.55 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-			)
-		)
-		(property "Mouser Price/Stock" "https://www.mouser.co.uk/ProductDetail/Bosch-Sensortec/BMP581?qs=Li%252BoUPsLEntPL9tlFmcgXg%3D%3D"
-			(at 91.44 882.55 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-			)
-		)
-		(property "Arrow Part Number" "BMP581"
-			(at 91.44 982.55 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-			)
-		)
-		(property "Arrow Price/Stock" "https://www.arrow.com/en/products/bmp581/bosch-sensortec?utm_currency=USD&region=nac"
-			(at 91.44 1082.55 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-			)
-		)
-		(pin "2"
-			(uuid "501c2331-a8ef-4cf4-b606-4b27b7674c5e")
-		)
-		(pin "6"
-			(uuid "5ed6a2c0-30eb-4a07-9724-223a35d04c06")
-		)
-		(pin "3"
-			(uuid "01326ba6-4a01-457f-b798-627075f849f0")
 		)
 		(pin "1"
-			(uuid "907e1aaf-0adc-43a5-ba78-6abceaf6786b")
-		)
-		(pin "4"
-			(uuid "d5516527-ebfc-4435-9c5e-66bcc40ff3bc")
-		)
-		(pin "5"
-			(uuid "ed932972-9cef-43b0-a762-7db20c846abc")
-		)
-		(pin "7"
-			(uuid "7954cbf4-dd5e-48dd-a20e-5bb801fb39fc")
-		)
-		(pin "10"
-			(uuid "b26524d5-5614-409f-82e0-0db4dee356c0")
-		)
-		(pin "9"
-			(uuid "df193d65-eaf1-4162-9588-bf2359d75798")
-		)
-		(pin "8"
-			(uuid "4b11672e-6ba8-4f11-9bc9-c8447615f37d")
+			(uuid "35309ee5-927b-4c87-bac1-2d83b0f5d623")
 		)
 		(instances
 			(project "Hub"
 				(path "/08f5f273-7560-4bf5-9444-cae26833cf8d"
-					(reference "U1")
+					(reference "#PWR028")
 					(unit 1)
 				)
 			)
@@ -12465,7 +12339,7 @@
 	)
 	(symbol
 		(lib_id "Bibliotheque_Projet:Diode_FR107")
-		(at 217.17 124.46 270)
+		(at 220.98 137.16 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -12476,7 +12350,7 @@
 		(fields_autoplaced yes)
 		(uuid "f9ff703e-d8eb-4228-b65d-775b9c0c831f")
 		(property "Reference" "D1"
-			(at 219.71 123.1899 90)
+			(at 223.52 135.8899 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -12487,7 +12361,7 @@
 			)
 		)
 		(property "Value" "FR107"
-			(at 219.71 125.7299 90)
+			(at 223.52 138.4299 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -12498,7 +12372,7 @@
 			)
 		)
 		(property "Footprint" "Bibliotheque_Projet:Diode FR107"
-			(at 212.725 124.46 0)
+			(at 216.535 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12509,7 +12383,7 @@
 			)
 		)
 		(property "Datasheet" "http://www.vishay.com/docs/85622/1n914.pdf"
-			(at 217.17 124.46 0)
+			(at 220.98 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12520,7 +12394,7 @@
 			)
 		)
 		(property "Description" "100V 0.3A Small Signal Fast Switching Diode, DO-35"
-			(at 217.17 124.46 0)
+			(at 220.98 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12531,7 +12405,7 @@
 			)
 		)
 		(property "Sim.Device" "D"
-			(at 217.17 124.46 0)
+			(at 220.98 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12542,7 +12416,7 @@
 			)
 		)
 		(property "Sim.Pins" "1=K 2=A"
-			(at 217.17 124.46 0)
+			(at 220.98 137.16 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
