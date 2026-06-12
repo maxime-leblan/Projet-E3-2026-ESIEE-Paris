@@ -48,6 +48,12 @@ class UWBModule
     */
     int getId() const;
 
+    /**
+     * Renvoie une chaîne de caractère permettant de représenter textuellement un module UWB
+     * @return (<id>, <position>)
+     */
+    string toString();
+
     /*
     Renvoie la position du module
     */

@@ -19,6 +19,11 @@ int UWBModule::getId() const
     return aId;
 }
 
+string UWBModule::toString()
+{
+    return "(" + to_string(aId) + ", " + aPosition + ")";
+}
+
 V3 UWBModule::getPosition() const
 {
     return aPosition;

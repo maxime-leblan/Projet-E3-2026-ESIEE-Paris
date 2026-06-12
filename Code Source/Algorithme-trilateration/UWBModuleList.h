@@ -33,6 +33,12 @@ class UWBModuleList
     */
     std::map<int, V3> giveModulePositionList() const;
 
+    /**
+     * Renvoie une chaîne de caractères permettant de représenter la liste de module textuellement
+     * @return Une chaîne de type [(<id_0>, <position_0>), (<id_1>, <position_1>),...,(<id_n>, <position_n>)] ou [] si elle est vide
+     */
+    string toString();
+
     /*
     Renvoie le module associé à l'identifiant passé en paramètre
     pId - identifiant du module que l'on veut récupérer

@@ -22,13 +22,14 @@ void setup() {
   // On crée les variables qui vont stocker toutes les informations concernant les ancres, les tags et la zone de sécurité
   // On commence par les ancres
   UWBModuleList vAnchors = initAnchors("Anchors");
+  Serial.println(("Contenu de la liste des ancres :\n" + vAnchors.toString()).c_str());
 
   // Puis on crée la liste des tags (vide pour le moment)
   UWBModuleList vTags;
 
   // On déclare la variable stockant la zone de sécurité
   Polygone vSafeZone = Polygone(0, initSafeZone("SafeZone"));
-
+  Serial.println(("Contenu de la zone de sécurité :\n" + vSafeZone.toString()).c_str());
 
   // PARTIE DE HUGUES en dessous de cette ligne de code
   WiFi.begin("MaTouch_Radar", "12345678");

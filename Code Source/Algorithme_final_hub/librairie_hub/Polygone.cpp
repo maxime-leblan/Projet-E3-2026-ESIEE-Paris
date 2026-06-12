@@ -91,3 +91,21 @@ float Polygone::getDistanceFrom(V3 pPoint)
 
     return vMinEdgeDist;
 }
+
+string Polygone::toString()
+{
+    string vString = "[";
+
+    for (int i = 0; i < aPoints.size(); i++)
+    {
+        vString += aPoints[i].toString() + ", ";
+    }
+
+    if (vString.size() > 1)
+    {
+        vString.pop_back();
+        vString.pop_back();
+    }
+
+    return vString + "]";
+}
