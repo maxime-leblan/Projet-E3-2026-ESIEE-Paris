@@ -17,49 +17,6 @@ std::map<int, V3> loadMapData(const char* pNamespaceName, const char* pKeyName, 
     return vResultMap;
 }
 
-template <typename T>
-size_t saveData(const char* pNamespaceName, const char* pKeyName, const T* pData, size_t pElementCount) {
-    Preferences vPrefs;
-    size_t vTotalSize = pElementCount * sizeof(T);
-
-    // Ouverture du namespace en mode écriture
-    vPrefs.begin(pNamespaceName, false);
-
-    // Écriture du bloc de données brutes
-    size_t vBytesWritten = vPrefs.putBytes(pKeyName, reinterpret_cast<const uint8_t*>(pData), vTotalSize);
-
-    vPrefs.end();
-    return vBytesWritten;
-}
-
-template <typename T>
-size_t loadData(const char* pNamespaceName, const char* pKeyName, T* pDataDestination, size_t pMaxElementCount = 1) {
-    Preferences vPrefs;
-    
-    // Ouverture du namespace en mode lecture seule
-    vPrefs.begin(pNamespaceName, true);
-
-    // Récupération de la taille totale stockée en Flash
-    size_t vStoredSize = vPrefs.getBytesLength(pKeyName);
-    if (vStoredSize == 0) {
-        vPrefs.end();
-        return 0;
-    }
-
-    // Calcul du nombre d'éléments présents en Flash
-    size_t vStoredElementCount = vStoredSize / sizeof(T);
-    
-    // Sécurité pour ne pas dépasser la capacité de la destination
-    size_t vElementsToRead = (vStoredElementCount < pMaxElementCount) ? vStoredElementCount : pMaxElementCount;
-    size_t vBytesToRead = vElementsToRead * sizeof(T);
-
-    // Lecture des données brutes
-    vPrefs.getBytes(pKeyName, reinterpret_cast<uint8_t*>(pDataDestination), vBytesToRead);
-
-    vPrefs.end();
-    return vElementsToRead;
-}
-
 UWBModuleList initAnchors(const char* pAnchorsNamespace, int pNbAnchors)
 {
     Preferences vPrefs;

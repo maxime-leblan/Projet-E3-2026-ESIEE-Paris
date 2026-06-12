@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Arduino.h>
 #include <vector>
 #include <unordered_map>
 #include <algorithm>

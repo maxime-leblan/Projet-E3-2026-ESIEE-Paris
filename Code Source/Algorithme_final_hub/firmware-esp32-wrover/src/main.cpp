@@ -1,4 +1,6 @@
 #include "HubDataStorage.hpp"
+#include <ArduinoEigenDense.h>
+#include <ArduinoJson.h>
 
 //Hugues : Test communications via WiFi.
 #include <WiFi.h>
