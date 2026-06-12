@@ -77,7 +77,11 @@ vector<V3> initSafeZone(const char* pSafeZoneNamespace, int pNbSafeZonePoints)
     {
         Serial.println("Namespace SafeZone existant. Lecture des données...");
 
-        loadData(pSafeZoneNamespace, pSafeZoneNamespace, &vSafeZone, pNbSafeZonePoints);
+        // On redimensionne le vecteur pour allouer l'espace en mémoire RAM
+        vSafeZone.resize(pNbSafeZonePoints);
+
+        // On passe le pointeur vers le premier élément du tableau (.data())
+        loadData(pSafeZoneNamespace, pSafeZoneNamespace, vSafeZone.data(), pNbSafeZonePoints);
     }
     else
     {
