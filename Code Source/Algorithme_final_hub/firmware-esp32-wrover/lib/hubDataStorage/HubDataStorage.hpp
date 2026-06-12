@@ -7,6 +7,7 @@
 #include "../../../Algorithme-trilateration/Trilateration.h"
 
 #define ANCHORS_NUMBER 4
+#define SAFEZONE_POINTS_NUMBER 64
 
 struct HubMapEntry {
     int aKey;
@@ -16,7 +17,7 @@ struct HubMapEntry {
 /**
  * Charge les données depuis la Flash NVS et reconstruit le dictionnaire <int, V3>.
  */
-std::unordered_map<int, V3> loadMapData(const char* pNamespaceName, const char* pKeyName, size_t pMaxElementCount);
+std::map<int, V3> loadMapData(const char* pNamespaceName, const char* pKeyName, size_t pMaxElementCount);
 
 /**
  * Lit de manière générique n'importe quel type de donnée ou tableau depuis la Flash NVS.
@@ -34,9 +35,17 @@ size_t saveData(const char* pNamespaceName, const char* pKeyName, const T* pData
 
 /*
 Initialise des ancres par défauts qui n'ont pas de positions et renvoie la liste de ces ancres
+pAnchorsNamespace - nom du namespace et de la clé permettant d'accéder aux ancres dans la Flash
 pNbAnchors - nombre d'ancres à initialiser (valant ANCHORS_NUMBER par défaut)
 */
 UWBModuleList initAnchors(const char* pAnchorsNamespace, int pNbAnchors=ANCHORS_NUMBER);
+
+/*
+Initialise la zone de sécurité dans le cas où celle-ci est déja existante dans la Flash.
+pSafeZoneNamespace - nom du namespace et de la clé permettant d'accéder à la zone de sécurité dans la Flash
+pNbSafeZonePoints - nombre de points formant la zone de sécurité
+*/
+vector<V3> initSafeZone(const char* pSafeZoneNamespace, int pNbSafeZonePoints=SAFEZONE_POINTS_NUMBER);
 
 /*
 Affiche des messages dans le moniteur série pour vérifier que la PSRAM est bien active
@@ -54,4 +63,4 @@ void resetFlash();
 /**
  * Convertit et sauvegarde un dictionnaire <int, V3> dans la Flash NVS.
  */
-void saveMapData(const char* pNamespaceName, const char* pKeyName, const std::unordered_map<int, V3>& pMap);
+void saveMapData(const char* pNamespaceName, const char* pKeyName, const std::map<int, V3>& pMap);

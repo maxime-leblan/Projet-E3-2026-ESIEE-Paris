@@ -7,7 +7,7 @@ int UWBModuleList::size()
     return aUWBModuleList.size();
 }
 
-std::map<int, V3> UWBModuleList::giveModulePositionList()
+std::map<int, V3> UWBModuleList::giveModulePositionList() const
 {
     std::map<int, V3> vModulePositionList;
 

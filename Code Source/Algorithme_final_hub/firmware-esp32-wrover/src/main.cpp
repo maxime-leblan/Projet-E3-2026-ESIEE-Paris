@@ -25,7 +25,7 @@ void setup() {
   UWBModuleList vTags;
 
   // On déclare la variable stockant la zone de sécurité
-  Polygone vSafeZone;
+  Polygone vSafeZone = Polygone(0, initSafeZone("SafeZone"));
 
 
   // PARTIE DE HUGUES en dessous de cette ligne de code

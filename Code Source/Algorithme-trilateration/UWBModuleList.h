@@ -31,7 +31,7 @@ class UWBModuleList
     Renvoie un dictionnaire contenant la liste des positions des modules de la liste avec chaque position d'un module
     associé à son identifiant
     */
-    std::map<int, V3> giveModulePositionList();
+    std::map<int, V3> giveModulePositionList() const;
 
     /*
     Renvoie le module associé à l'identifiant passé en paramètre

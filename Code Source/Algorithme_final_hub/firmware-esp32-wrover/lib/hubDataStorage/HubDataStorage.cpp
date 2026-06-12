@@ -1,7 +1,7 @@
 #include "HubDataStorage.hpp"
 
-std::unordered_map<int, V3> loadMapData(const char* pNamespaceName, const char* pKeyName, size_t pMaxElementCount) {
-    std::unordered_map<int, V3> vResultMap;
+std::map<int, V3> loadMapData(const char* pNamespaceName, const char* pKeyName, size_t pMaxElementCount) {
+    std::map<int, V3> vResultMap;
     
     // 1. On crée un tableau plat temporaire pour recevoir les octets de la Flash
     std::vector<HubMapEntry> vEntries(pMaxElementCount);
@@ -73,8 +73,7 @@ UWBModuleList initAnchors(const char* pAnchorsNamespace, int pNbAnchors)
     bool vNamespaceExists = vPrefs.isKey("initDone");
 
     if (!vNamespaceExists) {
-        Serial.println("Namespace vide ou nouveau. Initialisation...");
-        vPrefs.putBool("initDone", true); // Crée la clé témoin
+        Serial.println("Namespace Ancre vide ou nouveau. Initialisation...");
 
         // On attribue aux modules la position (0, 0, 0) par défaut
         for (int i = 0; i < pNbAnchors; i++)
@@ -82,11 +81,17 @@ UWBModuleList initAnchors(const char* pAnchorsNamespace, int pNbAnchors)
             vNewAnchor = UWBModule(i);
             vAnchors.addModule(vNewAnchor.getId(), vNewAnchor);
         }
+
+        // On enregistre déjà ces positions temporaires dans la Flash au cas où le programme se coupe en plein milieu
+        saveMapData(pAnchorsNamespace, pAnchorsNamespace, vAnchors.giveModulePositionList());
+
+        // On confirme qu'on a bien enregistré les positions des ancres
+        vPrefs.putBool("initDone", true); // Crée la clé témoin
     }
     else {
-        Serial.println("Namespace existant. Lecture des données...");
+        Serial.println("Namespace Ancre existant. Lecture des données...");
         
-        std::unordered_map<int, V3> vAnchorsPosition = loadMapData(pAnchorsNamespace, pAnchorsNamespace, ANCHORS_NUMBER);
+        std::map<int, V3> vAnchorsPosition = loadMapData(pAnchorsNamespace, pAnchorsNamespace, ANCHORS_NUMBER);
 
         for (auto it = vAnchorsPosition.begin(); it != vAnchorsPosition.end(); it++)
         {
@@ -98,6 +103,32 @@ UWBModuleList initAnchors(const char* pAnchorsNamespace, int pNbAnchors)
     vPrefs.end();
 
     return vAnchors;
+}
+
+vector<V3> initSafeZone(const char* pSafeZoneNamespace, int pNbSafeZonePoints)
+{
+    Preferences vPrefs;
+    vector<V3> vSafeZone;
+
+    // Ouvre le namespace en mode Lecture/Écriture
+    vPrefs.begin(pSafeZoneNamespace, false);
+
+    // Vérifie si la clé témoin existe
+    bool vNamespaceExists = vPrefs.isKey("initDone");
+
+    if (vNamespaceExists)
+    {
+        Serial.println("Namespace SafeZone existant. Lecture des données...");
+
+        loadData(pSafeZoneNamespace, pSafeZoneNamespace, &vSafeZone, pNbSafeZonePoints);
+    }
+    else
+    {
+        Serial.println("Namespace SafeZone vide ou nouveau. Lancer la calibration de la zone de sécurité " \
+            "avant de pouvoir utiliser le prototype.");
+    }
+
+    return vSafeZone;
 }
 
 void initHub()
@@ -125,7 +156,7 @@ void resetFlash()
     while(true); // boucle infinie pour empêcher le programme principale de faire autre chose ensuite
 }
 
-void saveMapData(const char* pNamespaceName, const char* pKeyName, const std::unordered_map<int, V3>& pMap) {
+void saveMapData(const char* pNamespaceName, const char* pKeyName, const std::map<int, V3>& pMap) {
     // 1. On crée un tableau dynamique temporaire (contigu en mémoire)
     std::vector<HubMapEntry> vEntries;
     vEntries.reserve(pMap.size());
