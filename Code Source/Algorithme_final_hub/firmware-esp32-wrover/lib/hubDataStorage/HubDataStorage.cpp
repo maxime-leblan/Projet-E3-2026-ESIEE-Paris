@@ -126,6 +126,9 @@ vector<V3> initSafeZone(const char* pSafeZoneNamespace, int pNbSafeZonePoints)
     {
         Serial.println("Namespace SafeZone vide ou nouveau. Lancer la calibration de la zone de sécurité " \
             "avant de pouvoir utiliser le prototype.");
+        
+        // On ajoute 1 unique élément à vSafeZone pour indiquer que la zone de sécurité n'a pas encore été initialisée
+        vSafeZone.push_back(V3(0, 0, 0));
     }
 
     return vSafeZone;

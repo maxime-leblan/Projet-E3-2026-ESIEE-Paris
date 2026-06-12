@@ -19,6 +19,24 @@ std::map<int, V3> UWBModuleList::giveModulePositionList() const
     return vModulePositionList;    
 }
 
+string UWBModuleList::toString()
+{
+    string vString = "[";
+
+    for (auto it = aUWBModuleList.begin(); it != aUWBModuleList.end(); it++)
+    {
+        vString += (it->second).toString() + ", ";
+    }
+
+    if (vString.size() > 1)
+    {
+        vString.pop_back();
+        vString.pop_back();
+    }
+
+    return vString + "]";
+}
+
 UWBModule UWBModuleList::getModule(int pId)
 {
     return aUWBModuleList[pId];

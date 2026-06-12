@@ -59,4 +59,10 @@ class Polygone
     pPoint - point dont on veut obtenir la distance par rapport au polygone
     */
     float getDistanceFrom(V3 pPoint);
+
+    /**
+     * Renvoie une chaîne de caractères représentant textuellement la liste des points formant le polygone
+     * @return [(x_0, y_0, z_0), (x_1, y_1, z_1),...,(x_n, y_n, z_n)] ou [] si elle est vide
+     */
+    string toString();
 };
