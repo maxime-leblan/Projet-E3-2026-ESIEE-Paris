@@ -4956,6 +4956,16 @@
 	)
 	(wire
 		(pts
+			(xy 176.53 144.78) (xy 176.53 147.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1d5175cd-56b5-430d-9e1b-0887a6eabed5")
+	)
+	(wire
+		(pts
 			(xy 111.76 109.22) (xy 129.54 109.22)
 		)
 		(stroke
@@ -6026,7 +6036,7 @@
 	)
 	(wire
 		(pts
-			(xy 173.99 142.24) (xy 173.99 147.32)
+			(xy 173.99 143.51) (xy 173.99 147.32)
 		)
 		(stroke
 			(width 0)
@@ -6356,7 +6366,7 @@
 	)
 	(wire
 		(pts
-			(xy 176.53 147.32) (xy 182.88 147.32)
+			(xy 176.53 144.78) (xy 184.15 144.78)
 		)
 		(stroke
 			(width 0)
@@ -6676,7 +6686,7 @@
 	)
 	(wire
 		(pts
-			(xy 182.88 147.32) (xy 182.88 149.86)
+			(xy 184.15 144.78) (xy 184.15 147.32)
 		)
 		(stroke
 			(width 0)
@@ -7946,7 +7956,7 @@
 	)
 	(symbol
 		(lib_id "power:GNDREF")
-		(at 182.88 149.86 0)
+		(at 184.15 147.32 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7954,10 +7964,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "2b14e46a-046b-47a8-867a-623ad0d964b2")
 		(property "Reference" "#PWR019"
-			(at 182.88 156.21 0)
+			(at 184.15 153.67 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7968,7 +7977,7 @@
 			)
 		)
 		(property "Value" "GNDREF"
-			(at 182.88 154.94 0)
+			(at 189.992 149.098 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7978,7 +7987,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 182.88 149.86 0)
+			(at 184.15 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7989,7 +7998,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 182.88 149.86 0)
+			(at 184.15 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8000,7 +8009,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
-			(at 182.88 149.86 0)
+			(at 184.15 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8769,7 +8778,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 173.99 142.24 0)
+		(at 173.99 143.51 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8777,10 +8786,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "658eaa9c-99e0-4e16-8c2a-88e25e532118")
 		(property "Reference" "#PWR021"
-			(at 173.99 146.05 0)
+			(at 173.99 147.32 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8791,7 +8799,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 173.99 137.16 0)
+			(at 177.546 141.986 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8801,7 +8809,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 173.99 142.24 0)
+			(at 173.99 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8812,7 +8820,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 173.99 142.24 0)
+			(at 173.99 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8823,7 +8831,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 173.99 142.24 0)
+			(at 173.99 143.51 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
