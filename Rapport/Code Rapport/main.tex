@@ -1,5 +1,5 @@
 % On spécifie le type de document que l'on veut ici faire en lateX - ici un rapport en français
-\documentclass[french]{article}
+\documentclass[10pt, french]{article}
 
 % On importe le code du fichier d'en tête comportant les packages
 \input{header}
@@ -9,19 +9,31 @@
 
 \begin{document}
 
+% Désactive l'affichage des numéros de page pour cette page et les suivantes
+\pagenumbering{gobble} 
+
 % Code de la page de présentation du rapport
 \LARGE{Ceci est la première page !}
 
+
 % On passe une page pour préparer la page du sommaire
 \newpage
-\tableofcontents
+\rmfamily{\tableofcontents} % On met un style différent uniquement pour la table des matières
 \newpage
+\pagenumbering{arabic} % Réactive l'affichage des numéros de page
+\setcounter{page}{1} % on démarre au numéro de page 1 
+
+% On définit le style du texte de notre rapport
+\rmfamily
+\normalsize % on met le corps de texte en petit
+
 % On inclut ici le fichier contenant l'introduction
 \section{Introduction}
 
 \section{Hardware}
 
 \section{Software}
+\input{Software/software}
 
 \section{Conclusion}
 
