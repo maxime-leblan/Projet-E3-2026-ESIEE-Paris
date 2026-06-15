@@ -37,16 +37,17 @@ void setup() {
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
   }
-  //\Hugues
   */
+  initWifi();
+  //\Hugues
+  
 }
 
-void loop()
-{
-
+void loop() {
+  /*
   // Code de test pour communiquer avec les modules UWB
   // Toute les 5 secondes on envoie un message
-  if((millis() -previousTime)>5000){ 
+  if((millis() -previousTime)>5000){
     // Set values to send
     strcpy(myData.aSenderName, nom);
     
@@ -60,4 +61,6 @@ void loop()
       sendData(i);
     }
     previousTime=millis();
+  }
+  */
 }
