@@ -5,7 +5,7 @@ Pour le Hub CAN :
 GPIO_25 TXD
 GPIO_34 RXD
 */
-
+#include <Arduino.h>
 #include <esp_now.h>// https://github.com/espressif/esp-idf/blob/master/components/esp_wifi/include/esp_now.h
 #include <WiFi.h>
 
@@ -29,9 +29,9 @@ Message dataRcv;
  * @param pRXGPIONumber Numéro GPIO de la broche utilisée pour la réception des données par UART
  * @param TXGPIONumber Numéro GPIO de la broche utilisée pour la transmission des données par UART
  * @param pBaud Vitesse de transmission des données série, exprimée en bits par seconde (bps), souvent à 115200 ou 9600 pour les ESP32
- * @return Un canal de communication UART configuré.
+ * @param pUARTChannel Référence à la variable contenant le canal de communication UART que l'on veut configurer
  */
-HardwareSerial initUARTReceiver(int pUartNumber, int pRXGPIONumber, int TXGPIONumber, int pBaud);
+void initUARTReceiver(int pUartNumber, int pRXGPIONumber, int TXGPIONumber, int pBaud, HardwareSerial & pUARTChannel);
 
 /**
  * Configure puis renvoie un canal de communication UART dont le numéro d'identification est passé en paramètre
@@ -39,16 +39,16 @@ HardwareSerial initUARTReceiver(int pUartNumber, int pRXGPIONumber, int TXGPIONu
  * @param pRXGPIONumber Numéro GPIO de la broche utilisée pour la réception des données par UART
  * @param TXGPIONumber Numéro GPIO de la broche utilisée pour la transmission des données par UART
  * @param pBaud Vitesse de transmission des données série, exprimée en bits par seconde (bps), souvent à 115200 ou 9600 pour les ESP32
- * @return Un canal de communication UART configuré.
+ * @param pUARTChannel Référence à la variable contenant le canal de communication UART que l'on veut configurer
  */
-HardwareSerial initUARTTransmitter(int pUartNumber, int pRXGPIONumber, int TXGPIONumber, int pBaud);
+void initUARTTransmitter(int pUartNumber, int pRXGPIONumber, int TXGPIONumber, int pBaud, HardwareSerial & pUARTChannel);
 
 /**
  * Vérifie si des données ont été envoyées par le canal UART passé en paramètre, et si c'est le cas, renvoie le message reçu.
  * @param pSerialSource Référence de la variable contenant le canal UART par lequel la source a envoyé son message
- * @return Le message réceptionné sous forme de chaîne de caractère
+ * @param pMessageReceived Référence de la variable contenant le message réceptionné sous forme de chaîne de caractère
  */
-String receiveDataUART(HardwareSerial & pSerialSource);
+void receiveDataUART(HardwareSerial & pSerialSource, String & pMessageReceived);
 
 /**
  * Envoie le contenu de du message passé en paramètre au canal UART passé en paramètre

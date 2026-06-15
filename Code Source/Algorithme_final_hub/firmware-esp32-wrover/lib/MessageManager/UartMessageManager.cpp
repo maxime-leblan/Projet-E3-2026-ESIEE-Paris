@@ -1,28 +1,24 @@
 #include "UartMessageManager.hpp"
 
-HardwareSerial initUartReceiver(int pUartNumber, int pRXGPIONumber, int TXGPIONumber, int pBaud)
+void initUARTReceiver(int pUartNumber, int pRXGPIONumber, int TXGPIONumber, int pBaud, HardwareSerial & pUARTChannel)
 {
-    HardwareSerial vMySerial(pUartNumber);
+    pUARTChannel = HardwareSerial(pUartNumber);
 
-    vMySerial.begin(pBaud, SERIAL_8N1, pRXGPIONumber, TXGPIONumber);  // UART setup
+    pUARTChannel.begin(pBaud, SERIAL_8N1, pRXGPIONumber, TXGPIONumber);  // UART setup
   
     Serial.println("ESP32 UART Receiver initialised");
-
-    return vMySerial;
 }
 
-HardwareSerial initUartTransmitter(int pUartNumber, int pRXGPIONumber, int TXGPIONumber, int pBaud)
+void initUARTTransmitter(int pUartNumber, int pRXGPIONumber, int TXGPIONumber, int pBaud, HardwareSerial & pUARTChannel)
 {
-    HardwareSerial vMySerial(pUartNumber);
+    pUARTChannel = HardwareSerial(pUartNumber);
 
-    vMySerial.begin(pBaud, SERIAL_8N1, pRXGPIONumber, TXGPIONumber);  // UART setup
+    pUARTChannel.begin(pBaud, SERIAL_8N1, pRXGPIONumber, TXGPIONumber);  // UART setup
   
     Serial.println("ESP32 UART Transmitter initialised");
-
-    return vMySerial;
 }
 
-String receiveData(HardwareSerial & pSerialSource)
+String receiveDataUART(HardwareSerial & pSerialSource)
 {
     // Check if data is available to read
   if (pSerialSource.available()) {
@@ -32,7 +28,7 @@ String receiveData(HardwareSerial & pSerialSource)
   }
 }
 
-void sendData(HardwareSerial & pSerialDestination, String pMessage)
+void sendDataUART(HardwareSerial & pSerialDestination, String pMessage)
 {
     // Send message over UART
     pSerialDestination.println(pMessage);

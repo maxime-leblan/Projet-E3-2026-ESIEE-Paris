@@ -45,6 +45,8 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status);
 
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len);
 
-void receiveDataWifi();
-
+/**
+ * Envoie le message stockée dans la variable globale myData au destinataire ayant l'adresse MAC associée à l'identifiant passé en paramètre.
+ * @param pMACAdressId Identifiant du tableau global broadcastAddress correspondant à l'adresse MAC du destinataire
+ */
 void sendDataWifi(int pMACAdressId);
