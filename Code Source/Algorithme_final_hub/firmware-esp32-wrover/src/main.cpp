@@ -57,18 +57,7 @@ void loop()
     {
       myData.aModuleId = i;
       myData.aMessage = "Slave" + String(i);
-      result = esp_now_send(broadcastAddress[i], (uint8_t *) &myData, sizeof(myData));
-      if (result == ESP_OK)
-      {
-        Serial.println("Envoie du message vers " + myData.aMessage + "avec succès");
-      }
-      else
-      {
-        Serial.println("Erreur lors de l'envoie du message vers " + myData.aMessage + ". Code d'erreur : " + String(result));
-      }
+      sendData(i);
     }
-
-    esp_err_t result = esp_now_send(broadcastAddress[0], (uint8_t *) &myData, sizeof(myData));
     previousTime=millis();
-  }
 }

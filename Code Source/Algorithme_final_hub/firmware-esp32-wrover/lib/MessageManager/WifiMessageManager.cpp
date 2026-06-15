@@ -44,3 +44,17 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   Serial.println(dataRcv.aMessage);
   Serial.println();
 }
+
+
+void sendDataWifi(int pMACAdressId)
+{
+  esp_err_t result = esp_now_send(broadcastAddress[pMACAdressId], (uint8_t *) &myData, sizeof(myData));
+  if (result == ESP_OK)
+  {
+    Serial.println("Envoie du message vers " + myData.aMessage + "avec succès");
+  }
+  else
+  {
+    Serial.println("Erreur lors de l'envoie du message vers " + myData.aMessage + ". Code d'erreur : " + String(result));
+  }
+}

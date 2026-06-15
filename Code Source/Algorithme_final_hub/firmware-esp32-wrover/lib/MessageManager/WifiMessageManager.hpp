@@ -26,10 +26,12 @@ typedef struct Message {
   char* aSenderName;
 } Message;
 
+
 // Variable contenant le message envoyé par le hub
 Message myData;
 // Variable contenant le dernier message reçu par le hub
 Message dataRcv;
+
 
 // Register peer
 esp_now_peer_info_t peerInfo;
@@ -42,3 +44,7 @@ void initWifi();
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status);
 
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len);
+
+void receiveDataWifi();
+
+void sendDataWifi(int pMACAdressId);
