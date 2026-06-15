@@ -1,4 +1,5 @@
 #include "HubDataStorage.hpp"
+#include "WifiMessageManager.hpp"
 #include <ArduinoEigenDense.h>
 #include <ArduinoJson.h>
 
@@ -30,21 +31,44 @@ void setup() {
   // On déclare la variable stockant la zone de sécurité
   Polygone vSafeZone = Polygone(0, initSafeZone("SafeZone"));
   Serial.println(("Contenu de la zone de sécurité :\n" + vSafeZone.toString()).c_str());
-
+  /*
   // PARTIE DE HUGUES en dessous de cette ligne de code
   WiFi.begin("MaTouch_Radar", "12345678");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
   }
   //\Hugues
-
+  */
 }
 
 void loop()
 {
 
-  /*
-  Serial.println("L'ESP32 WROVER communique parfaitement avec PlatformIO.");
-  delay(5000); // Attend 5 secondes
-  */
+  // Code de test pour communiquer avec les modules UWB
+  // Toute les 5 secondes on envoie un message
+  if((millis() -previousTime)>5000){ 
+    // Set values to send
+    strcpy(myData.aSenderName, nom);
+    
+  
+    esp_err_t result;
+    // Send message via ESP-NOW
+    for (int i = 0; i < ANCHORS_NUMBER; i++)
+    {
+      myData.aModuleId = i;
+      myData.aMessage = "Slave" + String(i);
+      result = esp_now_send(broadcastAddress[i], (uint8_t *) &myData, sizeof(myData));
+      if (result == ESP_OK)
+      {
+        Serial.println("Envoie du message vers " + myData.aMessage + "avec succès");
+      }
+      else
+      {
+        Serial.println("Erreur lors de l'envoie du message vers " + myData.aMessage + ". Code d'erreur : " + String(result));
+      }
+    }
+
+    esp_err_t result = esp_now_send(broadcastAddress[0], (uint8_t *) &myData, sizeof(myData));
+    previousTime=millis();
+  }
 }

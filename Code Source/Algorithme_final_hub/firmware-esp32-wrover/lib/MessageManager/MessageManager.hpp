@@ -13,4 +13,4 @@
     #include "WifiMessageManager.hpp"
 #endif
 
-void sendData()
+void sendData();
