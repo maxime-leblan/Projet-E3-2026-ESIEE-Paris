@@ -35,7 +35,7 @@ void switchRoleToAnchor();
 
 // Quand l'Ancre a fini d'envoyer un message au Hub
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-    //Serial.println(status == ESP_NOW_SEND_SUCCESS ? "ESP-NOW: Envoi OK" : "ESP-NOW: Echec");
+    Serial.println(status == ESP_NOW_SEND_SUCCESS ? "ESP-NOW: Envoi OK" : "ESP-NOW: Echec");
 }
 
 // Quand l'Ancre reçoit un ordre du Hub (pour devenir un Tag)

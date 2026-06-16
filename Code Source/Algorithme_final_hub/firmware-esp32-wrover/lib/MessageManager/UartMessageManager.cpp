@@ -18,13 +18,14 @@ void initUARTTransmitter(int pUartNumber, int pRXGPIONumber, int TXGPIONumber, i
     Serial.println("ESP32 UART Transmitter initialised");
 }
 
-String receiveDataUART(HardwareSerial & pSerialSource)
+void receiveDataUART(HardwareSerial & pSerialSource, String & pMessageReceived)
 {
     // Check if data is available to read
   if (pSerialSource.available()) {
     // Read data and display it
     String message = pSerialSource.readStringUntil('\n');
     Serial.println("Received: " + message);
+    pMessageReceived = message;
   }
 }
 
