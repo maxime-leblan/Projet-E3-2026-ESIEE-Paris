@@ -76,19 +76,17 @@ BCOR5mm, % Binding correction
 
 \pagestyle{scrheadings} % Enable the headers specified in this block
 
-%----------------------------------------------------------------------------------------
-%	TABLE OF CONTENTS & LISTS OF FIGURES AND TABLES
-%----------------------------------------------------------------------------------------
-
 \maketitle % Print the title/author/date block
 
 \setcounter{tocdepth}{2} % Set the depth of the table of contents to show sections and subsections only
 
-\tableofcontents % Print the table of contents
+%----------------------------------------------------------------------------------------
+%	AUTHOR AFFILIATIONS
+%----------------------------------------------------------------------------------------
 
-\listoffigures % Print the list of figures
+\let\thefootnote\relax\footnotetext{\textsuperscript{*} \textit{ Cité Descartes, 2 Bd Blaise Pascal, 93160 Noisy-le-Grand}} % Author affiliation
+\let\thefootnote\relax\footnotetext{\textsuperscript{1} \textit{GROUPE DISC09 : BLONDEL.C, JOUHAUD.H, DE KEYN.B, BEN RAÏES.N,LEBLAN.M, FOUILLOUX.J}} % Author affiliation
 
-\listoftables % Print the list of tables
 
 %----------------------------------------------------------------------------------------
 %	ABSTRACT
@@ -99,11 +97,28 @@ BCOR5mm, % Binding correction
 
 
 %----------------------------------------------------------------------------------------
-%	AUTHOR AFFILIATIONS
+%	Photo de groupe
 %----------------------------------------------------------------------------------------
 
-\let\thefootnote\relax\footnotetext{\textsuperscript{*} \textit{ Cité Descartes, 2 Bd Blaise Pascal, 93160 Noisy-le-Grand}} % Author affiliation
-\let\thefootnote\relax\footnotetext{\textsuperscript{1} \textit{GROUPE DISC09 : BLONDEL.C, JOUHAUD.H, DE KEYN.B, BEN RAÏES.N, FOUILLOUX.J}} % Author affiliation
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.5\columnwidth]{photo_groupe} 
+\caption[photo de groupe]{Photo du groupe VigiZone} % The text in the square bracket is the caption for the list of figures while the text in the curly brackets is the figure caption
+\end{figure}
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS & LISTS OF FIGURES AND TABLES
+%----------------------------------------------------------------------------------------
+
+\newpage % Start the table of contents on a new page
+
+\tableofcontents % Print the table of contents
+
+\listoffigures % Print the list of figures
+
+\listoftables % Print the list of tables
+
+
 
 %----------------------------------------------------------------------------------------
 
@@ -116,38 +131,58 @@ BCOR5mm, % Binding correction
 \section{Introduction}
 \input{Introduction/Introduction.tex} % Include the file specifying the introduction content
 
+\newpage
 
-
-
-
- 
 %----------------------------------------------------------------------------------------
-%	METHODS
+%	REFLEXION
 %----------------------------------------------------------------------------------------
 
 \section{Reflexion} % The \section command automatically numbers the sections
 \input{Reflexion/Reflexion.tex} % Include the file specifying the methods
 
+\newpage
 
 %----------------------------------------------------------------------------------------
-%	RESULTS AND DISCUSSION
+%	HARDWARE
 %----------------------------------------------------------------------------------------
 
 \section{Hardware} % The \section command automatically numbers the sections
 \input{Hardware/Hardware.tex} % Include the file specifying the results and discussion
 
+\newpage
 
+%----------------------------------------------------------------------------------------
+%	SOFTWARE
+%----------------------------------------------------------------------------------------
 
 \section{Software} % The \section command automatically numbers the sections
 \input{Software/software.tex} % Include the file specifying the results and discussion
 
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	RESULTS AND ANALYSIS
+%----------------------------------------------------------------------------------------
+
 \section{Results and Analysis} % The \section command automatically numbers the sections
 \input{Result/Result.tex} % Include the file specifying the results and discussion
+
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	Conclusion
+%----------------------------------------------------------------------------------------
 
 \section{Conclusion} % The \section command automatically numbers the sections
 \input{Conclusion/Conclusion.tex} % Include the file specifying the results and discussion
 
-\section{Axe d'amélioration} % The \section command automatically numbers the sections
+\newpage
+
+%----------------------------------------------------------------------------------------
+% Area for improvement
+%----------------------------------------------------------------------------------------
+
+\section{Area for improvement} % The \section command automatically numbers the sections
 \input{Axe/Axe.tex} % Include the file specifying the results and discussion
 
 %----------------------------------------------------------------------------------------
@@ -156,9 +191,9 @@ BCOR5mm, % Binding correction
 
 \renewcommand{\refname}{\spacedlowsmallcaps{References}} % For modifying the bibliography heading
 
-\bibliographystyle{unsrt}
+\bibliographystyle{plain}
 
-\bibliography{sample.bib} % The file containing the bibliography
+\bibliography{sample} % The file containing the bibliography
 
 %----------------------------------------------------------------------------------------
 
