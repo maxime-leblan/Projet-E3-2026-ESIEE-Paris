@@ -12,6 +12,14 @@
 #include "GridLibrary.hpp"
 #include "Polygone.hpp"
 
+//MODE DE COMMUNICATION :
+enum ModeCommunication {
+  MODE_WIFI, // Sans fils
+  MODE_WIRED // UART / CAN
+};
+// --- MODE ACTUEL DE COMMUNICATION !!! ---
+ModeCommunication modeActuel = MODE_WIFI;
+
 void setup() {
   // Initialisation du port série à la vitesse configurée dans platformio.ini
   Serial.begin(115200);

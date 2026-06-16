@@ -3,16 +3,8 @@
 // Définition de la macro pour activer une option spécifique
 // Cela peut être fait ici ou via le compilateur (-DMY_OPTION)
 
-// On définit une macro indiquand qu'on est en mode de communication Wifi, sinon on est en mode de communication UART
-#define COMMUNICATION_MODE 1
-
-#ifdef COMMUNICATION_MODE
-    // Inclure l'en-tête de la première bibliothèque si la macro est définie
-    #include "WifiMessageManager.hpp"
-#else
-    // Inclure l'en-tête de la seconde bibliothèque par défaut
-    #include "UartMessageManager.hpp"
-#endif
+#include "WifiMessageManager.hpp"
+#include "UartMessageManager.hpp"
 
 HardwareSerial gDefaultValue1;
 String gDefaultValue2;
