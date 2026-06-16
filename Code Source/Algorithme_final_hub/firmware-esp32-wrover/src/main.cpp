@@ -38,6 +38,8 @@ void setup() {
     delay(500);
   }
   */
+  Serial.println("Adresse MAC :");
+  Serial.println(WiFi.macAddress());
   initWifi();
   //\Hugues
   
