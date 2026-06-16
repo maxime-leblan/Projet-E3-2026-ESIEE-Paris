@@ -9,20 +9,6 @@ GPIO_34 RXD
 #include <esp_now.h>// https://github.com/espressif/esp-idf/blob/master/components/esp_wifi/include/esp_now.h
 #include <WiFi.h>
 
-// Structure example to send data
-// Must match the receiver structure
-typedef struct Message {
-  String aMessage;
-  int aModuleId;
-  char* aSenderName;
-} Message;
-
-// Variable contenant le message envoyé par le hub
-Message myData;
-// Variable contenant le dernier message reçu par le hub
-Message dataRcv;
-
-
 /**
  * Configure puis renvoie un canal de communication UART dont le numéro d'identification est passé en paramètre
  * @param pUartNumber Numéro du canal de communication UART. Doit valoir 0, 1 ou 2.
