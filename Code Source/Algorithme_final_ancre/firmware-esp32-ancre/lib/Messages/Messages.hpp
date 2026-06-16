@@ -3,7 +3,7 @@
 
 // --- ADRESSE MAC DU HUB ---
 // L'Ancre doit connaître cette adresse pour savoir vers qui envoyer ses paquets
-const uint8_t HUB_MAC_ADDRESS[] = {0x3C, 0x61, 0x05, 0x30, 0x0A, 0x28};
+const uint8_t HUB_MAC_ADDRESS[] = {0x68, 0xFE, 0x71, 0x92, 0x6F, 0x10};
 
 // --- TYPES DE MESSAGES ---
 enum MessageType {
