@@ -7,11 +7,30 @@ void setup() {
   delay(1000);
 
   initIMUSystem();
-
+  
   Serial.println("--- Systeme Central Demarre ---");
+  Serial.println("Tapez 'etalon' pour calibrer l'assiette du vehicule.");
+  Serial.println("Tapez 'annuler etalon' pour revenir a la valeur brute.");
 }
 
 void loop() {
+
+  // 1. Écoute du Moniteur Série (Non bloquant)
+  if (Serial.available() > 0) {
+    String command = Serial.readStringUntil('\n');
+    command.trim();
+    
+    if (command == "etalon") {
+      setTareCalibration();
+      Serial.println("\n[SYSTEME] ---> VECTEUR DE REFERENCE APPLIQUE <---");
+    } 
+    else if (command == "annuler etalon") {
+      clearTareCalibration();
+      Serial.println("\n[SYSTEME] ---> ETALONNAGE ANNULE <---");
+    }
+  }
+
+  // 2. Lecture du Vecteur de Gravité
   FusionVector currentGravity;
 
   if (getGravityVector(&currentGravity)) {
@@ -22,4 +41,5 @@ void loop() {
   } else {
     Serial.println("Ressource IMU temporairement indisponible...");
   }
+  delay(100);
 }

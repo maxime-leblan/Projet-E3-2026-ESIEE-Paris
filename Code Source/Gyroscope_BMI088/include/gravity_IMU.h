@@ -1,13 +1,17 @@
-#ifndef IMU_SYSTEM_H
-#define IMU_SYSTEM_H
+#ifndef GRAVITY_IMU_H
+#define GRAVITY_IMU_H
 
 #include "Fusion.h"
 
-// Configure le bus SPI, les capteurs BMI088 et lance la tâche FreeRTOS sur le Cœur 0
+// Fonction d'initialisation du système IMU (BMI088)
 void initIMUSystem();
 
-// Tente de récupérer le dernier vecteur gravité de manière sécurisée.
-// Retourne 'true' si la lecture a réussi, 'false' si la ressource était occupée.
+// Fonction de récupération du vecteur de gravité (Thread-Safe).
+// Renvoie true si la récupération a réussi, false sinon (en cours d'écriture).
 bool getGravityVector(FusionVector* outGravity);
+
+// Fonctions d'étalonnage du vecteur de gravité (tare)
+void setTareCalibration();
+void clearTareCalibration();
 
 #endif

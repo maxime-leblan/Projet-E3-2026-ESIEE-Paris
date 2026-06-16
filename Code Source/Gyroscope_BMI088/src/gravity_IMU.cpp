@@ -16,6 +16,12 @@ static Bmi088Gyro gyro(SPI, CS_GYRO);
 static SemaphoreHandle_t xGravityMutex = NULL;
 static FusionVector sharedGravity = FUSION_VECTOR_ZERO;
 
+/* --- Variables d'Étalonnage (Privées) --- */
+static volatile bool requestTare = false;
+static volatile bool requestReset = false;
+static bool isTared = false;
+static float R[3][3] = { {1,0,0}, {0,1,0}, {0,0,1} }; // Matrice Identité par défaut
+
 /* --- La Tâche FreeRTOS (Privée) --- */
 static void IMUTask(void *pvParameters) {
   FusionBias bias;
@@ -28,16 +34,14 @@ static void IMUTask(void *pvParameters) {
   unsigned long nextWakeTimeUs = previousTime + periodUs;
   int watchdogCounter = 0;
 
-  for(;;) {
+  while (true) {
     unsigned long currentTime = micros();
     float deltaTime = (float)(currentTime - previousTime) / 1000000.0f;
     previousTime = currentTime;
 
-    // Lecture matérielle
     accel.readSensor();
     gyro.readSensor();
 
-    // Conversion
     FusionVector gyroscope = {
       .axis = {
           .x = gyro.getGyroX_rads() * 57.2958f,
@@ -54,27 +58,65 @@ static void IMUTask(void *pvParameters) {
       }
     };
 
-    // Mathématiques de Madgwick
     gyroscope = FusionBiasUpdate(&bias, gyroscope);
     FusionAhrsUpdateNoMagnetometer(&ahrs, gyroscope, accelerometer, deltaTime);
     FusionVector localGravity = FusionAhrsGetGravity(&ahrs);
 
-    // Sauvegarde Thread-Safe
+    // --- GESTION DU TARE (CALCUL MATRICIEL) ---
+    if (requestTare) {
+      float ax = localGravity.axis.x;
+      float ay = localGravity.axis.y;
+      float az = localGravity.axis.z;
+
+      // Objectif : Aligner le vecteur (ax, ay, az) avec (0, 0, -1)
+      float c = -az; // Cosinus de l'angle (Produit scalaire avec l'axe Z négatif)
+      
+      // Contre-argument physique : singularité si le capteur est fixé parfaitement à l'envers
+      if (c > -0.99f) { 
+        float vx = -ay;
+        float vy = ax;
+        float h = 1.0f / (1.0f + c);
+
+        // Remplissage de la matrice de rotation de Rodrigues
+        R[0][0] = c + h * vx * vx;  R[0][1] = h * vx * vy;      R[0][2] = vy;
+        R[1][0] = h * vx * vy;      R[1][1] = c + h * vy * vy;  R[1][2] = -vx;
+        R[2][0] = -vy;              R[2][1] = vx;               R[2][2] = c;
+      } else {
+        // Retournement manuel 180° autour de X
+        R[0][0] = 1; R[0][1] = 0;  R[0][2] = 0;
+        R[1][0] = 0; R[1][1] = -1; R[1][2] = 0;
+        R[2][0] = 0; R[2][1] = 0;  R[2][2] = -1;
+      }
+      isTared = true;
+      requestTare = false;
+    } 
+    else if (requestReset) {
+      isTared = false;
+      requestReset = false;
+    }
+
+    // --- APPLICATION DE LA MATRICE (PROJECTION) ---
+    FusionVector finalGravity = localGravity;
+    if (isTared) {
+      finalGravity.axis.x = R[0][0]*localGravity.axis.x + R[0][1]*localGravity.axis.y + R[0][2]*localGravity.axis.z;
+      finalGravity.axis.y = R[1][0]*localGravity.axis.x + R[1][1]*localGravity.axis.y + R[1][2]*localGravity.axis.z;
+      finalGravity.axis.z = R[2][0]*localGravity.axis.x + R[2][1]*localGravity.axis.y + R[2][2]*localGravity.axis.z;
+    }
+
+    // --- SAUVEGARDE MUTEX ---
     if (xGravityMutex != NULL) {
       if (xSemaphoreTake(xGravityMutex, 0) == pdTRUE) {
-        sharedGravity = localGravity;
+        sharedGravity = finalGravity;
         xSemaphoreGive(xGravityMutex);
       }
     }
 
-    // Gestion du Watchdog
     watchdogCounter++;
     if (watchdogCounter >= 100) {
       vTaskDelay(pdMS_TO_TICKS(1)); 
       watchdogCounter = 0;
     }
 
-    // Cadencement strict
     while(micros() < nextWakeTimeUs) {
       taskYIELD();
     }
@@ -82,38 +124,40 @@ static void IMUTask(void *pvParameters) {
   }
 }
 
-/* --- Implémentation des Fonctions Publiques --- */
-
+/* --- API Publique --- */
 void initIMUSystem() {
   SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI, CS_ACCEL);
-
   if (accel.begin() < 0 || gyro.begin() < 0) {
     Serial.println("[IMU] Erreur d'initialisation du BMI088 !");
-    while(1); // Arrêt critique
+    while(1);
   }
 
-  // Configuration optimale validée expérimentalement
   accel.setOdr(Bmi088Accel::ODR_400HZ_BW_145HZ);
   gyro.setOdr(Bmi088Gyro::ODR_400HZ_BW_47HZ);
+  accel.setRange(Bmi088Accel::RANGE_6G);
+  gyro.setRange(Bmi088Gyro::RANGE_500DPS);
 
   xGravityMutex = xSemaphoreCreateMutex();
-
   if (xGravityMutex != NULL) {
-    xTaskCreatePinnedToCore(
-      IMUTask, "IMU_Task", 8192, NULL, 2, NULL, 0 // Cœur 0
-    );
-    Serial.println("[IMU] Systeme d'acquisition 400Hz demarre sur le Coeur 0.");
+    xTaskCreatePinnedToCore(IMUTask, "IMU_Task", 8192, NULL, 2, NULL, 0);
   }
 }
 
 bool getGravityVector(FusionVector* outGravity) {
   if (xGravityMutex == NULL || outGravity == NULL) return false;
-
-  // Attente maximum de 5ms pour ne pas bloquer le Cœur 1
   if (xSemaphoreTake(xGravityMutex, pdMS_TO_TICKS(5)) == pdTRUE) {
-    *outGravity = sharedGravity; // Copie des données via le pointeur
+    *outGravity = sharedGravity;
     xSemaphoreGive(xGravityMutex);
     return true;
   }
   return false;
+}
+
+// Déclencheurs depuis le Cœur 1
+void setTareCalibration() {
+  requestTare = true;
+}
+
+void clearTareCalibration() {
+  requestReset = true;
 }
