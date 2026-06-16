@@ -6,8 +6,6 @@ GPIO_25 TXD
 GPIO_34 RXD
 */
 #include <Arduino.h>
-#include <esp_now.h>// https://github.com/espressif/esp-idf/blob/master/components/esp_wifi/include/esp_now.h
-#include <WiFi.h>
 
 /**
  * Configure puis renvoie un canal de communication UART dont le numéro d'identification est passé en paramètre
