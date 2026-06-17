@@ -20,9 +20,11 @@ void RecuperationDonneesAncres::injecterDonnee(int tagId, float d0, float d1, fl
 
     //On ajoute toutes les distances valides (>0, même les doublons)
     for (int i = 0; i<4; i++) {
-        accumulateurs[idx].sommeDistances[i] += dists[i];
-        accumulateurs[idx].nbEchantillons[i]++;
-        accumulateurs[idx].actif = true;
+        if (dists[i] > 0.0f) {
+            accumulateurs[idx].sommeDistances[i] += dists[i];
+            accumulateurs[idx].nbEchantillons[i]++;
+            accumulateurs[idx].actif = true;
+        }
     }
 }
 
@@ -47,6 +49,7 @@ bool RecuperationDonneesAncres::getDonneesLissees(std::vector<DistanceMoyennes>&
             if (accumulateurs[idx].nbEchantillons[i] > 0) {
                 //calcul de la moyenne :
                 resultatTag.distances[i] = accumulateurs[idx].sommeDistances[i] / (float)accumulateurs[idx].nbEchantillons[i];
+                ancresValides++;
             } else {
                 resultatTag.distances[i] = 0.0f;
             }

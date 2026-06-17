@@ -69,12 +69,13 @@ void gererFonctionnementNormal() {
 
   if (recupDonnees.getDonneesLissees(tagsPretsPourMaths)) {
     for (const DistanceMoyennes& tag : tagsPretsPourMaths) {
-      Serial.printf("[30Hz] Tag %d |D0:%.2f | D1:%2.f | D2:%2.f | D3:%2.f\n", tag.tag_id, tag.distances[0], tag.distances[1], tag.distances[2], tag.distances[3]);
+      Serial.printf("[30Hz] Tag %d |D0:%.2f | D1:%.2f | D2:%.2f | D3:%.2f\n", tag.tag_id, tag.distances[0], tag.distances[1], tag.distances[2], tag.distances[3]);
     }
   }
 }
 
 void loop() {
+  gererFonctionnementNormal();
   /*
   // Code de test pour communiquer avec les modules UWB
   // Toute les 5 secondes on envoie un message
