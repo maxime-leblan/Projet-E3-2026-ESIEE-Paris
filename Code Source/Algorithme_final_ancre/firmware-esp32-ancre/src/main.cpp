@@ -22,6 +22,7 @@ HardwareSerial UWBSerial(1);
 bool isTagMode = false; // Par défaut, on est une Ancre
 MessageAncreHub dataToSend;
 esp_now_peer_info_t peerInfo;
+int monIdUWB = -1;
 
 // --- PROTOTYPES DES FONCTIONS ---
 String sendATCommand(String command, const int timeout);
@@ -49,6 +50,12 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
     } 
     else if (receivedCmd.command == 0 && isTagMode) {
         Serial.println("Ordre du Hub : Retour en mode ancre");
+        switchRoleToAnchor();
+    } else if (receivedCmd.command == 2) {
+        monIdUWB = receivedCmd.uwb_id;
+
+        Serial.printf("Ordre du Hub : Je suis l'ancre %d .\n", monIdUWB);
+
         switchRoleToAnchor();
     }
 }
@@ -95,8 +102,8 @@ void setup() {
         Serial.println("Failed to add Hub peer");
     }
 
-    // 4. Configuration initiale en Ancre
-    switchRoleToAnchor();
+    // 4. On attend de voir l'HUB pour faire quoi que cela soit.
+    updateScreen("DEMARRAGE", "Recherche du Hub...");
 
     // 5. Envoi du message d'Init au Hub (Le Hub notera notre adresse MAC)
     dataToSend.type = MSG_INIT;
@@ -107,6 +114,10 @@ void setup() {
 // BOUCLE PRINCIPALE
 // ==========================================
 void loop() {
+    // Ne rien faire tant qu'on a pas reçu son ID.
+    if (monIdUWB == -1) {
+        return;
+    }
     // Écoute des données venant du module UWB
     if (UWBSerial.available()) {
         String data = UWBSerial.readStringUntil('\n');
@@ -116,16 +127,16 @@ void loop() {
         if (!isTagMode) {
             // Si la trame contient "AT+RANGE", on appelle notre super fonction
             if (data.indexOf("AT+RANGE") != -1) {
-                
                 // Le Parser remplit automatiquement dataToSend avec l'ID et les mètres
                 if (parseUWBMessage(data, dataToSend)) {
                     
                     // Petit affichage sur l'OLED pour vérifier
                     String oledText = "Tag:" + String(dataToSend.tag_id) + " | D0:" + String(dataToSend.distances[0], 2) + "m";
-                    updateScreen("ANCRE (Active)", oledText);
+                    updateScreen("ANCRE " + String(MessageAncreHub.tag_id) + " (Active)", oledText);
 
                     // On envoie le paquet au Hub via ESP-NOW
                     esp_now_send(HUB_MAC_ADDRESS, (uint8_t *) &dataToSend, sizeof(dataToSend));
+                    // Méthode CAN (pour plus tard)
                 }
             }
         }
@@ -149,20 +160,20 @@ void loop() {
 
 void switchRoleToAnchor() {
     isTagMode = false;
-    updateScreen("INIT ANCRE", "Config UWB...");
+    updateScreen("INIT ANCRE " + String(monIdUWB),"Config UWB...");
     sendATCommand("AT+RESTORE", 2000);
-    sendATCommand("AT+SETCFG=0,1,0,1", 2000); // Role: Ancre (1)
+    sendATCommand("AT+SETCFG=" + String(monIdUWB) + ",1,0,1", 2000);
     sendATCommand("AT+SETCAP=10,25,1", 2000); 
     sendATCommand("AT+SAVE", 1000);
     sendATCommand("AT+RESTART", 2000);
-    updateScreen("ANCRE", "Attente Tag...");
+    updateScreen("ANCRE " + String(monIdUWB), "Attente Tag...");
 }
 
 void switchRoleToTag() {
     isTagMode = true;
     updateScreen("INIT TAG", "Config UWB...");
     sendATCommand("AT+RESTORE", 2000);
-    sendATCommand("AT+SETCFG=0,0,0,1", 2000); // Role: Tag (0)
+    sendATCommand("AT+SETCFG=" + String(monIdUWB) + ",0,0,1", 2000); // Role: Tag (0)
     sendATCommand("AT+SETCAP=10,25,1", 2000); 
     sendATCommand("AT+SAVE", 1000);
     sendATCommand("AT+RESTART", 2000);
