@@ -8,6 +8,7 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
 
     // Par défaut, on initialise les autres champs à 0
     output.id_tag = 0;
+    output.aOrderType = 0;
     output.distance = 0.0f;
 
     // 2. Traitement différenciée selon le type de message détecté
@@ -34,8 +35,19 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
             return false;
 
         case MESSAGE_HUB_ORDER:
-            // Si vos ordres possèdent un octet de commande dans message.data[0], vous pouvez l'extraire ici
-            return true;
+            // On extrait le type d'ordre envoyé
+            if (message.data_length_code == sizeof(uint8_t))
+            {
+                uint8_t vData;
+                // On copie les données brutes du tableau de la trame CAN vers notre structure locale
+                memcpy(&vData, message.data, sizeof(uint8_t));
+
+                // On remplie la structure de sortie
+                output.aOrderType = vData;
+                return true;
+            }
+            Serial.println("Erreur décodage: Taille de données incorrecte pour MESSAGE_HUB_ORDER");
+            return false;
 
         default:
             Serial.printf("Erreur décodage: Type de message inconnu (0x%X)\n", output.type);
@@ -73,13 +85,32 @@ void sendCanDistance(uint8_t id_ancre, uint8_t id_tag, float dist) {
     }
 }
 
-void sendCanSignal(uint16_t pModuleId)
+void sendCanSignal(uint8_t pModuleId)
 {
     twai_message_t message;
     message.identifier = MESSAGE_ID_ONLY + pModuleId;
     message.extd = 0;
     message.rtr = 0;
     message.data_length_code = 0; // Pas de données, l'ID suffit (ex: signal de vie)
+
+    // Queue message for transmission
+    if (twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME)) == ESP_OK) {
+    Serial.printf(("Message queued for transmission, <identifier> = " + String(message.identifier) + "\n").c_str());
+    } else {
+    Serial.printf("Failed to queue message for transmission\n");
+    }
+}
+
+void sendCanOrderFromHubTo(uint8_t id_ancre, uint8_t pOrderType)
+{
+    twai_message_t message;
+    message.identifier = MESSAGE_HUB_ORDER + id_ancre;
+    message.extd = 0;
+    message.rtr = 0;
+    message.data_length_code = sizeof(uint8_t);
+
+    uint8_t payload = pOrderType;
+    memcpy(message.data, &payload, sizeof(uint8_t));
 
     // Queue message for transmission
     if (twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME)) == ESP_OK) {
