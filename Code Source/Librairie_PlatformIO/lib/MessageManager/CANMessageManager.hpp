@@ -39,6 +39,11 @@ struct __attribute__((packed)) MsgDistance {
     float distance;
 };
 
+// Structure pour le message de type 3 pour l'ordre HUB_ORDER_TOGGLE_MODULE_MODE
+struct __attribute__((packed)) MsgToggleHubOrder {
+    uint8_t staticAnchorId; // L'ID de l'ancre qui reste fixe en mode Ancre
+};
+
 /**
  * Structure contenant le résultat du décodage. Elle contient les champs suivants :
  * type, id_ancre, id_tag, distance
@@ -47,6 +52,7 @@ struct DecodedData {
     uint32_t type;      // MESSAGE_ID_ONLY, MESSAGE_TAG_ID_AND_DISTANCE, etc.
     uint8_t id_ancre;   // L'émetteur du message
     uint8_t id_tag;     // ID du Tag (uniquement pour le type MESSAGE_TAG_ID_AND_DISTANCE)
+    uint8_t aStaticAnchorIdDuringToggle; // ID de l'Ancre qui reste en mode Ancre pendant la phase d'initialisation des positions des Ancres (uniquement pour le type HUB_ORDER_TOGGLE_MODULE_MODE)
     uint8_t aOrderType; // Type d'ordre envoyé par le Hub
     float distance;     // La distance (uniquement pour le type MESSAGE_TAG_ID_AND_DISTANCE)
 };
@@ -81,11 +87,45 @@ void sendCanDistance(uint8_t id_ancre, uint8_t id_tag, float dist);
 void sendCanSignal(uint8_t pModuleId);
 
 /**
- * Permet d'envoyer un message contenant un ordre passé en paramètre depuis le Hub à l'Ancre dont l'identifiant est passé en paramètre
+ * Permet d'envoyer un message contenant un ordre et une structure de données quelconque
+ * depuis le Hub à l'Ancre dont l'identifiant est passé en paramètre.
+ * * @tparam T Le type de la structure passée en paramètre (déduit automatiquement)
  * @param id_ancre Identifiant de l'Ancre à qui le Hub veut envoyer un ordre
- * @param pOrderType Spécifie le type d'ordre envoyé. Peut uniquement prendre la valeur HUB_ORDER_TOGGLE_MODULE_MODE.
+ * @param pOrderType Spécifie le type d'ordre (ex: HUB_ORDER_TOGGLE_MODULE_MODE)
+ * @param pOrderData La structure contenant les données spécifiques à cet ordre
  */
-void sendCanOrderFromHubTo(uint8_t id_ancre, uint8_t pOrderType);
+template <typename T>
+void sendCanOrderFromHubTo(uint8_t id_ancre, uint8_t pOrderType, const T& pOrderData)
+{
+    twai_message_t message;
+    
+    // L'identifiant CAN est construit à partir du type d'ordre général + l'ID de l'ancre cible
+    message.identifier = MESSAGE_HUB_ORDER + id_ancre;
+    message.extd = 0;
+    message.rtr = 0;
+    
+    // La taille s'adapte automatiquement à la structure injectée + 1 octet pour le sous-type d'ordre
+    message.data_length_code = sizeof(pOrderType) + sizeof(T); 
+
+    // Sécurité : Le bus CAN classique est limité à 8 octets de données max par trame
+    if (message.data_length_code > 8) {
+        Serial.printf("Erreur : La structure d'ordre est trop grande (%d octets) pour le bus CAN\n", message.data_length_code);
+        return;
+    }
+
+    // On copie d'abord le type d'ordre spécifique au premier octet (index 0)
+    message.data[0] = pOrderType;
+
+    // On copie ensuite la structure de données juste après (à partir de l'index 1)
+    memcpy(&(message.data[1]), &pOrderData, sizeof(T));
+
+    // Envoi sur le bus CAN
+    if (twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME)) == ESP_OK) {
+        Serial.printf("Ordre de type %d envoye avec succes a l'Ancre %d\n", pOrderType, id_ancre);
+    } else {
+        Serial.printf("Echec de l'envoi de l'ordre a l'Ancre %d\n", id_ancre);
+    }
+}
 
 /**
  * Initialise le canal de communication CAN en mode bidirectionnelle
