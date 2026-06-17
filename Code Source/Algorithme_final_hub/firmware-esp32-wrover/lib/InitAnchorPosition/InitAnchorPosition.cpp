@@ -8,7 +8,7 @@ std::unordered_map<string, float> getAnchorDistances(int pAnchorId, UWBModuleLis
     // 1. Filtrage propre
     vAnchorsId.erase(std::remove(vAnchorsId.begin(), vAnchorsId.end(), pAnchorId), vAnchorsId.end());
 
-    toggleAnchorsMode(vAnchorsId);
+    toggleAnchorsMode(vAnchorsId, pAnchorId);
 
     for (int vCurrentId : vAnchorsId)
     {
@@ -43,7 +43,7 @@ std::unordered_map<string, float> getAnchorDistances(int pAnchorId, UWBModuleLis
         if (!received) Serial.printf("Timeout : Ancre %d n'a pas répondu.\n", vCurrentId);
     }
 
-    toggleAnchorsMode(vAnchorsId);
+    toggleAnchorsMode(vAnchorsId, pAnchorId);
     return vDistances;
 }
 
@@ -67,10 +67,12 @@ void initAnchorsPosition(UWBModuleList & pAnchors)
     initAnchorsCoordinatesWithGD(pAnchors, vAnchorDistances, ITERATIONS, LEARNING_RATE);
 }
 
-void toggleAnchorsMode(std::vector<int> pAnchorsId)
+void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId)
 {
     for (int i = 0; i < pAnchorsId.size(); i++)
     {
-        sendCanOrderFromHubTo(pAnchorsId[i], HUB_ORDER_TOGGLE_MODULE_MODE);
+        MsgToggleHubOrder vMessage;
+        vMessage.staticAnchorId = pStaticAnchorId;
+        sendCanOrderFromHubTo(pAnchorsId[i], HUB_ORDER_TOGGLE_MODULE_MODE, vMessage);
     }
 }

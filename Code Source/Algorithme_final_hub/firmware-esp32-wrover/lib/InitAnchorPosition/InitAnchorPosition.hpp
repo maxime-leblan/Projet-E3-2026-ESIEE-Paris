@@ -23,6 +23,7 @@ void initAnchorsPosition(UWBModuleList & pAnchors);
 /**
  * Envoie un message à toutes les Ancres dont l'id est passé en paramètre pour leur ordonner d'inverser leur mode de comportement. Elles peuvent passer du mode Ancre -> Tag ou du mode Tag -> Ancre.
  * @param pAnchorsId Liste des identifiants de toutes les Ancres devant changer d'état
+ * @param pStaticAnchorId Identifiant de la seule Ancre qui ne change pas d'état
  */
-void toggleAnchorsMode(std::vector<int> pAnchorsId);
+void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId);
 
