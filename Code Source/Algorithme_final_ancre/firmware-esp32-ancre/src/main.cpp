@@ -5,7 +5,7 @@
 #include <esp_now.h>
 #include <WiFi.h>
 
-#include "Librairie_PlatformIO/lib/MessageManager/CANMessageManager.hpp"
+#include "CANMessageManager.hpp"
 
 #include "Messages.hpp" // Notre dictionnaire de colis
 
@@ -133,8 +133,8 @@ void loop() {
                 if (parseUWBMessage(data, dataToSend)) {
                     
                     // Petit affichage sur l'OLED pour vérifier
-                    String oledText = "Tag:" + String(dataToSend.tag_id) + " | D0:" + String(dataToSend.distances[0], 2) + "m";
-                    updateScreen("ANCRE " + String(MessageAncreHub.tag_id) + " (Active)", oledText);
+                    String oledText = "Tag:" + String(dataToSend.tag_id) + " | D0:" + String(dataToSend.distances[0], 2) + "m" + " | D1:" + String(dataToSend.distances[1], 2) + "m" + " | D2:" + String(dataToSend.distances[2], 2) + "m" + " | D3:" + String(dataToSend.distances[3], 2) + "m";
+                    updateScreen("ANCRE " + String(monIdUWB) + " (Active)", oledText);
 
                     // On envoie le paquet au Hub via ESP-NOW
                     esp_now_send(HUB_MAC_ADDRESS, (uint8_t *) &dataToSend, sizeof(dataToSend));
