@@ -9,48 +9,63 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
     // Par défaut, on initialise les autres champs à 0
     output.id_tag = 0;
     output.aOrderType = 0;
+    output.aStaticAnchorIdDuringToggle = 0;
     output.distance = 0.0f;
 
-    // 2. Traitement différenciée selon le type de message détecté
+    // 2. Traitement différencié selon le type de message détecté
     switch (output.type) {
         
         case MESSAGE_ID_ONLY:
-            // Ce message ne contient pas de données dans le tableau data (data_length_code == 0)
-            // Les informations utiles (type et id_ancre) sont déjà extraites
             return true;
 
         case MESSAGE_TAG_ID_AND_DISTANCE:
-            // Sécurité : On vérifie que la taille des données reçues correspond bien à notre structure MsgDistance
             if (message.data_length_code == sizeof(MsgDistance)) {
                 MsgDistance payload;
-                // On copie les données brutes du tableau de la trame CAN vers notre structure locale
                 memcpy(&payload, message.data, sizeof(MsgDistance));
                 
-                // On remplit la structure de sortie
                 output.id_tag = payload.tag_id;
                 output.distance = payload.distance;
                 return true;
             }
-            Serial.println("Erreur décodage: Taille de données incorrecte pour MESSAGE_TAG_ID_AND_DISTANCE");
+            Serial.println("Erreur decodage : Taille incorrecte pour MESSAGE_TAG_ID_AND_DISTANCE");
             return false;
 
         case MESSAGE_HUB_ORDER:
-            // On extrait le type d'ordre envoyé
-            if (message.data_length_code == sizeof(uint8_t))
-            {
-                uint8_t vData;
-                // On copie les données brutes du tableau de la trame CAN vers notre structure locale
-                memcpy(&vData, message.data, sizeof(uint8_t));
+            // Sécurité : On vérifie qu'on a au moins reçu l'octet de l'ordre (index 0)
+            if (message.data_length_code >= 1) {
+                // On extrait d'abord le sous-type d'ordre
+                output.aOrderType = message.data[0];
 
-                // On remplie la structure de sortie
-                output.aOrderType = vData;
-                return true;
+                // On oriente le décodage de la structure selon le sous-type d'ordre
+                switch (output.aOrderType) {
+                    
+                    case HUB_ORDER_TOGGLE_MODULE_MODE:
+                        // La taille attendue de la trame totale est : 1 octet (ordre) + taille de la structure
+                        if (message.data_length_code == (1 + sizeof(MsgToggleHubOrder))) {
+                            MsgToggleHubOrder payload;
+                            // Copie des données à partir de l'index 1 (juste après l'octet d'ordre)
+                            memcpy(&payload, &message.data[1], sizeof(MsgToggleHubOrder));
+                            
+                            output.aStaticAnchorIdDuringToggle = payload.staticAnchorId;
+                            return true;
+                        }
+                        Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_TOGGLE_MODULE_MODE");
+                        return false;
+
+                    // Tu pourras ajouter tes futurs ordres ici très facilement :
+                    // case DEUXIEME_ORDRE_FUTUR:
+                    //     if (message.data_length_code == (1 + sizeof(MsgFutur))) { ... }
+
+                    default:
+                        Serial.printf("Ordre Hub inconnu recu : %d\n", output.aOrderType);
+                        return false;
+                }
             }
-            Serial.println("Erreur décodage: Taille de données incorrecte pour MESSAGE_HUB_ORDER");
+            Serial.println("Erreur decodage : Trame MESSAGE_HUB_ORDER vide");
             return false;
 
         default:
-            Serial.printf("Erreur décodage: Type de message inconnu (0x%X)\n", output.type);
+            Serial.println("Type de message CAN inconnu.");
             return false;
     }
 }
@@ -92,25 +107,6 @@ void sendCanSignal(uint8_t pModuleId)
     message.extd = 0;
     message.rtr = 0;
     message.data_length_code = 0; // Pas de données, l'ID suffit (ex: signal de vie)
-
-    // Queue message for transmission
-    if (twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME)) == ESP_OK) {
-    Serial.printf(("Message queued for transmission, <identifier> = " + String(message.identifier) + "\n").c_str());
-    } else {
-    Serial.printf("Failed to queue message for transmission\n");
-    }
-}
-
-void sendCanOrderFromHubTo(uint8_t id_ancre, uint8_t pOrderType)
-{
-    twai_message_t message;
-    message.identifier = MESSAGE_HUB_ORDER + id_ancre;
-    message.extd = 0;
-    message.rtr = 0;
-    message.data_length_code = sizeof(uint8_t);
-
-    uint8_t payload = pOrderType;
-    memcpy(message.data, &payload, sizeof(uint8_t));
 
     // Queue message for transmission
     if (twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME)) == ESP_OK) {
