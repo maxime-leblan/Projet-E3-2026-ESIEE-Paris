@@ -5,6 +5,8 @@
 #include <esp_now.h>
 #include <WiFi.h>
 
+#include "Librairie_PlatformIO/lib/MessageManager/CANMessageManager.hpp"
+
 #include "Messages.hpp" // Notre dictionnaire de colis
 
 // --- CONFIGURATION MATÉRIELLE MAKERFABS ---

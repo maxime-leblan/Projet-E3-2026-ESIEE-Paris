@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../MessageManager/CANMessageManager.hpp"
+#include "Librairie_PlatformIO/lib/MessageManager/CANMessageManager.hpp"
 #include "GridLibrary.hpp"
 
 // On définit des macros contenant les paramètres que l'on veut utiliser pour la descente de gradient
