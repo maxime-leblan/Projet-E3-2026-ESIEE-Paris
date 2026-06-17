@@ -11,14 +11,22 @@
 #include "Trilateration.h"
 #include "GridLibrary.hpp"
 #include "Polygone.hpp"
+#include "RecuperationDonneesAncres.hpp"
 
-//MODE DE COMMUNICATION :
-enum ModeCommunication {
-  MODE_WIFI, // Sans fils
-  MODE_WIRED // UART / CAN
-};
-// --- MODE ACTUEL DE COMMUNICATION !!! ---
-ModeCommunication modeActuel = MODE_WIFI;
+RecuperationDonneesAncres recupDonnees;
+
+void ecouterReseauFilaire() {
+  if (MODE_ACTUEL == MODE_WIRED) {
+    // MAXIME
+  }
+}
+
+void OnWifidataReceived(int tagId, float d0, float d1, float d2, float d3) {
+  if (MODE_ACTUEL == MODE_WIFI) {
+    recupDonnees.injecterDonnee(tagId, d0, d1, d2, d3);
+  }
+}
+
 
 void setup() {
   // Initialisation du port série à la vitesse configurée dans platformio.ini
@@ -49,8 +57,21 @@ void setup() {
   Serial.println("Adresse MAC :");
   Serial.println(WiFi.macAddress());
   initWifi();
-  //\Hugues
-  
+  //\Hugues 
+}
+
+// Machine Etat Normal :
+void gererFonctionnementNormal() {
+
+  ecouterReseauFilaire(); // Ne fait rien si le mode wifi est choisi
+
+  std::vector<DistanceMoyennes> tagsPretsPourMaths;
+
+  if (recupDonnees.getDonneesLissees(tagsPretsPourMaths)) {
+    for (const DistanceMoyennes& tag : tagsPretsPourMaths) {
+      Serial.printf("[30Hz] Tag %d |D0:%.2f | D1:%2.f | D2:%2.f | D3:%2.f\n", tag.tag_id, tag.distances[0], tag.distances[1], tag.distances[2], tag.distances[3]);
+    }
+  }
 }
 
 void loop() {
