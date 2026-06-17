@@ -60,7 +60,7 @@ struct DecodedData {
 bool decodeCanMessage(const twai_message_t &message, DecodedData &output);
 
 /**
- * Vérifie si un message a été reçu et si oui, le stocke dans la variable passée en paramètre
+ * Vérifie si un message a été reçu dans l'intervalle de temps DATA_RECEPTION_TIME et si oui, le stocke dans la variable passée en paramètre
  * @param messageRecu Référence de la variable qui contiendra le message reçu
  * @return Renvoie true si un message a bien été reçu, false sinon
  */
