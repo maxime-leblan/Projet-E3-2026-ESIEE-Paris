@@ -92,6 +92,16 @@ void loopScreenCommunication() {
             else if (cmd == "save_config" || cmd == "change_config") {
                 // LOGIQUE MÉTIER HUB : Tu pourras parser doc["zone"] et doc["sensors"] ici si besoin
                 etatActuelHub = HUB_STATE_RUNNING;
+            } else if (cmd == "cancel_calib") {
+                bool doitReprendreSurveillance = doc["resume_running"] | false;
+                
+                if (doitReprendreSurveillance) {
+                    etatActuelHub = HUB_STATE_RUNNING;
+                    Serial.println("[Hub] Calibration annulée. Retour au fonctionnement normal (RUNNING).");
+                } else {
+                    etatActuelHub = HUB_STATE_IDLE;
+                    Serial.println("[Hub] Calibration annulée. Aucune configuration active, retour en IDLE.");
+                }
             }
         }
     }

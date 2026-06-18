@@ -10,6 +10,8 @@
 
 AsyncWebServer server(80);
 
+extern void clear_radar_display();
+
 void setup_web_server() {
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
         if (SD_MMC.exists("/index.html")) request->send(SD_MMC, "/index.html", "text/html");
@@ -87,6 +89,8 @@ void setup_web_server() {
     });
 
     server.on("/api/hub/tags", HTTP_GET, [](AsyncWebServerRequest *request){
+        clear_radar_display();
+
         JsonDocument doc;
         JsonArray arr = doc.to<JsonArray>();
         
@@ -121,8 +125,18 @@ void setup_web_server() {
     });
 
     server.on("/api/hub/cancel", HTTP_POST, [](AsyncWebServerRequest *request){
-        calib_state = 0; request->send(200, "text/plain", "Annulé");
+        clear_radar_display();
+
+        JsonDocument doc;
+        doc["cmd"] = "cancel_calib";
+        // Si id_vehicule_actif >= 0, cela signifie qu'un véhicule tournait avant qu'on lance la calibration
+        doc["resume_running"] = (id_vehicule_actif >= 0); 
+        envoyer_commande_hub(doc);
+
+        calib_state = 0; 
+        request->send(200, "text/plain", "Annulé");
     });
+
 
     server.on("/api/config_log", HTTP_GET, [](AsyncWebServerRequest *request){
         if (SD_MMC.exists("/config_log.csv")) request->send(SD_MMC, "/config_log.csv", "text/csv");
