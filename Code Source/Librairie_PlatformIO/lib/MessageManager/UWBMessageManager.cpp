@@ -37,6 +37,19 @@ bool receiveUWBMessage(HardwareSerial &pUWBSerial, String &outRawMessage) {
     return false;
 }
 
+bool receiveUWBDistanceMessage(Stream &pUWBSerial, String &outRawMessage)
+{
+    if (pUWBSerial.available()) {
+        String input = pUWBSerial.readStringUntil('\n');
+        // On cherche le mot clé RANGE ou range de votre TAG_DATA_REGEX
+        if (input.startsWith("AT+RANGE") || input.indexOf("range:") != -1) {
+            outRawMessage = input;
+            return true;
+        }
+    }
+    return false;
+}
+
 void sendOrderToTag(HardwareSerial &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, uint8_t pOrderType) {
     // Construction du message : ex "0:4:1"
     String message = String(pSenderID) + ":" + String(pReceiverID) + ":" + String(pOrderType);
@@ -57,7 +70,7 @@ void sendDistanceToTag(HardwareSerial &pUWBSerial, uint8_t pSenderID, uint8_t pR
     pUWBSerial.println(message);
 }
 
-void configureUWBForMessaging(HardwareSerial &pUWBSerial) {
+void configureUWBForMessaging(Stream &pUWBSerial) {
     // AT+SETCAP=(x1),(x2),(x3)
     // x3 = 1 active le mode "Extended packet" indispensable pour AT+DATA
     // On garde des valeurs par défaut pour x1 et x2 (ex: 10, 10)
