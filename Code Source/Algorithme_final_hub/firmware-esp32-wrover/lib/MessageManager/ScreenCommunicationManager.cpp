@@ -53,21 +53,25 @@ void envoyerGeometrieCalibration(float ancres[4][2], float points[64][2]) {
     ScreenSerial.println();
 }
 
-void envoyerDonneesTagRuntime(int id, float x, float y, float distance, bool alarme) {
+void envoyerMiseAJourTagsRuntime(int ids[], float xs[], float ys[], float distances[], bool alarmes[], int count) {
     JsonDocument doc;
     doc["type"] = "tags";
     JsonArray data = doc["data"].to<JsonArray>();
 
-    JsonObject t = data.add<JsonObject>();
-    t["id"] = id;
-    t["x"] = x;
-    t["y"] = y;
-    t["distance"] = distance;
-    t["alarme"] = alarme;
+    for (int i = 0; i < count; i++) {
+        JsonObject t = data.add<JsonObject>();
+        t["id"] = ids[i];
+        t["x"] = xs[i];
+        t["y"] = ys[i];
+        t["distance"] = distances[i];
+        t["alarme"] = alarmes[i];
+    }
 
     serializeJson(doc, ScreenSerial);
     ScreenSerial.println();
 }
+
+
 
 void loopScreenCommunication() {
     String receivedMessage = "";

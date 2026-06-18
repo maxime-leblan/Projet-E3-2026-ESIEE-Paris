@@ -44,11 +44,11 @@ void envoyerGeometrieCalibration(float ancres[4][2], float points[64][2]);
 
 /**
  * @brief Envoie le flux temps réel de position d'un tag (utilisé dans la boucle RUNNING).
- * @param id ID du tag concerné
- * @param x Position X calculée en mètres
- * @param y Position Y calculée en mètres
- * @param distance Distance directe calculée par rapport au centre/véhicule
- * @param alarme Statut d'alerte (true si dans la zone d'exclusion)
+ * @param ids IDs des tags concernés
+ * @param xs Positions X calculées en mètres
+ * @param ys Position sY calculées en mètres
+ * @param distances Distances directes calculées par rapport au centre/véhicule
+ * @param alarmes Statuts d'alertes (true si dans la zone d'exclusion)
  */
-void envoyerDonneesTagRuntime(int id, float x, float y, float distance, bool alarme);
+void envoyerMiseAJourTagsRuntime(int ids[], float xs[], float ys[], float distances[], bool alarmes[], int count);
 

@@ -88,14 +88,14 @@ void executer_HUB_STATE_RUNNING() {
   if (millis() - chronoRuntime >= 33) { // Fréquence stricte 30Hz / 33ms
       
       // Ici, les fonctions réelles écriront dans ces variables après calculs :
-      int idSimule = 105;
-      float xSimule = -1.5;
-      float ySimule = 2.4;
-      float distanceSimulee = 2.8; 
-      bool alarmeSimulee = true; // Exemple d'alerte (il est entré dans le polygone vSafeZone)
+      int ids[3] = {101, 12, 110};
+      float xs[3] = {3.5, -1.5, 2.0};
+      float ys[3] = {1.2, 2.4, -4.0};
+      float dists[3] = {3.7, 2.8, 4.5};
+      bool alarmes[3] = {false, true, false}; // Exemple d'alerte (il est entré dans le polygone vSafeZone)
 
       // Envoi direct de la ligne de données calculée (ou simulée) au manager UART
-      envoyerDonneesTagRuntime(idSimule, xSimule, ySimule, distanceSimulee, alarmeSimulee);
+      envoyerMiseAJourTagsRuntime(ids, xs, ys, dists, alarmes, 3);
       
       chronoRuntime = millis();
   }

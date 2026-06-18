@@ -11,6 +11,7 @@
 AsyncWebServer server(80);
 
 extern void clear_radar_display();
+extern String json_tags_decouverts;
 
 void setup_web_server() {
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -91,21 +92,23 @@ void setup_web_server() {
     server.on("/api/hub/tags", HTTP_GET, [](AsyncWebServerRequest *request){
         clear_radar_display();
 
-        JsonDocument doc;
-        JsonArray arr = doc.to<JsonArray>();
+        // 1. On réveille le Hub et on lui dit de scanner
+        JsonDocument order;
+        order["cmd"] = "start_calib"; 
+        envoyer_commande_hub(order);
         
-        // On parcourt les tags actuellement vus par l'UART
-        for (int i = 0; i < MAX_TAGS; i++) {
-            if (tags_ui[i].utilise) {
-                JsonObject obj = arr.add<JsonObject>();
-                obj["id"] = tags_ui[i].id_actuel;
-                obj["dist"] = tags_ui[i].distance_actuelle; // L'index.html attend la clé "dist"
-            }
+        calib_state = 0;
+        json_tags_decouverts = "[]";
+
+        // 2. On attend que le Hub réponde avec sa liste (Max 3 secondes)
+        unsigned long start_wait = millis();
+        while (calib_state == 0 && (millis() - start_wait < 3000)) {
+            loop_hub_com(); // VITAL : Permet d'écouter la réponse de l'UART pendant l'attente
+            delay(10);
         }
-        
-        String response;
-        serializeJson(doc, response);
-        request->send(200, "application/json", response);
+
+        // 3. On renvoie la liste trouvée au téléphone
+        request->send(200, "application/json", json_tags_decouverts);
     });
 
     server.on("/api/hub/start", HTTP_POST, [](AsyncWebServerRequest *request){
@@ -114,13 +117,13 @@ void setup_web_server() {
             tag_id = request->getParam("tag_id", true)->value().toInt();
         }
         
-        //Envoie de la commande au Hub
+        // On envoie l'ID choisi au Hub pour qu'il génère la forme de la machine (64 points)
         JsonDocument doc;
-        doc["cmd"] = "start_calib";
+        doc["cmd"] = "select_tag"; // <-- CHANGEMENT ICI : Ce n'est plus start_calib
         doc["tag_id"] = tag_id;
         envoyer_commande_hub(doc);
 
-        calib_state = 1;
+        calib_state = 1; // On dit à l'écran d'attendre la géométrie
         request->send(200, "text/plain", "OK");
     });
 
@@ -195,4 +198,3 @@ void setup_web_server() {
 
     server.begin();
 }
-

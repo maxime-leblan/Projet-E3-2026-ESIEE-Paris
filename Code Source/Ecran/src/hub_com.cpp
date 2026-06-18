@@ -11,6 +11,8 @@ String uart_buffer = "";
 // On pré-réserve de la mémoire pour éviter que le buffer crash sur les longs messages
 const size_t MAX_BUFFER_SIZE = 4096;
 
+unsigned long last_hub_msg_time = 0;
+
 void setup_hub_com() {
     uart_buffer.reserve(MAX_BUFFER_SIZE);
     Serial2.setRxBufferSize(MAX_BUFFER_SIZE);
@@ -26,6 +28,8 @@ void loop_hub_com() {
     while (Serial2.available()) {
         char c = Serial2.read();
         if (c == '\n') {
+            last_hub_msg_time = millis();
+
             JsonDocument doc;
             DeserializationError err = deserializeJson(doc, uart_buffer);
             if (!err) {
@@ -113,6 +117,12 @@ void loop_hub_com() {
             } else {
                 uart_buffer = ""; // Si ça déborde, on jette la trame corrompue
             }
+        }
+        
+        if (last_hub_msg_time > 0 && (millis() - last_hub_msg_time > 5000)) {
+            Serial.println("[IHM Ecran] Perte de connexion HUB (>5s). Nettoyage de l'écran");
+            clear_radar_display();
+            last_hub_msg_time = 0;
         }
     }
 }
