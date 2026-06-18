@@ -22,15 +22,21 @@ struct UWBMessage {
 bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage);
 
 /**
- * Tente de réceptionner un message envoyé entre une ancre et un tag via UWB
+ * Tente de réceptionner un message personnalisé envoyé entre une ancre et un tag via UWB
  * @return True si on a bien réceptionné un message, false sinon
  */
 bool receiveUWBMessage(HardwareSerial &pUWBSerial, String &outRawMessage);
 
 /**
- * Configure le module UWB pour permettre l'envoi de messages personnalisés
+ * Tente de réceptionner le message classique contenant l'id du tag émetteur avec toutes les distances aux ancres via UWB. Cette fonction est utilisé par les ancres. La fonction est compatible avec la XIAO (tag)
+ * @return True si on a bien réceptionné un message, false sinon
  */
-void configureUWBForMessaging(HardwareSerial &pUWBSerial);
+bool receiveUWBDistanceMessage(Stream &pUWBSerial, String &outRawMessage);
+
+/**
+ * Configure le module UWB pour permettre l'envoi de messages personnalisés. La fonction est compatible avec la XIAO (tag)
+ */
+void configureUWBForMessaging(Stream &pUWBSerial);
 
 /**
  * Envoie la distance au Tag par rapport à la zone de sécurité

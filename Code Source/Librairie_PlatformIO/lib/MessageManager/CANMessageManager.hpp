@@ -21,6 +21,8 @@
 
 // Convention de nommage des différents types d'ordre du Hub
 #define HUB_ORDER_TOGGLE_MODULE_MODE 1
+#define HUB_ORDER_START_TAG_CALIBRATION 2
+#define HUB_ORDER_END_TAG_CALIBRATION 3
 
 // Macro pour extraire des chiffres de nombres en hexadécimal
 #define readFirstHexaNumber(H) (H & 0xF0)
@@ -44,6 +46,11 @@ struct __attribute__((packed)) MsgToggleHubOrder {
     uint8_t staticAnchorId; // L'ID de l'ancre qui reste fixe en mode Ancre
 };
 
+// Structure pour le message de type 3 pour les ordres HUB_ORDER_START_TAG_CALIBRATION et HUB_ORDER_END_TAG_CALIBRATION
+struct __attribute__((packed)) MsgTagCalibHubOrder {
+    uint8_t aTagId; // L'ID du tag qui doit recevoir le message
+};
+
 /**
  * Structure contenant le résultat du décodage. Elle contient les champs suivants :
  * type, id_ancre, id_tag, distance
@@ -51,7 +58,7 @@ struct __attribute__((packed)) MsgToggleHubOrder {
 struct DecodedData {
     uint32_t type;      // MESSAGE_ID_ONLY, MESSAGE_TAG_ID_AND_DISTANCE, etc.
     uint8_t id_ancre;   // L'émetteur du message
-    uint8_t id_tag;     // ID du Tag (uniquement pour le type MESSAGE_TAG_ID_AND_DISTANCE)
+    uint8_t id_tag;     // ID du Tag (uniquement pour le type MESSAGE_TAG_ID_AND_DISTANCE et HUB_ORDER_START_TAG_CALIBRATION)
     uint8_t aStaticAnchorIdDuringToggle; // ID de l'Ancre qui reste en mode Ancre pendant la phase d'initialisation des positions des Ancres (uniquement pour le type HUB_ORDER_TOGGLE_MODULE_MODE)
     uint8_t aOrderType; // Type d'ordre envoyé par le Hub
     float distance;     // La distance (uniquement pour le type MESSAGE_TAG_ID_AND_DISTANCE)
