@@ -506,14 +506,11 @@
         function checkTag() { document.getElementById('btnStartCalib').disabled = (document.getElementById('tagSelect').value === ""); }
 
         async function confirmCalib() {
-            if(document.getElementById('tagSelect').value === "") return alert("Veuillez sélectionner un tag !");
+            let tid = document.getElementById('tagSelect').value;
+            if(tid === "") return alert("Veuillez sélectionner un tag !");
             if(!confirm("Cela calibre directement à votre position. Continuer ?")) return;
             nav('view-calib-wait');
-            await fetch('/api/hub/start', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: 'tag_id' + tid
-            });
+            await fetch('/api/hub/start?=tag_id=' + tid, {method: 'POST'});
             pollingTimer = setInterval(pollHubStatus, 1000);
         }
 

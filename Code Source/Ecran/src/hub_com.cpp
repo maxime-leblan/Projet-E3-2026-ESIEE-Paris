@@ -27,14 +27,16 @@ void envoyer_commande_hub(JsonDocument& doc) {
 }
 
 void loop_hub_com() {
+    // 1. LECTURE DE L'UART EN PROVENANCE DU HUB
     while (Serial2.available()) {
         char c = Serial2.read();
         if (c == '\n') {
-            last_hub_msg_time = millis();
-
             JsonDocument doc;
             DeserializationError err = deserializeJson(doc, uart_buffer);
             if (!err) {
+                // FIX TIMEOUT : On valide la présence du Hub uniquement si le JSON est valide
+                last_hub_msg_time = millis(); 
+
                 String type = doc["type"].as<String>();
 
                 if (type == "discovered_tags") {
@@ -50,7 +52,7 @@ void loop_hub_com() {
                 // ==========================================
                 // 1. AFFICHAGE DES TAGS EN TEMPS RÉEL
                 // ==========================================
-                if (type == "tags") {
+                else if (type == "tags") {
                     JsonArray arr = doc["data"].as<JsonArray>();
                    
                     // Masquage temporaire avant redessinage des nouveaux points reçus
@@ -84,7 +86,7 @@ void loop_hub_com() {
                         // --- FIX AFFICHAGE DISTANCE SÉCURISÉ ---
                         String texte_distance = String(distance, 1) + "m";
                         lv_label_set_text(tags_ui[idx].label_z, texte_distance.c_str());
-                        
+                       
                         lv_obj_align_to(tags_ui[idx].label_z, tags_ui[idx].point, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
                         lv_obj_clear_flag(tags_ui[idx].label_z, LV_OBJ_FLAG_HIDDEN);
                         lv_obj_move_foreground(tags_ui[idx].label_z);
@@ -99,7 +101,7 @@ void loop_hub_com() {
                 // ==========================================
                 // 2. RÉCEPTION DE LA ZONE DE CALIBRATION
                 // ==========================================
-                else if (type == "calib_data") {
+                else if (type == "calib_geometry") { // <-- FIX : Remplacement de "calib_data" par "calib_geometry"
                     JsonArray pts = doc["points"].as<JsonArray>();
                     int p_idx = 0;
                     for (JsonVariant p : pts) {
@@ -118,7 +120,7 @@ void loop_hub_com() {
                         s_idx++;
                     }
                     sim_calib_nb_capteurs = s_idx;
-                    calib_state = 2;
+                    calib_state = 2; // Débloque l'application sur le téléphone !
                 }
             }
             uart_buffer = ""; // Vider le buffer
@@ -130,12 +132,14 @@ void loop_hub_com() {
                 uart_buffer = ""; // Si ça déborde, on jette la trame corrompue
             }
         }
-        
-        if (last_hub_msg_time > 0 && (millis() - last_hub_msg_time > 5000)) {
-            Serial.println("[IHM Ecran] Perte de connexion HUB (>5s). Nettoyage de l'écran");
-            clear_radar_display();
-            last_hub_msg_time = 0;
-        }
+    }
+
+    // --- FIX CRUCIAL TIMEOUT (SORTI DU WHILE SEIRAL AVAILABLE) ---
+    // Ce bloc s'exécute à chaque tick de la loop, même s'il n'y a aucun fil branché.
+    if (last_hub_msg_time > 0 && (millis() - last_hub_msg_time > 5000)) {
+        Serial.println("[IHM Ecran] Perte de connexion HUB (>5s). Nettoyage de l'écran");
+        clear_radar_display();
+        last_hub_msg_time = 0; // Bloque les déclenchements en boucle
     }
 }
 
