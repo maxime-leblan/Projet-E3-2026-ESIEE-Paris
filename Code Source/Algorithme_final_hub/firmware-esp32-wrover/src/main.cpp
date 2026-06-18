@@ -12,6 +12,7 @@
 #include "GridLibrary.hpp"
 #include "Polygone.hpp"
 #include "RecuperationDonneesAncres.hpp"
+#include "ScreenCommunicationManager.hpp"
 
 RecuperationDonneesAncres recupDonnees;
 
@@ -35,6 +36,8 @@ void setup() {
 
   // On vérifie que la PSRAM est bien active
   initHub();
+  
+  setupScreenCommunication();
 
   // On crée les variables qui vont stocker toutes les informations concernant les ancres, les tags et la zone de sécurité
   // On commence par les ancres
@@ -76,6 +79,7 @@ void gererFonctionnementNormal() {
 
 void loop() {
   gererFonctionnementNormal();
+  loopScreenCommunication();
   /*
   // Code de test pour communiquer avec les modules UWB
   // Toute les 5 secondes on envoie un message

@@ -7,7 +7,7 @@ def skip_files(node):
     nom_fichier = os.path.basename(node.get_path())
     
     # Si le nom du fichier contient "MessageManager.cpp" ou "MessageManager.hpp"
-    if nom_fichier == "MessageManager.cpp" in path or nom_fichier == "MessageManager.hpp" in path or nom_fichier == "UartMessageManager.cpp" in path or nom_fichier == "UartMessageManager.hpp" in path:
+    if nom_fichier == "MessageManager.cpp" in path or nom_fichier == "MessageManager.hpp" in path : #or nom_fichier == "UartMessageManager.cpp" in path or nom_fichier == "UartMessageManager.hpp" in path:
         # Retourner 'None' ordonne à PlatformIO d'abandonner ce fichier
         return None
         
