@@ -6,6 +6,7 @@
 #include <ESPAsyncWebServer.h>
 #include <SD_MMC.h>
 #include <ArduinoJson.h>
+#include "hub_com.h"
 
 AsyncWebServer server(80);
 
@@ -37,16 +38,44 @@ void setup_web_server() {
     });
 
     server.on("/api/calibrations", HTTP_POST, [](AsyncWebServerRequest *request) {
-        request->send(200, "application/json", "{\"status\":\"ok\"}");
-    }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
-        static File file;
-        if (!index) file = SD_MMC.open("/calibrations.json", "w");
-        if (file) file.write(data, len);
-        if (index + len == total) {
-            if (file) file.close();
-            flag_recharger_ui = true;
+    request->send(200, "application/json", "{\"status\":\"ok\"}");
+}, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total) {
+    static File file;
+    if (!index) file = SD_MMC.open("/calibrations.json", "w");
+    if (file) file.write(data, len);
+    
+    if (index + len == total) {
+        if (file) file.close();
+        flag_recharger_ui = true; // Demande à l'écran de rafraîchir son menu
+
+        // ENVOI DE LA NOUVELLE CONFIGURATION AU HUB (WROVER)
+        // On réouvre le fichier qu'on vient d'écrire pour extraire la config
+        File readFile = SD_MMC.open("/calibrations.json", "r");
+        if (readFile) {
+            JsonDocument doc;
+            DeserializationError error = deserializeJson(doc, readFile);
+            readFile.close();
+            
+            if (!error && doc.is<JsonArray>()) {
+                JsonArray array = doc.as<JsonArray>();
+                if (array.size() > 0) {
+                    // Le téléphone envoie tout le tableau, la nouvelle config est donc la dernière
+                    JsonObject derniereConfig = array[array.size() - 1].as<JsonObject>();
+                    
+                    // On prépare le message JSON pour le Hub
+                    JsonDocument hub_doc;
+                    hub_doc["cmd"] = "save_config";
+                    hub_doc["nom"] = derniereConfig["nom"];
+                    hub_doc["zone"] = derniereConfig["zone"];       // Les 64 points
+                    hub_doc["sensors"] = derniereConfig["sensors"]; // Les 4 ancres
+                    
+                    // Envoi physique immédiat via UART (Serial2) au Hub WROVER
+                    envoyer_commande_hub(hub_doc);
+                }
+            }
         }
-    });
+    }
+});
 
     server.on("/upload", HTTP_POST, [](AsyncWebServerRequest *request) {
         request->send(200, "text/plain", "Upload OK");
@@ -62,7 +91,18 @@ void setup_web_server() {
     });
 
     server.on("/api/hub/start", HTTP_POST, [](AsyncWebServerRequest *request){
-        calib_state = 1; calib_timer = millis();
+        int tag_id = 0;
+        if (request->hasParam("tag_id", true)){
+            tag_id = request->getParam("tag_id", true)->value().toInt();
+        }
+        
+        //Envoie de la commande au Hub
+        JsonDocument doc;
+        doc["cmd"] = "start_calib";
+        doc["tag_id"] = tag_id;
+        envoyer_commande_hub(doc);
+
+        calib_state = 1;
         request->send(200, "text/plain", "OK");
     });
 

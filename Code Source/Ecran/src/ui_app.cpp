@@ -1,14 +1,21 @@
 #include "ui_app.h"
 #include "config.h"
+#include "hub_com.h"
 
 static void btn_go_vehicules_cb(lv_event_t * e) { lv_scr_load(scr_vehicules); }
 static void btn_go_radar_cb(lv_event_t * e) { lv_scr_load(scr_radar); }
+
+// Dans src/ui_app.cpp
+
+#include "hub_com.h" // <-- Crée le lien avec le module UART
+#include <ArduinoJson.h>
 
 static void btn_select_vehicule_cb(lv_event_t * e) {
     lv_obj_t * btn = (lv_obj_t *)lv_event_get_target(e);
     int idx = (int)(uintptr_t)lv_obj_get_user_data(btn);
     id_vehicule_actif = idx;
 
+    // 1. MISE À JOUR DE L'AFFICHAGE LOCAL (Code existant inchangé)
     lv_line_set_points(polygone_exclusion, liste_vehicules[idx].zone_pixels, liste_vehicules[idx].nb_points);
     String chemin = "A:/" + liste_vehicules[idx].fichier_image;
     lv_img_set_src(pelleteuse, chemin.c_str());
@@ -27,8 +34,38 @@ static void btn_select_vehicule_cb(lv_event_t * e) {
     for(int i=0; i<liste_vehicules[idx].nb_capteurs; i++) lv_obj_move_foreground(visuel_capteurs[i]);
     for(int i=0; i<MAX_TAGS; i++) lv_obj_move_foreground(tags_ui[i].point);
 
+
+    // =======================================================
+    // 2. ENVOI DE LA NOUVELLE CONFIGURATION AU HUB DE CALCULS
+    // =======================================================
+    JsonDocument doc;
+    doc["cmd"] = "change_config";
+    doc["nom"] = liste_vehicules[idx].nom;
+
+    // On extrait et on envoie la zone d'exclusion (les 64 points en MÈTRES)
+    JsonArray zoneArray = doc["zone"].to<JsonArray>();
+    for (int i = 0; i < liste_vehicules[idx].nb_points; i++) {
+        JsonObject pt = zoneArray.add<JsonObject>();
+        pt["x"] = liste_vehicules[idx].zone_metres[i][0];
+        pt["y"] = liste_vehicules[idx].zone_metres[i][1];
+    }
+
+    // On extrait et on envoie les positions des capteurs/ancres (en MÈTRES)
+    JsonArray sensorsArray = doc["sensors"].to<JsonArray>();
+    for (int i = 0; i < liste_vehicules[idx].nb_capteurs; i++) {
+        JsonObject s = sensorsArray.add<JsonObject>();
+        s["x"] = liste_vehicules[idx].capteurs_metres[i][0];
+        s["y"] = liste_vehicules[idx].capteurs_metres[i][1];
+    }
+
+    // Envoi immédiat à travers l'UART au Hub WROVER
+    envoyer_commande_hub(doc);
+
+
+    // 3. CHARGEMENT DE L'ÉCRAN RADAR (Code existant inchangé)
     lv_scr_load(scr_radar);
 }
+
 
 static void initialiser_composant_tag(int index, lv_obj_t * parent) {
     tags_ui[index].point = lv_obj_create(parent);
