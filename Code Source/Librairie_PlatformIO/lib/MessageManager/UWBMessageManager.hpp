@@ -25,7 +25,7 @@ bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage);
  * Tente de réceptionner un message personnalisé envoyé entre une ancre et un tag via UWB
  * @return True si on a bien réceptionné un message, false sinon
  */
-bool receiveUWBMessage(HardwareSerial &pUWBSerial, String &outRawMessage);
+bool receiveUWBMessage(Stream &pUWBSerial, String &outRawMessage);
 
 /**
  * Tente de réceptionner le message classique contenant l'id du tag émetteur avec toutes les distances aux ancres via UWB. Cette fonction est utilisé par les ancres. La fonction est compatible avec la XIAO (tag)
@@ -42,10 +42,10 @@ void configureUWBForMessaging(Stream &pUWBSerial);
  * Envoie la distance au Tag par rapport à la zone de sécurité
  * Format: <ID_Emetteur>:<ID_Destinataire>:3:<Distance>
  */
-void sendDistanceToTag(HardwareSerial &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, float pDistance);
+void sendDistanceToTag(Stream &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, float pDistance);
 
 /**
  * Envoie un ordre au Tag
  * Format: <ID_Emetteur>:<ID_Destinataire>:<Type_Ordre>
  */
-void sendOrderToTag(HardwareSerial &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, uint8_t pOrderType);
+void sendOrderToTag(Stream &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, uint8_t pOrderType);
