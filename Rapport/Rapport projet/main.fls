@@ -534,6 +534,9 @@ INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\palatino\pplr
 INPUT .\Introduction\Introduction.tex
 INPUT .\Introduction\Introduction.tex
 INPUT Introduction\Introduction.tex
+INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\nowacki\iwona\ec-iwonab-sc.tfm
+INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\nowacki\iwona\ec-iwonabi.tfm
+INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\nowacki\iwona\ec-iwonabi-sc.tfm
 INPUT .\Figures\Logo_ESIEE.png
 INPUT .\Figures\Logo_ESIEE.png
 INPUT .\Figures\Logo_ESIEE.png
@@ -550,7 +553,6 @@ INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\eul
 INPUT .\Reflexion\Reflexion.tex
 INPUT .\Reflexion\Reflexion.tex
 INPUT Reflexion\Reflexion.tex
-INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\nowacki\iwona\ec-iwonab-sc.tfm
 INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\nowacki\iwona\ec-iwonab.tfm
 INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\nowacki\iwona\ec-iwonab-sc.tfm
 INPUT .\Figures\Logo_ESIEE.png
@@ -622,8 +624,6 @@ INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\sym
 INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam7.tfm
 INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
 INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm7.tfm
-INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\nowacki\iwona\ec-iwonabi.tfm
-INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\nowacki\iwona\ec-iwonabi-sc.tfm
 INPUT .\Figures\Logo_ESIEE.png
 INPUT .\Figures\Logo_ESIEE.png
 INPUT .\Figures\Logo_ESIEE.png
@@ -689,15 +689,6 @@ INPUT .\Figures\logo_VIGIZONE.png
 INPUT .\Result\Result.tex
 INPUT .\Result\Result.tex
 INPUT Result\Result.tex
-INPUT .\Figures\Logo_ESIEE.png
-INPUT .\Figures\Logo_ESIEE.png
-INPUT .\Figures\Logo_ESIEE.png
-INPUT .\Figures\logo_VIGIZONE.png
-INPUT .\Figures\logo_VIGIZONE.png
-INPUT .\Figures\logo_VIGIZONE.png
-INPUT .\Conclusion\Conclusion.tex
-INPUT .\Conclusion\Conclusion.tex
-INPUT Conclusion\Conclusion.tex
 INPUT .\Figures\Logo_ESIEE.png
 INPUT .\Figures\Logo_ESIEE.png
 INPUT .\Figures\Logo_ESIEE.png
