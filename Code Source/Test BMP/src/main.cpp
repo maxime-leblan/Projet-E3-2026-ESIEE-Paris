@@ -1,5 +1,6 @@
 #include <Arduino.h>
-#include "CapteurPression.h" // On inclut TA bibliothèque
+#include <SPI.h> // <-- L'ajout crucial pour que la carte active ses broches 11, 12 et 13
+#include "CapteurPression.h"
 
 #define BMP_CS 10
 
@@ -9,6 +10,9 @@ CapteurPression monCapteur(BMP_CS);
 void setup() {
   Serial.begin(115200);
   while (!Serial) delay(10);
+  
+  // <-- On force le démarrage du bus matériel SPI avant tout le reste
+  SPI.begin(); 
   
   Serial.println("Démarrage...");
 
