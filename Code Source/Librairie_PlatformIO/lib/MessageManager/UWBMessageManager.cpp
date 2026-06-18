@@ -24,7 +24,7 @@ bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage) {
     return false; // Échec du décodage si aucune regex ne correspond
 }
 
-bool receiveUWBMessage(HardwareSerial &pUWBSerial, String &outRawMessage) {
+bool receiveUWBMessage(Stream &pUWBSerial, String &outRawMessage) {
     if (pUWBSerial.available()) {
         String input = pUWBSerial.readStringUntil('\n');
         if (input.startsWith("+RDATA")) {
@@ -50,7 +50,7 @@ bool receiveUWBDistanceMessage(Stream &pUWBSerial, String &outRawMessage)
     return false;
 }
 
-void sendOrderToTag(HardwareSerial &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, uint8_t pOrderType) {
+void sendOrderToTag(Stream &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, uint8_t pOrderType) {
     // Construction du message : ex "0:4:1"
     String message = String(pSenderID) + ":" + String(pReceiverID) + ":" + String(pOrderType);
     
@@ -60,7 +60,7 @@ void sendOrderToTag(HardwareSerial &pUWBSerial, uint8_t pSenderID, uint8_t pRece
     pUWBSerial.println(message);
 }
 
-void sendDistanceToTag(HardwareSerial &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, float pDistance) {
+void sendDistanceToTag(Stream &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, float pDistance) {
     // Construction du message : ex "0:4:3:5.45"
     String message = String(pSenderID) + ":" + String(pReceiverID) + ":3:" + String(pDistance, 2);
     
