@@ -82,6 +82,7 @@ static void initialiser_composant_tag(int index, lv_obj_t * parent) {
     lv_obj_center(tags_ui[index].label_id);
 
     tags_ui[index].label_z = lv_label_create(parent);
+    lv_label_set_text(tags_ui[index].label_z, "");
     lv_obj_set_style_text_color(tags_ui[index].label_z, lv_color_hex(0xFFFFFF), 0);
     lv_obj_set_style_text_font(tags_ui[index].label_z, LV_FONT_DEFAULT, 0);
     lv_obj_add_flag(tags_ui[index].label_z, LV_OBJ_FLAG_HIDDEN);

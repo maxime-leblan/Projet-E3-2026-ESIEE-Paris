@@ -32,11 +32,11 @@ void OnWifidataReceived(int tagId, float d0, float d1, float d2, float d3) {
 void setup() {
   // Initialisation du port série à la vitesse configurée dans platformio.ini
   Serial.begin(115200);
-  delay(2000); 
+  delay(2000);
 
   // On vérifie que la PSRAM est bien active
   initHub();
-  
+ 
   setupScreenCommunication();
 
   // On crée les variables qui vont stocker toutes les informations concernant les ancres, les tags et la zone de sécurité
@@ -50,21 +50,25 @@ void setup() {
   // On déclare la variable stockant la zone de sécurité
   Polygone vSafeZone = Polygone(0, initSafeZone("SafeZone"));
   Serial.println(("Contenu de la zone de sécurité :\n" + vSafeZone.toString()).c_str());
-  /*
+ 
   // PARTIE DE HUGUES en dessous de cette ligne de code
-  WiFi.begin("MaTouch_Radar", "12345678");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-  }
-  */
   Serial.println("Adresse MAC :");
   Serial.println(WiFi.macAddress());
   initWifi();
-  //\Hugues 
+  //\Hugues
+
+  // AUTO-START : Si une configuration valide existe au démarrage sur la mémoire flash du Hub,
+  // on peut forcer l'état à HUB_STATE_RUNNING directement ici.
+  if (vSafeZone.getPoints().size() > 0) {
+      etatActuelHub = HUB_STATE_RUNNING;
+      Serial.println("[Boot] Configuration existante trouvée. Passage automatique en RUNNING.");
+  } else {
+      etatActuelHub = HUB_STATE_IDLE;
+  }
 }
 
 // Machine Etat Normal :
-void gererFonctionnementNormal() {
+void executer_HUB_STATE_RUNNING() {
 
   ecouterReseauFilaire(); // Ne fait rien si le mode wifi est choisi
 
@@ -75,28 +79,103 @@ void gererFonctionnementNormal() {
       Serial.printf("[30Hz] Tag %d |D0:%.2f | D1:%.2f | D2:%.2f | D3:%.2f\n", tag.tag_id, tag.distances[0], tag.distances[1], tag.distances[2], tag.distances[3]);
     }
   }
+
+  // CALCULS TRILATERATION
+  // PEUT RECEVOIR A TOUT MOMENT UNE NOUVELLE CONFIGURATION (POSITIONS ANCRES + ZONE EXCLUSION)
+
+  //SIMULATION POUR L'INSTANT (BOUCLE PRINCIPALE ROUTINE HAUTE FRÉQUENCE 33ms)
+  static unsigned long chronoRuntime = 0;
+  if (millis() - chronoRuntime >= 33) { // Fréquence stricte 30Hz / 33ms
+      
+      // Ici, les fonctions réelles écriront dans ces variables après calculs :
+      int idSimule = 105;
+      float xSimule = -1.5;
+      float ySimule = 2.4;
+      float distanceSimulee = 2.8; 
+      bool alarmeSimulee = true; // Exemple d'alerte (il est entré dans le polygone vSafeZone)
+
+      // Envoi direct de la ligne de données calculée (ou simulée) au manager UART
+      envoyerDonneesTagRuntime(idSimule, xSimule, ySimule, distanceSimulee, alarmeSimulee);
+      
+      chronoRuntime = millis();
+  }
+}
+
+void  executer_HUB_STATE_DETECTING_TAGS_FOR_INIT () {
+  //CALCULS POUR RECUPERATION DE TOUTES LES DISTANCES
+
+  //SIMULATION POUR L'INSTANT
+  Serial.println("[Machine Etats] Étape : Scan initial des tags demandé...");
+  delay(1000); // On simule 1 seconde de calcul matériel d'acquisition
+
+  // Ce que tes fonctions de scan retourneraient :
+  int listeIds[3] = {101, 105, 110};
+  float listeDistances[3] = {4.2, 2.1, 7.8};
+  int nombreDeTagsTrouves = 3;
+
+  // On transmet le résultat brut au manager d'écran
+  envoyerListeTagsDecouverts(listeIds, listeDistances, nombreDeTagsTrouves);
+
+  // Le travail est fait, on repasse en attente de la sélection utilisateur
+  etatActuelHub = HUB_STATE_IDLE;
+  Serial.println("[Machine Etats] Scan terminé. Liste envoyée. Retour en IDLE.");
+}
+
+void executer_HUB_STATE_GENERATING_GEOMETRY() {
+  //CALCULS POUR CONNAITRE LE PLAN / LES POSITIONS DES ANCRES / DEFINITION DE LA ZONE D'EXCLUSION
+
+  //SIMULATION POUR L'INSTANT
+  Serial.printf("[Machine Etats] Étape : Génération géométrie pour le Tag cible #%d...\n", idTagSelectionne);
+  delay(1500); // On simule 1.5 seconde de calculs matriciels complexes d'auto-positionnement
+
+  // Ce que tes fonctions mathématiques sortiraient (Positions relatives en mètres) :
+  float ancresCalculees[4][2] = {
+      {-1.0, 2.0},  // Ancre 0 (X, Y)
+      {1.0, 2.0},   // Ancre 1 (X, Y)
+      {-1.0, -2.0}, // Ancre 2 (X, Y)
+      {1.0, -2.0}   // Ancre 3 (X, Y)
+  };
+
+  float zone64PointsCalculee[64][2];
+  for (int i = 0; i < 64; i++) {
+      float angle = (i * 2.0 * PI) / 64.0;
+      zone64PointsCalculee[i][0] = cos(angle) * 7.0; // Cercle de sécurité de 7 mètres par défaut
+      zone64PointsCalculee[i][1] = sin(angle) * 7.0;
+  }
+
+  // Envoi de la géométrie calculée au manager d'écran
+  envoyerGeometrieCalibration(ancresCalculees, zone64PointsCalculee);
+
+  // Calculs finis, on se remet en attente que l'utilisateur ajuste sur le tel et valide
+  etatActuelHub = HUB_STATE_IDLE;
+  Serial.println("[Machine Etats] Géométrie initiale envoyée. Retour en IDLE.");
+}
+
+void executer_HUB_STATE_IDLE() {
+  // ATTENDS DE RECEVOIR DE L'ECRAN LA ZONE D'EXCLUSION ET LA POSITION DES ANCRES = POUR L'INSTANT AUCUNE CONFIGURATION
+  
+  // Cette fonction reste vide ou fait clignoter une LED d'état. 
+  // C'est loopScreenCommunication() qui va la faire sortir de cet état d'attente
+  // lorsqu'un message arrivera sur l'UART.
 }
 
 void loop() {
-  gererFonctionnementNormal();
+  // L'écouteur UART tourne en tâche de fond permanente pour intercepter les changements d'état
   loopScreenCommunication();
-  /*
-  // Code de test pour communiquer avec les modules UWB
-  // Toute les 5 secondes on envoie un message
-  if((millis() -previousTime)>5000){
-    // Set values to send
-    strcpy(myData.aSenderName, nom);
-    
-  
-    esp_err_t result;
-    // Send message via ESP-NOW
-    for (int i = 0; i < ANCHORS_NUMBER; i++)
-    {
-      myData.aModuleId = i;
-      myData.aMessage = "Slave" + String(i);
-      sendData(i);
-    }
-    previousTime=millis();
+
+  // Aiguillage dynamique de la loop selon l'état de l'automate principal
+  switch (etatActuelHub) {
+      case HUB_STATE_IDLE:
+          executer_HUB_STATE_IDLE();
+          break;
+      case HUB_STATE_DETECTING_TAGS_FOR_INIT:
+          executer_HUB_STATE_DETECTING_TAGS_FOR_INIT();
+          break;
+      case HUB_STATE_GENERATING_GEOMETRY:
+          executer_HUB_STATE_GENERATING_GEOMETRY();
+          break;
+      case HUB_STATE_RUNNING:
+          executer_HUB_STATE_RUNNING();
+          break;
   }
-  */
 }

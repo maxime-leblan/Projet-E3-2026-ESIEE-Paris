@@ -87,7 +87,21 @@ void setup_web_server() {
     });
 
     server.on("/api/hub/tags", HTTP_GET, [](AsyncWebServerRequest *request){
-        request->send(200, "application/json", "[{\"id\":101, \"dist\":3.2}, {\"id\":105, \"dist\":7.8}]");
+        JsonDocument doc;
+        JsonArray arr = doc.to<JsonArray>();
+        
+        // On parcourt les tags actuellement vus par l'UART
+        for (int i = 0; i < MAX_TAGS; i++) {
+            if (tags_ui[i].utilise) {
+                JsonObject obj = arr.add<JsonObject>();
+                obj["id"] = tags_ui[i].id_actuel;
+                obj["dist"] = tags_ui[i].distance_actuelle; // L'index.html attend la clé "dist"
+            }
+        }
+        
+        String response;
+        serializeJson(doc, response);
+        request->send(200, "application/json", response);
     });
 
     server.on("/api/hub/start", HTTP_POST, [](AsyncWebServerRequest *request){

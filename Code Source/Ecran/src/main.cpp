@@ -27,7 +27,8 @@ void setup() {
     construire_menu_vehicules();
 
     //Setup de la communication.
-    setup_hub_com();}
+    setup_hub_com();
+}
 
 void loop() {
     // loop communications avec hub :

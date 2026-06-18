@@ -21,7 +21,7 @@ bool flag_recharger_ui = false;
 
 unsigned long dernier_temps = 0;
 int etape_simulation = 0;
-int calib_state = 0;
+volatile int calib_state = 0;
 unsigned long calib_timer = 0;
 
 float sim_calib_points[64][2];

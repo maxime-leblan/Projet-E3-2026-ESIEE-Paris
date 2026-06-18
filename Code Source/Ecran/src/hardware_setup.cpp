@@ -53,6 +53,13 @@ void setup_hardware_basic() {
     ts.begin(); ts.setRotation(ROTATION_NORMAL);
 
     SD_MMC.setPins(PIN_SD_CLK, PIN_SD_CMD, PIN_SD_D0);
+
+    for (int tentatives = 5; tentatives > 0; tentatives--) {
+        if (SD_MMC.begin("/sdcard", true)) {
+            break;
+        }
+        delay(500);
+    }
     if (!SD_MMC.begin("/sdcard", true)) Serial.println("Erreur SD");
 }
 

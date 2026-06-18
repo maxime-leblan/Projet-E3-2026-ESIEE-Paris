@@ -3,7 +3,7 @@
 void initUARTReceiver(int pUartNumber, int pRXGPIONumber, int TXGPIONumber, int pBaud, HardwareSerial & pUARTChannel)
 {
     
-  pUARTChannel.setRxBufferSize(2048);
+  pUARTChannel.setRxBufferSize(4096);
 
   pUARTChannel.begin(pBaud, SERIAL_8N1, pRXGPIONumber, TXGPIONumber);  // UART setup
   
@@ -12,7 +12,7 @@ void initUARTReceiver(int pUartNumber, int pRXGPIONumber, int TXGPIONumber, int 
 
 void initUARTTransmitter(int pUartNumber, int pRXGPIONumber, int TXGPIONumber, int pBaud, HardwareSerial & pUARTChannel)
 {
-  pUARTChannel.setRxBufferSize(2048);
+  pUARTChannel.setRxBufferSize(4096);
 
   pUARTChannel.begin(pBaud, SERIAL_8N1, pRXGPIONumber, TXGPIONumber);  // UART setup
   

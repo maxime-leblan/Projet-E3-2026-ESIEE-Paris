@@ -9,7 +9,7 @@
 
 String uart_buffer = "";
 // On pré-réserve de la mémoire pour éviter que le buffer crash sur les longs messages
-const size_t MAX_BUFFER_SIZE = 2048; 
+const size_t MAX_BUFFER_SIZE = 4096;
 
 void setup_hub_com() {
     uart_buffer.reserve(MAX_BUFFER_SIZE);
@@ -30,13 +30,13 @@ void loop_hub_com() {
             DeserializationError err = deserializeJson(doc, uart_buffer);
             if (!err) {
                 String type = doc["type"].as<String>();
-                
+               
                 // ==========================================
                 // 1. AFFICHAGE DES TAGS EN TEMPS RÉEL
                 // ==========================================
                 if (type == "tags") {
                     JsonArray arr = doc["data"].as<JsonArray>();
-                    
+                   
                     // On cache tout d'abord
                     for(int i=0; i<MAX_TAGS; i++) {
                         tags_ui[i].utilise = false;
@@ -44,28 +44,37 @@ void loop_hub_com() {
                         if (tags_ui[i].label_z) lv_obj_add_flag(tags_ui[i].label_z, LV_OBJ_FLAG_HIDDEN);
                     }
                     alarme_danger = false;
-                    
+                   
                     int idx = 0;
                     for (JsonVariant v : arr) {
                         if (idx >= MAX_TAGS) break;
-                        
+                       
                         float x = v["x"].as<float>();
                         float y = v["y"].as<float>();
                         
+                        // --- 1. LECTURE DE LA DISTANCE DEPUIS LE JSON ---
+                        float distance = v["distance"] | 0.0f;
+                        tags_ui[idx].distance_actuelle = distance;
+                       
                         tags_ui[idx].utilise = true;
                         tags_ui[idx].id_actuel = v["id"].as<int>();
                         tags_ui[idx].en_alarme = v["alarme"].as<bool>();
-                        
+                       
                         // Calcul mathématique de position en pixels
                         int px_x = CENTRE_X + (int)(x * PIXELS_PER_METER);
                         int px_y = CENTRE_Y - (int)(y * PIXELS_PER_METER);
 
-                        // Mise à jour de l'interface LVGL
+                        // Mise à jour du point graphique principal (Badge ID)
                         lv_label_set_text_fmt(tags_ui[idx].label_id, "%d", tags_ui[idx].id_actuel);
                         lv_obj_align(tags_ui[idx].point, LV_ALIGN_CENTER, px_x - CENTRE_X, px_y - CENTRE_Y);
                         lv_obj_clear_flag(tags_ui[idx].point, LV_OBJ_FLAG_HIDDEN);
                         lv_obj_move_foreground(tags_ui[idx].point);
 
+                        // --- 2. FORMATAGE ET AFFICHAGE DE LA DISTANCE (Écrase le mot "Text") ---
+                        char buffer_distance[16];
+                        snprintf(buffer_distance, sizeof(buffer_distance), "%.1fm", distance); // Formatage ex: "3.2m"
+                        lv_label_set_text(tags_ui[idx].label_z, buffer_distance); // On remplace le texte !
+                        
                         lv_obj_align_to(tags_ui[idx].label_z, tags_ui[idx].point, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
                         lv_obj_clear_flag(tags_ui[idx].label_z, LV_OBJ_FLAG_HIDDEN);
                         lv_obj_move_foreground(tags_ui[idx].label_z);
@@ -76,7 +85,7 @@ void loop_hub_com() {
                         }
                         idx++;
                     }
-                } 
+                }
                 // ==========================================
                 // 2. RÉCEPTION DE LA ZONE DE CALIBRATION
                 // ==========================================
@@ -89,7 +98,7 @@ void loop_hub_com() {
                         sim_calib_points[p_idx][1] = p["y"].as<float>();
                         p_idx++;
                     }
-                    
+                   
                     JsonArray sensors = doc["sensors"].as<JsonArray>();
                     int s_idx = 0;
                     for (JsonVariant s : sensors) {
@@ -113,4 +122,3 @@ void loop_hub_com() {
         }
     }
 }
-

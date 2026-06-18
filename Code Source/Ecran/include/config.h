@@ -33,6 +33,7 @@ struct TagGraphique {
     lv_obj_t * label_id;
     lv_obj_t * label_z;
     int id_actuel;
+    float distance_actuelle;
     bool en_alarme;
     bool utilise;
 };
@@ -73,7 +74,7 @@ extern bool flag_recharger_ui;
 
 extern unsigned long dernier_temps;
 extern int etape_simulation;
-extern int calib_state;
+extern volatile int calib_state;
 extern unsigned long calib_timer;
 
 extern float sim_calib_points[64][2];

@@ -4,37 +4,51 @@
 #include <ArduinoJson.h>
 
 /**
- * @brief Initialise le module de communication spécifique avec l'écran Matouch.
- * * Configure l'UART dédié, configure les broches de liaison matérielle et prépare
- * les buffers internes pour l'échange de messages avec l'écran.
+ * @brief Liste des états de la machine à états principale du Hub.
+ */
+enum HubState {
+    HUB_STATE_IDLE,                     ///< Attente d'une configuration ou d'une commande
+    HUB_STATE_DETECTING_TAGS_FOR_INIT,  ///< Phase de scan initial de tous les tags environnants
+    HUB_STATE_GENERATING_GEOMETRY,      ///< Calcul du plan initial (ancres + 64 points)
+    HUB_STATE_RUNNING                   ///< Mode surveillance actif à haute fréquence (33ms)
+};
+
+// Variables globales partagées, modifiables par l'UART (interceptions de commandes)
+extern volatile HubState etatActuelHub;
+extern volatile int idTagSelectionne;
+
+/**
+ * @brief Initialise l'UART de communication avec l'écran.
  */
 void setupScreenCommunication();
 
 /**
- * @brief Gère la boucle de traitement asynchrone des messages de l'écran.
- * * Cette fonction doit être appelée à chaque itération de la boucle principale (loop).
- * Elle vérifie la réception de commandes HTTP relayées, supervise l'état de la calibration
- * et gère l'envoi périodique des positions des tags.
+ * @brief Écoute l'UART et intercepte les paquets JSON pour changer l'état global du Hub.
  */
 void loopScreenCommunication();
 
 /**
- * @brief Analyse et exécute les commandes centralisées reçues depuis l'interface de l'écran ou du téléphone.
- * * @param doc Référence vers le document JSON parsé contenant la structure de la commande ("cmd").
+ * @brief Envoie à l'écran la liste des tags détectés avec leurs distances respectives.
+ * @param ids Tableau des IDs des tags trouvés
+ * @param distances Tableau des distances associées en mètres
+ * @param count Nombre de tags dans le tableau
  */
-void processIncomingCommand(JsonDocument& doc);
+void envoyerListeTagsDecouverts(int ids[], float distances[], int count);
 
 /**
- * @brief Envoie l'état périodique des tags détectés par le Hub vers l'écran.
- * * Génère un flux JSON contenant l'identifiant de chaque tag, ses coordonnées cartésiennes
- * en mètres ainsi que son statut d'alerte.
+ * @brief Envoie le plan géométrique initial calculé (4 ancres et 64 points de périmètre).
+ * @param ancres Tableau 2D des coordonnées (X, Y) des 4 capteurs
+ * @param points Tableau 2D des coordonnées (X, Y) des 64 points de la zone d'exclusion
  */
-void sendTagsToScreen();
+void envoyerGeometrieCalibration(float ancres[4][2], float points[64][2]);
 
 /**
- * @brief Transmet les résultats géométriques d'un calibrage matériel validé.
- * * Envoie un bloc structuré contenant la liste des points de la zone d'exclusion ainsi que
- * l'emplacement des capteurs/ancres mesurés sur le véhicule.
+ * @brief Envoie le flux temps réel de position d'un tag (utilisé dans la boucle RUNNING).
+ * @param id ID du tag concerné
+ * @param x Position X calculée en mètres
+ * @param y Position Y calculée en mètres
+ * @param distance Distance directe calculée par rapport au centre/véhicule
+ * @param alarme Statut d'alerte (true si dans la zone d'exclusion)
  */
-void sendCalibrationDataToScreen();
+void envoyerDonneesTagRuntime(int id, float x, float y, float distance, bool alarme);
 
