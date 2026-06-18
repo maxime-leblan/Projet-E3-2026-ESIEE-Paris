@@ -1,24 +1,28 @@
 #include "hub_com.h"
 #include "config.h"
+#include "file_manager.h" // Pour logWarningSD
 #include <Arduino.h>
+#include <lvgl.h>
 
 #define HUB_RX_PIN 19
-#define HUB_TX_PIN 20 
+#define HUB_TX_PIN 20
 
 String uart_buffer = "";
+// On pré-réserve de la mémoire pour éviter que le buffer crash sur les longs messages
+const size_t MAX_BUFFER_SIZE = 2048; 
 
 void setup_hub_com() {
-    // Initialisation du Serial2 pour communiquer avec le Hub
+    uart_buffer.reserve(MAX_BUFFER_SIZE);
+    Serial2.setRxBufferSize(MAX_BUFFER_SIZE);
     Serial2.begin(115200, SERIAL_8N1, HUB_RX_PIN, HUB_TX_PIN);
 }
 
 void envoyer_commande_hub(JsonDocument& doc) {
     serializeJson(doc, Serial2);
-    Serial2.println(); // Le saut de ligne indique la fin du message
+    Serial2.println();
 }
 
 void loop_hub_com() {
-    // Lecture non-bloquante de l'UART
     while (Serial2.available()) {
         char c = Serial2.read();
         if (c == '\n') {
@@ -27,25 +31,55 @@ void loop_hub_com() {
             if (!err) {
                 String type = doc["type"].as<String>();
                 
-                // 1. Réception des Tags en temps réel
+                // ==========================================
+                // 1. AFFICHAGE DES TAGS EN TEMPS RÉEL
+                // ==========================================
                 if (type == "tags") {
                     JsonArray arr = doc["data"].as<JsonArray>();
-                    // Désactiver tous les tags
-                    for(int i=0; i<MAX_TAGS; i++) tags_ui[i].utilise = false;
+                    
+                    // On cache tout d'abord
+                    for(int i=0; i<MAX_TAGS; i++) {
+                        tags_ui[i].utilise = false;
+                        lv_obj_add_flag(tags_ui[i].point, LV_OBJ_FLAG_HIDDEN);
+                        if (tags_ui[i].label_z) lv_obj_add_flag(tags_ui[i].label_z, LV_OBJ_FLAG_HIDDEN);
+                    }
+                    alarme_danger = false;
                     
                     int idx = 0;
                     for (JsonVariant v : arr) {
                         if (idx >= MAX_TAGS) break;
+                        
+                        float x = v["x"].as<float>();
+                        float y = v["y"].as<float>();
+                        
                         tags_ui[idx].utilise = true;
                         tags_ui[idx].id_actuel = v["id"].as<int>();
                         tags_ui[idx].en_alarme = v["alarme"].as<bool>();
                         
-                        // Enregistrement des positions pour LVGL (dans le main.cpp ou ui.cpp)
-                        // Note : on stocke ça dans de nouvelles variables globales si besoin
+                        // Calcul mathématique de position en pixels
+                        int px_x = CENTRE_X + (int)(x * PIXELS_PER_METER);
+                        int px_y = CENTRE_Y - (int)(y * PIXELS_PER_METER);
+
+                        // Mise à jour de l'interface LVGL
+                        lv_label_set_text_fmt(tags_ui[idx].label_id, "%d", tags_ui[idx].id_actuel);
+                        lv_obj_align(tags_ui[idx].point, LV_ALIGN_CENTER, px_x - CENTRE_X, px_y - CENTRE_Y);
+                        lv_obj_clear_flag(tags_ui[idx].point, LV_OBJ_FLAG_HIDDEN);
+                        lv_obj_move_foreground(tags_ui[idx].point);
+
+                        lv_obj_align_to(tags_ui[idx].label_z, tags_ui[idx].point, LV_ALIGN_OUT_RIGHT_MID, 5, 0);
+                        lv_obj_clear_flag(tags_ui[idx].label_z, LV_OBJ_FLAG_HIDDEN);
+                        lv_obj_move_foreground(tags_ui[idx].label_z);
+
+                        if (tags_ui[idx].en_alarme) {
+                            alarme_danger = true;
+                            logWarningSD(tags_ui[idx].id_actuel, x, y);
+                        }
                         idx++;
                     }
                 } 
-                // 2. Réception des données de Calibration terminées (4 ancres + 64 pts)
+                // ==========================================
+                // 2. RÉCEPTION DE LA ZONE DE CALIBRATION
+                // ==========================================
                 else if (type == "calib_data") {
                     JsonArray pts = doc["points"].as<JsonArray>();
                     int p_idx = 0;
@@ -65,14 +99,18 @@ void loop_hub_com() {
                         s_idx++;
                     }
                     sim_calib_nb_capteurs = s_idx;
-                    
-                    // Déclenche la mise à jour de la page web (polling)
-                    calib_state = 2; 
+                    calib_state = 2;
                 }
             }
-            uart_buffer = ""; // Reset du buffer
+            uart_buffer = ""; // Vider le buffer
         } else {
-            uart_buffer += c;
+            // Anti-débordement manuel de sécurité
+            if(uart_buffer.length() < MAX_BUFFER_SIZE - 10) {
+                uart_buffer += c;
+            } else {
+                uart_buffer = ""; // Si ça déborde, on jette la trame corrompue
+            }
         }
     }
 }
+

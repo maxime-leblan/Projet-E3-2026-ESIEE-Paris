@@ -68,16 +68,15 @@ void sendTagsToScreen() {
     JsonArray data = doc["data"].to<JsonArray>();
 
     // EXEMPLE DE SIMULATION DE COORDONNÉES DES TAGS EN MÈTRES :
-    // Remplacez ces lignes par vos vraies variables issues de l'algorithme du Hub
+    // Remplacez ces lignes par des vraies variables issues de l'algorithme du Hub
     JsonObject tag1 = data.add<JsonObject>();
-    tag1["id"] = 101; tag1["x"] = 4.2; tag1["y"] = 1.5; tag1["alarme"] = false;
+    tag1["id"] = 101; tag1["x"] = 4.2; tag1["y"] = 1.5; tag1["distance"] = 4.5; tag1["alarme"] = false;
 
     JsonObject tag2 = data.add<JsonObject>();
-    tag2["id"] = 105; tag2["x"] = -1.8; tag2["y"] = 3.2; tag2["alarme"] = true; // Déclenche le cadre rouge sur l'écran
+    tag2["id"] = 105; tag2["x"] = -1.8; tag2["y"] = 3.2;  tag2["distance"] = 3.1; tag2["alarme"] = true; // Déclenche le cadre rouge sur l'écran
 
-    String output;
-    serializeJson(doc, output);
-    sendDataUART(ScreenSerial, output); // Utilisation de votre fonction de transmission
+    serializeJson(doc, ScreenSerial);
+    ScreenSerial.println();
 }
 
 void sendCalibrationDataToScreen() {

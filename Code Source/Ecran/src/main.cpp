@@ -25,9 +25,14 @@ void setup() {
     setup_hardware_lvgl();
     lv_create_main_gui();
     construire_menu_vehicules();
-}
+
+    //Setup de la communication.
+    setup_hub_com();}
 
 void loop() {
+    // loop communications avec hub :
+    loop_hub_com();
+
     // Si une nouvelle configuration a été uploadée
     if (flag_recharger_ui) {
         charger_vehicules_sd();
@@ -35,23 +40,9 @@ void loop() {
         flag_recharger_ui = false;
     }
 
-    // loop communications avec hub :
-    loop_hub_com();
-
     // ETAT GLOBAL DE CLIGNOTEMENT
     static bool etat_cligno_rouge = false;
     bool doit_clignoter_rouge = ((millis() / 250) % 2 == 0);
-
-    if (calib_state == 1 && (millis() - calib_timer > 3000)) {
-        for(int i=0; i<64; i++){
-            float angle = (i * 2 * PI) / 64.0;
-            sim_calib_points[i][0] = cos(angle) * 8.0;
-            sim_calib_points[i][1] = sin(angle) * 8.0;
-        }
-        sim_calib_points[63][0] = sim_calib_points[0][0];
-        sim_calib_points[63][1] = sim_calib_points[0][1];
-        calib_state = 2;
-    }
 
     for(int i=0; i<MAX_TAGS; i++) {
         if(tags_ui[i].utilise) {
