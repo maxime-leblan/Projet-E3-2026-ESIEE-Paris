@@ -29,3 +29,5 @@ int sim_calib_nb_capteurs = 4;
 float sim_calib_capteurs[MAX_CAPTEURS][2] = {
   {-1.0, 2.0}, {1.0, 2.0}, {-1.0, -2.0}, {1.0, -2.0}
 };
+
+String json_tags_decouverts = "[]";

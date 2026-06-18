@@ -11,6 +11,8 @@ String uart_buffer = "";
 // On pré-réserve de la mémoire pour éviter que le buffer crash sur les longs messages
 const size_t MAX_BUFFER_SIZE = 4096;
 
+extern void clear_radar_display();
+
 unsigned long last_hub_msg_time = 0;
 
 void setup_hub_com() {
@@ -34,6 +36,16 @@ void loop_hub_com() {
             DeserializationError err = deserializeJson(doc, uart_buffer);
             if (!err) {
                 String type = doc["type"].as<String>();
+
+                if (type == "discovered_tags") {
+                    JsonArray arr = doc["data"].as<JsonArray>();
+                    String tmp;
+                    serializeJson(arr, tmp);
+
+                    json_tags_decouverts = tmp;
+
+                    calib_state = 1;
+                }
                
                 // ==========================================
                 // 1. AFFICHAGE DES TAGS EN TEMPS RÉEL

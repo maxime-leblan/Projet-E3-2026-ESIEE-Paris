@@ -80,3 +80,5 @@ extern unsigned long calib_timer;
 extern float sim_calib_points[64][2];
 extern int sim_calib_nb_capteurs;
 extern float sim_calib_capteurs[MAX_CAPTEURS][2];
+
+extern String json_tags_decouverts;
