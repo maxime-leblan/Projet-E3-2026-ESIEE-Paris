@@ -132,6 +132,16 @@ void setup_web_server() {
         request->send(200, "text/plain", "OK");
     });
 
+    server.on("/api/hub/stop", HTTP_ANY, [](AsyncWebServerRequest *request){
+        Serial.println("[WEB API] Fin de mesure demandée par l'opérateur. Envoi de l'ordre de calcul au Hub.");
+
+        JsonDocument doc;
+        doc["cmd"] = "stop_measure";
+        envoyer_commande_hub(doc);
+
+        request->send(200, "text/plain", "OK");
+    });
+
     server.on("/api/hub/cancel", HTTP_POST, [](AsyncWebServerRequest *request){
         clear_radar_display();
 

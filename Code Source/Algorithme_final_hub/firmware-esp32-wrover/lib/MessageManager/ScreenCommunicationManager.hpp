@@ -9,6 +9,7 @@
 enum HubState {
     HUB_STATE_IDLE,                     ///< Attente d'une configuration ou d'une commande
     HUB_STATE_DETECTING_TAGS_FOR_INIT,  ///< Phase de scan initial de tous les tags environnants
+    HUB_STATE_COLLECTING_POINTS,        ///< Phase de récupération de la zone d'exclusion
     HUB_STATE_GENERATING_GEOMETRY,      ///< Calcul du plan initial (ancres + 64 points)
     HUB_STATE_RUNNING                   ///< Mode surveillance actif à haute fréquence (33ms)
 };

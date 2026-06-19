@@ -146,6 +146,16 @@ void executer_HUB_STATE_GENERATING_GEOMETRY() {
   Serial.println("[Machine Etats] Géométrie initiale envoyée. Retour en IDLE.");
 }
 
+void executer_HUB_STATE_COLLECTING_POINTS() {
+  static unsigned long chronoLog = 0;
+  if (millis() - chronoLog >= 2000) {
+    Serial.printf("[Machine Etats] En cours d'acquisition de la zone d'exclusion");
+    chronoLog = millis();
+  }
+
+  // APPEL D'UNE FONCTION POUR FAIRE CA.
+}
+
 void executer_HUB_STATE_IDLE() {
     // Attente passive d'une configuration ou d'une commande
 }
@@ -164,6 +174,9 @@ void loop() {
           break;
       case HUB_STATE_DETECTING_TAGS_FOR_INIT:
           executer_HUB_STATE_DETECTING_TAGS_FOR_INIT();
+          break;
+      case HUB_STATE_COLLECTING_POINTS:
+          executer_HUB_STATE_COLLECTING_POINTS();
           break;
       case HUB_STATE_GENERATING_GEOMETRY:
           executer_HUB_STATE_GENERATING_GEOMETRY();

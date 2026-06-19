@@ -132,6 +132,7 @@
         <div style="margin-top:50px; text-align:center;">
             <div class="loader"></div>
             <p>Faites le tour du véhicule pour délimiter la zone d'exclusion...</p>
+            <button class="success" onclick="stopMeasure()">Terminer la mesure & calculer</button>
             <button class="danger" style="margin-top:40px;" onclick="cancelCalib()">Annuler la calibration</button>
         </div>
     </div>
@@ -452,6 +453,11 @@
                 methode: 'POST'
             });
             pollingTimer = setInterval(pollHubStatus, 1000);
+        }
+
+        async function stopMeasure() {
+            if(!confirm("Arrêter l'acquisition et générer la géométrie ?")) return;
+            await fetch('/api/hub/stop', {method: 'POST'});
         }
 
         function startAlignMode() {

@@ -91,6 +91,10 @@ void loopScreenCommunication() {
             // Étape : L'utilisateur sélectionne son tag cible
             else if (cmd == "select_tag") {
                 idTagSelectionne = doc["tag_id"].as<int>();
+                etatActuelHub = HUB_STATE_COLLECTING_POINTS;
+            }
+            // Etape : L'utilisateur demande la fin de la mesure.
+            else if (cmd == "stop_measure") {
                 etatActuelHub = HUB_STATE_GENERATING_GEOMETRY;
             }
             // Étape : Sauvegarde ou changement de configuration
