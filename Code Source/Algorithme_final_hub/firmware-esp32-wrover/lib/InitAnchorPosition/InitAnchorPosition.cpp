@@ -1,49 +1,86 @@
 #include "InitAnchorPosition.hpp"
+#include "Config.hpp"
+#include "WifiMessageManager.hpp"
+#include "RecuperationDonneesAncres.hpp"
+
+// Déclaré dans le main.cpp pour lire les données accumulées
+extern RecuperationDonneesAncres recupDonnees;
 
 std::unordered_map<string, float> getAnchorDistances(int pAnchorId, UWBModuleList pAnchors)
 {
     std::unordered_map<string, float> vDistances;
     std::vector<int> vAnchorsId = pAnchors.giveModuleIdList();
-    
+   
     // 1. Filtrage propre
     vAnchorsId.erase(std::remove(vAnchorsId.begin(), vAnchorsId.end(), pAnchorId), vAnchorsId.end());
 
-    toggleAnchorsMode(vAnchorsId, pAnchorId);
+    // Le paramètre "true" indique au Wi-Fi de devenir un Tag
+    toggleAnchorsMode(vAnchorsId, pAnchorId, true);
 
-    for (int vCurrentId : vAnchorsId)
+    if (MODE_ACTUEL == MODE_WIFI) 
     {
         unsigned long startTime = millis();
-        bool received = false;
         
-        // Timeout de 500ms par ancre pour éviter le blocage total
-        while (millis() - startTime < 500) 
-        {
-            twai_message_t vMessage;
-            if (receiveCanMessage(vMessage)) 
-            {
-                DecodedData vData;
-                if (decodeCanMessage(vMessage, vData)) 
-                {
-                    // Validation stricte : est-ce le bon type et la bonne ancre ?
-                    if (vData.type == MESSAGE_TAG_ID_AND_DISTANCE && vData.id_ancre == vCurrentId)
-                    {
-                        // on enregistre la distance uniquement si elle n'a pas déjà été calculé dans l'autre sens auparavant
-                        // 
-                        if (pAnchorId < vData.id_ancre)
-                        {
-                            string vKey = to_string(pAnchorId + 1) + to_string(vData.id_ancre + 1);
-                            vDistances[vKey] = vData.distance;
+        // Timeout de 500ms global pour le WiFi pour laisser les tags remonter l'info
+        while (millis() - startTime < 500) {
+            delay(10); 
+        }
+
+        std::vector<DistanceMoyennes> tagsLisses;
+        if (recupDonnees.getDonneesLissees(tagsLisses)) {
+            for (int vCurrentId : vAnchorsId) {
+                for (const auto& tag : tagsLisses) {
+                    if (tag.tag_id == vCurrentId) {
+                        if (pAnchorId < vCurrentId) {
+                            string vKey = to_string(pAnchorId + 1) + to_string(vCurrentId + 1);
+                            vDistances[vKey] = tag.distances[pAnchorId];
                         }
-                        received = true;
-                        break; // Sort du while
                     }
                 }
             }
         }
-        if (!received) Serial.printf("Timeout : Ancre %d n'a pas répondu.\n", vCurrentId);
+    }
+    else 
+    {
+        // ==========================================================
+        // CODE CAN ORIGINAL (Ne pas modifier)
+        // ==========================================================
+        for (int vCurrentId : vAnchorsId)
+        {
+            unsigned long startTime = millis();
+            bool received = false;
+           
+            // Timeout de 500ms par ancre pour éviter le blocage total
+            while (millis() - startTime < 500)
+            {
+                twai_message_t vMessage;
+                if (receiveCanMessage(vMessage))
+                {
+                    DecodedData vData;
+                    if (decodeCanMessage(vMessage, vData))
+                    {
+                        // Validation stricte : est-ce le bon type et la bonne ancre ?
+                        if (vData.type == MESSAGE_TAG_ID_AND_DISTANCE && vData.id_ancre == vCurrentId)
+                        {
+                            // on enregistre la distance uniquement si elle n'a pas déjà été calculé dans l'autre sens auparavant
+                            //
+                            if (pAnchorId < vData.id_ancre)
+                            {
+                                string vKey = to_string(pAnchorId + 1) + to_string(vData.id_ancre + 1);
+                                vDistances[vKey] = vData.distance;
+                            }
+                            received = true;
+                            break; // Sort du while
+                        }
+                    }
+                }
+            }
+            if (!received) Serial.printf("Timeout : Ancre %d n'a pas répondu.\n", vCurrentId);
+        }
     }
 
-    toggleAnchorsMode(vAnchorsId, pAnchorId);
+    // Le paramètre "false" indique au Wi-Fi de redevenir une Ancre
+    toggleAnchorsMode(vAnchorsId, pAnchorId, false);
     return vDistances;
 }
 
@@ -67,12 +104,23 @@ void initAnchorsPosition(UWBModuleList & pAnchors)
     initAnchorsCoordinatesWithGD(pAnchors, vAnchorDistances, ITERATIONS, LEARNING_RATE);
 }
 
-void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId)
+void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId, bool becomeTags)
 {
     for (int i = 0; i < pAnchorsId.size(); i++)
     {
-        MsgToggleHubOrder vMessage;
-        vMessage.staticAnchorId = pStaticAnchorId;
-        sendCanOrderFromHubTo(pAnchorsId[i], HUB_ORDER_TOGGLE_MODULE_MODE, vMessage);
+        if (MODE_ACTUEL == MODE_WIFI) 
+        {
+            // Commande Wi-Fi : 1 = Deviens un Tag, 0 = Deviens une Ancre
+            uint8_t command = becomeTags ? 1 : 0;
+            envoyerOrdreChangementRole(pAnchorsId[i], command);
+        } 
+        else 
+        {
+            // Commande CAN d'origine
+            MsgToggleHubOrder vMessage;
+            vMessage.staticAnchorId = pStaticAnchorId;
+            sendCanOrderFromHubTo(pAnchorsId[i], HUB_ORDER_TOGGLE_MODULE_MODE, vMessage);
+        }
     }
 }
+

@@ -2,6 +2,9 @@
 
 #include "CANMessageManager.hpp"
 #include "GridLibrary.hpp"
+#include <unordered_map>
+#include <vector>
+#include <string>
 
 // On définit des macros contenant les paramètres que l'on veut utiliser pour la descente de gradient
 #define ITERATIONS 100
@@ -12,7 +15,7 @@
  * @param pAnchorId Identifiant de l'Ancre dont on veut récupérer toutes les distances par rapport aux autres ancres
  * @param pAnchors Liste des Ancres existantes. La fonction en a besoin pour déterminer les autres Ancres existantes pour calculer les distances à l'ancre dont l'id passé en paramètre.
  */
-std::unordered_map<string, float> getAnchorDistances(int pAnchorId, UWBModuleList pAnchors);
+std::unordered_map<std::string, float> getAnchorDistances(int pAnchorId, UWBModuleList pAnchors);
 
 /**
  * Attribue les positions de départ de chaque Ancre dans le repère d'origine stocké par le Hub
@@ -21,9 +24,9 @@ std::unordered_map<string, float> getAnchorDistances(int pAnchorId, UWBModuleLis
 void initAnchorsPosition(UWBModuleList & pAnchors);
 
 /**
- * Envoie un message à toutes les Ancres dont l'id est passé en paramètre pour leur ordonner d'inverser leur mode de comportement. Elles peuvent passer du mode Ancre -> Tag ou du mode Tag -> Ancre.
+ * Envoie un message à toutes les Ancres dont l'id est passé en paramètre pour leur ordonner d'inverser leur mode de comportement.
  * @param pAnchorsId Liste des identifiants de toutes les Ancres devant changer d'état
  * @param pStaticAnchorId Identifiant de la seule Ancre qui ne change pas d'état
+ * @param becomeTags (Optionnel) Indique au Wi-Fi s'il faut forcer le mode Tag (true) ou Ancre (false)
  */
-void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId);
-
+void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId, bool becomeTags = true);
