@@ -89,9 +89,9 @@ void executer_HUB_STATE_RUNNING() {
       
       // Ici, les fonctions réelles écriront dans ces variables après calculs :
       int ids[3] = {101, 12, 110};
-      float xs[3] = {3.5, -1.5, 2.0};
-      float ys[3] = {1.2, 2.4, -4.0};
-      float dists[3] = {3.7, 2.8, 4.5};
+      float xs[3] = {12, -5, 8};
+      float ys[3] = {-12, 4, -11};
+      float dists[3] = {16.9, 7, 12.5};
       bool alarmes[3] = {false, true, false}; // Exemple d'alerte (il est entré dans le polygone vSafeZone)
 
       // Envoi direct de la ligne de données calculée (ou simulée) au manager UART
