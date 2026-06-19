@@ -91,7 +91,7 @@ void executer_HUB_STATE_RUNNING() {
       int ids[3] = {4, 5, 6};
       float xs[3] = {10, -5, 7};
       float ys[3] = {-10, 4, 10};
-      float dists[3] = {14.9, 7=8.5, 12.5};
+      float dists[3] = {14.9, 8.5, 12.5};
       bool alarmes[3] = {false, true, false}; // Exemple d'alerte (il est entré dans le polygone vSafeZone)
 
       // Envoi direct de la ligne de données calculée (ou simulée) au manager UART
