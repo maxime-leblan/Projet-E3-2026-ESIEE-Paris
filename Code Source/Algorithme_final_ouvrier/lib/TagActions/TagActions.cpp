@@ -1,63 +1,47 @@
 #include "TagActions.hpp"
 
-void initTag();
-
 /**
- * Met le module UWB en veille prolongée (Consommation minimale)
+ * Initialise les périphériques propres à la XIAO (USB, Capteurs...)
  */
-void veilleUWB() {
-    Serial.println("[UWB] Envoi de la commande de mise en veille...");
-    Serial1.println("AT+SLEEP=65535"); // 65535 = Sommeil permanent dans le firmware Makerfabs
-    Serial1.flush();                  // On attend que la commande soit totalement envoyée
-    delay(50); 
+void initialiserXiao() {
+    Serial.begin(115200);
+    
+    // Les cartes XIAO nRF52840 démarrent extrêmement vite.
+    // On attend un court instant que le port USB du PC soit prêt (pour le débug)
+    /*
+    uint32_t startTime = millis();
+    while (!Serial && (millis() - startTime < 2000)) {
+        delay(10); 
+    }
+    */
+    
+    Serial.println("\n=================================");
+    Serial.println("[XIAO] Initialisation matérielle...");
+    
+    // C'est ici que vous initialiserez votre capteur de pression SPI plus tard
+    // ex: monCapteur.initialiser();
+    
+    Serial.println("[XIAO] Prête et configurée.");
 }
 
 /**
- * Réveille le module UWB via une impulsion matérielle sur son UART2 RX
+ * Initialise la liaison et les broches de contrôle du module UWB
  */
-void reveilUWB() {
-    Serial.println("[UWB] Envoi de l'interruption de réveil (Drop-down)...");
+void initialiserUWB() {
+    Serial.println("[UWB] Initialisation du module...");
     
-    // Le firmware Makerfabs demande un "drop-down" (passage à l'état BAS) pour se réveiller
-    digitalWrite(UWB_WAKEUP_PIN, LOW);
-    delay(15); // Une impulsion de 15 ms suffit largement
-    digitalWrite(UWB_WAKEUP_PIN, HIGH); // On repasse à l'état HAUT par défaut
+    // 1. Initialisation de la communication Série (TX/RX) avec l'UWB
+    Serial1.begin(115200);
     
-    delay(100); // Petit temps d'attente pour laisser le microcontrôleur de l'UWB redémarrer
-    Serial.println("[UWB] Module UWB réveillé et prêt.");
+    // 2. Configuration de la broche physique d'interruption (UART2 RX de l'UWB)
+    // On la configure en SORTIE et on la met à l'état HAUT (HIGH) immédiatement.
+    // Le réveil se déclenche sur un état BAS (LOW), donc la laisser à HAUT évite un réveil accidentel.
+    pinMode(UWB_WAKEUP_PIN, OUTPUT);
+    digitalWrite(UWB_WAKEUP_PIN, HIGH);
+    
+    // 3. Optionnel : On peut envoyer une commande de configuration initiale si nécessaire
+    // ex: configureUWBForMessaging(Serial1);
+    
+    Serial.println("[UWB] Broches de contrôle et liaison Série configurées.");
 }
 
-
-// --- FONCTIONS POUR LA XIAO BLE ---
-
-/**
- * Met la XIAO BLE en sommeil basse consommation (System ON) pendant une durée précise
- * @param duree_ms Durée de la veille en millisecondes
- */
-void veilleXiao(uint32_t duree_ms) {
-    Serial.println("[XIAO] Entrée en veille pour " + String(duree_ms) +" ms...\n");
-    Serial.flush(); // On vide le buffer série pour éviter les corruptions d'affichage
-    
-    // Crucial pour l'énergie : On désactive le port série matériel de l'UWB
-    // car laisser un périphérique UART actif consomme du courant inutilement
-    Serial1.end(); 
-
-    // NOTE : Si vous avez votre capteur de pression BMP581 en SPI, 
-    // c'est ici qu'il faudrait idéalement appeler une fonction pour le mettre en standby.
-
-    // Sur l'architecture nRF52, le delay() bascule automatiquement 
-    // le processeur en mode veille "System ON" via FreeRTOS
-    delay(duree_ms); 
-}
-
-/**
- * Relance les périphériques de la XIAO après son réveil automatique
- */
-void reveilXiao() {
-    // On réactive la liaison Série vers le module UWB
-    Serial1.begin(115200); 
-    
-    // NOTE : C'est ici qu'on réveillerait le capteur BMP581 si on l'avait éteint
-    
-    Serial.println("[XIAO] Mode actif restauré.");
-}
