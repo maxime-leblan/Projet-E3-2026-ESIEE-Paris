@@ -510,7 +510,15 @@
             if(tid === "") return alert("Veuillez sélectionner un tag !");
             if(!confirm("Cela calibre directement à votre position. Continuer ?")) return;
             nav('view-calib-wait');
-            await fetch('/api/hub/start?=tag_id=' + tid, {method: 'POST'});
+
+            let params = new URLSearchParams();
+            params.append('tag_id', tid);
+
+            await fetch('/api/hub/start?=tag_id=' + tid, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded'},
+                body: params.toString()
+            });
             pollingTimer = setInterval(pollHubStatus, 1000);
         }
 
