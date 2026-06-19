@@ -132,7 +132,7 @@ void setup_web_server() {
         request->send(200, "text/plain", "OK");
     });
 
-    server.on("/api/hub/stop", HTTP_ANY, [](AsyncWebServerRequest *request){
+    server.on("/api/hub/stop", HTTP_POST, [](AsyncWebServerRequest *request){
         Serial.println("[WEB API] Fin de mesure demandée par l'opérateur. Envoi de l'ordre de calcul au Hub.");
 
         JsonDocument doc;

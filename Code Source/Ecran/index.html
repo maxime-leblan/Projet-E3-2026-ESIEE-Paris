@@ -449,9 +449,7 @@
             if(!tid || tid === "" || tid === "undefined") { alert("Veuillez sélectionner un tag valide !"); return; }
             if(!confirm("Cela calibre directement sur le Tag #" + tid + ". Continuer ?")) return;
             nav('view-calib-wait');
-            await fetch('/api/hub/start?tag_id=' + tid, {
-                methode: 'POST'
-            });
+            await fetch('/api/hub/start?tag_id=' + tid);
             pollingTimer = setInterval(pollHubStatus, 1000);
         }
 
