@@ -12,12 +12,12 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; -webkit-tap-highlight-color: transparent;}
         body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column;}
        
-        .header { background: var(--panel); padding: 15px; text-align: right; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid var(--border); display:flex; align-items:center; justify-content:flex-end; position:relative; }
-        .back-btn { background: transparent; border: none; color: var(--primary); font-size: 1rem; cursor: pointer; padding: 10px; position: absolute; left: 5px; top: 50%; transform: translateY(-50%); font-weight: bold; width: auto; margin: 0; z-index: 10;}
+        /* CORRECTION SÉPARATION HEADER CONTENU */
+        .header { background: var(--panel); padding: 15px; font-size: 1.2rem; font-weight: bold; border-bottom: 1px solid var(--border); display:flex; align-items:center; justify-content:space-between; position:relative; text-align: left; }
+        .back-btn { background: transparent; border: none; color: var(--primary); font-size: 1rem; cursor: pointer; padding: 10px; font-weight: bold; width: auto; margin: 0; z-index: 10;}
        
         .view { display: none; flex: 1; flex-direction: column; padding: 20px; overflow-y: auto; }
         .view.active { display: flex; }
-
 
         button { background: var(--primary); border: none; border-radius: 8px; color: #fff; padding: 15px; font-size: 1.1rem; font-weight: bold; width: 100%; margin-bottom: 15px; cursor: pointer; transition: 0.2s;}
         button:disabled { opacity: 0.5; }
@@ -29,32 +29,26 @@
         input[type="file"] { padding: 10px; font-size: 0.9rem;}
         label { color: var(--muted); font-size: 0.9rem; margin-bottom: 5px; display: block;}
 
+        /* FIX DEFORMATION CANVAS GLOBAL */
+        .canvas-container { position: relative; width: 100%; aspect-ratio: 800/480; background: #000; border: 2px solid var(--border); border-radius: 8px; overflow: hidden; touch-action: none; margin-bottom: 15px; display: flex; align-items: center; justify-content: center;}
+        canvas { max-width: 100%; max-height: 100%; width: auto; height: auto; aspect-ratio: 800/480; display: block; object-fit: contain; }
 
-        .canvas-container { position: relative; width: 100%; aspect-ratio: 800/480; background: #000; border: 2px solid var(--border); border-radius: 8px; overflow: hidden; touch-action: none; margin-bottom: 15px;}
-        canvas { width: 100%; height: 100%; display: block;}
-
-
-        /* FIX ASPECT RATIO FULLSCREEN */
+        /* FIX STRUCTURAL MODE PLEIN ÉCRAN */
         .fs-editor { position: fixed; inset: 0; background: #000; z-index: 1000; display: none; flex-direction: column; }
         .fs-editor.active { display: flex; }
-        .fs-canvas-box { flex: 1; width: 100%; position: relative; touch-action: none; overflow: hidden; border-bottom: 2px solid var(--border); display: flex; align-items: center; justify-content: center; background: #0a0a0a;}
-        .fs-canvas-wrapper { width: 100%; max-height: 100%; aspect-ratio: 800/480; position: relative; }
-       
+        .fs-canvas-box { flex: 1; width: 100%; position: relative; touch-action: none; overflow: hidden; border-bottom: 2px solid var(--border); display: flex; align-items: center; justify-content: center; background: #080808;}
         .fs-controls { background: var(--panel); padding: 15px; display: flex; flex-direction: column; gap: 10px; }
        
         .row { display: flex; gap: 10px; align-items: center; justify-content: space-between;}
         .col { flex: 1; }
 
-
         .loader { border: 4px solid var(--bg); border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
 
         .list-item { background: var(--panel); padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--border); }
         table { width: 100%; border-collapse: collapse; margin-top: 10px;}
         th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); font-size: 0.9rem;}
         th { color: var(--muted); }
-
 
         input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; height: 20px; width: 20px; border-radius: 50%; background: var(--primary); cursor: pointer; margin-top: -8px; }
@@ -63,14 +57,12 @@
 </head>
 <body>
 
-
     <div id="view-home" class="view active">
         <h2 style="text-align:center; margin-top:50px; margin-bottom:40px; color:var(--primary)">HUB CONTROL</h2>
         <button onclick="nav('view-hist-menu')">Historique</button>
         <button onclick="loadManageConfigs()">Gérer les configurations</button>
         <button class="success" style="margin-top:20px;" onclick="startSetup()">Nouveau Calibrage</button>
     </div>
-
 
     <div id="view-hist-menu" class="view">
         <div class="header"><button class="back-btn" onclick="nav('view-home')">◀ Retour</button>Historique</div>
@@ -79,7 +71,6 @@
             <button onclick="loadCalibsHistory()">Historique des calibrages</button>
         </div>
     </div>
-
 
     <div id="view-hist-warn" class="view">
         <div class="header"><button class="back-btn" onclick="nav('view-hist-menu')">◀ Retour</button>Alertes</div>
@@ -93,18 +84,15 @@
         cursor:pointer; z-index:1000; transition:0.3s;">↑</button>
     </div>
 
-
     <div id="view-hist-calib" class="view">
         <div class="header"><button class="back-btn" onclick="nav('view-hist-menu')">◀ Retour</button>Calibrages passés</div>
         <div id="calibHistList" style="margin-top:10px;"></div>
     </div>
 
-
     <div id="view-manage-calibs" class="view">
         <div class="header"><button class="back-btn" onclick="nav('view-home')">◀ Retour</button>Configurations</div>
         <div id="manageList" style="margin-top:10px;"></div>
     </div>
-
 
     <div id="view-calib-setup" class="view">
         <div class="header"><button class="back-btn" onclick="nav('view-home')">◀ Annuler</button>Configuration</div>
@@ -128,7 +116,6 @@
         </div>
     </div>
 
-
     <div id="view-calib-tags" class="view">
         <div class="header"><button class="back-btn" onclick="nav('view-calib-setup')">◀ Retour</button>Ciblage</div>
         <div style="margin-top:20px; text-align:center;">
@@ -140,7 +127,6 @@
         </div>
     </div>
 
-
     <div id="view-calib-wait" class="view">
         <div class="header">Calibration en cours</div>
         <div style="margin-top:50px; text-align:center;">
@@ -150,11 +136,8 @@
         </div>
     </div>
 
-
     <div id="view-calib-align" class="view">
-        <div class="header" style="justify-content: flex-end;">
-            <button class="back-btn" onclick="cancelCalib()">◀ Annuler</button>Étape 1 : Alignement
-        </div>
+        <div class="header"><button class="back-btn" onclick="cancelCalib()">◀ Annuler</button>Étape 1 : Alignement</div>
        
         <p style="text-align:right; color:var(--primary); font-weight:bold; font-size:1rem; margin-top:10px; margin-bottom:5px;">
             Placez les capteurs pour faire correspondre à la réalité.
@@ -163,9 +146,7 @@
             (Glissez sur le radar avec le doigt. Vous modifierez la forme à l'étape suivante.)
         </p>
 
-
         <div class="canvas-container" id="alignCanvasHost"></div>
-
 
         <div style="background:var(--panel); padding:15px; border-radius:8px; margin-bottom:15px;">
             <label style="text-align:center; margin-bottom:15px; display:block; font-weight:bold;">Rotation de l'ensemble (0 à 360°)</label>
@@ -175,36 +156,29 @@
         <button class="success" onclick="validateAlignment()">Valider et passer à l'Étape 2</button>
     </div>
 
-
     <div id="view-calib-edit" class="view">
         <div class="header"><button class="back-btn" onclick="cancelCalib()">◀ Annuler</button>Aperçu de la zone</div>
-       
         <p style="text-align:center; color:var(--muted); font-size:0.85rem; margin-bottom:10px;">Les points jaunes définissent votre machine.</p>
-
 
         <div class="canvas-container" id="normalCanvasHost">
             <canvas id="radarCanvas" width="800" height="480"></canvas>
         </div>
 
-
         <button class="outline" onclick="enterEditMode()">Éditer la zone (Plein Écran)</button>
         <button class="success" id="btnSave" onclick="saveCalibration()">Valider & Sauvegarder</button>
     </div>
 
-
-    <!-- EDITEUR PLEIN ECRAN AMELIORE -->
     <div id="fullscreenEditor" class="fs-editor">
-        <div class="header">Mode Édition
-            <span style="font-size:0.8rem; font-weight:normal; color:#aaa; margin-left:10px;">(Pinch: Zoom, 1 doigt: Bouger)</span>
-            <button class="success" style="width:auto; margin:0; padding:8px 15px; position:absolute; right:10px;" onclick="exitEditMode()">Terminer</button>
+        <div class="header">
+            <div>
+                <span style="color:var(--primary); font-weight:bold; display:block;">Mode Édition</span>
+                <span style="font-size:0.75rem; font-weight:normal; color:var(--muted);">(2 doigts: Naviguer/Zoom | 1 doigt: Bouger un point)</span>
+            </div>
+            <button class="success" style="width:auto; margin:0; padding:10px 20px;" onclick="exitEditMode()">Terminer</button>
         </div>
        
-        <div class="fs-canvas-box">
-            <div class="fs-canvas-wrapper" id="fsCanvasHost">
-                <!-- Le Canvas se placera ici en respectant le format 800/480 -->
+        <div class="fs-canvas-box" id="fsCanvasHost">
             </div>
-        </div>
-
 
         <div class="fs-controls">
             <div class="row">
@@ -225,7 +199,6 @@
         </div>
     </div>
 
-
     <script>
         const P_METER = 19.2, CX = 400, CY = 240;
         let newCalib = { zone: [], sensors: [], v_width: 5, v_length: 8, image: "" };
@@ -235,13 +208,11 @@
        
         const cvs = document.getElementById('radarCanvas');
         const ctx = cvs.getContext('2d');
-       
         let editMode = false;
         let editPointIdx = 0;
         let draggedPt = -1;
 
-
-        // --- VARIABLES ZOOM ET PAN (PLEIN ECRAN) ---
+        // --- GESTION DU ZOOM MULTI-TOUCH ET GLISSEMENT DE CARTE ---
         let fsZoom = 1.0;
         let fsPanX = 0;
         let fsPanY = 0;
@@ -250,15 +221,12 @@
         let initialPinchDist = null;
         let lastPinchCenter = null;
 
-
         let historyStack = [];
         let pendingImageFile = null;
-
 
         let alignMode = false;
         let globalTx = 0; let globalTy = 0; let globalAngle = 0;
         let isDraggingAlign = false; let lastAlignTouch = null;
-
 
         // SYNC HEURE
         fetch('/api/time', {
@@ -267,12 +235,10 @@
             body: 'ts=' + Math.floor(Date.now()/1000)
         }).catch(e => console.log("Erreur sync heure"));
 
-
         function nav(id) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
-
 
         function saveDraft() {
             if(newCalib && newCalib.zone && newCalib.zone.length > 0) {
@@ -280,20 +246,17 @@
             }
         }
 
-
         // ==========================================
         // VIRTUAL SCROLLER POUR L'HISTORIQUE WARNINGS
         // ==========================================
         let allWarningsArray = [];
-        let warnRowHeight = 40;
+        let warnRowHeight = 40; 
         let lastRenderedStart = -1;
-
 
         async function loadWarnings() {
             nav('view-hist-warn');
             let table = document.getElementById('warnTable');
             table.innerHTML = "<tr><th>Date</th><th>Tag</th><th>Pos X</th><th>Pos Y</th></tr><tr><td colspan='4' style='text-align:center;'>Chargement...</td></tr>";
-
 
             try {
                 let res = await fetch('/api/warnings?t=' + Date.now());
@@ -306,7 +269,6 @@
                     if(cols.length >= 4) allWarningsArray.push(cols);
                 }
 
-
                 if (allWarningsArray.length === 0) {
                     table.innerHTML = "<tr><th>Date</th><th>Tag</th><th>Pos X</th><th>Pos Y</th></tr><tr><td colspan='4' style='text-align:center; color:var(--muted);'>Aucune alerte</td></tr>";
                     return;
@@ -318,14 +280,12 @@
             }
         }
 
-
         function setupVirtualScroll() {
             let view = document.getElementById('view-hist-warn');
-            view.scrollTop = 0;
+            view.scrollTop = 0; 
             view.onscroll = () => { window.requestAnimationFrame(() => renderWarnChunk(view)); };
             renderWarnChunk(view);
         }
-
 
         function renderWarnChunk(view) {
             let table = document.getElementById('warnTable');
@@ -334,7 +294,6 @@
             if(view.scrollTop > 500) btnTop.style.display = 'block';
             else btnTop.style.display = 'none';
 
-
             let viewHeight = view.clientHeight || 600;
             let scrollTop = view.scrollTop;
            
@@ -342,35 +301,25 @@
             let startIdx = Math.max(0, Math.floor(scrollTop / warnRowHeight) - buffer);
             let endIdx = Math.min(allWarningsArray.length, Math.floor((scrollTop + viewHeight) / warnRowHeight) + buffer);
 
-
             if (Math.abs(startIdx - lastRenderedStart) < 5 && endIdx < allWarningsArray.length) return;
             lastRenderedStart = startIdx;
 
-
             let html = "<tr><th>Date</th><th>Tag</th><th>Pos X</th><th>Pos Y</th></tr>";
-
-
             if (startIdx > 0) html += `<tr style="height:${startIdx * warnRowHeight}px"><td colspan="4"></td></tr>`;
-
 
             for(let i = startIdx; i < endIdx; i++) {
                 let cols = allWarningsArray[i];
                 html += `<tr style="height:${warnRowHeight}px"><td>${cols[0]}</td><td style="color:var(--danger); font-weight:bold;">#${cols[1]}</td><td>${cols[2]}</td><td>${cols[3]}</td></tr>`;
             }
 
-
             let remaining = allWarningsArray.length - endIdx;
             if (remaining > 0) html += `<tr style="height:${remaining * warnRowHeight}px"><td colspan="4"></td></tr>`;
-
 
             table.innerHTML = html;
         }
 
-
         function scrollToTopWarn() { document.getElementById('view-hist-warn').scrollTo({ top: 0, behavior: 'smooth' }); }
 
-
-        // --- HISTORIQUE CALIBRAGES ---
         async function loadCalibsHistory() {
             nav('view-hist-calib');
             let list = document.getElementById('calibHistList');
@@ -402,8 +351,6 @@
             } catch(e) { list.innerHTML = "<p style='text-align:center; color:var(--danger); margin-top:20px;'>Erreur de chargement.</p>"; }
         }
 
-
-        // --- GESTION DES CONFIGS ---
         async function loadManageConfigs() {
             nav('view-manage-calibs');
             let list = document.getElementById('manageList');
@@ -426,7 +373,6 @@
             } catch(e) { list.innerHTML = "Erreur."; }
         }
 
-
         async function deleteCalib(i) {
             if(!confirm("Supprimer cette configuration définitivement ?")) return;
             let calibToDelete = activeCalibs[i];
@@ -447,8 +393,6 @@
             } catch(e) { alert("Erreur lors de la suppression."); }
         }
 
-
-        // --- NOUVELLE CALIBRATION ---
         function startSetup() {
             let draft = localStorage.getItem('draftCalib');
             if(draft) {
@@ -459,15 +403,12 @@
                     return;
                 } else localStorage.removeItem('draftCalib');
             }
-
-
             editingCalibIndex = -1;
             newCalib = { zone: [], sensors: [], v_width: 5, v_length: 8, image: "" };
             document.getElementById('c_nom').value = ""; document.getElementById('c_op').value = ""; document.getElementById('c_img_file').value = "";
             pendingImageFile = null;
             nav('view-calib-setup');
         }
-
 
         async function requestTags() {
             let n = document.getElementById('c_nom').value;
@@ -478,18 +419,16 @@
             newCalib.v_length = parseFloat(document.getElementById('c_height').value) || 8;
             newCalib.date = new Date().toLocaleString();
 
-
             let fileInput = document.getElementById('c_img_file');
             if(fileInput.files.length > 0) {
                 pendingImageFile = fileInput.files[0];
                 newCalib.image = "img_" + Date.now() + ".bin";
             } else if (!newCalib.image) newCalib.image = "default.bin";
 
-
             document.getElementById('btnStartCalib').disabled = true;
             saveDraft();
             nav('view-calib-tags');
-           
+            
             let sel = document.getElementById('tagSelect');
             sel.innerHTML = "<option value=''>Recherche en cours...</option>";
            
@@ -502,32 +441,30 @@
             } catch(e) { sel.innerHTML = "<option value=''>Erreur communication Hub</option>"; }
         }
 
-
         function checkTag() { document.getElementById('btnStartCalib').disabled = (document.getElementById('tagSelect').value === ""); }
 
-
+        // --- FIX ABSOLU ID 0 : Envoi via En-tête HTTP Personnalisé ---
         async function confirmCalib() {
             let tid = document.getElementById('tagSelect').value;
             if(!tid || tid === "" || tid === "undefined") { alert("Veuillez sélectionner un tag valide !"); return; }
             if(!confirm("Cela calibre directement sur le Tag #" + tid + ". Continuer ?")) return;
             nav('view-calib-wait');
 
-
-            // POST SANS BODY - URL Uniquement
-            await fetch('/api/hub/start?tag_id=' + tid, { method: 'POST' });
+            // Transmission blindée via Header
+            await fetch('/api/hub/start', { 
+                method: 'POST',
+                headers: { 'X-Tag-ID': tid } 
+            });
             pollingTimer = setInterval(pollHubStatus, 1000);
         }
-
 
         function startAlignMode() {
             alignMode = true;
             globalTx = 0; globalTy = 0; globalAngle = 0;
             if(document.getElementById('alignRotation')) document.getElementById('alignRotation').value = 0;
 
-
             document.getElementById('alignCanvasHost').appendChild(cvs);
             nav('view-calib-align');
-
 
             if (pendingImageFile) {
                 bgImgObj = new Image();
@@ -537,7 +474,6 @@
             } else bgImgObj = null;
             drawCanvas();
         }
-
 
         async function pollHubStatus() {
             try {
@@ -553,14 +489,12 @@
             } catch(e){}
         }
 
-
         function editExistingCalib(i) {
             editingCalibIndex = i;
             newCalib = JSON.parse(JSON.stringify(activeCalibs[i]));
-            editPointIdx = 0; pendingImageFile = null;
+            editPointIdx = 0; pendingImageFile = null; 
             startAlignMode();
         }
-
 
         async function cancelCalib() {
             clearInterval(pollingTimer);
@@ -568,8 +502,6 @@
             nav('view-home');
         }
 
-
-        // --- MATHS D'ALIGNEMENT GLOBAL SÉCURISÉES ---
         function getTransformed(pt) {
             let x = parseFloat(pt.x), y = parseFloat(pt.y);
             if (isNaN(x) || isNaN(y)) return {x:0, y:0};
@@ -578,20 +510,17 @@
             let tx = isNaN(globalTx) ? 0 : globalTx;
             let ty = isNaN(globalTy) ? 0 : globalTy;
 
-
             let cosA = Math.cos(angle), sinA = Math.sin(angle);
             let rx = x * cosA - y * sinA;
             let ry = x * sinA + y * cosA;
             return { x: rx + tx, y: ry + ty };
         }
 
-
         function updateAlignRotation() {
             let val = parseFloat(document.getElementById('alignRotation').value);
             globalAngle = (isNaN(val) ? 0 : val) * (Math.PI / 180);
             drawCanvas();
         }
-
 
         function validateAlignment() {
             if (newCalib.zone) for (let i=0; i<newCalib.zone.length; i++) newCalib.zone[i] = getTransformed(newCalib.zone[i]);
@@ -609,12 +538,9 @@
             drawCanvas();
         }
 
-
-        // --- SAUVEGARDE GLOBALE ---
         async function saveCalibration() {
             let btn = document.getElementById('btnSave');
             btn.disabled = true;
-
 
             if(pendingImageFile) {
                 btn.innerText = "Création de l'image...";
@@ -622,7 +548,6 @@
                     await processAndUploadImage(pendingImageFile, newCalib.v_width, newCalib.v_length, newCalib.image);
                 } catch(e) { alert("Erreur d'image."); btn.disabled=false; btn.innerText="Valider & Sauvegarder"; return;}
             }
-
 
             btn.innerText = "Sauvegarde...";
             try {
@@ -652,7 +577,6 @@
                    
                     await fetch('/api/config_action', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() });
 
-
                     localStorage.removeItem('draftCalib');
                     alert("Configuration sauvegardée et envoyée à l'écran !");
                     nav('view-home');
@@ -663,13 +587,11 @@
             btn.innerText = "Valider & Sauvegarder";
         }
 
-
         function processAndUploadImage(file, widthM, heightM, filename) {
             return new Promise((resolve, reject) => {
                 let pxW = Math.round(widthM * P_METER);
-                if (pxW % 2 !== 0) pxW++;
+                if (pxW % 2 !== 0) pxW++; 
                 let pxH = Math.round(heightM * P_METER);
-
 
                 let img = new Image();
                 img.onload = async () => {
@@ -681,20 +603,17 @@
                     let view = new DataView(buffer);
                     let u8 = new Uint8Array(buffer);
 
-
                     let header = 5 | (pxW << 10) | (pxH << 21);
                     u8[0] = header & 0xFF; u8[1] = (header >> 8) & 0xFF; u8[2] = (header >> 16) & 0xFF; u8[3] = (header >> 24) & 0xFF;
-
 
                     let offset = 4;
                     for(let i=0; i<data.length; i+=4) {
                         let r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
                         let rgb565 = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
                         view.setUint16(offset, rgb565, true);
-                        view.setUint8(offset + 2, a);
+                        view.setUint8(offset + 2, a); 
                         offset += 3;
                     }
-
 
                     let blob = new Blob([buffer], {type: 'application/octet-stream'});
                     let fd = new FormData(); fd.append('data', blob, filename);
@@ -705,23 +624,20 @@
             });
         }
 
-
-        // --- EDITEUR CANVAS FULLSCREEN & NORMAL ---
+        // --- GESTION DU RACOUT ET DU POSITIONNEMENT DE CAMERA ---
         function resetZoomPan() {
             fsZoom = 1.0; fsPanX = 0; fsPanY = 0;
             drawCanvas();
         }
 
-
         function enterEditMode() {
             editMode = true;
             historyStack = [];
-            resetZoomPan(); // Reset la caméra en entrant
+            resetZoomPan();
             document.getElementById('fsCanvasHost').appendChild(cvs);
             document.getElementById('fullscreenEditor').classList.add('active');
             updatePointUI();
         }
-
 
         function exitEditMode() {
             editMode = false;
@@ -731,52 +647,41 @@
             drawCanvas();
         }
 
-
         function mToP(m) { return { x: CX + m.x * P_METER, y: CY - m.y * P_METER }; }
         function pToM(p) { return { x: (p.x - CX)/P_METER, y: -(p.y - CY)/P_METER }; }
-
 
         function drawCanvas() {
             ctx.save();
             ctx.clearRect(0,0,800,480);
-           
-            // Si on est en édition, on applique le pan & zoom
+            
             if (editMode) {
                 ctx.translate(CX + fsPanX, CY + fsPanY);
                 ctx.scale(fsZoom, fsZoom);
                 ctx.translate(-CX, -CY);
             }
            
-            let pxW = newCalib.v_width * P_METER
-            let pxH = newCalib.v_length * P_METER
-
-
-            // L'épaisseur des lignes doit rester propre même si on zoom beaucoup (On divise par fsZoom)
+            let pxW = newCalib.v_width * P_METER;
+            let pxH = newCalib.v_length * P_METER;
             let baseLineW = 1 / (editMode ? fsZoom : 1);
 
-
-            ctx.strokeStyle = '#0288d1';
+            ctx.strokeStyle = '#0288d1'; 
             ctx.lineWidth = 2 * baseLineW;
-            ctx.setLineDash([5, 5]);
+            ctx.setLineDash([5, 5]); 
             ctx.strokeRect(CX - pxW/2, CY - pxH/2, pxW, pxH);
-            ctx.setLineDash([]);
-
+            ctx.setLineDash([]); 
 
             if (bgImgObj && bgImgObj.complete) {
-                ctx.globalAlpha = 0.4;
+                ctx.globalAlpha = 0.4; 
                 ctx.drawImage(bgImgObj, CX-pxW/2, CY-pxH/2, pxW, pxH);
-                ctx.globalAlpha = 1.0
+                ctx.globalAlpha = 1.0; 
             }
-
 
             ctx.strokeStyle = '#333'; ctx.lineWidth = 1 * baseLineW;
             for(let i=CX%P_METER; i<800; i+=P_METER) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,480); ctx.stroke(); }
             for(let i=CY%P_METER; i<480; i+=P_METER) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(800,i); ctx.stroke(); }
 
-
             let ptsZone = newCalib.zone || [];
             let ptsSensors = newCalib.sensors || [];
-
 
             if (alignMode) {
                 ptsZone = ptsZone.map(pt => getTransformed(pt));
@@ -791,7 +696,6 @@
                 });
             }
 
-
             if(ptsZone.length > 0) {
                 ctx.beginPath();
                 let start = mToP(ptsZone[0]);
@@ -802,10 +706,8 @@
                 }
                 ctx.closePath();
 
-
-                if (alignMode) { ctx.strokeStyle = '#fbc02d'; ctx.setLineDash([5,5]); }
+                if (alignMode) { ctx.strokeStyle = '#fbc02d'; ctx.setLineDash([5,5]); } 
                 else { ctx.strokeStyle = '#ef4444'; ctx.setLineDash([]); }
-
 
                 ctx.lineWidth = 3 * baseLineW;
                 ctx.stroke();
@@ -815,21 +717,19 @@
                     let p = mToP(ptsZone[i]);
                     ctx.beginPath();
 
-
                     if (alignMode) {
                         ctx.arc(p.x, p.y, 3 * baseLineW, 0, Math.PI*2);
-                        ctx.fillStyle = '#fbc02d'
+                        ctx.fillStyle = '#fbc02d';
                     } else {
                         let isSelected = (editMode === true && Number(i) === Number(editPointIdx));
                         let radius = isSelected ? (14 / fsZoom) : (5 / fsZoom);
                         let color = isSelected ? '#0288d1' : (editMode ? '#fbc02d' : '#ef4444');
                         ctx.arc(p.x, p.y, radius, 0, Math.PI*2);
-                        ctx.fillStyle = color
+                        ctx.fillStyle = color;
                     }
                     ctx.fill();
                 }
             }
-
 
             if (alignMode) {
                 let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -844,12 +744,9 @@
                     ctx.setLineDash([]);
                 }
             }
-           
             ctx.restore();
         }
 
-
-        // --- CONTROLES POINT ---
         function updatePointUI() {
             if(!newCalib.zone || newCalib.zone.length === 0) return;
             let pt = newCalib.zone[editPointIdx];
@@ -860,7 +757,6 @@
             }
             drawCanvas();
         }
-
 
         function prevEditPoint() { let len = newCalib.zone.length; editPointIdx = (Number(editPointIdx) - 1 + len) % len; updatePointUI(); }
         function nextEditPoint() { let len = newCalib.zone.length; editPointIdx = (Number(editPointIdx) + 1) % len; updatePointUI(); }
@@ -876,12 +772,10 @@
             drawCanvas();
         }
 
-
         function saveHistoryState() {
             if(historyStack.length > 20) historyStack.shift();
             historyStack.push(JSON.parse(JSON.stringify(newCalib.zone)));
         }
-
 
         function undoMove() {
             if(historyStack.length > 0) {
@@ -890,33 +784,26 @@
             }
         }
 
-
-        // --- TACTILE CANVAS AVEC ZOOM ---
+        // --- MATHS DE CORRECTION INVERSE POUR LE CANVAS SANS DISTORSION ---
         function getEventPos(e) {
             let rect = cvs.getBoundingClientRect();
             let evt = e.touches ? e.touches[0] : e;
-           
-            // Position "brute" sur le 800x480 physique
+            
             let rawX = (evt.clientX - rect.left) * (cvs.width / rect.width);
             let rawY = (evt.clientY - rect.top) * (cvs.height / rect.height);
-           
-            // Si on est en mode édition avec Zoom, on annule mathématiquement la transformation
-            // pour retrouver la bonne coordonnée où l'utilisateur clique
+            
             if (editMode) {
                 rawX = (rawX - CX - fsPanX) / fsZoom + CX;
                 rawY = (rawY - CY - fsPanY) / fsZoom + CY;
             }
-           
             return { x: rawX, y: rawY };
         }
 
-
         cvs.addEventListener('touchstart', e => {
-            e.preventDefault();
-            if(alignMode) {
-                isDraggingAlign = true; lastAlignTouch = getEventPos(e);
+            e.preventDefault(); 
+            if(alignMode) { 
+                isDraggingAlign = true; lastAlignTouch = getEventPos(e); 
             } else if(editMode) {
-                // Si 2 doigts = Pinch to Zoom
                 if (e.touches && e.touches.length === 2) {
                     draggedPt = -1;
                     isPanningFs = false;
@@ -924,7 +811,6 @@
                     initialPinchDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
                     lastPinchCenter = { x: (t1.clientX + t2.clientX)/2, y: (t1.clientY + t2.clientY)/2 };
                 } else {
-                    // Si 1 doigt : Soit on attrape un point, soit on pan (glisse) la caméra
                     let pos = getEventPos(e);
                     handleDown(pos);
                     if (draggedPt === -1) {
@@ -936,9 +822,8 @@
             }
         }, {passive: false});
 
-
         cvs.addEventListener('touchmove', e => {
-            e.preventDefault();
+            e.preventDefault(); 
             if(alignMode && isDraggingAlign) {
                 let pos = getEventPos(e);
                 globalTx += (pos.x - lastAlignTouch.x) / P_METER;
@@ -946,31 +831,25 @@
                 lastAlignTouch = pos;
                 drawCanvas();
             } else if(editMode) {
-                // Mode 2 doigts : Gestion du Zoom et du Panning de la caméra
                 if(e.touches && e.touches.length === 2) {
                     let t1 = e.touches[0], t2 = e.touches[1];
                     let dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
                     let center = { x: (t1.clientX + t2.clientX)/2, y: (t1.clientY + t2.clientY)/2 };
 
-
                     if (initialPinchDist) {
                         let zoomDelta = dist / initialPinchDist;
-                        let newZoom = Math.max(0.5, Math.min(fsZoom * zoomDelta, 6.0)); // Zoom max x6
+                        let newZoom = Math.max(0.5, Math.min(fsZoom * zoomDelta, 6.0));
 
-
-                        // Glissement naturel pendant le pinch
                         let rect = cvs.getBoundingClientRect();
                         fsPanX += (center.x - lastPinchCenter.x) * (800 / rect.width);
                         fsPanY += (center.y - lastPinchCenter.y) * (480 / rect.height);
-
 
                         fsZoom = newZoom;
                         initialPinchDist = dist;
                         lastPinchCenter = center;
                         drawCanvas();
                     }
-                }
-                // Mode 1 doigt dans le vide : Panning (Glissement de la caméra)
+                } 
                 else if(isPanningFs) {
                     let evt = e.touches ? e.touches[0] : e;
                     let rect = cvs.getBoundingClientRect();
@@ -978,8 +857,7 @@
                     fsPanY += (evt.clientY - lastPanTouch.y) * (480 / rect.height);
                     lastPanTouch = {x: evt.clientX, y: evt.clientY};
                     drawCanvas();
-                }
-                // Mode 1 doigt sur un point : Déplacement du point
+                } 
                 else if (draggedPt !== -1) {
                     let pos = getEventPos(e);
                     handleMove(pos);
@@ -987,24 +865,17 @@
             }
         }, {passive: false});
 
-
-        cvs.addEventListener('touchend', e => {
-            isDraggingAlign = false;
+        cvs.addEventListener('touchend', e => { 
+            isDraggingAlign = false; 
             if(editMode) {
                 if(!e.touches || e.touches.length === 0) {
-                    draggedPt = -1;
-                    isPanningFs = false;
-                    initialPinchDist = null;
+                    draggedPt = -1; isPanningFs = false; initialPinchDist = null;
                 } else if (e.touches.length === 1) {
-                    initialPinchDist = null;
-                    isPanningFs = false;
-                    draggedPt = -1;
+                    initialPinchDist = null; isPanningFs = false; draggedPt = -1;
                 }
             }
         });
 
-
-        // Pour pouvoir tester le zoom facilement sur PC avec la molette de souris
         cvs.addEventListener('wheel', e => {
             if(editMode) {
                 e.preventDefault();
@@ -1014,22 +885,19 @@
             }
         }, {passive: false});
 
-
         function handleDown(pos) {
-            let z = newCalib.zone;
-            // On divise la zone d'accroche par le zoom pour qu'elle reste constante sous le doigt
-            let minD = 40 / (editMode ? fsZoom : 1);
+            let z = newCalib.zone; 
+            let minD = 40 / (editMode ? fsZoom : 1); 
             draggedPt = -1;
             for(let i=0; i<z.length; i++) {
                 let px = mToP(z[i]);
-                if(Math.hypot(px.x - pos.x, px.y - pos.y) < minD) {
-                    minD = Math.hypot(px.x - pos.x, px.y - pos.y);
-                    draggedPt = i;
+                if(Math.hypot(px.x - pos.x, px.y - pos.y) < minD) { 
+                    minD = Math.hypot(px.x - pos.x, px.y - pos.y); 
+                    draggedPt = i; 
                 }
             }
             if(draggedPt !== -1) { saveHistoryState(); editPointIdx = Number(draggedPt); updatePointUI(); }
         }
-
 
         function handleMove(pos) {
             if(draggedPt !== -1) {
@@ -1043,3 +911,4 @@
     </script>
 </body>
 </html>
+
