@@ -27,7 +27,7 @@ bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage) {
 bool receiveUWBMessage(Stream &pUWBSerial, String &outRawMessage) {
     if (pUWBSerial.available()) {
         String input = pUWBSerial.readStringUntil('\n');
-        if (input.startsWith("+RDATA")) {
+        if (input.startsWith("AT+RDATA")) {
             // Le format AT+RDATA contient souvent des infos système, 
             // on cherche la partie "données" que vous avez envoyée
             outRawMessage = input; 
@@ -42,7 +42,7 @@ bool receiveUWBDistanceMessage(Stream &pUWBSerial, String &outRawMessage)
     if (pUWBSerial.available()) {
         String input = pUWBSerial.readStringUntil('\n');
         // On cherche le mot clé RANGE ou range de votre TAG_DATA_REGEX
-        if (input.startsWith("AT+RANGE") || input.indexOf("range:") != -1) {
+        if (input.startsWith("AT+RDATA") || input.indexOf("range:") != -1) {
             outRawMessage = input;
             return true;
         }
@@ -68,6 +68,33 @@ void sendDistanceToTag(Stream &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverI
     pUWBSerial.print(message.length());
     pUWBSerial.print(",");
     pUWBSerial.println(message);
+}
+
+void sendDistancesToAnchor(Stream & pUWBSerial, Stream & pSerial) {
+    // 1. On vérifie si le module UWB matériel a généré une nouvelle ligne
+    if (pUWBSerial.available()) {
+        String rawData = pUWBSerial.readStringUntil('\n');
+        rawData.trim(); // Nettoie les caractères invisibles (comme \r)
+
+        // 2. Sécurité : on vérifie que la ligne ressemble à une distance.
+        // D'après votre capture, les trames contiennent "an" (pour ancre) et "m" (pour mètre).
+        // Cela évite de ré-envoyer par erreur les "OK" ou les messages de démarrage.
+        if (rawData.indexOf("an") != -1 && rawData.indexOf("m") != -1) {
+            
+            // Affichage dans le moniteur série du Tag (pour votre suivi)
+            pSerial.println("Tag a lu : " + rawData);
+
+            // 3. Construction de la commande d'envoi radio
+            // La syntaxe est : AT+DATA=<LongueurDuMessage>,<MessageBrut>
+            String atCommand = "AT+DATA=" + String(rawData.length()) + "," + rawData;
+            
+            // 4. Envoi au module UWB pour diffusion aux ancres
+            pUWBSerial.println(atCommand);
+            
+            // Affichage de confirmation dans le moniteur série
+            pSerial.println("Tag a envoye par radio -> " + atCommand);
+        }
+    }
 }
 
 void configureUWBForMessaging(Stream &pUWBSerial) {

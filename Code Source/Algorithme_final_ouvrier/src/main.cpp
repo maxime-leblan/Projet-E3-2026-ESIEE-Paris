@@ -31,7 +31,7 @@ void loop()
   }
 
   // On envoie aux ancres nos distances par rapport à elles
-  sendATCommand("AT+RANGE", Serial, Serial1);
+  sendDistancesToAnchor(Serial1, Serial);
 
   // On attend de recevoir par transmission UWB d’une ancre relayant un message du hub qui contient sa distance à la zone de sécurité
   bool vIsDistanceReceived = false;

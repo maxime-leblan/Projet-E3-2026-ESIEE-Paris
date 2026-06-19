@@ -44,6 +44,8 @@ void configureUWBForMessaging(Stream &pUWBSerial);
  */
 void sendDistanceToTag(Stream &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, float pDistance);
 
+void sendDistancesToAnchor(Stream & pUWBSerial, Stream & pSerial);
+
 /**
  * Envoie un ordre au Tag
  * Format: <ID_Emetteur>:<ID_Destinataire>:<Type_Ordre>
