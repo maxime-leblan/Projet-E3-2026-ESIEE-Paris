@@ -40,8 +40,50 @@ void initialiserUWB() {
     digitalWrite(UWB_WAKEUP_PIN, HIGH);
     
     // 3. Optionnel : On peut envoyer une commande de configuration initiale si nécessaire
-    // ex: configureUWBForMessaging(Serial1);
+    configureUWBForMessaging(Serial1);
     
     Serial.println("[UWB] Broches de contrôle et liaison Série configurées.");
 }
 
+void safeZoneCalibration()
+{
+    bool isCalibrationFinished = false;
+    String vReceivedMessage;
+    UWBMessage vReceivedMessageData;
+
+    uint32_t lastRangeTime = 0;
+    const uint32_t rangeInterval = 100; // On demande un Ranging toutes les 100 ms
+
+    Serial.println("\n[CALIBRATION] Lancement de la calibration dynamique...");
+
+    while (!isCalibrationFinished)
+    {
+        // 1. Émettre le AT+RANGE périodiquement
+        if (millis() - lastRangeTime >= rangeInterval) 
+        {
+            lastRangeTime = millis();
+            // Utilisation de la nouvelle fonction optimisée (sans timeout en paramètre)
+            sendATCommand("AT+RANGE", Serial, Serial1);
+        }
+
+        // 2. Écouter le Hub (Prend 0 milliseconde si aucun message n'est dispo)
+        if (receiveUWBMessage(Serial1, vReceivedMessage))
+        {
+            if (decodeUWBMessage(vReceivedMessage, vReceivedMessageData))
+            {
+                if (vReceivedMessageData.orderType == HUB_ORDER_END_TAG_CALIBRATION)
+                {
+                    isCalibrationFinished = true;
+                    Serial.println("[CALIBRATION] Arrêt demandé par le Hub. Fin de la boucle.");
+                }
+            }
+            else
+            {
+                Serial.println("[CALIBRATION] Impossible de décoder le message reçu");
+            }
+        }
+        
+        // Permet au CPU de la XIAO de basculer sur d'autres tâches en tâche de fond si nécessaire
+        delay(1); 
+    }
+}
