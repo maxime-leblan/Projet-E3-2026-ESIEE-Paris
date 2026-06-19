@@ -114,9 +114,7 @@ void setup_web_server() {
     server.on("/api/hub/start", HTTP_POST, [](AsyncWebServerRequest *request){
         int tag_id = 0;
 
-        if (request->hasParam("tag_id", true)){ // param dans le body ?
-            tag_id = request->getParam("tag_id", true)->value().toInt();
-        } else if (request->hasParam("tag_id")) { // Sécurité si ca trouve pas dans le body alors dans l'URL
+        if (request->hasParam("tag_id")) { // Recherche dans l'URL
             tag_id = request->getParam("tag_id")->value().toInt(); 
         }
         
