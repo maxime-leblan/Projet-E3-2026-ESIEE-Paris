@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include <vector>
 #include "driver/twai.h"
 
 // Pins used to connect to CAN bus
@@ -18,6 +19,7 @@
 #define MESSAGE_ID_ONLY ((uint8_t)0x10)
 #define MESSAGE_TAG_ID_AND_DISTANCE ((uint8_t)0x20)
 #define MESSAGE_HUB_ORDER ((uint8_t)0x30)
+#define MESSAGE_TAG_ID_AND_ALL_DISTANCES ((uint8_t)0x40)
 
 // Convention de nommage des différents types d'ordre du Hub
 #define HUB_ORDER_TOGGLE_MODULE_MODE 1
@@ -41,6 +43,11 @@ struct __attribute__((packed)) MsgDistance {
     float distance;
 };
 
+// Structure pour le message de type 4 (Id Tag + tableau de distances)
+struct __attribute__((packed)) MsgAllDistances {
+    std::vector<uint16_t> aDistances;
+};
+
 // Structure pour le message de type 3 pour l'ordre HUB_ORDER_TOGGLE_MODULE_MODE
 struct __attribute__((packed)) MsgToggleHubOrder {
     uint8_t staticAnchorId; // L'ID de l'ancre qui reste fixe en mode Ancre
@@ -62,6 +69,7 @@ struct DecodedData {
     uint8_t aStaticAnchorIdDuringToggle; // ID de l'Ancre qui reste en mode Ancre pendant la phase d'initialisation des positions des Ancres (uniquement pour le type HUB_ORDER_TOGGLE_MODULE_MODE)
     uint8_t aOrderType; // Type d'ordre envoyé par le Hub
     float distance;     // La distance (uniquement pour le type MESSAGE_TAG_ID_AND_DISTANCE)
+    std::vector<uint16_t> aDistances; // La liste des distances entre le Tag et toutes les Ancres (uniquement pour le type MESSAGE_TAG_ID_AND_ALL_DISTANCES)
 };
 
 /**
@@ -80,12 +88,19 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output);
 bool receiveCanMessage(twai_message_t &messageRecu);
 
 /**
- * Permet d'envoyer un message depuis une Ancre au Hub contenant l'identifiant d'un Tag avec sa distance par rapport à l'Ancre qui a calculé cette distance
+ * Permet d'envoyer un message depuis le Hub vers une ancre contenant l'identifiant d'un Tag avec sa distance par rapport à l'Ancre qui a calculé cette distance
  * @param id_ancre Identifiant de l'Ancre par rapport à laquelle la distance au Tag a été calculée
  * @param id_tag Identifiant du Tag dont on veut envoyer la distance par rapport à l'Ancre passée en paramètre
  * @param dist Distance entre le Tag et l'Ancre passée en paramètre
  */
 void sendCanDistance(uint8_t id_ancre, uint8_t id_tag, float dist);
+
+/**
+ * Permet d'envoyer un message d'une Ancre au Hub contenant l'id d'un Tag et toutes ses distances par rapport aux ancres
+ * @param pTagId Identifiant du Tag auquelles sont liées les distances envoyées
+ * @param pAllTagDistances Tableau contenant les distances du Tag par rapport à toutes les ancres
+ */
+void sendCanDistanceFromAnchorToHub(uint8_t pTagId, std::vector<uint16_t> pAllTagDistances);
 
 /**
  * Permet d'envoyer un message, contenant un identifiant, entre le Hub et l'Ancre dans les 2 sens.
