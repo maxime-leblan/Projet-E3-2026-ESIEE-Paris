@@ -5,8 +5,14 @@ CapteurPression::CapteurPression(int pin_cs) {
   cs_pin = pin_cs;
 }
 
-// 2. Fonction d'initialisation (remplace le code du setup)
+// 2. Fonction d'initialisation
 bool CapteurPression::initialiser() {
+  // On force manuellement la broche à l'état HAUT pour réinitialiser le capteur
+  pinMode(cs_pin, OUTPUT);
+  digitalWrite(cs_pin, HIGH);
+  delay(10); 
+  
+  // Puis on lance la comm SPI
   return bmp.begin(cs_pin, &SPI);
 }
 
