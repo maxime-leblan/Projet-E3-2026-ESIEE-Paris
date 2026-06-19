@@ -1,3 +1,4 @@
+#ifdef ARDUINO_ARCH_ESP32  // N'exécute ce code que si on est sur une ESP32
 #include "CANMessageManager.hpp"
 
 bool decodeCanMessage(const twai_message_t &message, DecodedData &output) 
@@ -177,3 +178,5 @@ void initCan(int pRXPin, int pTXPin)
     // TWAI driver is now successfully installed and started
     driver_installed = true;
 }
+
+#endif // ARDUINO_ARCH_ESP32
