@@ -49,3 +49,8 @@ void sendDistanceToTag(Stream &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverI
  * Format: <ID_Emetteur>:<ID_Destinataire>:<Type_Ordre>
  */
 void sendOrderToTag(Stream &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, uint8_t pOrderType);
+
+/**
+ * Envoie des commandes au module UWB par le port pUWBSerial et affiche du texte de débug dans pSerial
+ */
+String sendATCommand(String command, Stream & pSerial, Stream & pUWBSerial);
