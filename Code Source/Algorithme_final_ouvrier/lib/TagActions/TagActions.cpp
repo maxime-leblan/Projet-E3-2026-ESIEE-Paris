@@ -32,6 +32,9 @@ void initialiserUWB() {
     
     // 1. Initialisation de la communication Série (TX/RX) avec l'UWB
     Serial1.begin(115200);
+
+    // ID:4, Role:Tag(0), Rate:850K(0), Filter:ON(1)
+    sendATCommand("AT+SETCFG=4,0,0,1", Serial, Serial1);
     
     // 2. Configuration de la broche physique d'interruption (UART2 RX de l'UWB)
     // On la configure en SORTIE et on la met à l'état HAUT (HIGH) immédiatement.

@@ -35,7 +35,7 @@ void loop()
 
   // On attend de recevoir par transmission UWB d’une ancre relayant un message du hub qui contient sa distance à la zone de sécurité
   bool vIsDistanceReceived = false;
-  float vTagDistanceFromSafeZone;
+  float vTagDistanceFromSafeZone = -1.0f;
 
   // On définit une sécurité de 800ms pour éviter le blocage infini
   uint32_t vStartTime = millis();
@@ -60,27 +60,31 @@ void loop()
     }
   }
 
-  // Si la distance reçue est > 0, on calcule le temps de mise en veille du tag puis on le met en veille
-  if (vTagDistanceFromSafeZone > 0)
+  // On vérifie d'abords que l'on a bien reçu une distance
+  if (vIsDistanceReceived)
   {
-    // On stoppe le bipper s'il sonne toujours
-        noTone(XIAO_TO_BIPPER_PIN);
+    // Si la distance reçue est > 0, on calcule le temps de mise en veille du tag puis on le met en veille
+    if (vTagDistanceFromSafeZone > 0)
+    {
+      // On stoppe le bipper s'il sonne toujours
+          noTone(XIAO_TO_BIPPER_PIN);
 
-    // On calcule le temps de veille en ms
-    int vSleepTime = (vTagDistanceFromSafeZone / AVG_RUNNING_SPEED) * 1000;
+      // On calcule le temps de veille en ms
+      int vSleepTime = (vTagDistanceFromSafeZone / AVG_RUNNING_SPEED) * 1000;
 
-    // On met tout le matériel en veille
-    veilleUWB();
-    veilleXiao(vSleepTime);
+      // On met tout le matériel en veille
+      veilleUWB();
+      veilleXiao(vSleepTime);
 
-    // Puis on se réveille
-    reveilXiao();
-    reveilUWB();
-  }
-  // Sinon on fait bipper le tag
-  else
-  {
-    // On fait sonner le bipper (rajouter )
-    tone(XIAO_TO_BIPPER_PIN, BIPPER_FREQUENCY);
+      // Puis on se réveille
+      reveilXiao();
+      reveilUWB();
+    }
+    // Sinon on fait bipper le tag
+    else
+    {
+      // On fait sonner le bipper (rajouter )
+      tone(XIAO_TO_BIPPER_PIN, BIPPER_FREQUENCY);
+    }
   }
 }
