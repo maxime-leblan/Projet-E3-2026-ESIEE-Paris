@@ -170,6 +170,27 @@ void setup_web_server() {
                 if(SD_MMC.exists(path)) SD_MMC.remove(path);
             }
         }
+        
+        bool plusAucuneConfig = true;
+        if (SD_MMC.exists("/calibrations.json")) {
+            File checkFile = SD_MMC.open("/calibrations.json", "r");
+            if (checkFile) {
+                JsonDocument checkDoc;
+                DeserializationError checkErr = deserializeJson(checkDoc, checkFile);
+                checkFile.close();
+                if (!checkErr && checkDoc.is<JsonArray>() && checkDoc.as<JsonArray>().size() > 0) {
+                    plusAucuneConfig = false;
+                }
+            }
+        }
+
+        if (plusAucuneConfig) {
+            Serial.println("[Web API] Plus aucune config sur la SD");
+            JsonDocument reset_doc;
+            reset_doc["cmd"] = "clear_config";
+            envoyer_commande_hub(reset_doc);
+        }
+
         request->send(200, "text/plain", "OK");
     });
 

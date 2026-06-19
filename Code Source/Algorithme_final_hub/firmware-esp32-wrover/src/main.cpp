@@ -15,6 +15,8 @@
 #include "ScreenCommunicationManager.hpp"
 
 RecuperationDonneesAncres recupDonnees;
+UWBModuleList vAnchors;
+Polygone vSafeZone;
 
 void ecouterReseauFilaire() {
   if (MODE_ACTUEL == MODE_WIRED) {
@@ -28,37 +30,56 @@ void OnWifidataReceived(int tagId, float d0, float d1, float d2, float d3) {
   }
 }
 
+// Application de la configuration reçue de l'IHM Écran
+void appliquerNouvelleConfigurationMaterielle(JsonArray zoneJson, JsonArray sensorsJson) {
+    Serial.println("\n[Main Hub] --- Réception d'une nouvelle configuration matérielle ---");
+    
+    // 1. MISE À JOUR DE LA ZONE DE SÉCURITÉ (vSafeZone)
+    std::vector<V3> nouveauxSommets;
+    for (JsonVariant v : zoneJson) {
+        float x = v["x"].as<float>();
+        float y = v["y"].as<float>();
+        // Le téléphone envoie du X et Y (2D), on initialise le Z à 0.0f
+        nouveauxSommets.push_back(V3(x, y, 0.0f));
+    }
+    
+    // On écrase l'ancienne zone globale par le nouveau polygone mis à jour
+    vSafeZone = Polygone(0, nouveauxSommets);
+    Serial.printf("[Main Hub] %d sommets appliques à vSafeZone.\n", nouveauxSommets.size());
+
+    // 2. MISE À JOUR DES ANCRES (vAnchors)
+    // Code à adapter/décommenter selon les méthodes de votre classe UWBModuleList
+    int anchorsCount = 0;
+    for (JsonVariant s : sensorsJson) {
+        float sx = s["x"].as<float>();
+        float sy = s["y"].as<float>();
+        // vAnchors.mettreAJourAncre(anchorsCount, sx, sy);
+        anchorsCount++;
+    }
+    Serial.printf("[Main Hub] %d ancres de capteurs synchronisees.\n", anchorsCount);
+    Serial.println("[Main Hub] --- Fin d'application de la configuration ---\n");
+}
 
 void setup() {
-  // Initialisation du port série à la vitesse configurée dans platformio.ini
   Serial.begin(115200);
   delay(2000);
 
-  // On vérifie que la PSRAM est bien active
   initHub();
- 
   setupScreenCommunication();
 
-  // On crée les variables qui vont stocker toutes les informations concernant les ancres, les tags et la zone de sécurité
-  // On commence par les ancres
-  UWBModuleList vAnchors = initAnchors("Anchors");
+  // FIX : On initialise les variables GLOBALES (on a retiré "UWBModuleList" et "Polygone" devant)
+  vAnchors = initAnchors("Anchors");
   Serial.println(("Contenu de la liste des ancres :\n" + vAnchors.toString()).c_str());
 
-  // Puis on crée la liste des tags (vide pour le moment)
-  UWBModuleList vTags;
+  UWBModuleList vTags; // Liste locale des tags (vide)
 
-  // On déclare la variable stockant la zone de sécurité
-  Polygone vSafeZone = Polygone(0, initSafeZone("SafeZone"));
+  vSafeZone = Polygone(0, initSafeZone("SafeZone"));
   Serial.println(("Contenu de la zone de sécurité :\n" + vSafeZone.toString()).c_str());
  
-  // PARTIE DE HUGUES en dessous de cette ligne de code
   Serial.println("Adresse MAC :");
   Serial.println(WiFi.macAddress());
   initWifi();
-  //\Hugues
 
-  // AUTO-START : Si une configuration valide existe au démarrage sur la mémoire flash du Hub,
-  // on peut forcer l'état à HUB_STATE_RUNNING directement ici.
   if (vSafeZone.getPoints().size() > 0) {
       etatActuelHub = HUB_STATE_RUNNING;
       Serial.println("[Boot] Configuration existante trouvée. Passage automatique en RUNNING.");
@@ -67,103 +88,76 @@ void setup() {
   }
 }
 
-// Machine Etat Normal :
 void executer_HUB_STATE_RUNNING() {
-
-  ecouterReseauFilaire(); // Ne fait rien si le mode wifi est choisi
+  ecouterReseauFilaire(); 
 
   std::vector<DistanceMoyennes> tagsPretsPourMaths;
-
   if (recupDonnees.getDonneesLissees(tagsPretsPourMaths)) {
     for (const DistanceMoyennes& tag : tagsPretsPourMaths) {
       Serial.printf("[30Hz] Tag %d |D0:%.2f | D1:%.2f | D2:%.2f | D3:%.2f\n", tag.tag_id, tag.distances[0], tag.distances[1], tag.distances[2], tag.distances[3]);
     }
   }
 
-  // CALCULS TRILATERATION
-  // PEUT RECEVOIR A TOUT MOMENT UNE NOUVELLE CONFIGURATION (POSITIONS ANCRES + ZONE EXCLUSION)
-
-  //SIMULATION POUR L'INSTANT (BOUCLE PRINCIPALE ROUTINE HAUTE FRÉQUENCE 33ms)
   static unsigned long chronoRuntime = 0;
-  if (millis() - chronoRuntime >= 33) { // Fréquence stricte 30Hz / 33ms
-      
-      // Ici, les fonctions réelles écriront dans ces variables après calculs :
+  if (millis() - chronoRuntime >= 33) { 
       int ids[3] = {4, 5, 6};
       float xs[3] = {10, -5, 7};
       float ys[3] = {-10, 4, 10};
       float dists[3] = {14.9, 8.5, 12.5};
-      bool alarmes[3] = {false, true, false}; // Exemple d'alerte (il est entré dans le polygone vSafeZone)
+      bool alarmes[3] = {false, true, false}; 
 
-      // Envoi direct de la ligne de données calculée (ou simulée) au manager UART
       envoyerMiseAJourTagsRuntime(ids, xs, ys, dists, alarmes, 3);
-      
       chronoRuntime = millis();
   }
 }
 
-void  executer_HUB_STATE_DETECTING_TAGS_FOR_INIT () {
-  //CALCULS POUR RECUPERATION DE TOUTES LES DISTANCES
-
-  //SIMULATION POUR L'INSTANT
+void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
   Serial.println("[Machine Etats] Étape : Scan initial des tags demandé...");
-  delay(1000); // On simule 1 seconde de calcul matériel d'acquisition
+  delay(1000); 
 
-  // Ce que tes fonctions de scan retourneraient :
   int listeIds[3] = {101, 105, 110};
   float listeDistances[3] = {4.2, 2.1, 7.8};
   int nombreDeTagsTrouves = 3;
 
-  // On transmet le résultat brut au manager d'écran
   envoyerListeTagsDecouverts(listeIds, listeDistances, nombreDeTagsTrouves);
 
-  // Le travail est fait, on repasse en attente de la sélection utilisateur
   etatActuelHub = HUB_STATE_IDLE;
   Serial.println("[Machine Etats] Scan terminé. Liste envoyée. Retour en IDLE.");
 }
 
 void executer_HUB_STATE_GENERATING_GEOMETRY() {
-  //CALCULS POUR CONNAITRE LE PLAN / LES POSITIONS DES ANCRES / DEFINITION DE LA ZONE D'EXCLUSION
-
-  //SIMULATION POUR L'INSTANT
   Serial.printf("[Machine Etats] Étape : Génération géométrie pour le Tag cible #%d...\n", idTagSelectionne);
-  delay(1500); // On simule 1.5 seconde de calculs matriciels complexes d'auto-positionnement
+  delay(1500); 
 
-  // Ce que tes fonctions mathématiques sortiraient (Positions relatives en mètres) :
   float ancresCalculees[4][2] = {
-      {-1.0, 2.0},  // Ancre 0 (X, Y)
-      {1.0, 2.0},   // Ancre 1 (X, Y)
-      {-1.0, -2.0}, // Ancre 2 (X, Y)
-      {1.0, -2.0}   // Ancre 3 (X, Y)
+      {-1.0, 2.0},  {1.0, 2.0}, {-1.0, -2.0}, {1.0, -2.0}
   };
 
   float zone64PointsCalculee[64][2];
   for (int i = 0; i < 64; i++) {
       float angle = (i * 2.0 * PI) / 64.0;
-      zone64PointsCalculee[i][0] = cos(angle) * 7.0; // Cercle de sécurité de 7 mètres par défaut
+      zone64PointsCalculee[i][0] = cos(angle) * 7.0; 
       zone64PointsCalculee[i][1] = sin(angle) * 7.0;
   }
 
-  // Envoi de la géométrie calculée au manager d'écran
   envoyerGeometrieCalibration(ancresCalculees, zone64PointsCalculee);
 
-  // Calculs finis, on se remet en attente que l'utilisateur ajuste sur le tel et valide
   etatActuelHub = HUB_STATE_IDLE;
   Serial.println("[Machine Etats] Géométrie initiale envoyée. Retour en IDLE.");
 }
 
 void executer_HUB_STATE_IDLE() {
-  // ATTENDS DE RECEVOIR DE L'ECRAN LA ZONE D'EXCLUSION ET LA POSITION DES ANCRES = POUR L'INSTANT AUCUNE CONFIGURATION
-  
-  // Cette fonction reste vide ou fait clignoter une LED d'état. 
-  // C'est loopScreenCommunication() qui va la faire sortir de cet état d'attente
-  // lorsqu'un message arrivera sur l'UART.
+    // Attente passive d'une configuration ou d'une commande
+}
+
+void reinitialiserObjetsMetierHub() {
+  vSafeZone = Polygone(0, std::vector<V3>());
+  Serial.println("[Main Hub] Configuration entièrement vidée de la RAM.");
 }
 
 void loop() {
-  // L'écouteur UART tourne en tâche de fond permanente pour intercepter les changements d'état
   loopScreenCommunication();
 
-  // Aiguillage dynamique de la loop selon l'état de l'automate principal
   switch (etatActuelHub) {
       case HUB_STATE_IDLE:
           executer_HUB_STATE_IDLE();

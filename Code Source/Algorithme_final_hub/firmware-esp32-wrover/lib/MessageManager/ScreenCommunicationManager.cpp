@@ -12,6 +12,9 @@ HardwareSerial ScreenSerial(HUB_UART_NUM);
 volatile HubState etatActuelHub = HUB_STATE_IDLE;
 volatile int idTagSelectionne = -1;
 
+// On indique au compilateur que cette fonction existe dans le main.cpp
+extern void appliquerNouvelleConfigurationMaterielle(JsonArray zoneJson, JsonArray sensorsJson);
+
 void setupScreenCommunication() {
     initUARTReceiver(HUB_UART_NUM, HUB_RX_PIN, HUB_TX_PIN, HUB_BAUDRATE, ScreenSerial);
 }
@@ -71,8 +74,6 @@ void envoyerMiseAJourTagsRuntime(int ids[], float xs[], float ys[], float distan
     ScreenSerial.println();
 }
 
-
-
 void loopScreenCommunication() {
     String receivedMessage = "";
     receiveDataUART(ScreenSerial, receivedMessage);
@@ -83,22 +84,32 @@ void loopScreenCommunication() {
         if (!err) {
             String cmd = doc["cmd"].as<String>();
 
-            // Étape : L'utilisateur demande un scan (index.html clique sur "Suivant")
+            // Étape : L'utilisateur demande un scan
             if (cmd == "start_calib") {
                 etatActuelHub = HUB_STATE_DETECTING_TAGS_FOR_INIT;
-            } 
+            }
             // Étape : L'utilisateur sélectionne son tag cible
             else if (cmd == "select_tag") {
                 idTagSelectionne = doc["tag_id"].as<int>();
                 etatActuelHub = HUB_STATE_GENERATING_GEOMETRY;
-            } 
-            // Étape : Sauvegarde ou changement de configuration (Sort de IDLE ou de la Calib)
+            }
+            // Étape : Sauvegarde ou changement de configuration
             else if (cmd == "save_config" || cmd == "change_config") {
-                // LOGIQUE MÉTIER HUB : Tu pourras parser doc["zone"] et doc["sensors"] ici si besoin
-                etatActuelHub = HUB_STATE_RUNNING;
-            } else if (cmd == "cancel_calib") {
-                bool doitReprendreSurveillance = doc["resume_running"] | false;
                 
+                // 1. On extrait les tableaux de coordonnées du JSON
+                JsonArray zone = doc["zone"].as<JsonArray>();
+                JsonArray sensors = doc["sensors"].as<JsonArray>();
+                
+                // 2. On transmet ces tableaux au main.cpp pour qu'il mette à jour la RAM
+                appliquerNouvelleConfigurationMaterielle(zone, sensors);
+                
+                // 3. On bascule l'état pour lancer la boucle 33ms
+                etatActuelHub = HUB_STATE_RUNNING;
+            } 
+            // Étape : Annulation depuis le téléphone
+            else if (cmd == "cancel_calib") {
+                bool doitReprendreSurveillance = doc["resume_running"] | false;
+               
                 if (doitReprendreSurveillance) {
                     etatActuelHub = HUB_STATE_RUNNING;
                     Serial.println("[Hub] Calibration annulée. Retour au fonctionnement normal (RUNNING).");
@@ -106,7 +117,18 @@ void loopScreenCommunication() {
                     etatActuelHub = HUB_STATE_IDLE;
                     Serial.println("[Hub] Calibration annulée. Aucune configuration active, retour en IDLE.");
                 }
+            } 
+            // Étape : Suppression totale des configurations de la carte SD
+            else if (cmd == "clear_config") {
+                etatActuelHub = HUB_STATE_IDLE;
+
+                // On appelle la fonction de nettoyage du main.cpp
+                extern void reinitialiserObjetsMetierHub();
+                reinitialiserObjetsMetierHub();
+
+                Serial.println("[Hub UART] Ordre de suppression de la zone d'exclusion recu. Retour en IDLE.");
             }
         }
     }
 }
+
