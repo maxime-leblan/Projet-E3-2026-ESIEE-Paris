@@ -111,19 +111,20 @@ void setup_web_server() {
         request->send(200, "application/json", json_tags_decouverts);
     });
 
-    server.on("/api/hub/start", HTTP_POST, [](AsyncWebServerRequest *request){
+    server.on("/api/hub/start", HTTP_ANY, [](AsyncWebServerRequest *request){
         int tag_id = 0;
 
         if (request->hasParam("tag_id")) { // Recherche dans l'URL
             tag_id = request->getParam("tag_id")->value().toInt(); 
-        } else if (request->hasParam("tag_id", true)) {
-        tag_id = request->getParam("tag_id", true)->value().toInt(); 
+        } else if (request->hasParam("tag_id", true)) { // Recherche dans l'URL
+            tag_id = request->getParam("tag_id", true)->value().toInt(); 
         }
+
         Serial.printf("[WEB API] Le téléphone a validé le Tag cible : #%d\n", tag_id);
 
         // On envoie l'ID choisi au Hub pour qu'il génère la forme de la machine (64 points)
         JsonDocument doc;
-        doc["cmd"] = "select_tag"; // <-- CHANGEMENT ICI : Ce n'est plus start_calib
+        doc["cmd"] = "select_tag";
         doc["tag_id"] = tag_id;
         envoyer_commande_hub(doc);
 
