@@ -3,20 +3,21 @@
 
 bool decodeCanMessage(const twai_message_t &message, DecodedData &output) 
 {
-    // 1. Extraction du type et de l'ID de l'ancre grâce aux masques binaires
+    // 1. Extraction du type grâce aux masques binaires
     output.type = readFirstHexaNumber(message.identifier);
-    output.id_ancre = readSecondHexaNumber(message.identifier);
 
     // Par défaut, on initialise les autres champs à 0
     output.id_tag = 0;
     output.aOrderType = 0;
     output.aStaticAnchorIdDuringToggle = 0;
     output.distance = 0.0f;
+    output.aDistances = {};
 
     // 2. Traitement différencié selon le type de message détecté
     switch (output.type) {
         
         case MESSAGE_ID_ONLY:
+            output.id_ancre = readSecondHexaNumber(message.identifier);
             return true;
 
         case MESSAGE_TAG_ID_AND_DISTANCE:
@@ -25,13 +26,26 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
                 memcpy(&payload, message.data, sizeof(MsgDistance));
                 
                 output.id_tag = payload.tag_id;
+                output.id_ancre = readSecondHexaNumber(message.identifier);
                 output.distance = payload.distance;
                 return true;
             }
             Serial.println("Erreur decodage : Taille incorrecte pour MESSAGE_TAG_ID_AND_DISTANCE");
             return false;
+        
+        case MESSAGE_TAG_ID_AND_ALL_DISTANCES:
+            if (message.data_length_code == sizeof(MsgAllDistances))
+            {
+                MsgAllDistances payload;
+                memcpy(&payload, message.data, sizeof(MsgDistance));
+
+                output.aDistances = payload.aDistances;
+                output.id_tag = readSecondHexaNumber(message.identifier);
+                return true;
+            }
 
         case MESSAGE_HUB_ORDER:
+            output.id_ancre = readSecondHexaNumber(message.identifier);
             // Sécurité : On vérifie qu'on a au moins reçu l'octet de l'ordre (index 0)
             if (message.data_length_code >= 1) {
                 // On extrait d'abord le sous-type d'ordre
@@ -117,6 +131,26 @@ void sendCanDistance(uint8_t id_ancre, uint8_t id_tag, float dist) {
 
     MsgDistance payload = { id_tag, dist };
     memcpy(message.data, &payload, sizeof(MsgDistance));
+
+    // Queue message for transmission
+    if (twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME)) == ESP_OK) {
+    Serial.printf(("Message queued for transmission, <identifier> = " + String(message.identifier) + "\n").c_str());
+    } else {
+    Serial.printf("Failed to queue message for transmission\n");
+    }
+}
+
+void sendCanDistanceFromAnchorToHub(uint8_t pTagId, std::vector<uint16_t> pAllTagDistances)
+{
+    twai_message_t message;
+    message.identifier = MESSAGE_TAG_ID_AND_ALL_DISTANCES + pTagId;
+    message.extd = 0;
+    message.rtr = 0;
+    message.data_length_code = sizeof(MsgAllDistances); // 5 octets
+
+    MsgAllDistances payload;
+    payload.aDistances = pAllTagDistances;
+    memcpy(message.data, &payload, sizeof(MsgAllDistances));
 
     // Queue message for transmission
     if (twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME)) == ESP_OK) {
