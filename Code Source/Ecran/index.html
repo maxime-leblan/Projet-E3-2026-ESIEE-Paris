@@ -443,18 +443,12 @@
 
         function checkTag() { document.getElementById('btnStartCalib').disabled = (document.getElementById('tagSelect').value === ""); }
 
-        // --- FIX ABSOLU ID 0 : Envoi via En-tête HTTP Personnalisé ---
         async function confirmCalib() {
             let tid = document.getElementById('tagSelect').value;
             if(!tid || tid === "" || tid === "undefined") { alert("Veuillez sélectionner un tag valide !"); return; }
             if(!confirm("Cela calibre directement sur le Tag #" + tid + ". Continuer ?")) return;
             nav('view-calib-wait');
-
-            // Transmission blindée via Header
-            await fetch('/api/hub/start', { 
-                method: 'POST',
-                headers: { 'X-Tag-ID': tid } 
-            });
+            await fetch('/api/hub/start' + tid, {method: 'POST'});
             pollingTimer = setInterval(pollHubStatus, 1000);
         }
 
