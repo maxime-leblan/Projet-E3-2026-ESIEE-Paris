@@ -1,9 +1,12 @@
+#include <Adafruit_TinyUSB.h>
 #include "TagActions.hpp"
+#include "CapteurPression.h"
 
 void setup()
 {
   initialiserXiao();
   initialiserUWB();
+  initialiserBMP581();
 }
 
 void loop()
@@ -28,6 +31,14 @@ void loop()
     {
       Serial.println("[PRINCIPAL] Impossible de décoder le message reçu");
     }
+  }
+
+  // Mesure de la pression actuelle
+  float vCurrentPressure = lirePressionBMP581();
+  if (vCurrentPressure != -1.0) {
+    Serial.print("Pression : ");
+    Serial.print(vCurrentPressure, 2);
+    Serial.println(" hPa");
   }
 
   // On envoie aux ancres nos distances par rapport à elles
