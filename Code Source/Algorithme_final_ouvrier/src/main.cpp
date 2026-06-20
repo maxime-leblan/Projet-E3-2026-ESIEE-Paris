@@ -9,6 +9,11 @@ void setup()
   initialiserBMP581();
 
   digitalWrite(LED_RED, LOW);
+
+
+  pinMode(PIN_VBAT_ENABLE, OUTPUT);
+  digitalWrite(PIN_VBAT_ENABLE, HIGH); // On garde éteint par défaut
+  analogReadResolution(12);             // Configuration de la résolution 12 bits
 }
 
 void loop()
@@ -20,9 +25,9 @@ void loop()
   // Mesure de la pression actuelle
   float vCurrentPressure = lirePressionBMP581();
   if (vCurrentPressure != -1.0) {
-    Serial.print("Pression : ");
-    Serial.print(vCurrentPressure, 2);
-    Serial.println(" hPa");
+    //Serial.print("Pression : ");
+    //Serial.print(vCurrentPressure, 2);
+    //Serial.println(" hPa");
   }
 
   // FIN TESTS
@@ -106,15 +111,33 @@ void loop()
       tone(XIAO_TO_BIPPER_PIN, BIPPER_FREQUENCY);
     }
   }
- // On définit une sécurité de 800ms pour éviter le blocage infini
+ // On vérifie si la batterie est faible
  vStartTime = millis();
- //vTimeoutMs = 1000;
+ const uint32_t TimeoutBatMS = 1000; // 
 
-while (!vIsDistanceReceived && (millis() - vStartTime < vTimeoutMs))
+while (millis() - vStartTime < TimeoutBatMS)
   {
-    tone(XIAO_TO_BIPPER_PIN, BIPPER_FREQUENCY);
+    if(calculBatteryLow())
+    {
+      Serial.println("[XIAO] Batterie faible !");
+      tone(XIAO_TO_BIPPER_PIN, BIPPER_FREQUENCY);
+      digitalWrite(LED_RED, HIGH);
+      delay(2000);
+      noTone(XIAO_TO_BIPPER_PIN);
+      digitalWrite(LED_RED, LOW);
+      break;
+    }
+    /*
+    else
+    {
+      int batteryLevel = calculBattery();
+      Serial.print("[XIAO] Batterie OK : ");
+      Serial.print(batteryLevel);
+      Serial.println(" V");
+      break;
+    }
+    */
+    
   }
-noTone(XIAO_TO_BIPPER_PIN);
-
 
 }

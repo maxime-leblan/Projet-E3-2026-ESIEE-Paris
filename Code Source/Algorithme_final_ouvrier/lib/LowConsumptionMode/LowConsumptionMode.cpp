@@ -59,3 +59,36 @@ void reveilXiao() {
     
     Serial.println("[XIAO] Mode actif restauré.");
 }
+
+bool calculBatteryLow() {
+    // On active le MOSFET pour permettre la lecture de la tension de batterie
+    digitalWrite(PIN_VBAT_ENABLE, LOW);
+    delay(10); 
+
+    // Lecture de la tension de batterie via la broche analogique
+    int rawValue = analogRead(32); 
+    float voltage = ((rawValue * 3.6) / 4096.0) * 1.51* 2.0 ; // Ajustement pour la tension réelle de la batterie (en tenant compte du diviseur de tension genre en SAH 1.51 c pour une res de 100k et 51k
+
+    // On désactive le MOSFET après la lecture pour économiser l'énergie
+    digitalWrite(PIN_VBAT_ENABLE, HIGH);
+
+    // Vérification si la tension est inférieure à un seuil critique (par exemple 3.3V)
+    return voltage < 3.5; // Retourne true si la batterie est faible, false sinon
+}
+/*
+    test de la batterie 
+    
+int calculBattery() {
+    // On active le MOSFET pour permettre la lecture de la tension de batterie
+    digitalWrite(PIN_VBAT_ENABLE, LOW);
+    delay(10); 
+
+    // Lecture de la tension de batterie via la broche analogique
+    int rawValue = analogRead(32); 
+    float voltage = ((rawValue * 3.6) / 4096.0) * 1.51* 2.0 ; // Ajustement pour la tension réelle de la batterie (en tenant compte du diviseur de tension genre en SAH 1.51 c pour une res de 100k et 51k
+
+    // On désactive le MOSFET après la lecture pour économiser l'énergie
+    digitalWrite(PIN_VBAT_ENABLE, HIGH);
+    return (int)(voltage * 100); // Retourne la tension en centièmes de volts
+}
+*/
