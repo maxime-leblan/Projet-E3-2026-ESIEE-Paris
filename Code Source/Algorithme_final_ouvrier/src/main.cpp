@@ -106,4 +106,15 @@ void loop()
       tone(XIAO_TO_BIPPER_PIN, BIPPER_FREQUENCY);
     }
   }
+ // On définit une sécurité de 800ms pour éviter le blocage infini
+ vStartTime = millis();
+ //vTimeoutMs = 1000;
+
+while (!vIsDistanceReceived && (millis() - vStartTime < vTimeoutMs))
+  {
+    tone(XIAO_TO_BIPPER_PIN, BIPPER_FREQUENCY);
+  }
+noTone(XIAO_TO_BIPPER_PIN);
+
+
 }
