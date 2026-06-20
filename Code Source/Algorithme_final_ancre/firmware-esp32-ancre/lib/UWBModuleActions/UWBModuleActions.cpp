@@ -1,10 +1,11 @@
 #include "UWBModuleActions.hpp"
 
-float readDistanceFromUWB(int pModuleId)
+float readDistanceFromUWB(int pModuleId, Stream & pUWBSerial)
 {
     // 1. Demander au module UWB de calculer la distance
     // La commande AT+RANGE retourne une chaine de caractères complexe
-    String response = sendATCommand("AT+RANGE", 500); 
+    String response;
+    receiveUWBDistanceMessage(pUWBSerial, response);
     std::string vStdStrResponse = std::string(response.c_str(), response.length());
 
     // 2. Utiliser votre fonction existante pour extraire la distance

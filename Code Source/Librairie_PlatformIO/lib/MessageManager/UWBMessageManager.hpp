@@ -16,8 +16,7 @@ struct UWBMessage {
 };
 
 /**
- * Décode un message UWB en utilisant les regex spécifiques par type
- * et stocke le résultat dans la structure UWBMessage.
+ * Décode un message UWB envoyé à l'origine en CAN par le Hub puis convertit en message UWB par une Ancre en utilisant les regex spécifiques par type et stocke le résultat dans la structure UWBMessage. Cette fonction est uniquement utilisable par un Tag
  */
 bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage);
 

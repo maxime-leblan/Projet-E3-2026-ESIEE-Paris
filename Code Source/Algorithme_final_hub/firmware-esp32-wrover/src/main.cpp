@@ -24,6 +24,8 @@
 #include "CalibrationManager.hpp"
 
 #define HAUTEUR_MAX_TAG_METRES 5.0f
+#define BUZZER_GPIO_PIN 4
+#define BUZZER_FREQUENCY 600
 
 // --- VARIABLES GLOBALES ---
 RecuperationDonneesAncres recupDonnees;
@@ -206,6 +208,11 @@ void executer_HUB_STATE_RUNNING() {
           // Le Hub doit TOUJOURS ping le tag pour lui prouver qu'il est connecté et fonctionnel.
           if (MODE_ACTUEL == MODE_WIRED) {
               sendCanDistance(aIds[0], tag.tag_id, distSafeZone);
+              // On fait sonner le bipper du hub pendant 1 seconde si jamais le tag est dans la zone de sécurité
+              if (distSafeZone <= 0)
+              {
+                tone(BUZZER_GPIO_PIN, BUZZER_FREQUENCY, 1000);
+              }
           } else {
               // envoyerOrdreChangementRole(tag.tag_id, COMMAND_UPDATE_DISTANCE, distSafeZone);
           }
