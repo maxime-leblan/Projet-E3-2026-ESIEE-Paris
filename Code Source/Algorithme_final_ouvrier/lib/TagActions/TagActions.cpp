@@ -14,6 +14,10 @@ void initialiserXiao() {
         delay(10); 
     }
     */
+
+    pinMode(LED_RED, OUTPUT);
+    pinMode(LED_BLUE, OUTPUT);
+    pinMode(LED_GREEN, OUTPUT);
     
     Serial.println("\n=================================");
     Serial.println("[XIAO] Initialisation matérielle...");

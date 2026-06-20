@@ -11,10 +11,10 @@
 #define AVG_RUNNING_SPEED (4.16)
 
 // Pin de la Xiao connecté au bipper
-#define XIAO_TO_BIPPER_PIN 1
+#define XIAO_TO_BIPPER_PIN D1
 
 // Fréquence du bipper (en Hz)
-#define BIPPER_FREQUENCY 400
+#define BIPPER_FREQUENCY 1000
 
 /**
  * Initialise les périphériques propres à la XIAO (USB, Capteurs...)

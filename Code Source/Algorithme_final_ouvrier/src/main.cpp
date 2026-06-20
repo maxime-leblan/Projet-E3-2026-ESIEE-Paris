@@ -7,10 +7,26 @@ void setup()
   initialiserXiao();
   initialiserUWB();
   initialiserBMP581();
+
+  digitalWrite(LED_RED, LOW);
 }
 
 void loop()
 {
+  digitalWrite(LED_RED, HIGH);
+  digitalWrite(LED_GREEN, LOW);
+  // TESTS
+
+  // Mesure de la pression actuelle
+  float vCurrentPressure = lirePressionBMP581();
+  if (vCurrentPressure != -1.0) {
+    Serial.print("Pression : ");
+    Serial.print(vCurrentPressure, 2);
+    Serial.println(" hPa");
+  }
+
+  // FIN TESTS
+
   String vMessageReceived;
   UWBMessage vMessageReceivedData;
 
@@ -31,14 +47,6 @@ void loop()
     {
       Serial.println("[PRINCIPAL] Impossible de décoder le message reçu");
     }
-  }
-
-  // Mesure de la pression actuelle
-  float vCurrentPressure = lirePressionBMP581();
-  if (vCurrentPressure != -1.0) {
-    Serial.print("Pression : ");
-    Serial.print(vCurrentPressure, 2);
-    Serial.println(" hPa");
   }
 
   // On envoie aux ancres nos distances par rapport à elles
