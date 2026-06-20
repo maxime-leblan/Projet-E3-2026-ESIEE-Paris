@@ -3,9 +3,8 @@
 float readDistanceFromUWB(int pModuleId, Stream & pUWBSerial)
 {
     // 1. Demander au module UWB de calculer la distance
-    // La commande AT+RANGE retourne une chaine de caractères complexe
     String response;
-    receiveUWBDistanceMessage(pUWBSerial, response);
+    readDistancesInTagSerial(pUWBSerial, Serial, response);
     std::string vStdStrResponse = std::string(response.c_str(), response.length());
 
     // 2. Utiliser votre fonction existante pour extraire la distance
@@ -18,24 +17,6 @@ float readDistanceFromUWB(int pModuleId, Stream & pUWBSerial)
     }
 
     return distance;
-}
-
-String sendATCommand(String command, const int timeout) {
-    String response = "";
-    Serial.print("Envoi au module UWB -> "); 
-    Serial.println(command); // Affiche la commande envoyée
-    
-    UWBSerial.println(command);
-    long int time = millis();
-    while ((time + timeout) > millis()) {
-        while (UWBSerial.available()) {
-            response += (char)UWBSerial.read();
-        }
-    }
-    
-    Serial.print("Réponse du module UWB <- "); 
-    Serial.println(response); // Crucial pour voir si le module répond "OK" ou "ERR"
-    return response;
 }
 
 void initUWBModule(int pAnchorId)
@@ -80,11 +61,11 @@ void initUWBModule(int pAnchorId)
     updateScreen("INITIALISATION", "Configuration UWB...");
 
     Serial.println("Configuration de l'Ancre UWB...");
-    sendATCommand("AT+RESTORE", 2000);
-    sendATCommand("AT+SETCFG=" + String(pAnchorId) + ",1,0,1", 2000); // ID:0, Role:Ancre(1), Rate:850K(0), Filter:ON(1)
-    sendATCommand("AT+SETCAP=10,25,1", 2000); // Mode paquet étendu pour envoyer des données
-    sendATCommand("AT+SAVE", 1000);
-    sendATCommand("AT+RESTART", 2000);
+    sendATCommand("AT+RESTORE", Serial, UWBSerial);
+    sendATCommand("AT+SETCFG=" + String(pAnchorId) + ",1,0,1", Serial, UWBSerial); // ID:0, Role:Ancre(1), Rate:850K(0), Filter:ON(1)
+    sendATCommand("AT+SETCAP=10,25,1", Serial, UWBSerial); // Mode paquet étendu pour envoyer des données
+    sendATCommand("AT+SAVE", Serial, UWBSerial);
+    sendATCommand("AT+RESTART", Serial, UWBSerial);
 
     updateScreen("ANCRE 0", "En attente du Tag...");
 }
@@ -94,7 +75,7 @@ void toggleUWBMode(int pAnchorId)
     Serial.println("\n[UWB] Tentative d'inversion du mode (Tag <-> Ancre)...");
 
     // 1. Demander la configuration actuelle au module
-    String currentCfg = sendATCommand("AT+GETCFG?", 1000);
+    String currentCfg = sendATCommand("AT+GETCFG?", Serial, UWBSerial);
     
     int currentRole = 1; 
     int currentRate = 0; 
@@ -134,8 +115,8 @@ void toggleUWBMode(int pAnchorId)
 
     // 4. Appliquer la nouvelle configuration, sauvegarder et redémarrer
     String setCommand = "AT+SETCFG=" + String(pAnchorId) + "," + String(newRole) + "," + String(currentRate) + "," + String(currentFilter);
-    sendATCommand(setCommand, 1500);
-    sendATCommand("AT+SAVE", 1000);
+    sendATCommand(setCommand, Serial, UWBSerial);
+    sendATCommand("AT+SAVE", Serial, UWBSerial);
 
     // Vider le tampon série de l'UWB avant le redémarrage pour nettoyer les résidus
     while(UWBSerial.available()) { UWBSerial.read(); }

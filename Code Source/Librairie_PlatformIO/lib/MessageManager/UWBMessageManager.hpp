@@ -33,6 +33,12 @@ bool receiveUWBMessage(Stream &pUWBSerial, String &outRawMessage);
 bool receiveUWBDistanceMessage(Stream &pUWBSerial, String &outRawMessage);
 
 /**
+ * Tente d'extraire un message de distance UWB du moniteur série pUWBSerial du Tag qui a appelé la fonction. Renvoie la String extraite dans outRawMessage.
+ * @return Le message contenant les distances extraites, ou la chaine vide "" si rien n'a été lu.
+ */
+void readDistancesInTagSerial(Stream & pUWBSerial, Stream & pSerial, String &outRawMessage);
+
+/**
  * Configure le module UWB pour permettre l'envoi de messages personnalisés. La fonction est compatible avec la XIAO (tag)
  */
 void configureUWBForMessaging(Stream &pUWBSerial);

@@ -86,6 +86,9 @@ std::unordered_map<string, float> getAnchorDistances(int pAnchorId, UWBModuleLis
 
 void initAnchorsPosition(UWBModuleList & pAnchors)
 {
+    // On envoie d'abords un message à toutes les ancres pour leur indiquer que la phase d'initialisation débute
+    sendToAnchorsInitialisationPhaseSignal(pAnchors, HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL);
+
     std::unordered_map<string, float> vAnchorDistances;
     std::vector<int> vAnchorsId = pAnchors.giveModuleIdList();
 
@@ -100,8 +103,23 @@ void initAnchorsPosition(UWBModuleList & pAnchors)
         }
     }
 
+    // On envoie un message à toutes les ancres pour leur indiquer que la phase d'initialisation se termine
+    sendToAnchorsInitialisationPhaseSignal(pAnchors, HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL);
+
     // on calcule et on attribue des coordonnées de base aux Ancres du véhicule
     initAnchorsCoordinatesWithGD(pAnchors, vAnchorDistances, ITERATIONS, LEARNING_RATE);
+}
+
+void sendToAnchorsInitialisationPhaseSignal(UWBModuleList & pAnchors, int pSignalType)
+{
+    std::vector<int> vAnchorsId = pAnchors.giveModuleIdList();
+
+    for (uint8_t vCurrentId : vAnchorsId)
+    {
+        // on envoie à chaque Ancre un message contenant pSignalType pour leur indiquer si on débute ou termine la phase d'initialisation
+        MsgAnchorCalibHubOrder vMessage = {vCurrentId};
+        sendCanOrderFromHubTo(vCurrentId, pSignalType, vMessage);
+    }
 }
 
 void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId, bool becomeTags)

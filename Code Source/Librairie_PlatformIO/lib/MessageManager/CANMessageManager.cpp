@@ -91,6 +91,30 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
                         }
                         Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_END_TAG_CALIBRATION");
                         return false;
+                    
+                    case HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL:
+                        // La taille attendue de la trame totale est : 1 octet (ordre) + taille de la structure
+                        if (message.data_length_code == (1 + sizeof(MsgAnchorCalibHubOrder))) {
+                            MsgAnchorCalibHubOrder payload;
+                            // Copie des données à partir de l'index 1 (juste après l'octet d'ordre)
+                            memcpy(&payload, &message.data[1], sizeof(MsgAnchorCalibHubOrder));
+                            // On a juste besoin de l'id_ancre qu'on a déjà stocké plus haut
+                            return true;
+                        }
+                        Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL");
+                        return false;
+
+                    case HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL:
+                        // La taille attendue de la trame totale est : 1 octet (ordre) + taille de la structure
+                        if (message.data_length_code == (1 + sizeof(MsgAnchorCalibHubOrder))) {
+                            MsgAnchorCalibHubOrder payload;
+                            // Copie des données à partir de l'index 1 (juste après l'octet d'ordre)
+                            memcpy(&payload, &message.data[1], sizeof(MsgAnchorCalibHubOrder));
+                            // On a juste besoin de l'id_ancre qu'on a déjà stocké plus haut
+                            return true;
+                        }
+                        Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL");
+                        return false;
 
                     // Tu pourras ajouter tes futurs ordres ici très facilement :
                     // case DEUXIEME_ORDRE_FUTUR:

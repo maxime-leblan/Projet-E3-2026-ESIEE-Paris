@@ -50,6 +50,25 @@ bool receiveUWBDistanceMessage(Stream &pUWBSerial, String &outRawMessage)
     return false;
 }
 
+void readDistancesInTagSerial(Stream & pUWBSerial, Stream & pSerial, String &outRawMessage)
+{
+    if (pUWBSerial.available()) {
+        String data = pUWBSerial.readStringUntil('\n');
+        data.trim();
+
+        outRawMessage = data;
+
+        if (data != "")
+        {
+            pSerial.println("Tag vient de lire le message distance de son UWBSerial : " + data);
+        }
+        else
+        {
+            pSerial.println("Le UWBSerial du Tag est vide, distance impossible à lire : " + data);
+        }
+    }
+}
+
 void sendOrderToTag(Stream &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, uint8_t pOrderType) {
     // Construction du message : ex "0:4:1"
     String message = String(pSenderID) + ":" + String(pReceiverID) + ":" + String(pOrderType);

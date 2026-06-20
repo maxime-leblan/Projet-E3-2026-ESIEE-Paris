@@ -23,6 +23,14 @@ std::unordered_map<std::string, float> getAnchorDistances(int pAnchorId, UWBModu
  */
 void initAnchorsPosition(UWBModuleList & pAnchors);
 
+
+/**
+ * Envoie à toutes les Ancres un signal indiquant soit que la phase d'initialisation des positions des Ancres débute, soit qu'elle termine.
+ * @param pAnchors Référence à la variable contenant la liste des Ancres du véhicule
+ * @param pSignalType vaut soit HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL, soit HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL
+ */
+void sendToAnchorsInitialisationPhaseSignal(UWBModuleList & pAnchors, int pSignalType);
+
 /**
  * Envoie un message à toutes les Ancres dont l'id est passé en paramètre pour leur ordonner d'inverser leur mode de comportement.
  * @param pAnchorsId Liste des identifiants de toutes les Ancres devant changer d'état

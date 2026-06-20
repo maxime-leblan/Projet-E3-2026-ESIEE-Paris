@@ -58,7 +58,7 @@ void runInitializationPhase(uint8_t pMyAnchorId)
 
         // 2. On tente de lire une distance depuis le module UWB
         uint8_t vStaticAnchorId = vData.aStaticAnchorIdDuringToggle; 
-        float vDistance = readDistanceFromUWB(vStaticAnchorId);
+        float vDistance = readDistanceFromUWB(vStaticAnchorId, UWBSerial);
 
         // 3. Si on a capté une vraie distance, on l'envoie au Hub
         if (vDistance > 0.0f) 
@@ -86,4 +86,36 @@ void runInitializationPhase(uint8_t pMyAnchorId)
     // =========================================================
     toggleUWBMode(pMyAnchorId);
     Serial.println("[INIT] Séquence terminée pour cette ancre. Retour à la normale.");
+}
+
+void runCompleteInitialisationPhase(uint8_t pMyAnchorId)
+{
+    bool vHasReceivedEndMessage = false;
+    twai_message_t vMessage;
+    DecodedData vMessageData;
+
+    Serial.println("[COMPLETE INIT] Démarrage de l'initialisation de la position de l'ancre (et des 3 autres)");
+
+    while (!vHasReceivedEndMessage)
+    {
+        // On vérifie que le Hub ne nous a pas envoyé un message de fin de phase d'initialisation de la position des ancres
+        if (receiveCanMessage(vMessage))
+        {
+            if (decodeCanMessage(vMessage, vMessageData))
+            {
+                if (vMessageData.type == MESSAGE_HUB_ORDER && 
+                    vMessageData.id_ancre == pMyAnchorId && 
+                    vMessageData.aOrderType == HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL) 
+                {
+                    Serial.println("[COMPLETE INIT] Ordre de fin d'initialisation des ancres reçu !");
+                    vHasReceivedEndMessage = true;
+                    break; // On casse la boucle pour passer à l'étape finale
+                }
+            }
+        }
+
+        // Sinon cela veut dire que l'on doit continuer l'initialisation
+        Serial.println("[COMPLETE INIT] On lance une phase d'initialisation (toggleAnchorMode)...");
+        runInitializationPhase(pMyAnchorId);
+    }
 }
