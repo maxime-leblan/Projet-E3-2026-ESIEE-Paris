@@ -1,27 +1,38 @@
 #include "CapteurPression.h"
 
-// 1. Constructeur : on enregistre la broche CS
-CapteurPression::CapteurPression(int pin_cs) {
-  cs_pin = pin_cs;
+Adafruit_BMP5xx bmp; 
+
+void initialiserBMP581() {
+  
+  bmp.begin(BMP_CS, &SPI);
+
+  // Réglages optionnels capteur BMP581 pour plus de precision (cf librairie Adafruit_BMP5xx)
+  bmp.setTemperatureOversampling(BMP5XX_OVERSAMPLING_8X);
+  bmp.setPressureOversampling(BMP5XX_OVERSAMPLING_128X);
+  bmp.setIIRFilterCoeff(BMP5XX_IIR_FILTER_COEFF_3);
+  bmp.setOutputDataRate(BMP5XX_ODR_10_HZ); 
 }
 
-// 2. Fonction d'initialisation (remplace le code du setup)
-bool CapteurPression::initialiser() {
-  return bmp.begin(cs_pin, &SPI);
-}
+float lirePressionBMP581() {
 
-// 3. Ta fonction sur mesure
-float CapteurPression::getPression() {
-  // Première lecture "fantôme"
-  bmp.performReading();
-  
-  // Pause nécessaire pour la mesure
-  delay(50); 
-  
-  // Deuxième lecture : la vraie valeur
   if (bmp.performReading()) {
     return (float)(bmp.pressure);
-  } else {
-    return -1.0; 
   }
+
+  return -1.0; 
+}
+
+void infosBMP() {
+  Serial.println("Informations sur le capteur BMP581 :");
+  Serial.print("Température : ");
+  Serial.print(bmp.readTemperature());
+  Serial.println(" °C");
+
+  Serial.print("Pression : ");
+  Serial.print(bmp.readPressure());
+  Serial.println(" hPa");
+
+  Serial.print("Altitude : ");
+  Serial.print(bmp.readAltitude());
+  Serial.println(" m");
 }
