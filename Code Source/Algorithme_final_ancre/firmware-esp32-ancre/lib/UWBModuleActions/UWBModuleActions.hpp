@@ -6,6 +6,7 @@
 #include <Adafruit_SSD1306.h>
 
 #include "UWBDataManager.hpp"
+#include "UWBMessageManager.hpp"
 
 // --- CONFIGURATION MATÉRIELLE MAKERFABS ---
 #define I2C_SDA 39
@@ -19,13 +20,11 @@ Adafruit_SSD1306 display(128, 64, &I2C_OLED, -1);
 HardwareSerial UWBSerial(1);
 
 /**
- * Récupère la chaine des distances du module UWB de l'ancre et renvoie sa distance par rapport à l'ancre dont l'id est passé en paramètre
+ * Récupère la chaine des distances du module UWB de l'ancre et renvoie sa distance par rapport à l'ancre dont l'id est passé en paramètre (utilisé uniquement pendant la phase d'initialisation des positions des ancres)
  * @param pModuleId Identifiant de l'ancre par rapport à laquelle on veut récupérer la distance
  * @return La distance entre l'ancre du module UWB et l'ancre dont l'id est passé en paramètre
  */
-float readDistanceFromUWB(int pModuleId);
-
-String sendATCommand(String command, const int timeout);
+float readDistanceFromUWB(int pModuleId, Stream & pUWBSerial);
 
 void initUWBModule(int pAnchorId);
 

@@ -25,6 +25,8 @@
 #define HUB_ORDER_TOGGLE_MODULE_MODE 1
 #define HUB_ORDER_START_TAG_CALIBRATION 2
 #define HUB_ORDER_END_TAG_CALIBRATION 3
+#define HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL 4
+#define HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL 5
 
 // Macro pour extraire des chiffres de nombres en hexadécimal
 #define readFirstHexaNumber(H) (H & 0xF0)
@@ -53,9 +55,14 @@ struct __attribute__((packed)) MsgToggleHubOrder {
     uint8_t staticAnchorId; // L'ID de l'ancre qui reste fixe en mode Ancre
 };
 
-// Structure pour le message de type 3 pour les ordres HUB_ORDER_START_TAG_CALIBRATION et HUB_ORDER_END_TAG_CALIBRATION
+// Structure pour le message pour les ordres HUB_ORDER_START_TAG_CALIBRATION et HUB_ORDER_END_TAG_CALIBRATION
 struct __attribute__((packed)) MsgTagCalibHubOrder {
     uint8_t aTagId; // L'ID du tag qui doit recevoir le message
+};
+
+// Structure pour le message pour les ordres HUB_ORDER_START_TAG_CALIBRATION et HUB_ORDER_END_TAG_CALIBRATION
+struct __attribute__((packed)) MsgAnchorCalibHubOrder {
+    uint8_t aAnchorId; // L'ID de l'ancre qui doit recevoir le message
 };
 
 /**
