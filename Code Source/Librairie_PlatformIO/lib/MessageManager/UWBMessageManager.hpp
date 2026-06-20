@@ -44,6 +44,9 @@ void configureUWBForMessaging(Stream &pUWBSerial);
  */
 void sendDistanceToTag(Stream &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, float pDistance);
 
+/**
+ * 
+ */
 void sendDistancesToAnchor(Stream & pUWBSerial, Stream & pSerial);
 
 /**

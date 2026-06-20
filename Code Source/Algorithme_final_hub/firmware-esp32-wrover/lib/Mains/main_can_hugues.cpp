@@ -23,8 +23,6 @@
 #include "LissagePlanExclusion.hpp"
 #include "CalibrationManager.hpp"
 
-#define HAUTEUR_MAX_TAG_METRES 5.0f
-
 // --- VARIABLES GLOBALES ---
 RecuperationDonneesAncres recupDonnees;
 UWBModuleList vAnchors;
@@ -104,11 +102,12 @@ void appliquerNouvelleConfigurationMaterielle(JsonArray zoneJson, JsonArray sens
     for (JsonVariant s : sensorsJson) {
         if (anchorsCount < aIds.size()) {
             int id = aIds[anchorsCount];
-            float sx = s["x"].as<float>(); 
-            float sy = s["y"].as<float>(); 
+            float sx = s["x"].as<float>(); // Position X renvoyée par rapport au centre véhicule (0,0)
+            float sy = s["y"].as<float>(); // Position Y renvoyée par rapport au centre véhicule (0,0)
             
-            // CORRECTION : On récupère la vraie hauteur Z qui est DÉJÀ en mémoire grâce à la rotation
-            float sz = vAnchors.getModule(id).getPosition().getZ();
+            // On récupère la hauteur qu'on avait mise de côté (ou 0 par défaut)
+            // C'est ce qui nous permet de garder la vraie trilatération 3D !
+            float sz = hauteursAncresTemporaires.count(id) ? hauteursAncresTemporaires[id] : 0.0f;
             
             V3 nouvellePos(sx, sy, sz);
             
@@ -180,34 +179,40 @@ void executer_HUB_STATE_RUNNING() {
       // Pour chaque tag détecté par le système UWB
       for (const DistanceMoyennes& tag : tagsPretsPourMaths) {
           
+          // On refait le lien entre la distance lue et le véritable ID de l'ancre
           std::unordered_map<int, float> distMap;
           for(int i = 0; i < 4 && i < aIds.size(); i++) {
               distMap[aIds[i]] = tag.distances[i];
           }
 
           // TRILATÉRATION
+          // Le résultat pos3D donne la position du tag par rapport au centre du véhicule.
           V3 pos3D = trilateration3D(vAnchors, distMap);
 
-          // SÉCURITÉ VERTICALE : Utilisation de la constante
-          if (std::abs(pos3D.getZ()) > HAUTEUR_MAX_TAG_METRES) {
+          // SÉCURITÉ VERTICALE
+          // Si le tag est à plus de 5m en hauteur, c'est sûrement une grue, on ignore.
+          if (std::abs(pos3D.getZ()) > 5.0f) {
               continue; 
           }
 
           // ÉVALUATION DANGER
+          // On ramène le tag sur le plan du sol (Z=0) pour vérifier s'il franchit la ligne 2D
           V3 posProjectee2D(pos3D.getX(), pos3D.getY(), 0.0f);
           bool inDanger = vSafeZone.isInside(posProjectee2D);
           float distSafeZone = vSafeZone.getDistanceFrom(posProjectee2D);
-          
-          // CORRECTION IHM : Calcul de la distance pure avec le centre du véhicule (qui est à 0,0)
-          float distCentreVehicule = std::sqrt(pos3D.getX() * pos3D.getX() + pos3D.getY() * pos3D.getY());
 
           // RETOUR D'INFORMATION VERS LE TAG
-          // CORRECTION SÉCURITÉ : On retire le "if (distSafeZone > 0.0f)". 
-          // Le Hub doit TOUJOURS ping le tag pour lui prouver qu'il est connecté et fonctionnel.
-          if (MODE_ACTUEL == MODE_WIRED) {
-              sendCanDistance(aIds[0], tag.tag_id, distSafeZone);
-          } else {
-              // envoyerOrdreChangementRole(tag.tag_id, COMMAND_UPDATE_DISTANCE, distSafeZone);
+          // Si l'ouvrier n'est pas dans le polygone (distSafeZone > 0), 
+          // on lui envoie sa distance pour allumer ses LEDs de couleur ou biper.
+          if (distSafeZone > 0.0f) {
+              if (MODE_ACTUEL == MODE_WIRED) {
+                  // Le Hub dit à l'Ancre 0 (Maître) de faire le pont vers le Tag via l'UWB
+                  // sendCanDistance() va forger un paquet CAN pour l'ancre.
+                  sendCanDistance(aIds[0], tag.tag_id, distSafeZone);
+              } else {
+                  // Mode Wi-Fi : on utiliserait ici un envoi ESP-NOW
+                  // envoyerOrdreChangementRole(tag.tag_id, COMMAND_UPDATE_DISTANCE, distSafeZone);
+              }
           }
 
           // Stockage pour affichage sur l'écran déporté
@@ -215,8 +220,7 @@ void executer_HUB_STATE_RUNNING() {
               ids[tagCount] = tag.tag_id;
               xs[tagCount] = posProjectee2D.getX();
               ys[tagCount] = posProjectee2D.getY();
-              // L'écran veut savoir à quelle distance se trouve l'ouvrier du véhicule, pas de la zone !
-              distsScreen[tagCount] = distCentreVehicule; 
+              distsScreen[tagCount] = distSafeZone;
               alarmes[tagCount] = inDanger;
               tagCount++;
           }
@@ -232,126 +236,134 @@ void executer_HUB_STATE_RUNNING() {
 }
 
 void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
-    Serial.println("[Hub] Lancement de l'auto-calibration des ancres...");
-    
-    // 1) Auto-calibration des 4 ancres par descente de gradient
-    initAnchorsPosition(vAnchors);
-    
-    // 2) VRAI CHANGEMENT DE REPÈRE : L'origine (0,0,0) devient le milieu des ancres.
-    // Cette fonction de GridLibrary translate officiellement et définitivement 
-    // les coordonnées des 4 ancres dans la RAM.
-    alignAnchorsCoordinatesWithGridOrigin(vAnchors);
-    
-    // On s'assure que le tableau de points de calibration est bien vide
-    calibManager.viderPoints();
-    
-    // 3) Solution de contournement Prototype : On force le Tag 4
-    idTagSelectionne = 4;
-    
-    Serial.println("[Hub] Initialisation terminée. Repère centré sur (0,0,0).");
-    Serial.println("[Hub] Tag 4 sélectionné par défaut. Passage automatique en collecte de points.");
-    
-    // On bascule directement à l'étape suivante sans attendre l'écran
-    etatActuelHub = HUB_STATE_COLLECTING_POINTS;
+  Serial.println("[Machine Etats] Étape : Scan initial des tags demandé...");
+
+  // 1) Auto-Calibration matérielle via descente de gradient
+  // Va interroger les ancres pour qu'elles se mesurent entre elles (Wi-Fi ou CAN)
+  initAnchorsPosition(vAnchors);
+  
+  // 2) Configuration du repère temporaire (L'origine devient le milieu des ancres)
+  calibManager.initialiserEpicentre(vAnchors);
+  calibManager.viderPoints();
+
+  std::vector<DistanceMoyennes> tagsLisses;
+  std::vector<int> listeIds;
+  std::vector<float> listeDistances;
+  std::vector<int> aIds = vAnchors.giveModuleIdList();
+
+  if (recupDonnees.getDonneesLissees(tagsLisses)) {
+      for (const auto& tag : tagsLisses) {
+          std::unordered_map<int, float> distMap;
+          for(int i = 0; i < 4 && i < aIds.size(); i++) {
+              distMap[aIds[i]] = tag.distances[i];
+          }
+
+          V3 pos3D = trilateration3D(vAnchors, distMap);
+          // On calcule la distance brute entre le tag cible et l'épicentre
+          V3 vecteurPosition = pos3D - calibManager.getEpicentre();
+
+          listeIds.push_back(tag.tag_id);
+          listeDistances.push_back(vecteurPosition.norm());
+      }
+  }
+
+  // On envoie cette liste à l'écran pour que l'utilisateur choisisse le tag qui servira de stylo
+  envoyerListeTagsDecouverts(listeIds.data(), listeDistances.data(), listeIds.size());
+
+  etatActuelHub = HUB_STATE_IDLE;
+  Serial.println("[Machine Etats] Scan terminé. Liste envoyée. Retour en IDLE.");
 }
 
 void executer_HUB_STATE_COLLECTING_POINTS() {
-    // Cette fonction boucle en permanence. On sortira de cet état uniquement 
-    // lorsque l'écran enverra la commande UART "stop_calib" (géré dans loopScreenCommunication).
+  static unsigned long chronoLog = 0;
+  if (millis() - chronoLog >= 2000) {
+    Serial.printf("[Machine Etats] En cours d'acquisition de la zone d'exclusion\n");
+    chronoLog = millis();
+  }
 
-    std::vector<DistanceMoyennes> tagsLisses;
-    
-    // On récupère les données lissées (buffer temporel de 1/30s)
-    if (recupDonnees.getDonneesLissees(tagsLisses)) {
-        
-        for (const auto& tag : tagsLisses) {
-            // On ne s'intéresse qu'au tag que l'ouvrier tient en main (le Tag 4)
-            if (tag.tag_id == idTagSelectionne) { 
-                
-                // On prépare le dictionnaire pour la trilatération
-                std::unordered_map<int, float> dists;
-                for (int i = 0; i < 4; i++) {
-                    if (tag.distances[i] > 0.0f) {
-                        dists[i] = tag.distances[i]; // L'index 'i' correspond à l'ID de l'ancre (0 à 3)
-                    }
-                }
+  static unsigned long chronoAcquisition = 0;
+  
+  // Toutes les X millisecondes (FENETRE_MS), on prélève un point
+  if (millis() - chronoAcquisition >= FENETRE_MS) { 
+      std::vector<DistanceMoyennes> tagsLisses;
+      std::vector<int> aIds = vAnchors.giveModuleIdList();
 
-                // Il faut au moins 3 distances valides pour calculer une position 3D
-                if (dists.size() >= 3) {
-                    
-                    // Calcul de la position 3D du Tag.
-                    // IMPORTANT : Comme vAnchors a été translaté à l'étape d'avant, 
-                    // pos3D est DÉJÀ dans le bon repère centré !
-                    V3 pos3D = trilateration3D(vAnchors, dists);
-                    
-                    // On enregistre directement le point pur. Fini le bricolage !
-                    calibManager.ajouterPoint(pos3D);
-                    
-                    // Optionnel : Un petit print pour voir qu'on enregistre bien
-                    Serial.printf("[Collecte] Point ajouté : X=%.2f, Y=%.2f, Z=%.2f (Total: %d points)\n", 
-                                  pos3D.getX(), pos3D.getY(), pos3D.getZ(), calibManager.getNombrePoints());
-                }
-            }
-        }
-    }
+      if (recupDonnees.getDonneesLissees(tagsLisses)) {
+          for (const auto& tag : tagsLisses) {
+              
+              // On ignore tous les tags, sauf celui sélectionné par l'utilisateur
+              if (tag.tag_id == idTagSelectionne) {
+                  std::unordered_map<int, float> distMap;
+                  for(int i = 0; i < 4 && i < aIds.size(); i++) {
+                      distMap[aIds[i]] = tag.distances[i];
+                  }
+
+                  // Calcul du point courant
+                  V3 pos3D = trilateration3D(vAnchors, distMap);
+                  
+                  // On stocke le point en mémoire RAM par rapport à l'épicentre (temporaire)
+                  calibManager.ajouterPoint(pos3D - calibManager.getEpicentre());
+              }
+          }
+      }
+      chronoAcquisition = millis();
+  }
 }
 
 void executer_HUB_STATE_GENERATING_GEOMETRY() {
-    Serial.printf("[Machine Etats] Étape : Génération géométrie pour le Tag cible #%d...\n", idTagSelectionne);
+  Serial.printf("[Machine Etats] Étape : Génération géométrie pour le Tag cible #%d...\n", idTagSelectionne);
 
-    if (calibManager.getNombrePoints() < 3) {
-        Serial.println("[Erreur] Pas assez de points pour générer un plan mathématique.");
-        etatActuelHub = HUB_STATE_IDLE;
-        return;
-    }
+  if (calibManager.getNombrePoints() < 3) {
+      Serial.println("[Erreur] Pas assez de points pour générer un plan mathématique.");
+      etatActuelHub = HUB_STATE_IDLE;
+      return;
+  }
 
-    const std::vector<V3>& pointsCollectes = calibManager.getPoints();
-    
-    // 1. Calcul du plan incliné à partir du nuage de points
-    LissageVehicule::PlanLocal planVehicule = LissageVehicule::calculerPlanMoyen(pointsCollectes);
-    Polygone zone64 = LissageVehicule::echantillonner64Points(0, planVehicule, pointsCollectes);
-    const std::vector<V3>& pts = zone64.getPoints();
+  const std::vector<V3>& pointsCollectes = calibManager.getPoints();
+  
+  // On passe le nuage de points à l'algorithme d'Analyse en Composantes Principales (ACP)
+  LissageVehicule::PlanLocal planVehicule = LissageVehicule::calculerPlanMoyen(pointsCollectes);
+  
+  // On découpe la forme lissée en un contour précis de 64 points
+  Polygone zone64 = LissageVehicule::echantillonner64Points(0, planVehicule, pointsCollectes);
+  const std::vector<V3>& pts = zone64.getPoints();
 
-    // --- CORRECTION : VRAI CHANGEMENT DE REPÈRE ---
-    // 2. On change le repère des 64 points en passant la normale du plan 
-    // comme vecteur de base pour le nouveau repère
-    std::vector<V3> pointsChangeRepere = changeCoordinateSystem(pts, planVehicule.normale);
+  float ancresCalculees[4][2];
+  std::vector<int> aIds = vAnchors.giveModuleIdList();
+  
+  // Vidange du dictionnaire des hauteurs pour éviter la pollution entre deux calibrations
+  hauteursAncresTemporaires.clear(); 
 
-    // 3. On applique le MÊME changement de repère aux 4 ancres pour qu'elles suivent
-    std::vector<int> aIds = vAnchors.giveModuleIdList();
-    std::vector<V3> positionsAncres;
-    for (int id : aIds) {
-        positionsAncres.push_back(vAnchors.getModule(id).getPosition());
-    }
-    std::vector<V3> ancresChangeRepere = changeCoordinateSystem(positionsAncres, planVehicule.normale);
+  // Projection mathématique des Ancres (3D -> 2D)
+  for (int i = 0; i < 4 && i < aIds.size(); i++) {
+      int id = aIds[i];
+      // On calcule le vecteur de l'ancre par rapport au centre du plan
+      V3 posRelative = (vAnchors.getModule(id).getPosition() - calibManager.getEpicentre()) - planVehicule.centre;
+      
+      // On l'écrase sur l'axe U et V (X et Y virtuels)
+      ancresCalculees[i][0] = prodScal(posRelative, planVehicule.axeU);
+      ancresCalculees[i][1] = prodScal(posRelative, planVehicule.axeV);
+      
+      // /!\ IMPORTANT : On met de côté la hauteur Z (Normale) de l'ancre.
+      // Cela permet à la trilatération finale de toujours marcher en 3D !
+      hauteursAncresTemporaires[id] = prodScal(posRelative, planVehicule.normale);
+  }
 
-    // 4. On met à jour la mémoire RAM du Hub avec ces nouvelles coordonnées
-    // /!\ TRÈS IMPORTANT : On conserve le Z (ex: Z=0.7) ! On n'aplatit rien.
-    for (size_t i = 0; i < aIds.size(); i++) {
-        vAnchors.setModulePosition(aIds[i], ancresChangeRepere[i]);
-    }
+  // Projection mathématique des 64 points de la zone
+  float zone64PointsCalculee[64][2];
+  for (int i = 0; i < 64 && i < pts.size(); i++) {
+      V3 posRelative = pts[i] - planVehicule.centre;
+      zone64PointsCalculee[i][0] = prodScal(posRelative, planVehicule.axeU);
+      zone64PointsCalculee[i][1] = prodScal(posRelative, planVehicule.axeV);
+  }
 
-    // --- PRÉPARATION POUR L'ÉCRAN ---
-    // La fonction envoyerGeometrieCalibration de l'UART attend des tableaux 2D.
-    // On extrait donc uniquement les X et Y du nouveau repère pour l'affichage.
-    float ancresCalculees[4][2];
-    for (size_t i = 0; i < 4 && i < aIds.size(); i++) {
-        ancresCalculees[i][0] = ancresChangeRepere[i].getX();
-        ancresCalculees[i][1] = ancresChangeRepere[i].getY();
-    }
+  // On envoie le brouillon à l'écran. 
+  // La tablette se chargera de tout glisser pour mettre le véhicule au centre.
+  envoyerGeometrieCalibration(ancresCalculees, zone64PointsCalculee);
 
-    float zone64PointsCalculee[64][2];
-    for (size_t i = 0; i < 64 && i < pointsChangeRepere.size(); i++) {
-        zone64PointsCalculee[i][0] = pointsChangeRepere[i].getX();
-        zone64PointsCalculee[i][1] = pointsChangeRepere[i].getY();
-    }
-
-    // Envoi de la géométrie au format 2D pour la tablette
-    envoyerGeometrieCalibration(ancresCalculees, zone64PointsCalculee);
-
-    calibManager.viderPoints();
-    etatActuelHub = HUB_STATE_IDLE;
-    Serial.println("[Machine Etats] Géométrie initiale (avec changement de repère) envoyée. Retour en IDLE.");
+  calibManager.viderPoints();
+  etatActuelHub = HUB_STATE_IDLE;
+  Serial.println("[Machine Etats] Géométrie initiale envoyée. Retour en IDLE. (Attente Validation Utilisateur)");
 }
 
 void executer_HUB_STATE_IDLE() {
