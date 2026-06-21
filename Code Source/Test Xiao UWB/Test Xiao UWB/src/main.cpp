@@ -5,8 +5,8 @@
 // --- INVERSION LOGICIELLE DES BROCHES ---
 // Dans ton tableau : RX_XIAO = D7, TX_XIAO = D6
 // On teste l'inversion : RX_XIAO = D6, TX_XIAO = D7
-#define TEST_RX_PIN D6
-#define TEST_TX_PIN D7
+#define TEST_RX_PIN 6
+#define TEST_TX_PIN 7
 
 unsigned long dernierPing = 0;
 
@@ -14,9 +14,11 @@ void setup() {
     Serial.begin(115200);
     while(!Serial) { delay(10); }
 
+    /*
     // Libération du Reset
     pinMode(UWB_RST_PIN, OUTPUT);
     digitalWrite(UWB_RST_PIN, HIGH);
+    */
     
     // Magie du nRF52840 : On réattribue les broches UART matériellement !
     Serial1.setPins(TEST_RX_PIN, TEST_TX_PIN);
@@ -33,8 +35,9 @@ void setup() {
 }
 
 void loop() {
+    
     // Ping automatique toutes les 3 secondes
-    if (millis() - dernierPing > 3000) {
+    if (millis() - dernierPing > 200) {
         Serial.println("[Xiao] -> AT");
         Serial1.print("AT\r\n"); 
         dernierPing = millis();

@@ -150,7 +150,7 @@ bool receiveCanMessage(twai_message_t &messageRecu)
     if (result) {
     Serial.printf(("[CAN] Message received, <identifier> = " + String(messageRecu.identifier) + "\n").c_str());
     } else {
-    //Serial.printf("[CAN] Failed to receive the message.\n");
+    Serial.printf("[CAN] Failed to receive the message.\n");
     }
 
     return result;
