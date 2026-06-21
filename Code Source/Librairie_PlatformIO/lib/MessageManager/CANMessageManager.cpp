@@ -3,8 +3,6 @@
 
 bool decodeCanMessage(const twai_message_t &message, DecodedData &output) 
 {
-    // 1. Extraction du type grâce aux masques binaires
-    output.type = readFirstHexaNumber(message.identifier);
 
     // Par défaut, on initialise les autres champs à 0
     output.id_tag = 0;
@@ -12,6 +10,15 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
     output.aStaticAnchorIdDuringToggle = 0;
     output.distance = 0.0f;
     output.aDistances = {};
+
+    // 1. Extraction du type grâce aux masques binaires
+    if (message.extd == 1) {
+        // C'est un message CAN Étendu (29 bits), on le découpe (>> décale, & 0xFF isole 1 octet)
+        output.id_tag = readThirdHexaNumber(message.identifier);
+        output.id_ancre = readSecondHexaNumber(message.identifier);
+    }
+
+    output.type = readFirstHexaNumber(message.identifier);
 
     // 2. Traitement différencié selon le type de message détecté
     switch (output.type) {
@@ -37,14 +44,13 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
             if (message.data_length_code == sizeof(MsgAllDistances))
             {
                 MsgAllDistances payload;
-                memcpy(&payload, message.data, sizeof(MsgDistance));
+                memcpy(&payload, message.data, sizeof(MsgAllDistances));
 
                 // on récupère les distances depuis le message reçu vers la structure de sortie
                 for (int i = 0; i < ANCHORS_NUMBER; i++)
                 {
                     output.aDistances.push_back(payload.aDistances[i]);
                 }
-                output.id_tag = readSecondHexaNumber(message.identifier);
                 return true;
             }
 
@@ -168,16 +174,18 @@ void sendCanDistance(uint8_t id_ancre, uint8_t id_tag, float dist) {
     }
 }
 
-void sendCanDistanceFromAnchorToHub(uint8_t pTagId, std::vector<uint16_t> pAllTagDistances)
+void sendCanDistanceFromAnchorToHub(uint8_t pAnchorId, uint8_t pTagId, std::vector<uint16_t> pAllTagDistances)
 {
     twai_message_t message;
-    message.identifier = MESSAGE_TAG_ID_AND_ALL_DISTANCES + pTagId;
-    message.extd = 0;
+    
+    // Création de l'ID Étendu (29 bits)
+    message.identifier = (pTagId << 8) | (MESSAGE_TAG_ID_AND_ALL_DISTANCES + pAnchorId);
+    
+    message.extd = 1; // INDISPENSABLE : Active le mode CAN étendu 29 bits
     message.rtr = 0;
-    message.data_length_code = sizeof(MsgAllDistances); // Taille fixe et sécurisée
+    message.data_length_code = sizeof(MsgAllDistances); // Vaut exactement 8
 
     MsgAllDistances payload;
-    
     // On copie de manière sécurisée les valeurs du vecteur vers le tableau fixe
     for(int i = 0; i < 4 && i < pAllTagDistances.size(); i++) {
         payload.aDistances[i] = pAllTagDistances[i];
@@ -185,11 +193,8 @@ void sendCanDistanceFromAnchorToHub(uint8_t pTagId, std::vector<uint16_t> pAllTa
 
     memcpy(message.data, &payload, sizeof(MsgAllDistances));
 
-    // Queue message for transmission
-    if (twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME)) == ESP_OK) {
-        Serial.printf(("Message queued for transmission, <identifier> = " + String(message.identifier) + "\n").c_str());
-    } else {
-        Serial.printf("Failed to queue message for transmission\n");
+    if (twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME)) != ESP_OK) {
+        Serial.println("Echec transmission CAN (Type 4)");
     }
 }
 

@@ -31,6 +31,7 @@
 // Macro pour extraire des chiffres de nombres en hexadécimal
 #define readFirstHexaNumber(H) (H & 0xF0)
 #define readSecondHexaNumber(H) (H & 0x0F)
+#define readThirdHexaNumber(H) ((H & 0xF00) >> 8)
 
 #define ANCHORS_NUMBER 4
 
@@ -107,10 +108,11 @@ void sendCanDistance(uint8_t id_ancre, uint8_t id_tag, float dist);
 
 /**
  * Permet d'envoyer un message d'une Ancre au Hub contenant l'id d'un Tag et toutes ses distances par rapport aux ancres
+ * @param pAnchorId Identifiant de l'ancre qui va envoyer le message
  * @param pTagId Identifiant du Tag auquelles sont liées les distances envoyées
  * @param pAllTagDistances Tableau contenant les distances du Tag par rapport à toutes les ancres
  */
-void sendCanDistanceFromAnchorToHub(uint8_t pTagId, std::vector<uint16_t> pAllTagDistances);
+void sendCanDistanceFromAnchorToHub(uint8_t pAnchorId, uint8_t pTagId, std::vector<uint16_t> pAllTagDistances);
 
 /**
  * Permet d'envoyer un message, contenant un identifiant, entre le Hub et l'Ancre dans les 2 sens.
