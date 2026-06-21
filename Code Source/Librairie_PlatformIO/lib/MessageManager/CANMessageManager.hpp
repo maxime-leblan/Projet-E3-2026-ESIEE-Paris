@@ -32,6 +32,8 @@
 #define readFirstHexaNumber(H) (H & 0xF0)
 #define readSecondHexaNumber(H) (H & 0x0F)
 
+#define ANCHORS_NUMBER 4
+
 // Interval:
 #define TRANSMIT_RATE_MS 1000
 
@@ -47,7 +49,8 @@ struct __attribute__((packed)) MsgDistance {
 
 // Structure pour le message de type 4 (Id Tag + tableau de distances)
 struct __attribute__((packed)) MsgAllDistances {
-    std::vector<uint16_t> aDistances;
+    // Remplacement du std::vector par un tableau fixe (4 ancres)
+    uint16_t aDistances[4]; 
 };
 
 // Structure pour le message de type 3 pour l'ordre HUB_ORDER_TOGGLE_MODULE_MODE

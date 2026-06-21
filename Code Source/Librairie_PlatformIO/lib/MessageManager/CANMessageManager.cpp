@@ -39,7 +39,11 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
                 MsgAllDistances payload;
                 memcpy(&payload, message.data, sizeof(MsgDistance));
 
-                output.aDistances = payload.aDistances;
+                // on récupère les distances depuis le message reçu vers la structure de sortie
+                for (int i = 0; i < ANCHORS_NUMBER; i++)
+                {
+                    output.aDistances.push_back(payload.aDistances[i]);
+                }
                 output.id_tag = readSecondHexaNumber(message.identifier);
                 return true;
             }
@@ -170,17 +174,22 @@ void sendCanDistanceFromAnchorToHub(uint8_t pTagId, std::vector<uint16_t> pAllTa
     message.identifier = MESSAGE_TAG_ID_AND_ALL_DISTANCES + pTagId;
     message.extd = 0;
     message.rtr = 0;
-    message.data_length_code = sizeof(MsgAllDistances); // 5 octets
+    message.data_length_code = sizeof(MsgAllDistances); // Taille fixe et sécurisée
 
     MsgAllDistances payload;
-    payload.aDistances = pAllTagDistances;
+    
+    // On copie de manière sécurisée les valeurs du vecteur vers le tableau fixe
+    for(int i = 0; i < 4 && i < pAllTagDistances.size(); i++) {
+        payload.aDistances[i] = pAllTagDistances[i];
+    }
+
     memcpy(message.data, &payload, sizeof(MsgAllDistances));
 
     // Queue message for transmission
     if (twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME)) == ESP_OK) {
-    Serial.printf(("Message queued for transmission, <identifier> = " + String(message.identifier) + "\n").c_str());
+        Serial.printf(("Message queued for transmission, <identifier> = " + String(message.identifier) + "\n").c_str());
     } else {
-    Serial.printf("Failed to queue message for transmission\n");
+        Serial.printf("Failed to queue message for transmission\n");
     }
 }
 
