@@ -36,9 +36,7 @@ CalibrationManager calibManager;
 // Dictionnaire pour retenir la hauteur (Z) des ancres avant que l'écran ne valide le X et Y
 std::map<int, float> hauteursAncresTemporaires;
 
-// Variables globales de la machine à états partagées avec le ScreenCommunicationManager
-volatile HubState etatActuelHub = HUB_STATE_IDLE;
-volatile int idTagSelectionne = -1;
+
 
 /**
  * @brief Fonction vitale pour le mode FILAIRE (CAN).
