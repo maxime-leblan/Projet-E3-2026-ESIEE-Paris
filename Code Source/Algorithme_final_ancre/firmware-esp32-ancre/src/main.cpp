@@ -88,7 +88,7 @@ void loop() {
             }
             
             // 4. Envoi de ce tableau au Hub via le bus CAN
-            sendCanDistanceFromAnchorToHub(tagId, distancesArray);
+            sendCanDistanceFromAnchorToHub(MY_ANCHOR_ID, tagId, distancesArray);
             
             // Affichage debug optionnel
             // Serial.printf("[MAIN] Relais UWB -> CAN : Distances du Tag %d envoyees au Hub.\n", tagId);

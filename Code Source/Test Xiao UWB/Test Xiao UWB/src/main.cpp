@@ -1,24 +1,31 @@
 #include <Arduino.h>
 
-#define UWB_RST_PIN D0 // Ta broche de Reset
+#define UWB_RST_PIN D0
+
+// --- INVERSION LOGICIELLE DES BROCHES ---
+// Dans ton tableau : RX_XIAO = D7, TX_XIAO = D6
+// On teste l'inversion : RX_XIAO = D6, TX_XIAO = D7
+#define TEST_RX_PIN D6
+#define TEST_TX_PIN D7
+
+unsigned long dernierPing = 0;
 
 void setup() {
-    // 1. Initialisation de l'USB vers le PC
     Serial.begin(115200);
-    while(!Serial) { delay(10); } // Attente de l'ouverture du moniteur série
+    while(!Serial) { delay(10); }
 
-    // 2. Libération du Reset du module UWB (CRUCIAL)
+    // Libération du Reset
     pinMode(UWB_RST_PIN, OUTPUT);
-    digitalWrite(UWB_RST_PIN, HIGH); // On le maintient HAUT pour laisser la STM32 tourner
+    digitalWrite(UWB_RST_PIN, HIGH);
     
-    // 3. Initialisation de l'UART matériel vers l'UWB (D6 et D7)
+    // Magie du nRF52840 : On réattribue les broches UART matériellement !
+    Serial1.setPins(TEST_RX_PIN, TEST_TX_PIN);
     Serial1.begin(115200); 
 
-    Serial.println("=== PONT SERIE XIAO <-> UWB PRET ===");
-    Serial.println("1. Reglez le moniteur serie sur 'Les deux, NL et CR' (Both NL & CR)");
-    Serial.println("2. Tapez 'AT' et appuyez sur Entree.");
+    Serial.println("\n=== MODE AUTO-PING (TX/RX INVERSES LOGICIELLEMENT) ===");
+    Serial.println("Si le module repond OK, c'est que les pistes etaient inversees sur le PCB !");
     
-    // Redémarrage matériel forcé pour essayer de capter le log de boot de la STM32
+    // Redémarrage matériel 
     Serial.println("\n[Action] Redemarrage du module UWB via D0...");
     digitalWrite(UWB_RST_PIN, LOW);
     delay(50);
@@ -26,14 +33,15 @@ void setup() {
 }
 
 void loop() {
-    // Si tu tapes quelque chose sur ton PC, la Xiao l'envoie à l'UWB
-    if (Serial.available()) {
-        char c = Serial.read();
-        Serial1.write(c);
+    // Ping automatique toutes les 3 secondes
+    if (millis() - dernierPing > 3000) {
+        Serial.println("[Xiao] -> AT");
+        Serial1.print("AT\r\n"); 
+        dernierPing = millis();
     }
     
-    // Si l'UWB parle, la Xiao l'affiche sur ton PC
-    if (Serial1.available()) {
+    // Écoute en continu de la réponse du module UWB
+    while (Serial1.available()) {
         char c = Serial1.read();
         Serial.write(c);
     }
