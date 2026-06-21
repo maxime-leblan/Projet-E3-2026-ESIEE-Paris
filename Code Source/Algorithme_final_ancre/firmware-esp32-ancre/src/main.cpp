@@ -27,7 +27,7 @@ void loop() {
     twai_message_t vCanMessage;
     DecodedData vDecodedCanData;
     String rawUWBMessage = "";
-
+    Serial.println("Je suis dans la loop principale de l'ancre !");
     // ====================================================================
     // ÉTAPE 1 : ÉCOUTE DU BUS CAN (Messages provenant du Hub)
     // ====================================================================
@@ -66,6 +66,8 @@ void loop() {
     // ====================================================================
     if (receiveUWBDistanceMessage(UWBSerial, rawUWBMessage)) {
         
+        updateScreen("ANCRE " + String(MY_ANCHOR_ID), "reception (CAN actif)");
+        Serial.println("[MAIN] Reception d'une trame UWB. Extraction des distances et relais vers le Hub via CAN...");
         // 1. Conversion de la String Arduino en std::string (requis par UWBDataManager)
         std::string stdRawMsg(rawUWBMessage.c_str());
         

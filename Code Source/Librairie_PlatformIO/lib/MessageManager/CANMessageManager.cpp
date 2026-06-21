@@ -142,9 +142,9 @@ bool receiveCanMessage(twai_message_t &messageRecu)
 {
     bool result = (twai_receive(&messageRecu, pdMS_TO_TICKS(DATA_RECEPTION_TIME)) == ESP_OK);
     if (result) {
-    Serial.printf(("Message received, <identifier> = " + String(messageRecu.identifier) + "\n").c_str());
+    Serial.printf(("[CAN] Message received, <identifier> = " + String(messageRecu.identifier) + "\n").c_str());
     } else {
-    Serial.printf("Failed to receive the message.\n");
+    //Serial.printf("[CAN] Failed to receive the message.\n");
     }
 
     return result;
