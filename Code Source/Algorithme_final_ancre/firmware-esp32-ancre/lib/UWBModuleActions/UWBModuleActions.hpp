@@ -15,9 +15,10 @@
 #define UWB_RX 18 
 #define UWB_TX 17 
 
-TwoWire I2C_OLED = TwoWire(1);
-Adafruit_SSD1306 display(128, 64, &I2C_OLED, -1);
-HardwareSerial UWBSerial(1);
+// On indique que ces objets existent, mais on ne les crée pas ici
+extern TwoWire I2C_OLED;
+extern Adafruit_SSD1306 display;
+extern HardwareSerial UWBSerial;
 
 /**
  * Récupère la chaine des distances du module UWB de l'ancre et renvoie sa distance par rapport à l'ancre dont l'id est passé en paramètre (utilisé uniquement pendant la phase d'initialisation des positions des ancres)

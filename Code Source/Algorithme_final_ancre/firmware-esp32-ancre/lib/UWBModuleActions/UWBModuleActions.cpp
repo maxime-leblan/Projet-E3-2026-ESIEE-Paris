@@ -1,5 +1,9 @@
 #include "UWBModuleActions.hpp"
 
+TwoWire I2C_OLED = TwoWire(1);
+Adafruit_SSD1306 display(128, 64, &I2C_OLED, -1);
+HardwareSerial UWBSerial(1);
+
 float readDistanceFromUWB(int pModuleId, Stream & pUWBSerial)
 {
     // 1. Demander au module UWB de calculer la distance
