@@ -24,7 +24,7 @@ bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage);
  * Tente de réceptionner un message personnalisé envoyé entre une ancre et un tag via UWB
  * @return True si on a bien réceptionné un message, false sinon
  */
-bool receiveUWBMessage(Stream &pUWBSerial, String &outRawMessage);
+bool receiveUWBMessage(Stream &pUWBSerial, String &outRawMessage, Stream & pSerial);
 
 /**
  * Tente de réceptionner le message classique contenant l'id du tag émetteur avec toutes les distances aux ancres via UWB. Cette fonction est utilisé par les ancres. La fonction est compatible avec la XIAO (tag)

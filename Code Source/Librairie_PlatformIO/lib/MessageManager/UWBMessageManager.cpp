@@ -24,9 +24,13 @@ bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage) {
     return false; // Échec du décodage si aucune regex ne correspond
 }
 
-bool receiveUWBMessage(Stream &pUWBSerial, String &outRawMessage) {
+bool receiveUWBMessage(Stream &pUWBSerial, String &outRawMessage, Stream & pSerial) {
     if (pUWBSerial.available()) {
         String input = pUWBSerial.readStringUntil('\n');
+        input.trim();
+        pSerial.println("Message lu par receive : " + input);
+        // ENLEVER LA LIGNE EN DESSOUS DE CELLE CI
+        outRawMessage = input; 
         if (input.startsWith("AT+RDATA")) {
             // Le format AT+RDATA contient souvent des infos système, 
             // on cherche la partie "données" que vous avez envoyée

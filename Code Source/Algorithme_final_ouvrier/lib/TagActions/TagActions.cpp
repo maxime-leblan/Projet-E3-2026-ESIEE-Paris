@@ -90,7 +90,7 @@ void safeZoneCalibration()
         }
 
         // 2. Écouter le Hub (Prend 0 milliseconde si aucun message n'est dispo)
-        if (receiveUWBMessage(Serial1, vReceivedMessage))
+        if (receiveUWBMessage(Serial1, vReceivedMessage, Serial))
         {
             if (decodeUWBMessage(vReceivedMessage, vReceivedMessageData))
             {
