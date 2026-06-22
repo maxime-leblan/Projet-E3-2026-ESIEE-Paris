@@ -1,9 +1,15 @@
 
-// ---- AJOUT DE LA LIBRAIRIE CAN ----
-#include "CANMessageManager.hpp" 
-
 #include <Arduino.h>
 
+#include "UWBModuleActions.hpp"
+#include "CANMessageManager.hpp"
+#include "UWBMessageManager.hpp"
+#include "InitialisationProtocol.hpp"
+#include "UWBDataManager.hpp"
+
+// Identifiant statique de cette ancre (0, 1, 2 ou 3)
+// Idéalement, à configurer via un dip-switch physique, ou codé en dur pour chaque carte avant le flash
+#define MY_ANCHOR_ID 2
 
 #define HAUTEUR_MAX_TAG_METRES 5.0f
 #define BUZZER_GPIO_PIN 4
@@ -12,10 +18,14 @@
 void setup() {
     Serial.begin(115200);
 
-    // 2. Initialisation du bus CAN avec les broches dédiées à l'Ancre
-    initCan(HUB_RX_PIN, HUB_TX_PIN);
+    // 1. Initialisation de l'écran et du module UWB en mode Ancre
+    initUWBModule(MY_ANCHOR_ID);
 
-    Serial.println("\n=== HUB INITIALISEE ET PRET (CAN) ===\n");
+    // 2. Initialisation du bus CAN avec les broches dédiées à l'Ancre
+    initCan(ANCHOR_RX_PIN, ANCHOR_TX_PIN);
+
+    Serial.printf("\n=== ANCRE %d INITIALISEE ET PRETE (CAN) ===\n", MY_ANCHOR_ID);
+    updateScreen("ANCRE " + String(MY_ANCHOR_ID), "Prete (CAN actif)");
 }
 
 void loop() {
@@ -23,7 +33,7 @@ void loop() {
     DecodedData vDecodedCanData;
     String rawUWBMessage = "";
 
-    Serial.println("On essaie de lire un message de l'ancre par CAN");
+    Serial.println("On essaie de lire un message de l'ancre 1 par CAN");
 
     delay(2000);
 
@@ -38,7 +48,7 @@ void loop() {
         }
         else
         {
-            Serial.println("Erreur de décodage du message provenant du Hub");
+            Serial.println("Erreur de décodage du message provenant de l'ancre 1");
         }
     }
     
