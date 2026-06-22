@@ -47,7 +47,7 @@ void initialiserUWB() {
     // ID:1, Role:Tag(0), Rate:6.8M(1), Filter:OFF(0)
     sendATCommand("AT+SETCFG=" + String(MY_TAG_ID) + "," + TAG_MODE_CONFIG, Serial, Serial1);
     sendATCommand("AT+SETRPT=" + String(TAG_AUTO_REPORT), Serial, Serial1);
-    sendATCommand("AT+SETCAP=" + TAG_SETCAP_CONFIG, Serial, Serial1);
+    sendATCommand("AT+SETCAP=" + String(TAG_SETCAP_CONFIG), Serial, Serial1);
 
     // 3. Optionnel : On peut envoyer une commande de configuration initiale si nécessaire
     // configureUWBForMessaging(Serial1);
