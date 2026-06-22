@@ -30,7 +30,7 @@ bool receiveUWBMessage(Stream &pUWBSerial, String &outRawMessage);
  * Tente de réceptionner le message classique contenant l'id du tag émetteur avec toutes les distances aux ancres via UWB. Cette fonction est utilisé par les ancres. La fonction est compatible avec la XIAO (tag)
  * @return True si on a bien réceptionné un message, false sinon
  */
-bool receiveUWBDistanceMessage(Stream &pUWBSerial, String &outRawMessage);
+bool receiveUWBDistanceMessage(Stream &pUWBSerial, Stream &pSerial, String &outRawMessage);
 
 /**
  * Tente d'extraire un message de distance UWB du moniteur série pUWBSerial du Tag qui a appelé la fonction. Renvoie la String extraite dans outRawMessage.

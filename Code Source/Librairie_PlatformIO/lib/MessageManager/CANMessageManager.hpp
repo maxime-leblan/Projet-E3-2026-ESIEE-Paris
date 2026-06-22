@@ -7,8 +7,8 @@
 // Pins used to connect to CAN bus
 #define HUB_RX_PIN 34
 #define HUB_TX_PIN 25
-#define ANCHOR_RX_PIN 15
-#define ANCHOR_TX_PIN 16
+#define ANCHOR_RX_PIN 10
+#define ANCHOR_TX_PIN 9
 
 // Durée de transmission d'un message en ms
 #define DATA_TRANSMISSION_TIME 1000

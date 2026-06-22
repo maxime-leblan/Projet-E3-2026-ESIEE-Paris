@@ -146,16 +146,18 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
 
 bool receiveCanMessage(twai_message_t &messageRecu)
 {
-    esp_err_t result = (twai_receive(&messageRecu, pdMS_TO_TICKS(DATA_RECEPTION_TIME)) == ESP_OK);
+    esp_err_t result = twai_receive(&messageRecu, pdMS_TO_TICKS(DATA_RECEPTION_TIME));
     if (result == ESP_OK)
     {
         Serial.printf(("[CAN] Message received, <identifier> = " + String(messageRecu.identifier) + "\n").c_str());
-    return true;
-    } 
+        return true;
+    }
+    /*
     else if (result == ESP_ERR_TIMEOUT)
     {
         Serial.printf("[CAN] Failed to receive the message : Timed out waiting for message\n");
     }
+    */
     else if (result == ESP_ERR_INVALID_ARG)
     {
         Serial.printf("[CAN] Failed to receive the message : Arguments are invalid\n");
@@ -250,6 +252,7 @@ void initCan(int pRXPin, int pTXPin)
 {
     driver_installed = false;
     // Initialize configuration structures using macro initializers
+    // mettre TWAI_MODE_NORMAL dans g_config pour le mode normal, sinon mettre TWAI_MODE_NO_ACK pour le déboguage sur une seule carte
     twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT((gpio_num_t)pTXPin, (gpio_num_t)pRXPin, TWAI_MODE_NORMAL);
     twai_timing_config_t t_config = TWAI_TIMING_CONFIG_500KBITS();  //Look in the api-reference for other speed sets.
     twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();

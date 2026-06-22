@@ -37,16 +37,19 @@ bool receiveUWBMessage(Stream &pUWBSerial, String &outRawMessage) {
     return false;
 }
 
-bool receiveUWBDistanceMessage(Stream &pUWBSerial, String &outRawMessage)
+bool receiveUWBDistanceMessage(Stream &pUWBSerial, Stream & pSerial , String &outRawMessage)
 {
     if (pUWBSerial.available()) {
         String input = pUWBSerial.readStringUntil('\n');
+        input.trim(); // Nettoie les caractères invisibles (comme \r)
+        pSerial.println("[UWB]  Message brut reçu du module UWB : " + input);
         // On cherche le mot clé RANGE ou range de votre TAG_DATA_REGEX
         if (input.startsWith("AT+RDATA") || input.indexOf("range:") != -1) {
             outRawMessage = input;
             return true;
         }
     }
+    //pSerial.println("[UWB] Aucun message de distance reçu du module UWB.");
     return false;
 }
 

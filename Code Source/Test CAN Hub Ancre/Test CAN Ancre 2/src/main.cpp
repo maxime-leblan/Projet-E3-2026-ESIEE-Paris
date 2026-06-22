@@ -9,7 +9,7 @@
 
 // Identifiant statique de cette ancre (0, 1, 2 ou 3)
 // Idéalement, à configurer via un dip-switch physique, ou codé en dur pour chaque carte avant le flash
-#define MY_ANCHOR_ID 2
+#define MY_ANCHOR_ID 3
 
 #define HAUTEUR_MAX_TAG_METRES 5.0f
 #define BUZZER_GPIO_PIN 4
@@ -42,7 +42,7 @@ void loop() {
     {
         if (decodeCanMessage(vCanMessage, vDecodedCanData))
         {
-            Serial.println("Message reçu de l'ancre " + String(vDecodedCanData.id_ancre) + ", tag " + String(vDecodedCanData.id_tag));
+            Serial.println("Message reçu de l'ancre 1 : " + String(vDecodedCanData.id_ancre) + ", tag " + String(vDecodedCanData.id_tag));
             Serial.println("On répond...");
             sendCanDistance(0, vDecodedCanData.id_tag, 10.25);
         }

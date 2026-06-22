@@ -22,6 +22,9 @@ void loop()
   digitalWrite(LED_GREEN, LOW);
   // TESTS
 
+  String vMessage1;
+  readDistancesInTagSerial(Serial1, Serial, vMessage1);
+
   // Mesure de la pression actuelle
   float vCurrentPressure = lirePressionBMP581();
   if (vCurrentPressure != -1.0) {
