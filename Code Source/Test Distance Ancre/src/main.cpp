@@ -4,7 +4,7 @@
 #include <Adafruit_SSD1306.h>
 
 // Configuration de l'Ancre (À modifier pour chaque carte : 0, 1, 2, 3)
-#define ANCHOR_ID 0
+#define ANCHOR_ID 2
 
 // Définitions matérielles ESP32-S3 Makerfabs 
 #define RESET_PIN 16
@@ -79,7 +79,7 @@ void setup() {
     char cfgCmd[32];
     sprintf(cfgCmd, "AT+SETCFG=%d,1,1,0", ANCHOR_ID); // Anchor, 6.8M, Filtre OFF 
     sendCommand(cfgCmd);
-    sendCommand("AT+SETCAP=2,10,0"); // 2 Tags max, 10ms par slot 
+    sendCommand("AT+SETCAP=2,10,1"); // 2 Tags max, 10ms par slot 
     sendCommand("AT+SETPAN=1111");   // Réseau VigiZone 
     sendCommand("AT+SETRPT=1");      // Active l'auto-report des distances 
     sendCommand("AT+SAVE");          // Sauvegarde en Flash 
