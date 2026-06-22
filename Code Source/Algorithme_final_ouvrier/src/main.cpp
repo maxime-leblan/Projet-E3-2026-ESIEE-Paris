@@ -22,8 +22,11 @@ void loop()
   digitalWrite(LED_GREEN, LOW);
   // TESTS
 
+  /*
   String vMessage1;
   readDistancesInTagSerial(Serial1, Serial, vMessage1);
+  Serial.println("Ça marche dans la loop");
+  */
 
   // Mesure de la pression actuelle
   float vCurrentPressure = lirePressionBMP581();
@@ -118,7 +121,7 @@ void loop()
  vStartTime = millis();
  const uint32_t TimeoutBatMS = 1000; // 
 
-  if (millis() - vStartTime < TimeoutBatMS)
+  if (millis() - vStartTime > TimeoutBatMS)
   {
     if(calculBatteryLow())
     {
@@ -129,6 +132,7 @@ void loop()
       noTone(XIAO_TO_BIPPER_PIN);
       digitalWrite(LED_RED, LOW);
     }
+  vStartTime = millis();
     /*
     else
     {

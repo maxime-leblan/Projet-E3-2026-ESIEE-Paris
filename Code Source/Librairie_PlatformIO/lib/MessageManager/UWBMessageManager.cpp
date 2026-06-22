@@ -70,6 +70,10 @@ void readDistancesInTagSerial(Stream & pUWBSerial, Stream & pSerial, String &out
             pSerial.println("Le UWBSerial du Tag est vide, distance impossible à lire : " + data);
         }
     }
+    else 
+    {
+        pSerial.println("Pas de message dans la file du tag");
+    }
 }
 
 void sendOrderToTag(Stream &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, uint8_t pOrderType) {
