@@ -50,6 +50,9 @@ void ecouterReseauFilaire() {
         // Tant qu'il y a des messages en attente dans le buffer CAN, on les lit
         while (receiveCanMessage(messageRecu)) {
             DecodedData donnees;
+
+            // on allume la LED
+            digitalWrite(2, LOW);
             
             // On décode la trame brute en structure lisible
             if (decodeCanMessage(messageRecu, donnees)) {
@@ -130,6 +133,9 @@ void appliquerNouvelleConfigurationMaterielle(JsonArray zoneJson, JsonArray sens
 void setup() {
   Serial.begin(115200);
   delay(2000);
+
+  // on configure la LED du hub
+  pinMode(2, OUTPUT);
 
   initHub();
   setupScreenCommunication();
