@@ -33,29 +33,37 @@ void initialiserXiao() {
  */
 void initialiserUWB() {
     Serial.println("[UWB] Initialisation du module...");
-    
-    // 1. Initialisation de la communication Série (TX/RX) avec l'UWB
-    Serial1.begin(115200);
 
     // 2. Configuration de la broche physique d'interruption (UART2 RX de l'UWB)
     // On la configure en SORTIE et on la met à l'état HAUT (HIGH) immédiatement.
     // Le réveil se déclenche sur un état BAS (LOW), donc la laisser à HAUT évite un réveil accidentel.
+    //REDÉMARRAGE MATÉRIEL PROPRE (Hard Reset)
+    // On force la STM32 à s'éteindre puis à se rallumer
     pinMode(UWB_WAKEUP_PIN, OUTPUT);
+    digitalWrite(UWB_WAKEUP_PIN, LOW);
+    delay(50);
     digitalWrite(UWB_WAKEUP_PIN, HIGH);
+    delay(1500); // On attend 1.5s que le module UWB boot complètement
+
+    // 1. Initialisation de la communication Série (TX/RX) avec l'UWB
+    Serial1.begin(115200);
 
     sendATCommand("AT+RESTORE", Serial, Serial1);
+    delay(500); // L'effacement de la mémoire prend du temps !
+
     // ID:1, Role:Tag(0), Rate:6.8M(1), Filter:OFF(0)
     sendATCommand("AT+SETCFG=" + String(MY_TAG_ID) + "," + TAG_MODE_CONFIG, Serial, Serial1);
     sendATCommand("AT+SETRPT=" + String(TAG_AUTO_REPORT), Serial, Serial1);
     sendATCommand("AT+SETCAP=" + String(TAG_SETCAP_CONFIG), Serial, Serial1);
 
-    // 3. Optionnel : On peut envoyer une commande de configuration initiale si nécessaire
-    // configureUWBForMessaging(Serial1);
-
     // Permet de définir une adresse réseau 
     sendATCommand("AT+SETPAN=" + String(TAG_NETWORK_ID), Serial, Serial1);
+
     sendATCommand("AT+SAVE", Serial, Serial1);
+    delay(500); // L'écriture en mémoire flash prend du temps !
+    
     sendATCommand("AT+RESTART", Serial, Serial1);
+    delay(1500); // CRUCIAL : On attend que le module ait fini de redémarrer AVANT de rendre la main au main.cpp
     
     Serial.println("[UWB] Broches de contrôle et liaison Série configurées.");
 }

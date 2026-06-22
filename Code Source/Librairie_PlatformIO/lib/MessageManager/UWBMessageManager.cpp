@@ -140,28 +140,22 @@ String sendATCommand(String command, Stream & pSerial, Stream & pUWBSerial) {
     pSerial.print("Envoi au module UWB -> "); 
     pSerial.println(command);
     
-    // 1. On vide le buffer de réception des trames précédentes pour éviter les résidus
     while(pUWBSerial.available()) { pUWBSerial.read(); }
-
-    // 2. Envoi de la commande
     pUWBSerial.println(command);
     
-    // 3. Attente intelligente de la réponse
     uint32_t startTime = millis();
-    const uint32_t maxGuardTimeout = 400; // Sécurité maximale de 400ms si le module crash ou est débranché
+    const uint32_t maxGuardTimeout = 1000; // Augmenté à 1 seconde de sécurité
 
     while ((millis() - startTime) < maxGuardTimeout) {
         if (pUWBSerial.available()) {
             char c = (char)pUWBSerial.read();
             response += c;
             
-            // DÈS QU'ON DÉTECTE LA FIN DE LA RÉPONSE OFFICIELLE DU FIRMWARE MAKERFABS :
-            // Le firmware répond toujours par "OK\r\n" ou "ERR...\r\n" ou "range:...\r\n"
-            if (response.endsWith("OK\r\n") || response.endsWith("ERROR\r\n") || response.indexOf("\r\n") != -1) {
-                // Optionnel : On peut laisser un micro delay (1-2ms) pour être sûr d'avoir tout ramassé
-                delay(2);
+            // CORRECTION : On attend UNIQUEMENT le OK ou ERROR final, on ignore les sauts de lignes simples.
+            if (response.endsWith("OK\r\n") || response.endsWith("ERROR\r\n")) {
+                delay(5); // On laisse 5ms pour ramasser les derniers caractères résiduels
                 while (pUWBSerial.available()) { response += (char)pUWBSerial.read(); }
-                break; // ON SORT TOUT DE SUITE ! Pas de temps perdu.
+                break; 
             }
         }
     }
@@ -170,3 +164,4 @@ String sendATCommand(String command, Stream & pSerial, Stream & pUWBSerial) {
     pSerial.println(response); 
     return response;
 }
+
