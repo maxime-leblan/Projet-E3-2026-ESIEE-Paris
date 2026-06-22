@@ -146,14 +146,26 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
 
 bool receiveCanMessage(twai_message_t &messageRecu)
 {
-    bool result = (twai_receive(&messageRecu, pdMS_TO_TICKS(DATA_RECEPTION_TIME)) == ESP_OK);
-    if (result) {
-    Serial.printf(("[CAN] Message received, <identifier> = " + String(messageRecu.identifier) + "\n").c_str());
-    } else {
-    Serial.printf("[CAN] Failed to receive the message.\n");
+    esp_err_t result = (twai_receive(&messageRecu, pdMS_TO_TICKS(DATA_RECEPTION_TIME)) == ESP_OK);
+    if (result == ESP_OK)
+    {
+        Serial.printf(("[CAN] Message received, <identifier> = " + String(messageRecu.identifier) + "\n").c_str());
+    return true;
+    } 
+    else if (result == ESP_ERR_TIMEOUT)
+    {
+        Serial.printf("[CAN] Failed to receive the message : Timed out waiting for message\n");
+    }
+    else if (result == ESP_ERR_INVALID_ARG)
+    {
+        Serial.printf("[CAN] Failed to receive the message : Arguments are invalid\n");
+    }
+    else if (result == ESP_ERR_INVALID_STATE)
+    {
+        Serial.printf("[CAN] Failed to receive the message : TWAI driver is not installed\n");
     }
 
-    return result;
+    return false;
 }
 
 void sendCanDistance(uint8_t id_ancre, uint8_t id_tag, float dist) {
