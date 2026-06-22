@@ -68,8 +68,8 @@ void initUWBModule(int pAnchorId)
     sendATCommand("AT+RESTORE", Serial, UWBSerial);
     sendATCommand("AT+SETCFG=" + String(pAnchorId) + ",1,1,0", Serial, UWBSerial); // ID:X, Role:Ancre(1), Rate:1.6MHz(1), Filter:OFF(0)
     sendATCommand("AT+SETCAP=2,10,1", Serial, UWBSerial); // Mode paquet étendu pour envoyer des données
-    sendATCommand("AT+SETPAN=" + NETWORK_ID, Serial, UWBSerial); // Rejoindre le réseau commun
-    sendATCommand("AT+SETRPT=0", Serial, UWBSerial); // Désactiver les rapports de distance à chaque mesure  
+    sendATCommand("AT+SETPAN=" + String(NETWORK_ID), Serial, UWBSerial); // Rejoindre le réseau commun
+    sendATCommand("AT+SETRPT=1", Serial, UWBSerial); // Désactiver les rapports de distance à chaque mesure  
     sendATCommand("AT+SAVE", Serial, UWBSerial);
     sendATCommand("AT+RESTART", Serial, UWBSerial);
 
