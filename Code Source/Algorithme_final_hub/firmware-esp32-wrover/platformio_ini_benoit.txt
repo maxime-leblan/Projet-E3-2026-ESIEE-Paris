@@ -1,15 +1,16 @@
 [env:esp-wrover-kit]
 platform = espressif32
-board = nodemcu-32s
+board = nodemcu-32s ;esp-wrover-kit
 framework = arduino
 monitor_speed = 115200
 
 lib_ldf_mode = deep+
 
+; 1. On pointe uniquement vers le dossier partagé
 lib_extra_dirs =
     ../../Librairie_PlatformIO/lib
-    ../..  ; <-- INDISPENSABLE : Autorise PIO à trouver Algorithme-trilateration et librairie_hub
 
+; 2. On liste explicitement TOUTES les librairies nécessaires
 lib_deps =
     hideakitai/ArduinoEigen
     bblanchon/ArduinoJson
@@ -22,13 +23,11 @@ lib_deps =
     ; --- Tes librairies partagées ---
     MessageManager
     UWBDataManager
-    
-    ; --- Tes librairies Mathématiques (Externes) ---
-    Algorithme-trilateration
-    librairie_hub
 
 build_flags = 
     -DBOARD_HAS_PSRAM
+
+; /!\ ON SUPPRIME TOTALEMENT LES LIGNES "build_src_filter" ET "-I" /!\
 
 lib_ignore =
     Essais_carte_MaUWB
