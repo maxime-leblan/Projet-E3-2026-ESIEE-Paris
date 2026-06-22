@@ -37,17 +37,25 @@ void initialiserUWB() {
     // 1. Initialisation de la communication Série (TX/RX) avec l'UWB
     Serial1.begin(115200);
 
-    // ID:4, Role:Tag(0), Rate:850K(0), Filter:ON(1)
-    sendATCommand("AT+SETCFG=4,0,0,1", Serial, Serial1);
-    
     // 2. Configuration de la broche physique d'interruption (UART2 RX de l'UWB)
     // On la configure en SORTIE et on la met à l'état HAUT (HIGH) immédiatement.
     // Le réveil se déclenche sur un état BAS (LOW), donc la laisser à HAUT évite un réveil accidentel.
     pinMode(UWB_WAKEUP_PIN, OUTPUT);
     digitalWrite(UWB_WAKEUP_PIN, HIGH);
-    
+
+    sendATCommand("AT+RESTORE", Serial, Serial1);
+    // ID:1, Role:Tag(0), Rate:6.8M(1), Filter:OFF(0)
+    sendATCommand("AT+SETCFG=" + String(MY_TAG_ID) + "," + TAG_MODE_CONFIG, Serial, Serial1);
+    sendATCommand("AT+SETRPT=" + String(TAG_AUTO_REPORT), Serial, Serial1);
+    sendATCommand("AT+SETCAP=" + TAG_SETCAP_CONFIG, Serial, Serial1);
+
     // 3. Optionnel : On peut envoyer une commande de configuration initiale si nécessaire
-    configureUWBForMessaging(Serial1);
+    // configureUWBForMessaging(Serial1);
+
+    // Permet de définir une adresse réseau 
+    sendATCommand("AT+SETPAN=" + String(TAG_NETWORK_ID), Serial, Serial1);
+    sendATCommand("AT+SAVE", Serial, Serial1);
+    sendATCommand("AT+RESTART", Serial, Serial1);
     
     Serial.println("[UWB] Broches de contrôle et liaison Série configurées.");
 }

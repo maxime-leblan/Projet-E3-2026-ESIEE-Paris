@@ -3,6 +3,23 @@
 #include "UWBMessageManager.hpp"
 #include "LowConsumptionMode.hpp"
 
+// Id du tag de l'ouvrier
+#define MY_TAG_ID 4
+
+// Mode (Tag=0, Ancre=1):"x", Débit (6.8M=1, 860K=0):"y", Filtre (ON=1, OFF=0):"z" 
+#define TAG_MODE_CONFIG "0,1,0"
+
+// Identifiant du réseau UWB
+#define TAG_NETWORK_ID 1111
+
+// Nb tags max, Minimum fenetre calcul, Etendre le paquet ou non
+#define TAG_SETCAP_CONFIG "2,10,1"
+ 
+/*
+Si vaut 1 : Permet au tag de calculer aut
+*/
+#define TAG_AUTO_REPORT 1
+
 #define HUB_ORDER_START_TAG_CALIBRATION 2
 #define HUB_ORDER_END_TAG_CALIBRATION 3
 #define HUB_ORDER_TAG_DISTANCE_FROM_SF 4

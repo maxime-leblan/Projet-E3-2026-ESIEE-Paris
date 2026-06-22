@@ -118,7 +118,7 @@ void loop()
  vStartTime = millis();
  const uint32_t TimeoutBatMS = 1000; // 
 
-while (millis() - vStartTime < TimeoutBatMS)
+  if (millis() - vStartTime < TimeoutBatMS)
   {
     if(calculBatteryLow())
     {
@@ -128,7 +128,6 @@ while (millis() - vStartTime < TimeoutBatMS)
       delay(2000);
       noTone(XIAO_TO_BIPPER_PIN);
       digitalWrite(LED_RED, LOW);
-      break;
     }
     /*
     else
