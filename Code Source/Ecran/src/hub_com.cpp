@@ -4,8 +4,8 @@
 #include <Arduino.h>
 #include <lvgl.h>
 
-#define HUB_RX_PIN 19
-#define HUB_TX_PIN 20
+#define ECRAN_RX_PIN 19
+#define ECRAN_TX_PIN 20
 
 String uart_buffer = "";
 // On pré-réserve de la mémoire pour éviter que le buffer crash sur les longs messages
@@ -18,7 +18,7 @@ unsigned long last_hub_msg_time = 0;
 void setup_hub_com() {
     uart_buffer.reserve(MAX_BUFFER_SIZE);
     Serial2.setRxBufferSize(MAX_BUFFER_SIZE);
-    Serial2.begin(115200, SERIAL_8N1, HUB_RX_PIN, HUB_TX_PIN);
+    Serial2.begin(115200, SERIAL_8N1, ECRAN_RX_PIN, ECRAN_TX_PIN);
 }
 
 void envoyer_commande_hub(JsonDocument& doc) {
