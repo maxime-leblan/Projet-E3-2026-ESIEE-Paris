@@ -11,9 +11,11 @@
 // --- CONFIGURATION MATÉRIELLE MAKERFABS ---
 #define I2C_SDA 39
 #define I2C_SCL 38
-#define POWER_PIN 42 // anciennement 43
+#define POWER_PIN 42
 #define UWB_RX 18 
 #define UWB_TX 17 
+
+#define NETWORK_ID 1111
 
 // On indique que ces objets existent, mais on ne les crée pas ici
 extern TwoWire I2C_OLED;
