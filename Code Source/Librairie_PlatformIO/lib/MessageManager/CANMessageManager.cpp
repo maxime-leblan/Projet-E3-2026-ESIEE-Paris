@@ -193,8 +193,28 @@ void sendCanDistanceFromAnchorToHub(uint8_t pAnchorId, uint8_t pTagId, std::vect
 
     memcpy(message.data, &payload, sizeof(MsgAllDistances));
 
-    if (twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME)) != ESP_OK) {
-        Serial.println("Echec transmission CAN (Type 4)");
+    esp_err_t vErr = twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME));
+    if (vErr != ESP_OK) {
+        if (vErr == ESP_ERR_INVALID_ARG)
+        {
+            Serial.println("Echec transmission CAN (Type 4) : Arguments invalides");
+        }
+        else if (vErr == ESP_ERR_TIMEOUT)
+        {
+            Serial.println("Echec transmission CAN (Type 4) : Timed out waiting for space on TX queue");
+        }
+        else if (vErr == ESP_FAIL)
+        {
+            Serial.println("Echec transmission CAN (Type 4) : TX queue is disabled and another message is currently transmitting");
+        }
+        else if (vErr == ESP_ERR_INVALID_STATE)
+        {
+            Serial.println("Echec transmission CAN (Type 4) : TWAI driver is not in running state, or is not installed");
+        }
+        else if (vErr == ESP_ERR_NOT_SUPPORTED)
+        {
+            Serial.println("Echec transmission CAN (Type 4) : Listen Only Mode does not support transmissions");
+        }
     }
 }
 
