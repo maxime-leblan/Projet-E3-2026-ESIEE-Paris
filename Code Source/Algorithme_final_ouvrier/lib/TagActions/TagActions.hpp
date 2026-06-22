@@ -4,7 +4,7 @@
 #include "LowConsumptionMode.hpp"
 
 // Id du tag de l'ouvrier
-#define MY_TAG_ID 4
+#define MY_TAG_ID 0
 
 // Mode (Tag=0, Ancre=1):"x", Débit (6.8M=1, 860K=0):"y", Filtre (ON=1, OFF=0):"z" 
 #define TAG_MODE_CONFIG "0,1,0"

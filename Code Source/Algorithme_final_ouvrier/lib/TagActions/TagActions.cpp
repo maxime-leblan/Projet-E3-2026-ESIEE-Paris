@@ -41,7 +41,7 @@ void initialiserUWB() {
     // On force la STM32 à s'éteindre puis à se rallumer
     pinMode(UWB_WAKEUP_PIN, OUTPUT);
     digitalWrite(UWB_WAKEUP_PIN, LOW);
-    delay(50);
+    delay(3100);
     digitalWrite(UWB_WAKEUP_PIN, HIGH);
     delay(1500); // On attend 1.5s que le module UWB boot complètement
 
