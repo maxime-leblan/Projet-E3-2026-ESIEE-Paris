@@ -42,7 +42,7 @@ void loop()
   UWBMessage vMessageReceivedData;
 
   // On vérifie si le hub veut que l'on passe en mode calibration de la zone de sécurité
-  if (receiveUWBMessage(Serial1, vMessageReceived))
+  if (receiveUWBMessage(Serial1, vMessageReceived, Serial))
   {
     if (decodeUWBMessage(vMessageReceived, vMessageReceivedData))
     {
@@ -61,7 +61,7 @@ void loop()
   }
   else
   {
-    
+    Serial.println("On a pas reçu de message : " + vMessageReceived);
   }
 
   // On envoie aux ancres nos distances par rapport à elles
@@ -77,7 +77,7 @@ void loop()
 
   while (!vIsDistanceReceived && (millis() - vStartTime < vTimeoutMs))
   {
-    if (receiveUWBMessage(Serial1, vMessageReceived))
+    if (receiveUWBMessage(Serial1, vMessageReceived, Serial))
     {
       if (decodeUWBMessage(vMessageReceived, vMessageReceivedData))
       {
