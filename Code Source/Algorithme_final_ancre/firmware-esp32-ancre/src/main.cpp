@@ -7,7 +7,7 @@
 #include "UWBDataManager.hpp"
 
 // Identifiant statique de cette ancre (0, 1, 2 ou 3)
-#define MY_ANCHOR_ID 2
+#define MY_ANCHOR_ID 0
 
 // ========================================================
 // MEMOIRE TAMPON DE L'ANCRE

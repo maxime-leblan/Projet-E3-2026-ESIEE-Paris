@@ -126,11 +126,14 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
                         Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL");
                         return false;
 
-                    // --- NOUVEAU : Le Hub demande à l'ancre d'envoyer sa mémoire ---
                     case HUB_ORDER_REQUEST_DISTANCES:
-                        // La taille attendue de la trame totale est de 1 octet (juste l'ID de l'ordre)
-                        if (message.data_length_code == 1) {
-                            // On a juste besoin de l'id_ancre qu'on a déjà stocké plus haut pour identifier la cible
+                        // La taille attendue de la trame totale est : 1 octet (ordre) + taille de la structure
+                        if (message.data_length_code == (1 + sizeof(MsgRequestDistancesHubOrder))) {
+                            MsgRequestDistancesHubOrder payload;
+                            // Copie des données à partir de l'index 1 (juste après l'octet d'ordre)
+                            memcpy(&payload, &message.data[1], sizeof(MsgRequestDistancesHubOrder));
+                            // On stocke le Tag demandé dans la variable de sortie
+                            output.id_tag = payload.aTagId; 
                             return true;
                         }
                         Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_REQUEST_DISTANCES");
@@ -259,21 +262,15 @@ void sendCanSignal(uint8_t pModuleId)
 }
 
 void sendCanRequestDistances(uint8_t pAnchorId, uint8_t pTagId) {
-    twai_message_t message;
-    // On utilise l'identifiant standard des ordres Hub -> Ancre
-    message.identifier = MESSAGE_HUB_ORDER + pAnchorId; 
-    message.extd = 0; // Trame standard 11 bits
-    message.rtr = 0;
-    message.data_length_code = 2; // 2 octets : L'ordre + L'ID du Tag cible
+    // 1. On encapsule la donnée dans la nouvelle structure
+    MsgRequestDistancesHubOrder payload = { pTagId };
 
-    message.data[0] = HUB_ORDER_REQUEST_DISTANCES;
-    message.data[1] = pTagId;
-
-    if (twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME)) == ESP_OK) {
-        Serial.printf("[CAN TX] Requete de distances envoyee (Ancre: %d, Tag: %d)\n", pAnchorId, pTagId);
-    } else {
-        Serial.println("[CAN TX] Echec de la requete de distances.");
-    }
+    // 2. On utilise ton template générique qui gère tout (Taille, Octet d'ordre, et memcpy)
+    sendCanOrderFromHubTo(pAnchorId, HUB_ORDER_REQUEST_DISTANCES, payload);
+    
+    // Le print de succès/échec est déjà géré à l'intérieur de sendCanOrderFromHubTo, 
+    // mais on peut rajouter un petit log de suivi :
+    Serial.printf("[CAN TX] Requete envoyee a l'Ancre %d pour le Tag %d.\n", pAnchorId, pTagId);
 }
 
 void initCan(int pRXPin, int pTXPin)

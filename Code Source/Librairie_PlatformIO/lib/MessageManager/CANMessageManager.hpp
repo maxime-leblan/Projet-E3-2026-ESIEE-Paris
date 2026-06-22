@@ -70,6 +70,11 @@ struct __attribute__((packed)) MsgAnchorCalibHubOrder {
     uint8_t aAnchorId; // L'ID de l'ancre qui doit recevoir le message
 };
 
+// Structure pour l'ordre HUB_ORDER_REQUEST_DISTANCES
+struct __attribute__((packed)) MsgRequestDistancesHubOrder {
+    uint8_t aTagId; // L'ID du Tag dont le Hub veut récupérer les distances
+};
+
 /**
  * Structure contenant le résultat du décodage. Elle contient les champs suivants :
  * type, id_ancre, id_tag, distance
@@ -122,6 +127,13 @@ void sendCanDistanceFromAnchorToHub(uint8_t pAnchorId, uint8_t pTagId, std::vect
 void sendCanSignal(uint8_t pModuleId);
 
 /**
+ * Permet d'envoyer un message depuis le Hub vers une Ancre contenant l'identifiant d'un Tag pour lequel on veut que l'Ancre envoie ses distances au Hub
+ * @param pAnchorId Identifiant de l'Ancre à qui on envoie la requête de distances
+ * @param pTagId Identifiant du Tag pour lequel on veut que l'Ancre envoie ses distances au Hub
+ */
+void sendCanRequestDistances(uint8_t pAnchorId, uint8_t pTagId);
+
+/**
  * Permet d'envoyer un message contenant un ordre et une structure de données quelconque
  * depuis le Hub à l'Ancre dont l'identifiant est passé en paramètre.
  * * @tparam T Le type de la structure passée en paramètre (déduit automatiquement)
@@ -129,6 +141,7 @@ void sendCanSignal(uint8_t pModuleId);
  * @param pOrderType Spécifie le type d'ordre (ex: HUB_ORDER_TOGGLE_MODULE_MODE)
  * @param pOrderData La structure contenant les données spécifiques à cet ordre
  */
+
 template <typename T>
 void sendCanOrderFromHubTo(uint8_t id_ancre, uint8_t pOrderType, const T& pOrderData)
 {

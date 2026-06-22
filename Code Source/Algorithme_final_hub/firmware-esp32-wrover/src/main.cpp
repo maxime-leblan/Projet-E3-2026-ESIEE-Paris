@@ -36,8 +36,6 @@ CalibrationManager calibManager;
 // Dictionnaire pour retenir la hauteur (Z) des ancres avant que l'écran ne valide le X et Y
 std::map<int, float> hauteursAncresTemporaires;
 
-
-
 /**
  * @brief Fonction vitale pour le mode FILAIRE (CAN).
  * Doit être appelée très fréquemment pour vider le buffer matériel TWAI (CAN)
@@ -134,12 +132,16 @@ void setup() {
   Serial.begin(115200);
   delay(2000);
 
+  Serial.println("\n[Boot] --- Initialisation du Hub ---");
+
   // on configure la LED du hub
   pinMode(2, OUTPUT);
 
   initHub();
   setupScreenCommunication();
   initGestionnaireAncres(); 
+
+  Serial.println("[Boot] --- Initialisation terminée ---");
 
   // --- INITIALISATION DES CANAUX DE COMMUNICATION ---
   if (MODE_ACTUEL == MODE_WIRED) {
@@ -169,6 +171,8 @@ void setup() {
   } else {
       etatActuelHub = HUB_STATE_IDLE;
   }
+
+  Serial.println("[Boot] --- Fin Setup --- Etat actuel du Hub : " + String(etatActuelHub) + " ---\n");
 }
 
 void executer_HUB_STATE_RUNNING() {
@@ -179,12 +183,15 @@ void executer_HUB_STATE_RUNNING() {
     const unsigned long POLL_INTERVAL = 20; // Fréquence d'interrogation de 50 Hz
 
     if (millis() - lastPollTime >= POLL_INTERVAL) {
+        Serial.println("[Hub] Polling CAN pour demander les distances des ancres...");
         // Pour ce test unitaire : On cible exclusivement l'Ancre 0 pour le Tag 0
         uint8_t ancreCible = 0;
         uint8_t tagCible = 0;
         
         sendCanRequestDistances(ancreCible, tagCible);
         lastPollTime = millis();
+
+        Serial.printf("[Hub] Requete de distances envoyee a l'Ancre %d pour le Tag %d.\n", ancreCible, tagCible);
     }
 
     // ====================================================================
@@ -204,6 +211,9 @@ void executer_HUB_STATE_RUNNING() {
         std::vector<int> aIds = vAnchors.giveModuleIdList();
 
         for (const DistanceMoyennes& tag : tagsPretsPourMaths) {
+
+            Serial.printf("[HUB MATHS] Tag %d distances lissees : %.2f, %.2f, %.2f, %.2f\n", 
+                          tag.tag_id, tag.distances[0], tag.distances[1], tag.distances[2], tag.distances[3]);
             
             // Sécurité pour le test : on s'assure qu'on ne traite que le Tag 0
             if (tag.tag_id != 0) continue;
@@ -405,7 +415,7 @@ void loop() {
   // Contrairement au Wi-Fi, le CAN ne possède pas de fonction de "Callback automatique".
   // Nous devons donc interroger manuellement la carte à chaque milliseconde pour voir
   // si des ancres nous ont envoyé leurs calculs UWB.
-  ecouterReseauFilaire();
+  //ecouterReseauFilaire();
 
   // Machine à états Switch/Case (Design Pattern State)
   switch (etatActuelHub) {
