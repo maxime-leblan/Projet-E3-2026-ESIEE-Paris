@@ -22,6 +22,8 @@ void loop()
   digitalWrite(LED_GREEN, LOW);
   // TESTS
 
+  Serial.println("Ça marche !");
+
   // Mesure de la pression actuelle
   float vCurrentPressure = lirePressionBMP581();
   if (vCurrentPressure != -1.0) {
