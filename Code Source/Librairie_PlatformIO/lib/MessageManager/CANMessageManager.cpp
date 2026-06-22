@@ -150,12 +150,14 @@ bool receiveCanMessage(twai_message_t &messageRecu)
     if (result == ESP_OK)
     {
         Serial.printf(("[CAN] Message received, <identifier> = " + String(messageRecu.identifier) + "\n").c_str());
-    return true;
-    } 
+        return true;
+    }
+    /*
     else if (result == ESP_ERR_TIMEOUT)
     {
         Serial.printf("[CAN] Failed to receive the message : Timed out waiting for message\n");
     }
+    */
     else if (result == ESP_ERR_INVALID_ARG)
     {
         Serial.printf("[CAN] Failed to receive the message : Arguments are invalid\n");
