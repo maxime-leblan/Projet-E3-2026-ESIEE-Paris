@@ -9,8 +9,6 @@
 #define BUZZER_GPIO_PIN 4
 #define BUZZER_FREQUENCY 600
 
-#define MY_ANCHOR_ID 6
-
 void setup() {
     Serial.begin(115200);
 
@@ -25,17 +23,18 @@ void loop() {
     DecodedData vDecodedCanData;
     String rawUWBMessage = "";
 
-    Serial.println("On essaie d'envoyer un message au hub par CAN");
-    sendCanDistanceFromAnchorToHub(MY_ANCHOR_ID, 4, {1, 2, 3, 4});
+    Serial.println("On essaie de lire un message de l'ancre par CAN");
 
     delay(2000);
 
-    // on vérifie si le hub nous a répondu
+    // on vérifie si une ancre nous a envoyé un message
     if (receiveCanMessage(vCanMessage))
     {
         if (decodeCanMessage(vCanMessage, vDecodedCanData))
         {
-            Serial.println("Message reçu de l'ancre : tag " + String(vDecodedCanData.id_tag) + ", distance " + String(vDecodedCanData.distance));
+            Serial.println("Message reçu de l'ancre " + String(vDecodedCanData.id_ancre) + ", tag " + String(vDecodedCanData.id_tag));
+            Serial.println("On répond...");
+            sendCanDistance(0, vDecodedCanData.id_tag, 10.25);
         }
         else
         {

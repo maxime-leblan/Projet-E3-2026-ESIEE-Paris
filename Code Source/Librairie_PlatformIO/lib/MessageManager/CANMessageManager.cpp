@@ -250,7 +250,8 @@ void initCan(int pRXPin, int pTXPin)
 {
     driver_installed = false;
     // Initialize configuration structures using macro initializers
-    twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT((gpio_num_t)pTXPin, (gpio_num_t)pRXPin, TWAI_MODE_NORMAL);
+    // mettre TWAI_MODE_NORMAL dans g_config pour le mode normal, sinon mettre TWAI_MODE_NO_ACK pour le déboguage sur une seule carte
+    twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT((gpio_num_t)pTXPin, (gpio_num_t)pRXPin, TWAI_MODE_NO_ACK);
     twai_timing_config_t t_config = TWAI_TIMING_CONFIG_500KBITS();  //Look in the api-reference for other speed sets.
     twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
 
