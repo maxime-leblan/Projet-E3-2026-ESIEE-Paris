@@ -64,7 +64,7 @@ void loop() {
     // ====================================================================
     // ÉTAPE 2 : ÉCOUTE DU MODULE UWB (Messages provenant des Tags)
     // ====================================================================
-    if (receiveUWBDistanceMessage(UWBSerial, rawUWBMessage)) {
+    if (receiveUWBDistanceMessage(UWBSerial, Serial ,  rawUWBMessage)) {
         
         updateScreen("ANCRE " + String(MY_ANCHOR_ID), "reception (CAN actif)");
         Serial.println("[MAIN] Reception d'une trame UWB. Extraction des distances et relais vers le Hub via CAN...");
