@@ -8,7 +8,7 @@
 
 // Identifiant statique de cette ancre (0, 1, 2 ou 3)
 // Idéalement, à configurer via un dip-switch physique, ou codé en dur pour chaque carte avant le flash
-#define MY_ANCHOR_ID 0 
+#define MY_ANCHOR_ID 2
 
 void setup() {
     Serial.begin(115200);
