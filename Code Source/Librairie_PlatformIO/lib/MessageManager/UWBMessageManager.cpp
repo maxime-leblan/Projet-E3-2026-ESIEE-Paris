@@ -49,7 +49,7 @@ bool receiveUWBDistanceMessage(Stream &pUWBSerial, Stream & pSerial , String &ou
             return true;
         }
     }
-    pSerial.println("[UWB] Aucun message de distance reçu du module UWB.");
+    //pSerial.println("[UWB] Aucun message de distance reçu du module UWB.");
     return false;
 }
 
