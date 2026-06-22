@@ -172,74 +172,96 @@ void setup() {
 }
 
 void executer_HUB_STATE_RUNNING() {
-  std::vector<DistanceMoyennes> tagsPretsPourMaths;
+    // ====================================================================
+    // 1. POLLING CYCLIQUE (Le Hub dicte le tempo)
+    // ====================================================================
+    static unsigned long lastPollTime = 0;
+    const unsigned long POLL_INTERVAL = 20; // Fréquence d'interrogation de 50 Hz
 
-  // On demande les dernières données calculées et moyennées (sur 30Hz)
-  if (recupDonnees.getDonneesLissees(tagsPretsPourMaths)) {
-      
-      int ids[MAX_TAGS];
-      float xs[MAX_TAGS], ys[MAX_TAGS], distsScreen[MAX_TAGS];
-      bool alarmes[MAX_TAGS];
-      int tagCount = 0;
-      std::vector<int> aIds = vAnchors.giveModuleIdList();
+    if (millis() - lastPollTime >= POLL_INTERVAL) {
+        // Pour ce test unitaire : On cible exclusivement l'Ancre 0 pour le Tag 0
+        uint8_t ancreCible = 0;
+        uint8_t tagCible = 0;
+        
+        sendCanRequestDistances(ancreCible, tagCible);
+        lastPollTime = millis();
+    }
 
-      // Pour chaque tag détecté par le système UWB
-      for (const DistanceMoyennes& tag : tagsPretsPourMaths) {
-          
-          std::unordered_map<int, float> distMap;
-          for(int i = 0; i < 4 && i < aIds.size(); i++) {
-              distMap[aIds[i]] = tag.distances[i];
-          }
+    // ====================================================================
+    // 2. RÉCEPTION ET TRAITEMENT ("Dès la réception des 4 distances")
+    // ====================================================================
+    std::vector<DistanceMoyennes> tagsPretsPourMaths;
 
-          // TRILATÉRATION
-          V3 pos3D = trilateration3D(vAnchors, distMap);
+    // La fonction getDonneesLissees() fait exactement ce que tu as demandé :
+    // Elle regroupe instantanément les distances reçues et établit la liste 
+    // des tags éligibles à la trilatération à la fin de la fenêtre de temps.
+    if (recupDonnees.getDonneesLissees(tagsPretsPourMaths)) {
+        
+        int ids[MAX_TAGS];
+        float xs[MAX_TAGS], ys[MAX_TAGS], distsScreen[MAX_TAGS];
+        bool alarmes[MAX_TAGS];
+        int tagCount = 0;
+        std::vector<int> aIds = vAnchors.giveModuleIdList();
 
-          // SÉCURITÉ VERTICALE : Utilisation de la constante
-          if (std::abs(pos3D.getZ()) > HAUTEUR_MAX_TAG_METRES) {
-              continue; 
-          }
+        for (const DistanceMoyennes& tag : tagsPretsPourMaths) {
+            
+            // Sécurité pour le test : on s'assure qu'on ne traite que le Tag 0
+            if (tag.tag_id != 0) continue;
 
-          // ÉVALUATION DANGER
-          V3 posProjectee2D(pos3D.getX(), pos3D.getY(), 0.0f);
-          bool inDanger = vSafeZone.isInside(posProjectee2D);
-          float distSafeZone = vSafeZone.getDistanceFrom(posProjectee2D);
-          
-          // CORRECTION IHM : Calcul de la distance pure avec le centre du véhicule (qui est à 0,0)
-          float distCentreVehicule = std::sqrt(pos3D.getX() * pos3D.getX() + pos3D.getY() * pos3D.getY());
+            std::unordered_map<int, float> distMap;
+            for(int i = 0; i < 4 && i < aIds.size(); i++) {
+                distMap[aIds[i]] = tag.distances[i];
+            }
 
-          // RETOUR D'INFORMATION VERS LE TAG
-          // CORRECTION SÉCURITÉ : On retire le "if (distSafeZone > 0.0f)". 
-          // Le Hub doit TOUJOURS ping le tag pour lui prouver qu'il est connecté et fonctionnel.
-          if (MODE_ACTUEL == MODE_WIRED) {
-              sendCanDistance(aIds[0], tag.tag_id, distSafeZone);
-              // On fait sonner le bipper du hub pendant 1 seconde si jamais le tag est dans la zone de sécurité
-              if (distSafeZone <= 0)
-              {
-                tone(BUZZER_GPIO_PIN, BUZZER_FREQUENCY, 1000);
-              }
-          } else {
-              // envoyerOrdreChangementRole(tag.tag_id, COMMAND_UPDATE_DISTANCE, distSafeZone);
-          }
+            // TRILATÉRATION
+            V3 pos3D = trilateration3D(vAnchors, distMap);
 
-          // Stockage pour affichage sur l'écran déporté
-          if (tagCount < MAX_TAGS) {
-              ids[tagCount] = tag.tag_id;
-              xs[tagCount] = posProjectee2D.getX();
-              ys[tagCount] = posProjectee2D.getY();
-              // L'écran veut savoir à quelle distance se trouve l'ouvrier du véhicule, pas de la zone !
-              distsScreen[tagCount] = distCentreVehicule; 
-              alarmes[tagCount] = inDanger;
-              tagCount++;
-          }
-      }
+            if (std::abs(pos3D.getZ()) > HAUTEUR_MAX_TAG_METRES) {
+                continue; 
+            }
 
-      // Envoi du rafraîchissement global à l'écran via l'UART
-      static unsigned long chronoRuntime = 0;
-      if (millis() - chronoRuntime >= FENETRE_MS && tagCount > 0) {
-          envoyerMiseAJourTagsRuntime(ids, xs, ys, distsScreen, alarmes, tagCount);
-          chronoRuntime = millis();
-      }
-  }
+            // ÉVALUATION DANGER
+            V3 posProjectee2D(pos3D.getX(), pos3D.getY(), 0.0f);
+            bool inDanger = vSafeZone.isInside(posProjectee2D);
+            float distSafeZone = vSafeZone.getDistanceFrom(posProjectee2D);
+            float distCentreVehicule = std::sqrt(pos3D.getX() * pos3D.getX() + pos3D.getY() * pos3D.getY());
+
+            Serial.printf("[HUB MATHS] Tag %d positionne en X:%.2f, Y:%.2f -> DistZone: %.2f m\n", 
+                          tag.tag_id, posProjectee2D.getX(), posProjectee2D.getY(), distSafeZone);
+
+            // ====================================================================
+            // 3. RETOUR D'INFORMATION (Renvoi de l'alerte à l'ancre par CAN)
+            // ====================================================================
+            if (MODE_ACTUEL == MODE_WIRED) {
+                uint8_t ancreRelais = 0; // On demande à l'Ancre 0 de relayer le message radio
+                
+                // Envoi de la trame CAN contenant l'ID du tag et sa distance au danger
+                sendCanDistance(ancreRelais, tag.tag_id, distSafeZone);
+                Serial.printf("[HUB TX] Distance de securite renvoyee par CAN a l'Ancre %d\n", ancreRelais);
+
+                if (distSafeZone <= 0) {
+                    tone(BUZZER_GPIO_PIN, BUZZER_FREQUENCY, 1000);
+                }
+            }
+
+            // Stockage pour l'écran
+            if (tagCount < MAX_TAGS) {
+                ids[tagCount] = tag.tag_id;
+                xs[tagCount] = posProjectee2D.getX();
+                ys[tagCount] = posProjectee2D.getY();
+                distsScreen[tagCount] = distCentreVehicule; 
+                alarmes[tagCount] = inDanger;
+                tagCount++;
+            }
+        }
+
+        // Mise à jour de l'écran 
+        static unsigned long chronoRuntime = 0;
+        if (millis() - chronoRuntime >= FENETRE_MS && tagCount > 0) {
+            envoyerMiseAJourTagsRuntime(ids, xs, ys, distsScreen, alarmes, tagCount);
+            chronoRuntime = millis();
+        }
+    }
 }
 
 void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {

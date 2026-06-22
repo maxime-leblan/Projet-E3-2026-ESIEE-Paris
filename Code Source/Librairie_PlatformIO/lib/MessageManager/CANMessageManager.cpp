@@ -126,6 +126,16 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
                         Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL");
                         return false;
 
+                    // --- NOUVEAU : Le Hub demande à l'ancre d'envoyer sa mémoire ---
+                    case HUB_ORDER_REQUEST_DISTANCES:
+                        // La taille attendue de la trame totale est de 1 octet (juste l'ID de l'ordre)
+                        if (message.data_length_code == 1) {
+                            // On a juste besoin de l'id_ancre qu'on a déjà stocké plus haut pour identifier la cible
+                            return true;
+                        }
+                        Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_REQUEST_DISTANCES");
+                        return false;
+
                     // Tu pourras ajouter tes futurs ordres ici très facilement :
                     // case DEUXIEME_ORDRE_FUTUR:
                     //     if (message.data_length_code == (1 + sizeof(MsgFutur))) { ... }
@@ -245,6 +255,24 @@ void sendCanSignal(uint8_t pModuleId)
     Serial.printf(("Message queued for transmission, <identifier> = " + String(message.identifier) + "\n").c_str());
     } else {
     Serial.printf("Failed to queue message for transmission\n");
+    }
+}
+
+void sendCanRequestDistances(uint8_t pAnchorId, uint8_t pTagId) {
+    twai_message_t message;
+    // On utilise l'identifiant standard des ordres Hub -> Ancre
+    message.identifier = MESSAGE_HUB_ORDER + pAnchorId; 
+    message.extd = 0; // Trame standard 11 bits
+    message.rtr = 0;
+    message.data_length_code = 2; // 2 octets : L'ordre + L'ID du Tag cible
+
+    message.data[0] = HUB_ORDER_REQUEST_DISTANCES;
+    message.data[1] = pTagId;
+
+    if (twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME)) == ESP_OK) {
+        Serial.printf("[CAN TX] Requete de distances envoyee (Ancre: %d, Tag: %d)\n", pAnchorId, pTagId);
+    } else {
+        Serial.println("[CAN TX] Echec de la requete de distances.");
     }
 }
 

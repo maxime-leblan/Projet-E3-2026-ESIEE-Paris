@@ -27,6 +27,7 @@
 #define HUB_ORDER_END_TAG_CALIBRATION 3
 #define HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL 4
 #define HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL 5
+#define HUB_ORDER_REQUEST_DISTANCES 6
 
 // Macro pour extraire des chiffres de nombres en hexadécimal
 #define readFirstHexaNumber(H) (H & 0xF0)
