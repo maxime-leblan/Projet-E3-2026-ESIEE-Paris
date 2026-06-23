@@ -86,7 +86,7 @@ void toggleUWBMode(int pAnchorId)
 {
     Serial.println("\n[UWB] Tentative d'inversion du mode (Tag <-> Ancre)...");
 
-    String currentCfg = sendATCommand("AT+GETCFG?", Serial, UWBSerial);
+    String currentCfg = sendATCommandWithResult("AT+GETCFG?", Serial, UWBSerial);
     
     int currentRole = 1; 
     int currentRate = 0; 

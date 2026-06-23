@@ -65,3 +65,13 @@ void sendOrderToTag(Stream &pUWBSerial, Stream & pSerial, uint8_t pSenderID, uin
  * Envoie des commandes au module UWB par le port pUWBSerial et affiche du texte de débug dans pSerial
  */
 String sendATCommand(String command, Stream & pSerial, Stream & pUWBSerial);
+
+/**
+ * Envoie une commande AT au module UWB, attend la réponse, et extrait la ligne de données utile.
+ * Utile pour les commandes d'interrogation (finissant par "?").
+ * @param command La commande à envoyer (ex: "AT+GETCFG?")
+ * @param pSerial Le port série pour l'affichage de debug (ex: Serial)
+ * @param pUWBSerial Le port série physique relié au module UWB (ex: UWBSerial)
+ * @return La String contenant les données (ex: "AT+GETCFG=4,0,1,0"), ou une chaîne vide "" si échec.
+ */
+String sendATCommandWithResult(String command, Stream & pSerial, Stream & pUWBSerial);

@@ -179,3 +179,43 @@ String sendATCommand(String command, Stream & pSerial, Stream & pUWBSerial) {
     return response;
 }
 
+String sendATCommandWithResult(String command, Stream & pSerial, Stream & pUWBSerial) {
+    String resultData = "";
+    
+    pSerial.print("Envoi au module UWB (attente resultat) -> "); 
+    pSerial.println(command);
+    
+    // 1. On vide le buffer des anciens messages fantômes
+    while(pUWBSerial.available()) { pUWBSerial.read(); }
+    
+    // 2. On envoie la commande
+    pUWBSerial.println(command);
+    
+    // 3. On lit la réponse ligne par ligne
+    uint32_t startTime = millis();
+    const uint32_t maxGuardTimeout = 1000; // 1 seconde de sécurité maximum
+
+    while ((millis() - startTime) < maxGuardTimeout) {
+        if (pUWBSerial.available()) {
+            // On lit le texte jusqu'au prochain saut de ligne
+            String line = pUWBSerial.readStringUntil('\n');
+            line.trim(); // On supprime les espaces et les retours chariots invisibles (\r)
+            
+            // Si on lit "OK" ou "ERROR", la conversation est terminée, on sort de la boucle
+            if (line == "OK" || line == "ERROR") {
+                break;
+            }
+            
+            // Si la ligne n'est pas vide ET qu'elle n'est pas l'écho de notre propre commande
+            if (line.length() > 0 && line != command) {
+                // C'est la ligne contenant la donnée utile ! On la sauvegarde.
+                resultData = line;
+            }
+        }
+    }
+    
+    pSerial.print("Résultat extrait <- "); 
+    pSerial.println(resultData != "" ? resultData : "[Aucun resultat/Erreur]"); 
+    
+    return resultData;
+}
