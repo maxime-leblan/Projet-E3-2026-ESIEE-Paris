@@ -18,6 +18,8 @@ void setup()
 
 void loop()
 {
+  //Serial.println("-------- START LOOP --------");
+
   digitalWrite(LED_RED, HIGH);
   digitalWrite(LED_GREEN, LOW);
   // TESTS
@@ -113,4 +115,6 @@ void loop()
     }
   vStartTime = millis();
   }
+
+  //Serial.println("-------- END LOOP --------\n");
 }

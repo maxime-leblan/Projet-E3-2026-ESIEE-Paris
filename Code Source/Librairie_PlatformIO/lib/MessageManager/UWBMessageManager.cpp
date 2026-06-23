@@ -58,7 +58,6 @@ bool receiveUWBMessage(Stream &pUWBSerial, String &outRawMessage, Stream & pSeri
 
         pSerial.println("[UWB]  Message brut reçu du module UWB : " + input);
         outRawMessage = input;
-        pSerial.println("[UWB] Résultat stocké dans la variable de sortie : " + outRawMessage);
         return true;
     }
     return false;
