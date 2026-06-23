@@ -162,6 +162,8 @@ void executer_HUB_STATE_RUNNING() {
         }
 
         // TRILATÉRATION
+        // On initialise la matrice A nécessaire au calcul
+        initMatrixA(vAnchors);
         V3 pos3D = trilateration3D(vAnchors, distMap);
 
         if (std::abs(pos3D.getZ()) > HAUTEUR_MAX_TAG_METRES) {
