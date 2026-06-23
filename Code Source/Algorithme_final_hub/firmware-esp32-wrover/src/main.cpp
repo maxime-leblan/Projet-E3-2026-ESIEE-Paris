@@ -156,19 +156,40 @@ void executer_HUB_STATE_RUNNING() {
         
         std::vector<int> aIds = vAnchors.giveModuleIdList();
         std::unordered_map<int, float> distMap;
+
+        Serial.printf("[HUB MATHS] Distances lissées pour le Tag %d : [%.2f, %.2f, %.2f, %.2f]\n", 
+                      tagMoyenne.tag_id,
+                      tagMoyenne.distances[0],
+                      tagMoyenne.distances[1],
+                      tagMoyenne.distances[2],
+                      tagMoyenne.distances[3]);
         
         for(int i = 0; i < 4 && i < aIds.size(); i++) {
             distMap[aIds[i]] = tagMoyenne.distances[i];
         }
 
+        Serial.printf("[HUB MATHS] Distances mappées pour le Tag %d : [", tagMoyenne.tag_id);
+        for (const auto& pair : distMap) {
+            Serial.printf("Ancre %d: %.2f, ", pair.first, pair.second);
+        }
+        Serial.println("]");
+
         // TRILATÉRATION
         // On initialise la matrice A nécessaire au calcul
         initMatrixA(vAnchors);
+        Serial.println(vAnchors.toString().c_str());
+
         V3 pos3D = trilateration3D(vAnchors, distMap);
+
+        Serial.printf("[HUB MATHS] Position 3D calculée pour le Tag %d : (%.2f, %.2f, %.2f)\n", 
+                      tagMoyenne.tag_id, pos3D.getX(), pos3D.getY(), pos3D.getZ());
 
         if (std::abs(pos3D.getZ()) > HAUTEUR_MAX_TAG_METRES) {
             return;
         }
+
+        Serial.printf("[HUB MATHS] Position 2D projetée pour le Tag %d : (%.2f, %.2f)\n", 
+                      tagMoyenne.tag_id, pos3D.getX(), pos3D.getY());
 
         // ÉVALUATION DANGER
         V3 posProjectee2D(pos3D.getX(), pos3D.getY(), 0.0f);
