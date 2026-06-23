@@ -6,9 +6,10 @@
 
 std::unordered_map<std::string, float> getAnchorDistances(int pStaticAnchorId, UWBModuleList pAnchors)
 {
-    Serial.println("[INIT ANCRES] On va calculer les distances relatives à l'ancre d'id " + String(pStaticAnchorId));
+    Serial.println("[INIT ANCRES] (getAnchorDistances) On va calculer les distances relatives à l'ancre d'id " + String(pStaticAnchorId));
     std::unordered_map<std::string, float> vDistances;
     std::vector<int> vAnchorsId = pAnchors.giveModuleIdList();
+    bool vAreDistancesReceived = false;
     
     std::vector<int> vAnchorsIdWithoutStaticAnchorId = pAnchors.giveModuleIdList();
     // On supprime l'id pStaticAnchorId de vAnchorsIdWithoutStaticAnchorId
@@ -18,15 +19,16 @@ std::unordered_map<std::string, float> getAnchorDistances(int pStaticAnchorId, U
     DecodedData vMessageData;
 
     // Basculement de rôle : Les autres modules deviennent temporairement des Tags
+    Serial.println("[INIT ANCRES] (getAnchorDistances) Premier Toggle");
     toggleAnchorsMode(vAnchorsId, pStaticAnchorId);
 
     // On laisse un peu de temps aux ancres pour qu'elles redémarrent et calculent des distances
-    delay(1000);
+    delay(5000);
 
     unsigned long startTime = millis();
     
     // Timeout de 5000ms pour garantir plusieurs cycles de polling
-    while (millis() - startTime < 5000) 
+    while ((!vAreDistancesReceived) && (millis() - startTime < 5000)) 
     {
         // On vérifie si le hub a reçu les distances de la part de l'ancre statique
         if (receiveCanMessage(vMessage))
@@ -36,7 +38,15 @@ std::unordered_map<std::string, float> getAnchorDistances(int pStaticAnchorId, U
                 if (vMessageData.type == MESSAGE_STATIC_ANCHOR_ID_AND_ALL_DISTANCES &&
                     vMessageData.aStaticAnchorIdDuringToggle == pStaticAnchorId)
                 {
+                    vAreDistancesReceived = true;
                     Serial.println("[INIT ANCRES] On enregistre les distances pour calculer les positions des ancres par rapport à l'ancre statique " + String(pStaticAnchorId));
+                    Serial.println("[INIT ANCRES] Voici les distances reçues : ");
+                    for (int i = 0; i < ANCHORS_NUMBER; i++)
+                    {
+                        uint16_t vCurrentDistance = vMessageData.aDistances[i];
+                        Serial.println("[INIT ANCRES] Distance avec l'ancre " + String(i) + " : " + String(vCurrentDistance));
+                    }
+
                     for (int vCurrentTagId : vAnchorsIdWithoutStaticAnchorId) 
                     {
                         // Règle d'unicité : on ne stocke que si l'ID demandeur est inférieur à l'ID cible (évite les doublons 1-2 et 2-1)
@@ -55,12 +65,13 @@ std::unordered_map<std::string, float> getAnchorDistances(int pStaticAnchorId, U
         // Sinon on envoie un message pour demander les distances à l'Ancre statique
         else
         {
-            MsgRequestAnchorDistancesDuringCalibHubOrder vMessageToSend = {pStaticAnchorId};
+            MsgRequestAnchorDistancesDuringCalibHubOrder vMessageToSend = {(uint8_t)pStaticAnchorId};
             sendCanOrderFromHubTo(pStaticAnchorId, HUB_ORDER_REQUEST_ANCHOR_DISTANCES_DURING_CALIB, vMessageToSend);
         }
     }
 
     // Rétablissement : on renvoie le même ordre pour que les modules redeviennent des Ancres
+    Serial.println("[INIT ANCRES] (getAnchorDistances) Deuxième Toggle");
     toggleAnchorsMode(vAnchorsId, pStaticAnchorId);
     
     Serial.println("[INIT ANCRES] Fin du calcul des distances relatives à l'ancre d'id " + String(pStaticAnchorId));
