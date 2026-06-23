@@ -122,9 +122,10 @@ void setup() {
     // Restauration de la mémoire Flash NVS
 
     // VRAI LIGNE DE CODE
-    // vAnchors = initAnchors("Anchors");
-
+    vAnchors = initAnchors("Anchors");
     // DEBUT CODE DE TEST
+    vAnchors.clearAll();
+    
     vector<V3> vSensorsPosition = {V3(3, 0, 1), V3(0, 3, 0), V3(3, 6, 0), V3(6, 3, 0)};
 
     // on les ajoute dans la liste des capteurs
