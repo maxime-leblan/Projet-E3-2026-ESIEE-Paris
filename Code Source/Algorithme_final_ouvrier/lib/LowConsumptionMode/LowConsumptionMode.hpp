@@ -42,6 +42,6 @@ bool calculBatteryLow();
 /**
  * Regarde si la carte est en charge et contrôle l'état de la LED bleue
  */
-void chargebattery();
+void veille_UWB_chargebattery();
 
 

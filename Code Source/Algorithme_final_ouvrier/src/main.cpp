@@ -102,39 +102,46 @@ void loop()
       tone(XIAO_TO_BIPPER_PIN, BIPPER_FREQUENCY);
     }
   }
- // On vérifie si la batterie est faible
+ 
+  //  MISE À JOUR DE L'ÉTAT DE LA BATTERIE (Toutes les 5s) ---
   static uint32_t lastBatCheck = 0;
-  static uint32_t lastBlinkTime = 0;
   static bool isBatteryLow = false;
-  static bool ledState = false;
 
-  if (millis() - lastBatCheck > 5000)
-  {
+  if (millis() - lastBatCheck > 5000) {
     lastBatCheck = millis();
     isBatteryLow = calculBatteryLow();
   }
-    if(isBatteryLow )
-    {
-      
-      if (millis() - lastBlinkTime > 200)
-      {
-        lastBlinkTime = millis();
-        ledState = !ledState;
-        Serial.println("[XIAO] Batterie faible !");
-       digitalWrite(LED_RED_CARTE, ledState ? HIGH : LOW);
-      }
-    }
-    else
-    {
-      digitalWrite(LED_RED_CARTE, LOW);
-    }
-  
-  
+  bool isChargerPlugged = (NRF_POWER->USBREGSTATUS & 0x01);
+  bool isCharging = (digitalRead(PIN_CHARGE_STATUS) == LOW);
 
-  /*
-  NE PAS OUBLIER D'ENLEVER LES COMMENTAIRES POUR LA VEILLE ET LE REVEIL DE L'UWB DANS CHARGEBATTERY() !!!!!!!!!!!!!
-  */
-  chargebattery();
+  // GESTION CENTRALISÉE DE LA LED PAR PRIORITÉ ---
+  static uint32_t lastBlinkTime = 0;
+  static bool ledState = false;
+
+  if (isChargerPlugged && isCharging) {
+    // PRIORITÉ 1 : En charge -> Clignotement lent )
+    if (millis() - lastBlinkTime > 500) { 
+      lastBlinkTime = millis();
+      ledState = !ledState;
+      digitalWrite(LED_RED_CARTE, ledState ? HIGH : LOW); 
+    }
+  } 
+  else if (isBatteryLow) {
+    // PRIORITÉ 2 : Batterie faible (et pas en charge) -> Clignotement rapide
+    if (millis() - lastBlinkTime > 200) {
+      lastBlinkTime = millis();
+      ledState = !ledState;
+      Serial.println("[XIAO] Batterie faible !");
+      digitalWrite(LED_RED_CARTE, ledState ? HIGH : LOW);
+    }
+  } 
+  else {
+    // PRIORITÉ 3 : Tout est normal -> On éteint la LED
+    digitalWrite(LED_RED_CARTE, LOW);
+  }
+
+  // (Sommeil/Réveil selon la charge) ---
+   // veille_UWB_chargebattery();
+
   //Serial.println("-------- END LOOP --------\n");
-
 }
