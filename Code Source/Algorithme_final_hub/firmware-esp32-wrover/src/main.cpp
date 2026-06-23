@@ -234,7 +234,7 @@ void executer_HUB_STATE_RUNNING() {
         Serial.printf("[HUB ALERT] Envoi du message CAN (distance: %.2fm) en cours...\n", distSafeZone);
         sendCanDistance(ancreCible, tagMoyenne.tag_id, distSafeZone);
         
-        if (distSafeZone <= 0) {
+        if (inDanger) {
             Serial.println("[HUB ALERT DANGER] *** VIOLATION DE LA SAFEZONE ! ACTIVATION DU BUZZER ***");
             tone(BUZZER_GPIO_PIN, BUZZER_FREQUENCY, 1000);
         }
