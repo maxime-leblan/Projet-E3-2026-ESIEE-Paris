@@ -3,9 +3,6 @@
 // Les objets I2C_OLED et display ont été supprimés d'ici !
 HardwareSerial UWBSerial(1);
 
-int gCurrentUWBMode = ANCHOR_DEFAULT_MODE;
-
-
 float readDistanceFromUWB(int pModuleId, Stream & pUWBSerial)
 {
     pUWBSerial.println("AT+RANGE");
@@ -85,45 +82,22 @@ void initUWBModule(int pAnchorId)
     updateCANAction("ANCRE " + String(pAnchorId), "Attente Tag...");
 }
 
-void toggleUWBMode(int pAnchorId)
+void setUWBModeTag(int pAnchorId)
 {
-    String ATCommand;
+    Serial.printf("[UWB] Passage materiel de l'Ancre %d en mode TAG...\n", pAnchorId);
+    // Mode Tag=0, Débit=1, Filtre=0
+    sendATCommand("AT+SETCFG=" + String(pAnchorId) + ",0,1,0", Serial, UWBSerial);
+    sendATCommand("AT+SAVE", Serial, UWBSerial);
+    sendATCommand("AT+RESTART", Serial, UWBSerial);
+    delay(1500); // Attente stricte du redémarrage du module
+}
 
-    Serial.println("\n[UWB] Tentative d'inversion du mode (Tag <-> Ancre)...");
-    
-    if (gCurrentUWBMode == ANCHOR_MODE) {
-        Serial.printf("[UWB] Passage de Ancre vers mode TAG (ID: %d)\n", pAnchorId);
-        gCurrentUWBMode = TAG_MODE;
-        updateCANAction("MODE UWB", "Passage en TAG");
-
-        ATCommand = "AT+SETRPT=" + String(ACTIVATE_AT_RANGE);
-        sendATCommand(ATCommand, Serial, UWBSerial);
-        ATCommand = "AT+SAVE";
-        sendATCommand(ATCommand, Serial, UWBSerial);
-    } else {
-        Serial.printf("[UWB] Passage de Tag vers mode ANCRE (ID: %d)\n", pAnchorId);
-        gCurrentUWBMode = ANCHOR_MODE;
-        updateCANAction("MODE UWB", "Passage en ANCRE");
-
-        ATCommand = "AT+SETRPT=" + String(ACTIVATE_AT_RANGE);
-        sendATCommand(ATCommand, Serial, UWBSerial);
-    }
-
-    ATCommand = "AT+SETCFG=" + String(pAnchorId) + "," + String(gCurrentUWBMode) + "," + String(ANCHOR_RATE) + "," + String(ANCHOR_FILTER_STATUS);
-    sendATCommand(ATCommand, Serial, UWBSerial);
-    ATCommand = "AT+SAVE";
-    sendATCommand(ATCommand, Serial, UWBSerial);
-    ATCommand = "AT+RESTART";
-    sendATCommand(ATCommand, Serial, UWBSerial);
-    Serial.println("[UWB] Commande AT+RESTART envoyee. Attente du redemarrage...");
-    updateCANAction("MODE UWB", "Redemarrage UWB...");
-    
-    delay(1000); 
-
-    // Purge totale des messages de boot (élimine le spam)
-    while (UWBSerial.available()) { UWBSerial.read(); }
-    
-    Serial.println("[UWB] Changement de mode effectif, buffer purge.\n");
-    updateCANAction("MODE UWB", "Mode change effectif");
-    
+void setUWBModeAnchor(int pAnchorId)
+{
+    Serial.printf("[UWB] Passage materiel de l'Ancre %d en mode ANCRE...\n", pAnchorId);
+    // Mode Ancre=1, Débit=1, Filtre=0
+    sendATCommand("AT+SETCFG=" + String(pAnchorId) + ",1,1,0", Serial, UWBSerial);
+    sendATCommand("AT+SAVE", Serial, UWBSerial);
+    sendATCommand("AT+RESTART", Serial, UWBSerial);
+    delay(1500);
 }

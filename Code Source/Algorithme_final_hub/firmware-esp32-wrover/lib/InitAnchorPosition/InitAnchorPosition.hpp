@@ -12,10 +12,10 @@
 
 /**
  * Renvoie un dictionnaire contenant les distances entre l'Ancre statique passée en paramètre et les autres modules (temporairement Tags).
- * @param pAnchorId Identifiant de l'Ancre qui reste fixe et qui effectue les mesures.
+ * @param pStaticAnchorId Identifiant de l'Ancre qui reste fixe et qui effectue les mesures.
  * @param pAnchors Liste complète des modules du système.
  */
-std::unordered_map<std::string, float> getAnchorDistances(int pAnchorId, UWBModuleList pAnchors);
+std::unordered_map<std::string, float> getAnchorDistances(int pStaticAnchorId, UWBModuleList pAnchors);
 
 /**
  * Orchestre le protocole de calibration matérielle puis attribue les positions calculées par descente de gradient.

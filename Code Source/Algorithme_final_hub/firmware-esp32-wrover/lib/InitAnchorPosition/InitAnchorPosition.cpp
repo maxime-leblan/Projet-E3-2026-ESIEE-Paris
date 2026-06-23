@@ -4,63 +4,77 @@
 #include <Arduino.h>
 #include <algorithm> // Pour std::remove
 
-// Déclarations externes nécessaires pour faire le lien avec le main.cpp
-extern RecuperationDonneesAncres recupDonnees;
-extern void ecouterReseauFilaire();
-
-std::unordered_map<std::string, float> getAnchorDistances(int pAnchorId, UWBModuleList pAnchors)
+std::unordered_map<std::string, float> getAnchorDistances(int pStaticAnchorId, UWBModuleList pAnchors)
 {
-    Serial.println("[INIT ANCRES] On va calculer les distances relatives à l'ancre d'id " + String(pAnchorId));
+    Serial.println("[INIT ANCRES] (getAnchorDistances) On va calculer les distances relatives à l'ancre d'id " + String(pStaticAnchorId));
     std::unordered_map<std::string, float> vDistances;
     std::vector<int> vAnchorsId = pAnchors.giveModuleIdList();
-   
-    // Filtrage strict : on isole l'id de l'ancre qui effectue la mesure
-    vAnchorsId.erase(std::remove(vAnchorsId.begin(), vAnchorsId.end(), pAnchorId), vAnchorsId.end());
+    bool vAreDistancesReceived = false;
+    
+    std::vector<int> vAnchorsIdWithoutStaticAnchorId = pAnchors.giveModuleIdList();
+    // On supprime l'id pStaticAnchorId de vAnchorsIdWithoutStaticAnchorId
+    vAnchorsIdWithoutStaticAnchorId.erase(std::remove(vAnchorsIdWithoutStaticAnchorId.begin(), vAnchorsIdWithoutStaticAnchorId.end(), pStaticAnchorId), vAnchorsIdWithoutStaticAnchorId.end());
+
+    twai_message_t vMessage;
+    DecodedData vMessageData;
 
     // Basculement de rôle : Les autres modules deviennent temporairement des Tags
-    toggleAnchorsMode(vAnchorsId, pAnchorId);
+    Serial.println("[INIT ANCRES] (getAnchorDistances) Premier Toggle");
+    toggleAnchorsMode(vAnchorsId, pStaticAnchorId);
+
+    // On laisse un peu de temps aux ancres pour qu'elles redémarrent et calculent des distances
+    delay(5000);
 
     unsigned long startTime = millis();
     
-    // Timeout de 1000ms pour garantir plusieurs cycles de polling
-    while (millis() - startTime < 5000) 
+    // Timeout de 5000ms pour garantir plusieurs cycles de polling
+    while ((!vAreDistancesReceived) && (millis() - startTime < 5000)) 
     {
-        // 1. Polling : L'ancre statique demande les distances pour les modules devenus Tags
-        for (int vCurrentTagId : vAnchorsId) 
+        // On vérifie si le hub a reçu les distances de la part de l'ancre statique
+        if (receiveCanMessage(vMessage))
         {
-            sendCanRequestDistances(pAnchorId, vCurrentTagId);
-            delay(10); // Délai de traitement du bus matériel
-        }
-
-        // 2. Réception : Vidage du buffer TWAI/CAN vers l'accumulateur 'recupDonnees'
-        ecouterReseauFilaire();
-
-        // 3. Extraction ciblée : On interroge les données lissées uniquement pour les tags ciblés
-        for (int vCurrentTagId : vAnchorsId) 
-        {
-            DistanceMoyennes tagMoyenne;
-            
-            // Si des données lissées sont disponibles pour ce module précis
-            if (recupDonnees.getDonneesLisseesPourTag(vCurrentTagId, tagMoyenne)) 
+            if (decodeCanMessage(vMessage, vMessageData))
             {
-                // Règle d'unicité : on ne stocke que si l'ID demandeur est inférieur à l'ID cible (évite les doublons 1-2 et 2-1)
-                if (pAnchorId < vCurrentTagId) 
+                if (vMessageData.type == MESSAGE_STATIC_ANCHOR_ID_AND_ALL_DISTANCES &&
+                    vMessageData.aStaticAnchorIdDuringToggle == pStaticAnchorId)
                 {
-                    if (tagMoyenne.distances[pAnchorId] > 0.0f) 
+                    vAreDistancesReceived = true;
+                    Serial.println("[INIT ANCRES] On enregistre les distances pour calculer les positions des ancres par rapport à l'ancre statique " + String(pStaticAnchorId));
+                    Serial.println("[INIT ANCRES] Voici les distances reçues : ");
+                    for (int i = 0; i < ANCHORS_NUMBER; i++)
                     {
-                        std::string vKey = std::to_string(pAnchorId + 1) + std::to_string(vCurrentTagId + 1);
-                        vDistances[vKey] = tagMoyenne.distances[pAnchorId];
+                        uint16_t vCurrentDistance = vMessageData.aDistances[i];
+                        Serial.println("[INIT ANCRES] Distance avec l'ancre " + String(i) + " : " + String(vCurrentDistance));
+                    }
+
+                    for (int vCurrentTagId : vAnchorsIdWithoutStaticAnchorId) 
+                    {
+                        // Règle d'unicité : on ne stocke que si l'ID demandeur est inférieur à l'ID cible (évite les doublons 1-2 et 2-1)
+                        if (pStaticAnchorId < vCurrentTagId) 
+                        {
+                            if (vMessageData.aDistances[vCurrentTagId] > 0.0f) 
+                            {
+                                std::string vKey = std::to_string(pStaticAnchorId + 1) + std::to_string(vCurrentTagId + 1);
+                                vDistances[vKey] = vMessageData.aDistances[vCurrentTagId];
+                            }
+                        }
                     }
                 }
             }
         }
-        delay(20);
+        // Sinon on envoie un message pour demander les distances à l'Ancre statique
+        else
+        {
+            MsgRequestAnchorDistancesDuringCalibHubOrder vMessageToSend = {(uint8_t)pStaticAnchorId};
+            sendCanOrderFromHubTo(pStaticAnchorId, HUB_ORDER_REQUEST_ANCHOR_DISTANCES_DURING_CALIB, vMessageToSend);
+        }
     }
 
     // Rétablissement : on renvoie le même ordre pour que les modules redeviennent des Ancres
-    toggleAnchorsMode(vAnchorsId, pAnchorId);
+    Serial.println("[INIT ANCRES] (getAnchorDistances) Deuxième Toggle");
+    toggleAnchorsMode(vAnchorsId, pStaticAnchorId);
     
-    Serial.println("[INIT ANCRES] Fin du calcul des distances relatives à l'ancre d'id " + String(pAnchorId));
+    Serial.println("[INIT ANCRES] Fin du calcul des distances relatives à l'ancre d'id " + String(pStaticAnchorId));
     return vDistances;
 }
 

@@ -1,0 +1,10 @@
+{
+    "name": "librairie_hub",
+    "version": "1.0.0",
+    "build": {
+        "srcFilter": [
+            "+<*>", 
+            "-<main_test.cpp>"
+        ]
+    }
+}
