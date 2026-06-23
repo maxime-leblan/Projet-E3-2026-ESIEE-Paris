@@ -74,39 +74,26 @@ void safeZoneCalibration()
     String vReceivedMessage;
     UWBMessage vReceivedMessageData;
 
-    uint32_t lastRangeTime = 0;
-    const uint32_t rangeInterval = 100; // On demande un Ranging toutes les 100 ms
-
     Serial.println("\n[CALIBRATION] Lancement de la calibration dynamique...");
 
     while (!isCalibrationFinished)
     {
-        // 1. Émettre le AT+RANGE périodiquement
-        if (millis() - lastRangeTime >= rangeInterval) 
-        {
-            lastRangeTime = millis();
-            // Utilisation de la nouvelle fonction optimisée (sans timeout en paramètre)
-            sendATCommand("AT+RANGE", Serial, Serial1);
-        }
-
-        // 2. Écouter le Hub (Prend 0 milliseconde si aucun message n'est dispo)
         if (receiveUWBMessage(Serial1, vReceivedMessage, Serial))
         {
-            if (decodeUWBMessage(vReceivedMessage, vReceivedMessageData))
+            if (decodeUWBMessage(vReceivedMessage, vReceivedMessageData, Serial))
             {
-                if (vReceivedMessageData.orderType == HUB_ORDER_END_TAG_CALIBRATION)
+                // Si le module UWB a calculé une distance, on l'envoie aux ancres
+                if (vReceivedMessageData.aIsStandardDistanceMessage)
+                {
+                    sendDistancesToAnchor(Serial1, Serial, vReceivedMessage);
+                }
+                // Sinon si on a reçu un message du Hub signalant la fin de la calibration, on arrête la calibration
+                else if (vReceivedMessageData.orderType == HUB_ORDER_END_TAG_CALIBRATION)
                 {
                     isCalibrationFinished = true;
                     Serial.println("[CALIBRATION] Arrêt demandé par le Hub. Fin de la boucle.");
                 }
             }
-            else
-            {
-                Serial.println("[CALIBRATION] Impossible de décoder le message reçu");
-            }
         }
-        
-        // Permet au CPU de la XIAO de basculer sur d'autres tâches en tâche de fond si nécessaire
-        delay(1); 
     }
 }
