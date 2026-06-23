@@ -10,6 +10,7 @@ extern void ecouterReseauFilaire();
 
 std::unordered_map<std::string, float> getAnchorDistances(int pAnchorId, UWBModuleList pAnchors)
 {
+    Serial.println("[INIT ANCRES] On va calculer les distances relatives à l'ancre d'id " + String(pAnchorId));
     std::unordered_map<std::string, float> vDistances;
     std::vector<int> vAnchorsId = pAnchors.giveModuleIdList();
    
@@ -21,8 +22,8 @@ std::unordered_map<std::string, float> getAnchorDistances(int pAnchorId, UWBModu
 
     unsigned long startTime = millis();
     
-    // Timeout de 1500ms pour garantir plusieurs cycles de polling
-    while (millis() - startTime < 1500) 
+    // Timeout de 5000ms pour garantir plusieurs cycles de polling
+    while (millis() - startTime < 5000) 
     {
         // 1. Polling : L'ancre statique demande les distances pour les modules devenus Tags
         for (int vCurrentTagId : vAnchorsId) 
@@ -59,11 +60,13 @@ std::unordered_map<std::string, float> getAnchorDistances(int pAnchorId, UWBModu
     // Rétablissement : on renvoie le même ordre pour que les modules redeviennent des Ancres
     toggleAnchorsMode(vAnchorsId, pAnchorId);
     
+    Serial.println("[INIT ANCRES] Fin du calcul des distances relatives à l'ancre d'id " + String(pAnchorId));
     return vDistances;
 }
 
 void initAnchorsPosition(UWBModuleList & pAnchors)
 {
+    Serial.println("[INIT ANCRES] ---- DEMARRAGE INIT ANCRES PROTOCOLE ----");
     sendToAnchorsInitialisationPhaseSignal(pAnchors, HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL);
 
     std::unordered_map<std::string, float> vAnchorDistances;
@@ -81,13 +84,17 @@ void initAnchorsPosition(UWBModuleList & pAnchors)
 
     sendToAnchorsInitialisationPhaseSignal(pAnchors, HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL);
 
+    Serial.println("[INIT ANCRES] ---- REALIGNEMENT COORD ANCRES ----");
     // Calcul mathématique des coordonnées à partir de la matrice des distances
     initAnchorsCoordinatesWithGD(pAnchors, vAnchorDistances, ITERATIONS, LEARNING_RATE);
+    Serial.println("[INIT ANCRES] ---- FIN INIT ANCRES PROTOCOLE ----");
 }
 
 void sendToAnchorsInitialisationPhaseSignal(UWBModuleList & pAnchors, int pSignalType)
 {
     std::vector<int> vAnchorsId = pAnchors.giveModuleIdList();
+
+    Serial.println("[INIT ANCRES] On envoie à toutes les ancres le signal d'init : " + String(pSignalType));
 
     for (uint8_t vCurrentId : vAnchorsId)
     {
@@ -98,6 +105,7 @@ void sendToAnchorsInitialisationPhaseSignal(UWBModuleList & pAnchors, int pSigna
 
 void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId)
 {
+    Serial.println("[INIT ANCRES] On ordonne aux ancres de changer de mode (ID Ancre statique : " + String(pStaticAnchorId) + ")");
     for (size_t i = 0; i < pAnchorsId.size(); i++)
     {
         MsgToggleHubOrder vMessage;

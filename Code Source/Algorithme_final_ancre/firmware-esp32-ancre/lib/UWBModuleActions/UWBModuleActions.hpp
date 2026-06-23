@@ -13,8 +13,13 @@
 #define RESET_WAKEUP_PIN 16
 
 #define NETWORK_ID 1111
+#define ANCHOR_RATE 1
+#define ANCHOR_FILTER_STATUS 0
+#define ANCHOR_DEFAULT_MODE 1
 
 extern HardwareSerial UWBSerial;
+// stocke le mode UWB actuel de l'ancre
+extern int gCurrentUWBMode;
 
 /**
  * Récupère la chaine des distances du module UWB de l'ancre et renvoie sa distance par rapport à l'ancre dont l'id est passé en paramètre (utilisé uniquement pendant la phase d'initialisation des positions des ancres)

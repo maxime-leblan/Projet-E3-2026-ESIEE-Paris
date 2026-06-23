@@ -3,6 +3,9 @@
 // Les objets I2C_OLED et display ont été supprimés d'ici !
 HardwareSerial UWBSerial(1);
 
+int gCurrentUWBMode = ANCHOR_DEFAULT_MODE;
+
+
 float readDistanceFromUWB(int pModuleId, Stream & pUWBSerial)
 {
     pUWBSerial.println("AT+RANGE");
@@ -86,43 +89,20 @@ void toggleUWBMode(int pAnchorId)
 {
     Serial.println("\n[UWB] Tentative d'inversion du mode (Tag <-> Ancre)...");
 
-    String currentCfg = sendATCommandWithResult("AT+GETCFG?", Serial, UWBSerial);
+    int currentRate = ANCHOR_RATE; 
+    int currentFilter = ANCHOR_FILTER_STATUS; 
     
-    int currentRole = 1; 
-    int currentRate = 0; 
-    int currentFilter = 1; 
-
-    int index = currentCfg.indexOf("AT+GETCFG=");
-    if (index != -1) {
-        String dataPart = currentCfg.substring(index + 10); 
-        dataPart.trim();
-
-        int firstComma = dataPart.indexOf(',');
-        int secondComma = dataPart.indexOf(',', firstComma + 1);
-        int thirdComma = dataPart.indexOf(',', secondComma + 1);
-
-        if (firstComma != -1 && secondComma != -1) {
-            String roleStr = dataPart.substring(firstComma + 1, secondComma);
-            currentRole = roleStr.toInt();
-            
-            if (thirdComma != -1) {
-                currentRate = dataPart.substring(secondComma + 1, thirdComma).toInt();
-                currentFilter = dataPart.substring(thirdComma + 1).toInt();
-            }
-        }
-    }
-
-    int newRole = (currentRole == 1) ? 0 : 1;
-    
-    if (newRole == 0) {
+    if (gCurrentUWBMode == 1) {
         Serial.printf("[UWB] Passage de Ancre vers mode TAG (ID: %d)\n", pAnchorId);
+        gCurrentUWBMode = 0;
         updateCANAction("MODE UWB", "Passage en TAG"); // Remplacement pour OLEDManager
     } else {
         Serial.printf("[UWB] Passage de Tag vers mode ANCRE (ID: %d)\n", pAnchorId);
+        gCurrentUWBMode = 1;
         updateCANAction("MODE UWB", "Passage en ANCRE"); // Remplacement pour OLEDManager
     }
 
-    String setCommand = "AT+SETCFG=" + String(pAnchorId) + "," + String(newRole) + "," + String(currentRate) + "," + String(currentFilter);
+    String setCommand = "AT+SETCFG=" + String(pAnchorId) + "," + String(gCurrentUWBMode) + "," + String(currentRate) + "," + String(currentFilter);
     sendATCommand(setCommand, Serial, UWBSerial);
     sendATCommand("AT+SAVE", Serial, UWBSerial);
 

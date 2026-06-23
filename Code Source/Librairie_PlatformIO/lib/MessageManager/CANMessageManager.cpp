@@ -53,6 +53,21 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
                 }
                 return true;
             }
+        
+        case MESSAGE_STATIC_ANCHOR_ID_AND_ALL_DISTANCES:
+            if (message.data_length_code == sizeof(MsgStaticAnchorAllDistances))
+            {
+                MsgStaticAnchorAllDistances payload;
+                memcpy(&payload, message.data, sizeof(MsgStaticAnchorAllDistances));
+
+                // on récupère les distances depuis le message reçu vers la structure de sortie
+                for (int i = 0; i < ANCHORS_NUMBER; i++)
+                {
+                    output.aDistances.push_back(payload.aDistances[i]);
+                }
+                output.aStaticAnchorIdDuringToggle = readSecondHexaNumber(message.identifier);
+                return true;
+            }
 
         case MESSAGE_HUB_ORDER:
             output.id_ancre = readSecondHexaNumber(message.identifier);
@@ -138,6 +153,19 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
                         }
                         Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_REQUEST_DISTANCES");
                         return false;
+                    
+                    case HUB_ORDER_REQUEST_ANCHOR_DISTANCES_DURING_CALIB:
+                        // La taille attendue de la trame totale est : 1 octet (ordre) + taille de la structure
+                        if (message.data_length_code == (1 + sizeof(MsgRequestAnchorDistancesDuringCalibHubOrder))) {
+                            MsgRequestAnchorDistancesDuringCalibHubOrder payload;
+                            // Copie des données à partir de l'index 1 (juste après l'octet d'ordre)
+                            memcpy(&payload, &message.data[1], sizeof(MsgRequestAnchorDistancesDuringCalibHubOrder));
+                            // On stocke le Tag demandé dans la variable de sortie
+                            output.aStaticAnchorIdDuringToggle = payload.aStaticAnchorId; 
+                            return true;
+                        }
+                        Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_REQUEST_ANCHOR_DISTANCES_DURING_CALIB");
+                        return false;
 
                     // Tu pourras ajouter tes futurs ordres ici très facilement :
                     // case DEUXIEME_ORDRE_FUTUR:
@@ -219,6 +247,49 @@ void sendCanDistanceFromAnchorToHub(uint8_t pAnchorId, uint8_t pTagId, std::vect
     }
 
     memcpy(message.data, &payload, sizeof(MsgAllDistances));
+
+    esp_err_t vErr = twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME));
+    if (vErr != ESP_OK) {
+        if (vErr == ESP_ERR_INVALID_ARG)
+        {
+            Serial.println("Echec transmission CAN (Type 4) : Arguments invalides");
+        }
+        else if (vErr == ESP_ERR_TIMEOUT)
+        {
+            Serial.println("Echec transmission CAN (Type 4) : Timed out waiting for space on TX queue");
+        }
+        else if (vErr == ESP_FAIL)
+        {
+            Serial.println("Echec transmission CAN (Type 4) : TX queue is disabled and another message is currently transmitting");
+        }
+        else if (vErr == ESP_ERR_INVALID_STATE)
+        {
+            Serial.println("Echec transmission CAN (Type 4) : TWAI driver is not in running state, or is not installed");
+        }
+        else if (vErr == ESP_ERR_NOT_SUPPORTED)
+        {
+            Serial.println("Echec transmission CAN (Type 4) : Listen Only Mode does not support transmissions");
+        }
+    }
+}
+
+void sendCanDistanceFromStaticAnchorToHub(uint8_t pStaticAnchorId, std::vector<uint16_t> pAllStaticAnchorDistances)
+{
+    twai_message_t message;
+    
+    message.identifier = (MESSAGE_STATIC_ANCHOR_ID_AND_ALL_DISTANCES + pStaticAnchorId);
+    
+    message.extd = 0;
+    message.rtr = 0;
+    message.data_length_code = sizeof(MsgStaticAnchorAllDistances); // Vaut exactement 8
+
+    MsgStaticAnchorAllDistances payload;
+    // On copie de manière sécurisée les valeurs du vecteur vers le tableau fixe
+    for(int i = 0; i < 4 && i < pAllStaticAnchorDistances.size(); i++) {
+        payload.aDistances[i] = pAllStaticAnchorDistances[i];
+    }
+
+    memcpy(message.data, &payload, sizeof(MsgStaticAnchorAllDistances));
 
     esp_err_t vErr = twai_transmit(&message, pdMS_TO_TICKS(DATA_TRANSMISSION_TIME));
     if (vErr != ESP_OK) {
