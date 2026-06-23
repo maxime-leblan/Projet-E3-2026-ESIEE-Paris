@@ -31,6 +31,11 @@
 #define HUB_ORDER_REQUEST_DISTANCES 6
 #define HUB_ORDER_REQUEST_ANCHOR_DISTANCES_DURING_CALIB 7
 
+
+#define HUB_ORDER_SET_AS_TAG 8 // h
+#define HUB_ORDER_SET_AS_ANCHOR 9 // h
+#define HUB_ORDER_DISTANCE_FROM_SF 10 // h
+
 // Macro pour extraire des chiffres de nombres en hexadécimal
 #define readFirstHexaNumber(H) (H & 0xF0)
 #define readSecondHexaNumber(H) (H & 0x0F)
