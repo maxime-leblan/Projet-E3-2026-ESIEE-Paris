@@ -7,7 +7,8 @@
 #define PIN_VBAT_ENABLE 14             // Broche de contrôle du MOSFET pour la lecture de la batterie (P0.14)
 #define PIN_CHARGE_STATUS 23
 
-#define LED_RED_CARTE D4
+#define LED_RED_CARTE D2 // Broche de la LED rouge de la carte (P0.02)
+
 
 /**
  * Met le module UWB en veille prolongée (Consommation minimale)

@@ -73,7 +73,7 @@ bool calculBatteryLow() {
     digitalWrite(PIN_VBAT_ENABLE, HIGH);
 
     // Vérification si la tension est inférieure à un seuil critique (par exemple 3.3V)
-    return voltage < 3.5; // Retourne true si la batterie est faible, false sinon
+    return voltage < 5.0 ; // Retourne true si la batterie est faible, false sinon
 }
 
 void chargebattery() {
@@ -104,7 +104,7 @@ void chargebattery() {
       ledState = !ledState;
       
       // Logique inversée du XIAO (LOW = Allumé)
-      digitalWrite(LED_RED_CARTE, ledState ? LOW : HIGH); 
+      digitalWrite(LED_RED_CARTE, ledState ? HIGH : LOW); 
     }
   } else {
     // Si le chargeur est débranché ou que la charge est 100% terminée, on éteint la LED
@@ -114,6 +114,6 @@ void chargebattery() {
     //        uwbAsleepByCharger = false;
     //        Serial.println("[CHARGE] Fin de charge ou déconnexion : Réveil de l'UWB.");
     //    }
-    digitalWrite(LED_RED_CARTE, HIGH);  
+    digitalWrite(LED_RED_CARTE, LOW);  
   }
 }

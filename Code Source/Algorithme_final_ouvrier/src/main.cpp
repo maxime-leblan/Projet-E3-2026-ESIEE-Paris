@@ -10,12 +10,14 @@ void setup()
   initialiserBMP581();
 
   
-
+  pinMode(LED_RED_CARTE, OUTPUT);
   pinMode(LED_BLUE, HIGH); // On éteint la LED bleue par défaut
   pinMode(PIN_VBAT_ENABLE, OUTPUT);
   digitalWrite(PIN_VBAT_ENABLE, HIGH); // On garde éteint par défaut
   analogReadResolution(12);  
   digitalWrite(LED_RED, HIGH);           // Configuration de la résolution 12 bits
+  
+  
 }
 
 void loop()
@@ -101,22 +103,33 @@ void loop()
     }
   }
  // On vérifie si la batterie est faible
- uint32_t vStartTime = millis();
- const uint32_t TimeoutBatMS = 1000; // 
+  static uint32_t lastBatCheck = 0;
+  static uint32_t lastBlinkTime = 0;
+  static bool isBatteryLow = false;
+  static bool ledState = false;
 
-  if (millis() - vStartTime > TimeoutBatMS)
+  if (millis() - lastBatCheck > 5000)
   {
-    if(calculBatteryLow())
-    {
-      Serial.println("[XIAO] Batterie faible !");
-      tone(XIAO_TO_BIPPER_PIN, BIPPER_FREQUENCY);
-      digitalWrite(LED_RED, HIGH);
-      delay(2000);
-      noTone(XIAO_TO_BIPPER_PIN);
-      digitalWrite(LED_RED, LOW);
-    }
-  vStartTime = millis();
+    lastBatCheck = millis();
+    isBatteryLow = calculBatteryLow();
   }
+    if(isBatteryLow )
+    {
+      
+      if (millis() - lastBlinkTime > 200)
+      {
+        lastBlinkTime = millis();
+        ledState = !ledState;
+        Serial.println("[XIAO] Batterie faible !");
+       digitalWrite(LED_RED_CARTE, ledState ? HIGH : LOW);
+      }
+    }
+    else
+    {
+      digitalWrite(LED_RED_CARTE, LOW);
+    }
+  
+  
 
   /*
   NE PAS OUBLIER D'ENLEVER LES COMMENTAIRES POUR LA VEILLE ET LE REVEIL DE L'UWB DANS CHARGEBATTERY() !!!!!!!!!!!!!
