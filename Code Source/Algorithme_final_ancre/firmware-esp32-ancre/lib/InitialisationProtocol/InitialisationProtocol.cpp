@@ -111,33 +111,37 @@ void runInitializationPhase(uint8_t pMyAnchorId)
                 }
             }
         } else {
-            Serial.println("[INIT] Mesure des distances en cours...");
-            // accumulation des distances reçues depuis AT+RANGE pour la moyenne finale
+            Serial.println("Mesure distance..");
+            // Lecture temps réel des trames AT+RANGE sur l'UART
             if (UWBSerial.available()) {
                 String ligne = UWBSerial.readStringUntil('\n');
                 ligne.trim();
-                Serial.printf("[INIT] Trame UWB reçue depuis le module UWB : %s\n", ligne.c_str());
 
                 if (ligne.startsWith("AT+RANGE")) {
                     Serial.printf("[INIT] Trame AT+RANGE reçue : %s\n", ligne.c_str());
-                    int tid, ranges[4];
+                    int tid;
+                    int r[8], a[8]; 
                     
-                    // On utilise sscanf pour extraire le Tag ID et les 4 distances depuis la trame AT+RANGE
-                    // Correction mineure : Gestion des espaces ou des formats de parenthèses de sscanf
-                    int matched = sscanf(ligne.c_str(), "AT+RANGE=tid:%d,mask:%*x,seq:%*d,range:(%d,%d,%d,%d", 
-                                         &tid, &ranges[0], &ranges[1], &ranges[2], &ranges[3]);
-                    Serial.printf("[INIT] Trame analysée : Tag ID = %d, Distances = [%d, %d, %d, %d], Matched = %d\n", 
-                                  tid, ranges[0], ranges[1], ranges[2], ranges[3], matched);
-                    if (matched == 5 && tid < 4 && tid != pMyAnchorId) { // On s'assure que le Tag ID est entre 0 et 3 (ancres devenues des tags)
-                        // On extrait uniquement la distance qui correspond à NOTRE ID d'ancre
-                        Serial.printf("[INIT] Distance reçue depuis le Tag %d pour l'ancre %d : %d cm\n", tid, pMyAnchorId, ranges[pMyAnchorId]);
-                        int maDistance = ranges[pMyAnchorId];
-                        
-                        // On met à jour le tableau si la distance est valide
-                        if (maDistance > 0) {
-                            // CORRECTION : push_back d'une valeur brute uint16_t (plus propre et compile sans warning)
-                            allTagDistances[tid].push_back((uint16_t)maDistance);
-                            Serial.printf("[INIT] Distance reçue depuis le Tag %d : %d cm\n", tid, maDistance);
+                    int matched = sscanf(ligne.c_str(), "AT+RANGE=tid:%d,mask:%*x,seq:%*d,range:(%d,%d,%d,%d,%d,%d,%d,%d),ancid:(%d,%d,%d,%d,%d,%d,%d,%d)", 
+                                         &tid, 
+                                         &r[0], &r[1], &r[2], &r[3], &r[4], &r[5], &r[6], &r[7],
+                                         &a[0], &a[1], &a[2], &a[3], &a[4], &a[5], &a[6], &a[7]);
+                    
+                    if (matched == 17) {
+                        if (tid < allTagDistances.size() && tid != pMyAnchorId) { 
+                            int maDistance = -1;
+                            
+                            for (int i = 0; i < 8; i++) {
+                                if (a[i] == pMyAnchorId) {
+                                    maDistance = r[i]; 
+                                    break;
+                                }
+                            }
+                            
+                            if (maDistance > 0) {
+                                Serial.printf("[INIT] Distance reçue depuis le Tag %d : %d cm\n", tid, maDistance);
+                                allTagDistances[tid].push_back((uint16_t)maDistance);
+                            }
                         }
                     }
                 }
