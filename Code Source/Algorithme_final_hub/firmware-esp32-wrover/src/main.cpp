@@ -179,7 +179,7 @@ void executer_HUB_STATE_RUNNING() {
                       tagMoyenne.distances[3]);
         
         for(int i = 0; i < 4 && i < aIds.size(); i++) {
-            distMap[aIds[i]] = tagMoyenne.distances[i];
+            distMap[aIds[i]] = tagMoyenne.distances[i]/100.0f; // Conversion en mètres
         }
 
         Serial.printf("[HUB MATHS] Distances mappées pour le Tag %d : [", tagMoyenne.tag_id);
