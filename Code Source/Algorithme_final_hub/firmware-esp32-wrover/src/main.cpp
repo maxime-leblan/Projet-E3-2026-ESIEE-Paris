@@ -159,6 +159,7 @@ void executer_HUB_STATE_RUNNING() {
 
     // 1. POLLING CYCLIQUE NON-BLOQUANT
     if (millis() - lastPollTimeRunning >= POLL_INTERVAL) {
+        Serial.printf("[HUB POLL] [%lu] Envoi requête CAN (Ancre: %d, Cible Tag: %d)\n", millis(), ancreCible, tagCible);
         sendCanRequestDistances(ancreCible, tagCible);
         lastPollTimeRunning = millis();
     }
@@ -167,56 +168,71 @@ void executer_HUB_STATE_RUNNING() {
     DistanceMoyennes tagMoyenne;
     
     if (recupDonnees.getDonneesLisseesPourTag(tagCible, tagMoyenne)) {
+        Serial.printf("[HUB DATA] Succès : Données lissées récupérées pour le Tag %d.\n", tagCible);
         
         std::vector<int> aIds = vAnchors.giveModuleIdList();
         std::unordered_map<int, float> distMap;
 
-        Serial.printf("[HUB MATHS] Distances lissées pour le Tag %d : [%.2f, %.2f, %.2f, %.2f]\n", 
+        Serial.printf("[HUB MATHS] Distances lissées (cm) pour le Tag %d : [%.2f, %.2f, %.2f, %.2f]\n", 
                       tagMoyenne.tag_id,
                       tagMoyenne.distances[0],
                       tagMoyenne.distances[1],
                       tagMoyenne.distances[2],
                       tagMoyenne.distances[3]);
         
+        Serial.printf("[HUB MATHS] Nombre d'ancres trouvées en mémoire (vAnchors) : %d\n", aIds.size());
+
         for(int i = 0; i < 4 && i < aIds.size(); i++) {
             distMap[aIds[i]] = tagMoyenne.distances[i]/100.0f; // Conversion en mètres
         }
 
-        Serial.printf("[HUB MATHS] Distances mappées pour le Tag %d : [", tagMoyenne.tag_id);
+        Serial.printf("[HUB MATHS] Distances mappées (mètres) pour le Tag %d : [", tagMoyenne.tag_id);
         for (const auto& pair : distMap) {
-            Serial.printf("Ancre %d: %.2f, ", pair.first, pair.second);
+            Serial.printf("Ancre %d: %.2fm, ", pair.first, pair.second);
         }
         Serial.println("]");
 
         // TRILATÉRATION
         // On initialise la matrice A nécessaire au calcul
+        Serial.println("[HUB TRILAT] Début de l'initialisation de la Matrice A...");
         initMatrixA(vAnchors);
-        Serial.println(vAnchors.toString().c_str());
+        
+        Serial.printf("[HUB TRILAT] État actuel des ancres : %s\n", vAnchors.toString().c_str());
 
+        Serial.println("[HUB TRILAT] Lancement du calcul trilateration3D...");
         V3 pos3D = trilateration3D(vAnchors, distMap);
 
-        Serial.printf("[HUB MATHS] Position 3D calculée pour le Tag %d : (%.2f, %.2f, %.2f)\n", 
+        Serial.printf("[HUB MATHS] Position 3D calculée pour le Tag %d : X=%.2f, Y=%.2f, Z=%.2f\n", 
                       tagMoyenne.tag_id, pos3D.getX(), pos3D.getY(), pos3D.getZ());
 
         if (std::abs(pos3D.getZ()) > HAUTEUR_MAX_TAG_METRES) {
+            Serial.printf("[HUB TRILAT ERREUR] Calcul rejeté ! Z (%.2fm) dépasse la limite max (%.2fm).\n", 
+                          std::abs(pos3D.getZ()), HAUTEUR_MAX_TAG_METRES);
             return;
         }
 
-        Serial.printf("[HUB MATHS] Position 2D projetée pour le Tag %d : (%.2f, %.2f)\n", 
+        Serial.printf("[HUB MATHS] Position 2D projetée pour le Tag %d : X=%.2f, Y=%.2f\n", 
                       tagMoyenne.tag_id, pos3D.getX(), pos3D.getY());
 
         // ÉVALUATION DANGER
+        Serial.println("[HUB ZONE] Évaluation du danger par rapport à la SafeZone...");
         V3 posProjectee2D(pos3D.getX(), pos3D.getY(), 0.0f);
         bool inDanger = vSafeZone.isInside(posProjectee2D);
         float distSafeZone = vSafeZone.getDistanceFrom(posProjectee2D);
         float distCentreVehicule = std::sqrt(pos3D.getX() * pos3D.getX() + pos3D.getY() * pos3D.getY());
 
-        Serial.printf("\n[HUB MATHS] Tag %d à %.2fm de la SafeZone. Envoi alerte CAN à Ancre %d.\n", tagMoyenne.tag_id, distSafeZone, ancreCible);
+        Serial.printf("[HUB ZONE] Résultat Tag %d -> Danger: %s | Dist. SafeZone: %.2fm | Dist. Centre: %.2fm\n", 
+                      tagMoyenne.tag_id, inDanger ? "OUI" : "NON", distSafeZone, distCentreVehicule);
+
+        Serial.printf("\n[HUB MATHS] Tag %d à %.2fm de la SafeZone. Envoi alerte CAN à Ancre %d.\n", 
+                      tagMoyenne.tag_id, distSafeZone, ancreCible);
 
         // RETOUR D'INFORMATION (Alerte CAN)
+        Serial.printf("[HUB ALERT] Envoi du message CAN (distance: %.2fm) en cours...\n", distSafeZone);
         sendCanDistance(ancreCible, tagMoyenne.tag_id, distSafeZone);
         
         if (distSafeZone <= 0) {
+            Serial.println("[HUB ALERT DANGER] *** VIOLATION DE LA SAFEZONE ! ACTIVATION DU BUZZER ***");
             tone(BUZZER_GPIO_PIN, BUZZER_FREQUENCY, 1000);
         }
 
@@ -229,8 +245,20 @@ void executer_HUB_STATE_RUNNING() {
         
         static unsigned long chronoRuntime = 0;
         if (millis() - chronoRuntime >= 33) { // Limitation du rafraîchissement écran (30 FPS max)
+            Serial.printf("[HUB IHM] [%lu] Rafraîchissement de l'écran déclenché (FPS respecté).\n", millis());
             envoyerMiseAJourTagsRuntime(ids, xs, ys, distsScreen, alarmes, 1);
             chronoRuntime = millis();
+        } else {
+            // (Optionnel) Dé-commente cette ligne si tu veux voir quand l'écran skippe une frame pour maintenir les performances
+            // Serial.println("[HUB IHM] Rafraîchissement écran ignoré (limite 30 FPS).");
+        }
+    } else {
+        // --- LOG ANTI-FLOOD SI AUCUNE DONNÉE ---
+        // Permet de savoir si le système tourne à vide sans spammer la console 50 fois par seconde.
+        static unsigned long lastNoDataLog = 0;
+        if (millis() - lastNoDataLog > 1000) {
+            Serial.printf("[HUB DATA ALERTE] Aucune donnée lissée disponible pour le Tag %d en ce moment...\n", tagCible);
+            lastNoDataLog = millis();
         }
     }
 }
