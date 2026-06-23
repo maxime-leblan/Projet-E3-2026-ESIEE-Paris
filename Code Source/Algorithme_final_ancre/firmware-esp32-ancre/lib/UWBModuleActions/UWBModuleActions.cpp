@@ -73,6 +73,9 @@ void initUWBModule(int pAnchorId)
 
     sendATCommand("AT?", Serial, UWBSerial);
 
+    sendATCommand("AT+RESTORE", Serial, UWBSerial);
+    delay(500);
+
     sendATCommand("AT+SETCFG=" + String(pAnchorId) + ",1,1,0", Serial, UWBSerial); 
     sendATCommand("AT+SETCAP=6,10,1", Serial, UWBSerial); 
     sendATCommand("AT+SETPAN=" + String(NETWORK_ID), Serial, UWBSerial); 
@@ -87,43 +90,56 @@ void initUWBModule(int pAnchorId)
 
 void toggleUWBMode(int pAnchorId)
 {
-    String ATCommand;
-
     Serial.println("\n[UWB] Tentative d'inversion du mode (Tag <-> Ancre)...");
+
+    // 0. HARD RESET MATÉRIEL (On coupe l'herbe sous le pied du module)
+    Serial.println("[UWB] Reset matériel (3.1 sec) pour purger la puce STM32...");
+    pinMode(RESET_WAKEUP_PIN, OUTPUT);
+    digitalWrite(RESET_WAKEUP_PIN, LOW);
+    delay(3100);
+    pinMode(RESET_WAKEUP_PIN, INPUT); // Haute impédance pour laisser remonter
+    delay(1500); // Laisse le temps au module de booter complètement
+
+    // 1. HARD RESET LOGICIEL (Pour nettoyer l'ancien mode de la mémoire Flash)
+    sendATCommand("AT+RESTORE", Serial, UWBSerial);
+    delay(500);
     
     if (gCurrentUWBMode == ANCHOR_MODE) {
         Serial.printf("[UWB] Passage de Ancre vers mode TAG (ID: %d)\n", pAnchorId);
         gCurrentUWBMode = TAG_MODE;
         updateCANAction("MODE UWB", "Passage en TAG");
-
-        ATCommand = "AT+SETRPT=" + String(ACTIVATE_AT_RANGE);
-        sendATCommand(ATCommand, Serial, UWBSerial);
-        ATCommand = "AT+SAVE";
-        sendATCommand(ATCommand, Serial, UWBSerial);
+        sendATCommand("AT+SETRPT=" + String(1-ACTIVATE_AT_RANGE), Serial, UWBSerial);
     } else {
         Serial.printf("[UWB] Passage de Tag vers mode ANCRE (ID: %d)\n", pAnchorId);
         gCurrentUWBMode = ANCHOR_MODE;
         updateCANAction("MODE UWB", "Passage en ANCRE");
-
-        ATCommand = "AT+SETRPT=" + String(ACTIVATE_AT_RANGE);
-        sendATCommand(ATCommand, Serial, UWBSerial);
+        sendATCommand("AT+SETRPT=" + String(ACTIVATE_AT_RANGE), Serial, UWBSerial);
     }
 
-    ATCommand = "AT+SETCFG=" + String(pAnchorId) + "," + String(gCurrentUWBMode) + "," + String(ANCHOR_RATE) + "," + String(ANCHOR_FILTER_STATUS);
+    // 2. ASSIGNATION DU NOUVEAU ROLE
+    String ATCommand = "AT+SETCFG=" + String(pAnchorId) + "," + String(gCurrentUWBMode) + "," + String(ANCHOR_RATE) + "," + String(ANCHOR_FILTER_STATUS);
     sendATCommand(ATCommand, Serial, UWBSerial);
-    ATCommand = "AT+SAVE";
-    sendATCommand(ATCommand, Serial, UWBSerial);
-    ATCommand = "AT+RESTART";
-    sendATCommand(ATCommand, Serial, UWBSerial);
+    
+    // 3. RE-INJECTION OBLIGATOIRE DES PARAMETRES DU RESEAU
+    sendATCommand("AT+SETPAN=" + String(NETWORK_ID), Serial, UWBSerial);
+    sendATCommand("AT+SETCAP=6,10,1", Serial, UWBSerial); // On force le mode Extended Packet !
+
+    // 4. SAUVEGARDE ET REDEMARRAGE
+    sendATCommand("AT+SAVE", Serial, UWBSerial);
+    delay(500);
+    
+    // On purge le buffer matériel avant le redémarrage
+    while(UWBSerial.available()) { UWBSerial.read(); }
+    
+    sendATCommand("AT+RESTART", Serial, UWBSerial);
     Serial.println("[UWB] Commande AT+RESTART envoyee. Attente du redemarrage...");
     updateCANAction("MODE UWB", "Redemarrage UWB...");
     
-    delay(1000); 
+    // 5. TEMPS DE BOOT (On laisse le temps au module de se stabiliser sur le réseau)
+    delay(2000); 
 
-    // Purge totale des messages de boot (élimine le spam)
+    // Purge totale des messages de démarrage (élimine le spam)
     while (UWBSerial.available()) { UWBSerial.read(); }
-    
     Serial.println("[UWB] Changement de mode effectif, buffer purge.\n");
     updateCANAction("MODE UWB", "Mode change effectif");
-    
 }
