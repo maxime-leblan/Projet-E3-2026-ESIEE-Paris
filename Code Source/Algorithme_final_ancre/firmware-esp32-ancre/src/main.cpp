@@ -9,7 +9,7 @@
 #include "Messages.hpp" 
 
 // IMPORTANT : Remplacer par 0, 1, 2 ou 3 selon la carte flashée
-#define MY_ANCHOR_ID 3
+#define MY_ANCHOR_ID 0
 #define MAX_SUPPORTED_TAGS 6 
 
 struct MemoireTag {
@@ -95,7 +95,14 @@ void loop() {
     // ÉTAPE 2 : GESTION DU BUS CAN (Filtrée selon le rôle de l'ancre)
     // ====================================================================
     if (receiveCanMessage(vCanMessage)) {
+        Serial.println("\n\n[CAN RX] Message reçu sur le bus CAN.");
         if (decodeCanMessage(vCanMessage, vDecodedCanData)) {
+            Serial.printf("[CAN RX] Type : %d, Ancre : %d, Tag : %d, Order : %d, Distance : %.2f\n", 
+                          vDecodedCanData.type, 
+                          vDecodedCanData.id_ancre, 
+                          vDecodedCanData.id_tag, 
+                          vDecodedCanData.aOrderType, 
+                          vDecodedCanData.distance);
             
             // --- PROTECTION ET ROUTAGE SUR LE BUS CAN ---
             if (MY_ANCHOR_ID == 0) {
@@ -120,10 +127,21 @@ void loop() {
                          vDecodedCanData.aOrderType == HUB_ORDER_REQUEST_DISTANCES) 
                 {
                     uint8_t tagCible = vDecodedCanData.id_tag; 
+                    
+                    Serial.printf("\n[CAN RX] Polling -> Le Hub interroge ma memoire pour le Tag %d.\n", tagCible);
+                    // Log de traçabilité : le Hub a bien fait une demande
+                    
                     if (tagCible < MAX_SUPPORTED_TAGS && memoiresDesTags[tagCible].donneeValide) {
                         sendCanDistanceFromAnchorToHub(MY_ANCHOR_ID, tagCible, memoiresDesTags[tagCible].distances);
+                        
+                        // Log de confirmation de renvoi réussi
+                        Serial.printf("[CAN TX] Succes : Distances du Tag %d expediees au Hub.\n", tagCible);
                         updateCANAction("TX CAN", "Distances OK");
                     } 
+                    else {
+                        // Log d'alerte critique : met en évidence si le Hub interroge le mauvais Tag (ex: 0 au lieu de 4)
+                        Serial.printf("[CAN TX REFUS] Le Hub demande le Tag %d, mais ma memoire est vide ou invalide pour ce Tag !\n", tagCible);
+                    }
                 }
             } 
             else {

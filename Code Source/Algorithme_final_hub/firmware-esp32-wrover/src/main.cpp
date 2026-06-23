@@ -40,19 +40,21 @@ std::map<int, float> hauteursAncresTemporaires;
 void ecouterReseauFilaire() {
     twai_message_t messageRecu;
    
-    // Tant qu'il y a des messages en attente dans le buffer CAN, on les lit
     while (receiveCanMessage(messageRecu)) {
         DecodedData donnees;
 
-        // Clignotement de la LED lors de la réception
         digitalWrite(2, LOW);
        
-        // Décodage de la trame brute
         if (decodeCanMessage(messageRecu, donnees)) {
-            // Si le message contient la liste des 4 distances d'un Tag (Réponse au Polling)
             if (donnees.type == MESSAGE_TAG_ID_AND_ALL_DISTANCES) {
                 if (donnees.aDistances.size() >= 4) {
-                    // Injection des données dans l'accumulateur central
+                    
+                    // --- NOUVEAU LOG : Réception des distances depuis l'Ancre ---
+                    Serial.printf("[HUB CAN RX] Distances du Tag %d recues via Ancre %d : [%d, %d, %d, %d]\n", 
+                                  donnees.id_tag, donnees.id_ancre,
+                                  donnees.aDistances[0], donnees.aDistances[1],
+                                  donnees.aDistances[2], donnees.aDistances[3]);
+
                     recupDonnees.injecterDonnee(donnees.id_tag,
                                                 donnees.aDistances[0],
                                                 donnees.aDistances[1],
@@ -138,7 +140,8 @@ void executer_HUB_STATE_RUNNING() {
     static unsigned long lastPollTimeRunning = 0;
     const unsigned long POLL_INTERVAL = 20; // 50 Hz
     uint8_t ancreCible = 0; // L'ancre désignée pour renvoyer la donnée
-    uint8_t tagCible = 0;   // Le tag surveillé
+    
+    uint8_t tagCible = 4;   
 
     // 1. POLLING CYCLIQUE NON-BLOQUANT
     if (millis() - lastPollTimeRunning >= POLL_INTERVAL) {
@@ -149,7 +152,6 @@ void executer_HUB_STATE_RUNNING() {
     // 2. RÉCUPÉRATION ET TRAITEMENT
     DistanceMoyennes tagMoyenne;
     
-    // On extrait spécifiquement les données du Tag cible
     if (recupDonnees.getDonneesLisseesPourTag(tagCible, tagMoyenne)) {
         
         std::vector<int> aIds = vAnchors.giveModuleIdList();
@@ -171,6 +173,8 @@ void executer_HUB_STATE_RUNNING() {
         bool inDanger = vSafeZone.isInside(posProjectee2D);
         float distSafeZone = vSafeZone.getDistanceFrom(posProjectee2D);
         float distCentreVehicule = std::sqrt(pos3D.getX() * pos3D.getX() + pos3D.getY() * pos3D.getY());
+
+        Serial.printf("\n[HUB MATHS] Tag %d à %.2fm de la SafeZone. Envoi alerte CAN à Ancre %d.\n", tagMoyenne.tag_id, distSafeZone, ancreCible);
 
         // RETOUR D'INFORMATION (Alerte CAN)
         sendCanDistance(ancreCible, tagMoyenne.tag_id, distSafeZone);
