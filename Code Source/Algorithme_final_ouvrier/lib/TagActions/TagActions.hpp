@@ -33,6 +33,8 @@ Si vaut 1 : Permet au tag de calculer aut
 // Fréquence du bipper (en Hz)
 #define BIPPER_FREQUENCY 200
 
+
+
 /**
  * Initialise les périphériques propres à la XIAO (USB, Capteurs...)
  */

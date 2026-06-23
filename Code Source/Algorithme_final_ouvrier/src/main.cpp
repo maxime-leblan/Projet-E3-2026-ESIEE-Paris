@@ -4,16 +4,18 @@
 
 void setup()
 {
+  digitalWrite(LED_RED, LOW);
   initialiserXiao();
   initialiserUWB();
   initialiserBMP581();
 
-  digitalWrite(LED_RED, LOW);
+  
 
-
+  pinMode(LED_BLUE, HIGH); // On éteint la LED bleue par défaut
   pinMode(PIN_VBAT_ENABLE, OUTPUT);
   digitalWrite(PIN_VBAT_ENABLE, HIGH); // On garde éteint par défaut
-  analogReadResolution(12);             // Configuration de la résolution 12 bits
+  analogReadResolution(12);  
+  digitalWrite(LED_RED, HIGH);           // Configuration de la résolution 12 bits
 }
 
 void loop()
@@ -116,5 +118,10 @@ void loop()
   vStartTime = millis();
   }
 
+  /*
+  NE PAS OUBLIER D'ENLEVER LES COMMENTAIRES POUR LA VEILLE ET LE REVEIL DE L'UWB DANS CHARGEBATTERY() !!!!!!!!!!!!!
+  */
+  chargebattery();
   //Serial.println("-------- END LOOP --------\n");
+
 }
