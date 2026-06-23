@@ -120,7 +120,21 @@ void setup() {
     Serial.println("[Boot] Bus CAN (Filaire) initialisé.");
 
     // Restauration de la mémoire Flash NVS
-    vAnchors = initAnchors("Anchors");
+
+    // VRAI LIGNE DE CODE
+    // vAnchors = initAnchors("Anchors");
+
+    // DEBUT CODE DE TEST
+    vector<V3> vSensorsPosition = {V3(3, 0, 1), V3(0, 3, 0), V3(3, 6, 0), V3(6, 3, 0)};
+
+    // on les ajoute dans la liste des capteurs
+    for (int i = 1; i <= ANCHORS_NUMBER; i++)
+    {
+        UWBModule vTemp = UWBModule(i, vSensorsPosition[i - 1]);
+        vAnchors.addModule(vTemp.getId(), vTemp);
+    }
+    // FIN CODE DE TEST
+
     vSafeZone = Polygone(0, initSafeZone("SafeZone"));
  
     calibManager.initialiserEpicentre(vAnchors);
