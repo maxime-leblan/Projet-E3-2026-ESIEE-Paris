@@ -1,25 +1,19 @@
 #pragma once
 
 #include <Arduino.h>
-#include <Wire.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
 
+#include "Messages.hpp"
 #include "UWBDataManager.hpp"
 #include "UWBMessageManager.hpp"
+#include "OLEDManager.hpp" // NOUVEAU : On inclut uniquement ton manager d'écran
 
-// --- CONFIGURATION MATÉRIELLE MAKERFABS ---
-#define I2C_SDA 39
-#define I2C_SCL 38
 #define POWER_PIN 42
 #define UWB_RX 18 
 #define UWB_TX 17 
+#define RESET_WAKEUP_PIN 16
 
 #define NETWORK_ID 1111
 
-// On indique que ces objets existent, mais on ne les crée pas ici
-extern TwoWire I2C_OLED;
-extern Adafruit_SSD1306 display;
 extern HardwareSerial UWBSerial;
 
 /**
@@ -28,9 +22,5 @@ extern HardwareSerial UWBSerial;
  * @return La distance entre l'ancre du module UWB et l'ancre dont l'id est passé en paramètre
  */
 float readDistanceFromUWB(int pModuleId, Stream & pUWBSerial);
-
 void initUWBModule(int pAnchorId);
-
 void toggleUWBMode(int pAnchorId);
-
-void updateScreen(String role, String value);

@@ -9,13 +9,25 @@ bool parseUWBMessage(String rawData, MessageAncreHub& outMessage) {
     String tidStr = rawData.substring(tidIndex + 4, commaAfterTid);
     outMessage.tag_id = tidStr.toInt();
 
-    // 2. Recherche de la parenthèse des distances range:(d0,d1,d2...)
-    int rangeStart = rawData.indexOf("range:(");
-    if (rangeStart == -1) return false;
+    // 2. Recherche de la parenthèse des distances (Support dynamique)
+    // On cherche en priorité "r:(" tel que généré par le Tag optimisé
+    int rangeStart = rawData.indexOf("r:(");
+    int offset = 3; // Nombre de caractères à sauter pour "r:("
+    
+    // Rétrocompatibilité : Si "r:(" n'est pas trouvé, on cherche l'ancien format "range:("
+    if (rangeStart == -1) {
+        rangeStart = rawData.indexOf("range:(");
+        offset = 7; // Nombre de caractères à sauter pour "range:("
+        
+        // Si aucun des deux n'est trouvé, la trame est invalide
+        if (rangeStart == -1) return false; 
+    }
     
     int rangeEnd = rawData.indexOf(")", rangeStart);
-    String rangeStr = rawData.substring(rangeStart + 7, rangeEnd); 
-    // rangeStr contient maintenant par exemple : "33,67,26,0,0,0,0,0"
+    
+    // On extrait uniquement les chiffres grâce à l'offset calculé ci-dessus
+    String rangeStr = rawData.substring(rangeStart + offset, rangeEnd); 
+    // rangeStr contient maintenant par exemple : "77,0,96,0"
 
     // 3. Découpage des 4 premières distances
     int startIdx = 0;
@@ -34,4 +46,3 @@ bool parseUWBMessage(String rawData, MessageAncreHub& outMessage) {
     outMessage.type = MSG_DISTANCES;
     return true; // Le colis outMessage est prêt à être envoyé
 }
-
