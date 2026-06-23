@@ -23,7 +23,7 @@ std::unordered_map<std::string, float> getAnchorDistances(int pStaticAnchorId, U
     toggleAnchorsMode(vAnchorsId, pStaticAnchorId);
 
     // On laisse un peu de temps aux ancres pour qu'elles redémarrent et calculent des distances
-    delay(5000);
+    delay(10000);
 
     unsigned long startTime = millis();
     
