@@ -73,47 +73,35 @@ bool calculBatteryLow() {
     digitalWrite(PIN_VBAT_ENABLE, HIGH);
 
     // Vérification si la tension est inférieure à un seuil critique (par exemple 3.3V)
-    return voltage < 5.0 ; // Retourne true si la batterie est faible, false sinon
+    return voltage < 3.5 ; // Retourne true si la batterie est faible, false sinon
 }
 
-void chargebattery() {
+void veille_UWB_chargebattery() {
 // 1. Détection matérielle du chargeur : 
   // On lit le bit 0 du registre USBREGSTATUS du nRF52840 pour savoir si VBUS est alimenté (5V)
-  //veilleUWB(); 
+  
   bool isChargerPlugged = (NRF_POWER->USBREGSTATUS & 0x01);
   bool isCharging = (digitalRead(PIN_CHARGE_STATUS) == LOW);
 
-  //static bool uwbAsleepByCharger = false;
+  static bool uwbAsleepByCharger = false;
 
   // On ne clignote QUE si le chargeur est branché ET que la puce est en train de charger
   if (isChargerPlugged && isCharging) {
 
-    //if (!uwbAsleepByCharger) {
-    //        veilleUWB(); // Appel de votre fonction existante
-    //        uwbAsleepByCharger = true;
-    //        Serial.println("[CHARGE] UWB mis en veille (Charge en cours).");
-    //    }
-
-    static uint32_t lastBlinkTime = 0;
-    static bool ledState = false;
-    
-
-
-    if (millis() - lastBlinkTime > 500) { 
-      lastBlinkTime = millis();
-      ledState = !ledState;
-      
-      // Logique inversée du XIAO (LOW = Allumé)
-      digitalWrite(LED_RED_CARTE, ledState ? HIGH : LOW); 
+    if (!uwbAsleepByCharger) {
+           veilleUWB(); // Appel de votre fonction existante
+            uwbAsleepByCharger = true;
+           Serial.println("[CHARGE] UWB mis en veille (Charge en cours).");
+        }
     }
-  } else {
+    else {
     // Si le chargeur est débranché ou que la charge est 100% terminée, on éteint la LED
     // --- GESTION DE L'UWB : Réveil unique ---
-    //    if (uwbAsleepByCharger) {
-    //        reveilUWB(); // Appel de votre fonction existante
-    //        uwbAsleepByCharger = false;
-    //        Serial.println("[CHARGE] Fin de charge ou déconnexion : Réveil de l'UWB.");
-    //    }
-    digitalWrite(LED_RED_CARTE, LOW);  
+        if (uwbAsleepByCharger) {
+           reveilUWB(); // Appel de votre fonction existante
+           uwbAsleepByCharger = false;
+           Serial.println("[CHARGE] Fin de charge ou déconnexion : Réveil de l'UWB.");
+       }
+  
   }
 }
