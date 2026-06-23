@@ -6,35 +6,34 @@
 #include <vector>
 #include <string>
 
-// On définit des macros contenant les paramètres que l'on veut utiliser pour la descente de gradient
+// Paramètres pour la descente de gradient
 #define ITERATIONS 100
 #define LEARNING_RATE 0.01
 
 /**
- * Renvoie un tableau contenant toutes les distances entre l'Ancre passée en paramètre et les autres Ancres existantes
- * @param pAnchorId Identifiant de l'Ancre dont on veut récupérer toutes les distances par rapport aux autres ancres
- * @param pAnchors Liste des Ancres existantes. La fonction en a besoin pour déterminer les autres Ancres existantes pour calculer les distances à l'ancre dont l'id passé en paramètre.
+ * Renvoie un dictionnaire contenant les distances entre l'Ancre statique passée en paramètre et les autres modules (temporairement Tags).
+ * @param pAnchorId Identifiant de l'Ancre qui reste fixe et qui effectue les mesures.
+ * @param pAnchors Liste complète des modules du système.
  */
 std::unordered_map<std::string, float> getAnchorDistances(int pAnchorId, UWBModuleList pAnchors);
 
 /**
- * Attribue les positions de départ de chaque Ancre dans le repère d'origine stocké par le Hub
- * @param pAnchors Référence à la variable contenant la liste des Ancres du véhicule
+ * Orchestre le protocole de calibration matérielle puis attribue les positions calculées par descente de gradient.
+ * @param pAnchors Référence à la variable contenant la liste des Ancres du véhicule.
  */
 void initAnchorsPosition(UWBModuleList & pAnchors);
 
-
 /**
- * Envoie à toutes les Ancres un signal indiquant soit que la phase d'initialisation des positions des Ancres débute, soit qu'elle termine.
- * @param pAnchors Référence à la variable contenant la liste des Ancres du véhicule
- * @param pSignalType vaut soit HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL, soit HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL
+ * Envoie à toutes les Ancres un signal indiquant le début ou la fin de la phase d'initialisation.
+ * @param pAnchors Référence à la variable contenant la liste des Ancres.
+ * @param pSignalType HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL ou HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL.
  */
 void sendToAnchorsInitialisationPhaseSignal(UWBModuleList & pAnchors, int pSignalType);
 
 /**
- * Envoie un message à toutes les Ancres dont l'id est passé en paramètre pour leur ordonner d'inverser leur mode de comportement.
- * @param pAnchorsId Liste des identifiants de toutes les Ancres devant changer d'état
- * @param pStaticAnchorId Identifiant de la seule Ancre qui ne change pas d'état
- * @param becomeTags (Optionnel) Indique au Wi-Fi s'il faut forcer le mode Tag (true) ou Ancre (false)
+ * Envoie l'ordre CAN de basculement de mode aux modules listés.
+ * @param pAnchorsId Liste des identifiants des modules devant changer d'état (Ancre <-> Tag).
+ * @param pStaticAnchorId Identifiant de l'Ancre qui reste fixe pendant l'opération.
  */
-void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId, bool becomeTags = true);
+void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId);
+

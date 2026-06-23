@@ -1,18 +1,14 @@
 #include "Config.hpp"
 #include "HubDataStorage.hpp"
-#include "WifiMessageManager.hpp"
 #include "GestionnaireAncres.hpp"
 #include "InitAnchorPosition.hpp"
 
-// ---- AJOUT DE LA LIBRAIRIE CAN ----
-#include "CANMessageManager.hpp" 
+// ---- LIBRAIRIE CAN ----
+#include "CANMessageManager.hpp"
 
 #include <ArduinoEigenDense.h>
 #include <ArduinoJson.h>
-#include <cmath> 
-
-#include <WiFi.h>
-#include <HTTPClient.h>
+#include <cmath>
 
 #include "Trilateration.h"
 #include "GridLibrary.hpp"
@@ -37,64 +33,48 @@ CalibrationManager calibManager;
 std::map<int, float> hauteursAncresTemporaires;
 
 /**
- * @brief Fonction vitale pour le mode FILAIRE (CAN).
- * Doit être appelée très fréquemment pour vider le buffer matériel TWAI (CAN)
- * et injecter les distances reçues des ancres dans l'algorithme de calcul.
+ * @brief Fonction vitale pour le réseau CAN.
+ * Doit être appelée à chaque cycle de loop() pour vider le buffer matériel TWAI
+ * et injecter les distances reçues des ancres dans l'accumulateur.
  */
 void ecouterReseauFilaire() {
-    if (MODE_ACTUEL == MODE_WIRED) {
-        twai_message_t messageRecu;
-        
-        // Tant qu'il y a des messages en attente dans le buffer CAN, on les lit
-        while (receiveCanMessage(messageRecu)) {
-            DecodedData donnees;
+    twai_message_t messageRecu;
+   
+    // Tant qu'il y a des messages en attente dans le buffer CAN, on les lit
+    while (receiveCanMessage(messageRecu)) {
+        DecodedData donnees;
 
-            // on allume la LED
-            digitalWrite(2, LOW);
-            
-            // On décode la trame brute en structure lisible
-            if (decodeCanMessage(messageRecu, donnees)) {
-                
-                // Si le message contient la liste des 4 distances d'un Tag (Type 4)
-                if (donnees.type == MESSAGE_TAG_ID_AND_ALL_DISTANCES) {
-                    
-                    // Sécurité : on vérifie qu'on a bien au moins 4 distances dans le vecteur
-                    if (donnees.aDistances.size() >= 4) {
-                        // On injecte les données dans l'accumulateur/lisseur central !
-                        // C'est l'équivalent parfait de 'OnWifidataReceived'
-                        recupDonnees.injecterDonnee(donnees.id_tag, 
-                                                    donnees.aDistances[0], 
-                                                    donnees.aDistances[1], 
-                                                    donnees.aDistances[2], 
-                                                    donnees.aDistances[3]);
-                    }
+        // Clignotement de la LED lors de la réception
+        digitalWrite(2, LOW);
+       
+        // Décodage de la trame brute
+        if (decodeCanMessage(messageRecu, donnees)) {
+            // Si le message contient la liste des 4 distances d'un Tag (Réponse au Polling)
+            if (donnees.type == MESSAGE_TAG_ID_AND_ALL_DISTANCES) {
+                if (donnees.aDistances.size() >= 4) {
+                    // Injection des données dans l'accumulateur central
+                    recupDonnees.injecterDonnee(donnees.id_tag,
+                                                donnees.aDistances[0],
+                                                donnees.aDistances[1],
+                                                donnees.aDistances[2],
+                                                donnees.aDistances[3]);
                 }
             }
         }
     }
 }
 
-// Fonction de réception (Interruption matérielle) exclusive au Wi-Fi
-void OnWifidataReceived(int tagId, float d0, float d1, float d2, float d3) {
-  if (MODE_ACTUEL == MODE_WIFI) {
-    recupDonnees.injecterDonnee(tagId, d0, d1, d2, d3);
-  }
-}
-
 // Application de la configuration reçue de l'IHM Écran
 void appliquerNouvelleConfigurationMaterielle(JsonArray zoneJson, JsonArray sensorsJson) {
     Serial.println("\n[Main Hub] --- Réception de la configuration validée par l'écran ---");
    
-    // 1. MISE À JOUR DE LA ZONE DE SÉCURITÉ (vSafeZone)
+    // 1. MISE À JOUR DE LA ZONE DE SÉCURITÉ
     std::vector<V3> nouveauxSommets;
     for (JsonVariant v : zoneJson) {
-        // L'écran renvoie la forme géométrique autour du véhicule.
-        // Le Z est forcé à 0 car nous sommes désormais dans le repère 2D du plan du véhicule.
         nouveauxSommets.push_back(V3(v["x"].as<float>(), v["y"].as<float>(), 0.0f));
     }
    
     vSafeZone = Polygone(0, nouveauxSommets);
-    Serial.printf("[Main Hub] %d sommets appliques à vSafeZone.\n", nouveauxSommets.size());
     saveData("SafeZone", "Points", vSafeZone.getPoints().data(), vSafeZone.getPoints().size());
 
     // 2. MISE À JOUR DES ANCRES (Fusion 2D Écran + Hauteur 1D Calculée)
@@ -105,262 +85,182 @@ void appliquerNouvelleConfigurationMaterielle(JsonArray zoneJson, JsonArray sens
     for (JsonVariant s : sensorsJson) {
         if (anchorsCount < aIds.size()) {
             int id = aIds[anchorsCount];
-            float sx = s["x"].as<float>(); 
-            float sy = s["y"].as<float>(); 
-            
-            // CORRECTION : On récupère la vraie hauteur Z qui est DÉJÀ en mémoire grâce à la rotation
+            float sx = s["x"].as<float>();
+            float sy = s["y"].as<float>();
             float sz = vAnchors.getModule(id).getPosition().getZ();
-            
+           
             V3 nouvellePos(sx, sy, sz);
-            
+           
             vAnchors.setModulePosition(id, nouvellePos);
             mapAncresPourFlash[id] = nouvellePos;
         }
         anchorsCount++;
     }
-    
+   
     saveMapData("Anchors", "Positions", mapAncresPourFlash);
-
-    Serial.printf("[Main Hub] %d ancres de capteurs synchronisees.\n", anchorsCount);
-    Serial.println("[Main Hub] --- Fin d'application de la configuration ---\n");
-    
-    // Le Hub est officiellement calibré et prêt à surveiller les ouvriers
     etatActuelHub = HUB_STATE_RUNNING;
 }
 
 void setup() {
-  Serial.begin(115200);
-  delay(2000);
+    Serial.begin(115200);
+    delay(2000);
 
-  Serial.println("\n[Boot] --- Initialisation du Hub ---");
+    Serial.println("\n[Boot] --- Initialisation du Hub ---");
 
-  // on configure la LED du hub
-  pinMode(2, OUTPUT);
+    pinMode(2, OUTPUT);
 
-  initHub();
-  setupScreenCommunication();
-  initGestionnaireAncres(); 
+    initHub();
+    setupScreenCommunication();
+    initGestionnaireAncres();
 
-  Serial.println("[Boot] --- Initialisation terminée ---");
+    // Initialisation CAN (Le Wi-Fi a été retiré)
+    initCan(HUB_RX_PIN, HUB_TX_PIN);
+    Serial.println("[Boot] Bus CAN (Filaire) initialisé.");
 
-  // --- INITIALISATION DES CANAUX DE COMMUNICATION ---
-  if (MODE_ACTUEL == MODE_WIRED) {
-      // Configuration physique du bus CAN
-      initCan(HUB_RX_PIN, HUB_TX_PIN);
-      Serial.println("[Boot] Bus CAN (Filaire) initialisé.");
-  } else {
-      // Configuration ESP-NOW Wi-Fi
-      Serial.println("Adresse MAC :");
-      Serial.println(WiFi.macAddress());
-      initWifi();
-      Serial.println("[Boot] Wi-Fi ESP-NOW initialisé.");
-  }
-
-  // Restauration de la mémoire Flash NVS
-  vAnchors = initAnchors("Anchors");
-  vSafeZone = Polygone(0, initSafeZone("SafeZone"));
-  
-  // Prépare le gestionnaire de calibration avec le bon épicentre 
-  // au cas où l'utilisateur relance une calibration depuis l'écran
-  calibManager.initialiserEpicentre(vAnchors);
+    // Restauration de la mémoire Flash NVS
+    vAnchors = initAnchors("Anchors");
+    vSafeZone = Polygone(0, initSafeZone("SafeZone"));
  
-  // Démarre directement la surveillance si on a une zone et 4 ancres valides en mémoire
-  if (vSafeZone.getPoints().size() > 0 && vAnchors.size() == 4) {
-      etatActuelHub = HUB_STATE_RUNNING;
-      Serial.println("[Boot] Configuration existante trouvée. Passage automatique en RUNNING.");
-  } else {
-      etatActuelHub = HUB_STATE_IDLE;
-  }
+    calibManager.initialiserEpicentre(vAnchors);
+ 
+    // Démarrage automatique si la configuration existe
+    if (vSafeZone.getPoints().size() > 0 && vAnchors.size() == 4) {
+        etatActuelHub = HUB_STATE_RUNNING;
+        Serial.println("[Boot] Configuration existante trouvée. Passage en RUNNING.");
+    } else {
+        etatActuelHub = HUB_STATE_IDLE;
+    }
 
-  Serial.println("[Boot] --- Fin Setup --- Etat actuel du Hub : " + String(etatActuelHub) + " ---\n");
+    Serial.println("[Boot] --- Fin Setup ---\n");
 }
 
 void executer_HUB_STATE_RUNNING() {
-    // ====================================================================
-    // 1. POLLING CYCLIQUE (Le Hub dicte le tempo)
-    // ====================================================================
-    static unsigned long lastPollTime = 0;
-    const unsigned long POLL_INTERVAL = 20; // Fréquence d'interrogation de 50 Hz
+    static unsigned long lastPollTimeRunning = 0;
+    const unsigned long POLL_INTERVAL = 20; // 50 Hz
+    uint8_t ancreCible = 0; // L'ancre désignée pour renvoyer la donnée
+    uint8_t tagCible = 0;   // Le tag surveillé
 
-    if (millis() - lastPollTime >= POLL_INTERVAL) {
-        Serial.println("[Hub] Polling CAN pour demander les distances des ancres...");
-        // Pour ce test unitaire : On cible exclusivement l'Ancre 0 pour le Tag 0
-        uint8_t ancreCible = 0;
-        uint8_t tagCible = 0;
-        
+    // 1. POLLING CYCLIQUE NON-BLOQUANT
+    if (millis() - lastPollTimeRunning >= POLL_INTERVAL) {
         sendCanRequestDistances(ancreCible, tagCible);
-        lastPollTime = millis();
-
-        Serial.printf("[Hub] Requete de distances envoyee a l'Ancre %d pour le Tag %d.\n", ancreCible, tagCible);
+        lastPollTimeRunning = millis();
     }
 
-    // ====================================================================
-    // 2. RÉCEPTION ET TRAITEMENT ("Dès la réception des 4 distances")
-    // ====================================================================
-    std::vector<DistanceMoyennes> tagsPretsPourMaths;
-
-    // La fonction getDonneesLissees() fait exactement ce que tu as demandé :
-    // Elle regroupe instantanément les distances reçues et établit la liste 
-    // des tags éligibles à la trilatération à la fin de la fenêtre de temps.
-    if (recupDonnees.getDonneesLissees(tagsPretsPourMaths)) {
+    // 2. RÉCUPÉRATION ET TRAITEMENT
+    DistanceMoyennes tagMoyenne;
+    
+    // On extrait spécifiquement les données du Tag cible
+    if (recupDonnees.getDonneesLisseesPourTag(tagCible, tagMoyenne)) {
         
-        int ids[MAX_TAGS];
-        float xs[MAX_TAGS], ys[MAX_TAGS], distsScreen[MAX_TAGS];
-        bool alarmes[MAX_TAGS];
-        int tagCount = 0;
         std::vector<int> aIds = vAnchors.giveModuleIdList();
-
-        for (const DistanceMoyennes& tag : tagsPretsPourMaths) {
-
-            Serial.printf("[HUB MATHS] Tag %d distances lissees : %.2f, %.2f, %.2f, %.2f\n", 
-                          tag.tag_id, tag.distances[0], tag.distances[1], tag.distances[2], tag.distances[3]);
-            
-            // Sécurité pour le test : on s'assure qu'on ne traite que le Tag 0
-            if (tag.tag_id != 0) continue;
-
-            std::unordered_map<int, float> distMap;
-            for(int i = 0; i < 4 && i < aIds.size(); i++) {
-                distMap[aIds[i]] = tag.distances[i];
-            }
-
-            // TRILATÉRATION
-            V3 pos3D = trilateration3D(vAnchors, distMap);
-
-            if (std::abs(pos3D.getZ()) > HAUTEUR_MAX_TAG_METRES) {
-                continue; 
-            }
-
-            // ÉVALUATION DANGER
-            V3 posProjectee2D(pos3D.getX(), pos3D.getY(), 0.0f);
-            bool inDanger = vSafeZone.isInside(posProjectee2D);
-            float distSafeZone = vSafeZone.getDistanceFrom(posProjectee2D);
-            float distCentreVehicule = std::sqrt(pos3D.getX() * pos3D.getX() + pos3D.getY() * pos3D.getY());
-
-            Serial.printf("[HUB MATHS] Tag %d positionne en X:%.2f, Y:%.2f -> DistZone: %.2f m\n", 
-                          tag.tag_id, posProjectee2D.getX(), posProjectee2D.getY(), distSafeZone);
-
-            // ====================================================================
-            // 3. RETOUR D'INFORMATION (Renvoi de l'alerte à l'ancre par CAN)
-            // ====================================================================
-            if (MODE_ACTUEL == MODE_WIRED) {
-                uint8_t ancreRelais = 0; // On demande à l'Ancre 0 de relayer le message radio
-                
-                // Envoi de la trame CAN contenant l'ID du tag et sa distance au danger
-                sendCanDistance(ancreRelais, tag.tag_id, distSafeZone);
-                Serial.printf("[HUB TX] Distance de securite renvoyee par CAN a l'Ancre %d\n", ancreRelais);
-
-                if (distSafeZone <= 0) {
-                    tone(BUZZER_GPIO_PIN, BUZZER_FREQUENCY, 1000);
-                }
-            }
-
-            // Stockage pour l'écran
-            if (tagCount < MAX_TAGS) {
-                ids[tagCount] = tag.tag_id;
-                xs[tagCount] = posProjectee2D.getX();
-                ys[tagCount] = posProjectee2D.getY();
-                distsScreen[tagCount] = distCentreVehicule; 
-                alarmes[tagCount] = inDanger;
-                tagCount++;
-            }
+        std::unordered_map<int, float> distMap;
+        
+        for(int i = 0; i < 4 && i < aIds.size(); i++) {
+            distMap[aIds[i]] = tagMoyenne.distances[i];
         }
 
-        // Mise à jour de l'écran 
+        // TRILATÉRATION
+        V3 pos3D = trilateration3D(vAnchors, distMap);
+
+        if (std::abs(pos3D.getZ()) > HAUTEUR_MAX_TAG_METRES) {
+            return;
+        }
+
+        // ÉVALUATION DANGER
+        V3 posProjectee2D(pos3D.getX(), pos3D.getY(), 0.0f);
+        bool inDanger = vSafeZone.isInside(posProjectee2D);
+        float distSafeZone = vSafeZone.getDistanceFrom(posProjectee2D);
+        float distCentreVehicule = std::sqrt(pos3D.getX() * pos3D.getX() + pos3D.getY() * pos3D.getY());
+
+        // RETOUR D'INFORMATION (Alerte CAN)
+        sendCanDistance(ancreCible, tagMoyenne.tag_id, distSafeZone);
+        
+        if (distSafeZone <= 0) {
+            tone(BUZZER_GPIO_PIN, BUZZER_FREQUENCY, 1000);
+        }
+
+        // Mise à jour de l'écran (Tableaux C pour l'interface de ScreenCommunicationManager)
+        int ids[1] = {tagMoyenne.tag_id};
+        float xs[1] = {posProjectee2D.getX()};
+        float ys[1] = {posProjectee2D.getY()};
+        float distsScreen[1] = {distCentreVehicule};
+        bool alarmes[1] = {inDanger};
+        
         static unsigned long chronoRuntime = 0;
-        if (millis() - chronoRuntime >= FENETRE_MS && tagCount > 0) {
-            envoyerMiseAJourTagsRuntime(ids, xs, ys, distsScreen, alarmes, tagCount);
+        if (millis() - chronoRuntime >= 33) { // Limitation du rafraîchissement écran (30 FPS max)
+            envoyerMiseAJourTagsRuntime(ids, xs, ys, distsScreen, alarmes, 1);
             chronoRuntime = millis();
         }
     }
 }
 
 void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
-    Serial.println("[Hub] Lancement de l'auto-calibration des ancres...");
-    
-    // 1) Auto-calibration des 4 ancres par descente de gradient
+    Serial.println("[Hub] Lancement de l'auto-calibration matérielle des ancres...");
+   
+    // Cette fonction gère son propre timeout/blocage CAN dans InitAnchorPosition.cpp
     initAnchorsPosition(vAnchors);
-    
-    // 2) VRAI CHANGEMENT DE REPÈRE : L'origine (0,0,0) devient le milieu des ancres.
-    // Cette fonction de GridLibrary translate officiellement et définitivement 
-    // les coordonnées des 4 ancres dans la RAM.
+   
+    // Changement de repère officiel
     alignAnchorsCoordinatesWithGridOrigin(vAnchors);
-    
-    // On s'assure que le tableau de points de calibration est bien vide
     calibManager.viderPoints();
-    
-    // 3) Solution de contournement Prototype : On force le Tag 4
+   
+    // Configuration pour l'étape suivante
     idTagSelectionne = 4;
-    
-    Serial.println("[Hub] Initialisation terminée. Repère centré sur (0,0,0).");
-    Serial.println("[Hub] Tag 4 sélectionné par défaut. Passage automatique en collecte de points.");
-    
-    // On bascule directement à l'étape suivante sans attendre l'écran
+   
+    Serial.println("[Hub] Initialisation terminée. Passage en collecte de points pour géométrie.");
     etatActuelHub = HUB_STATE_COLLECTING_POINTS;
 }
 
 void executer_HUB_STATE_COLLECTING_POINTS() {
-    // Cette fonction boucle en permanence. On sortira de cet état uniquement 
-    // lorsque l'écran enverra la commande UART "stop_calib" (géré dans loopScreenCommunication).
+    static unsigned long lastPollTimeCalib = 0;
+    const unsigned long POLL_INTERVAL = 20;
 
-    std::vector<DistanceMoyennes> tagsLisses;
+    // 1. POLLING POUR LA CALIBRATION
+    if (millis() - lastPollTimeCalib >= POLL_INTERVAL) {
+        // Demande des distances du Tag d'étalonnage à l'Ancre 0
+        sendCanRequestDistances(0, idTagSelectionne);
+        lastPollTimeCalib = millis();
+    }
+
+    // 2. RÉCUPÉRATION ET TRAITEMENT
+    DistanceMoyennes tagMoyenne;
     
-    // On récupère les données lissées (buffer temporel de 1/30s)
-    if (recupDonnees.getDonneesLissees(tagsLisses)) {
+    // On extrait spécifiquement le Tag que l'ouvrier tient en main
+    if (recupDonnees.getDonneesLisseesPourTag(idTagSelectionne, tagMoyenne)) {
         
-        for (const auto& tag : tagsLisses) {
-            // On ne s'intéresse qu'au tag que l'ouvrier tient en main (le Tag 4)
-            if (tag.tag_id == idTagSelectionne) { 
-                
-                // On prépare le dictionnaire pour la trilatération
-                std::unordered_map<int, float> dists;
-                for (int i = 0; i < 4; i++) {
-                    if (tag.distances[i] > 0.0f) {
-                        dists[i] = tag.distances[i]; // L'index 'i' correspond à l'ID de l'ancre (0 à 3)
-                    }
-                }
-
-                // Il faut au moins 3 distances valides pour calculer une position 3D
-                if (dists.size() >= 3) {
-                    
-                    // Calcul de la position 3D du Tag.
-                    // IMPORTANT : Comme vAnchors a été translaté à l'étape d'avant, 
-                    // pos3D est DÉJÀ dans le bon repère centré !
-                    V3 pos3D = trilateration3D(vAnchors, dists);
-                    
-                    // On enregistre directement le point pur. Fini le bricolage !
-                    calibManager.ajouterPoint(pos3D);
-                    
-                    // Optionnel : Un petit print pour voir qu'on enregistre bien
-                    Serial.printf("[Collecte] Point ajouté : X=%.2f, Y=%.2f, Z=%.2f (Total: %d points)\n", 
-                                  pos3D.getX(), pos3D.getY(), pos3D.getZ(), calibManager.getNombrePoints());
-                }
+        std::unordered_map<int, float> dists;
+        for (int i = 0; i < 4; i++) {
+            if (tagMoyenne.distances[i] > 0.0f) {
+                dists[i] = tagMoyenne.distances[i]; 
             }
+        }
+
+        // Il faut au moins 3 distances valides pour un calcul 3D viable
+        if (dists.size() >= 3) {
+            V3 pos3D = trilateration3D(vAnchors, dists);
+            calibManager.ajouterPoint(pos3D);
         }
     }
 }
 
 void executer_HUB_STATE_GENERATING_GEOMETRY() {
-    Serial.printf("[Machine Etats] Étape : Génération géométrie pour le Tag cible #%d...\n", idTagSelectionne);
+    Serial.printf("[Machine Etats] Génération de la géométrie pour le Tag cible #%d...\n", idTagSelectionne);
 
     if (calibManager.getNombrePoints() < 3) {
-        Serial.println("[Erreur] Pas assez de points pour générer un plan mathématique.");
+        Serial.println("[Erreur] Nombre de points insuffisant pour le plan mathématique.");
         etatActuelHub = HUB_STATE_IDLE;
         return;
     }
 
     const std::vector<V3>& pointsCollectes = calibManager.getPoints();
-    
-    // 1. Calcul du plan incliné à partir du nuage de points
+   
     LissageVehicule::PlanLocal planVehicule = LissageVehicule::calculerPlanMoyen(pointsCollectes);
     Polygone zone64 = LissageVehicule::echantillonner64Points(0, planVehicule, pointsCollectes);
-    const std::vector<V3>& pts = zone64.getPoints();
+    
+    // Changement de repère de la zone
+    std::vector<V3> pointsChangeRepere = changeCoordinateSystem(zone64.getPoints(), planVehicule.normale);
 
-    // --- CORRECTION : VRAI CHANGEMENT DE REPÈRE ---
-    // 2. On change le repère des 64 points en passant la normale du plan 
-    // comme vecteur de base pour le nouveau repère
-    std::vector<V3> pointsChangeRepere = changeCoordinateSystem(pts, planVehicule.normale);
-
-    // 3. On applique le MÊME changement de repère aux 4 ancres pour qu'elles suivent
+    // Changement de repère des Ancres
     std::vector<int> aIds = vAnchors.giveModuleIdList();
     std::vector<V3> positionsAncres;
     for (int id : aIds) {
@@ -368,15 +268,12 @@ void executer_HUB_STATE_GENERATING_GEOMETRY() {
     }
     std::vector<V3> ancresChangeRepere = changeCoordinateSystem(positionsAncres, planVehicule.normale);
 
-    // 4. On met à jour la mémoire RAM du Hub avec ces nouvelles coordonnées
-    // /!\ TRÈS IMPORTANT : On conserve le Z (ex: Z=0.7) ! On n'aplatit rien.
+    // Enregistrement des nouvelles coordonnées en RAM
     for (size_t i = 0; i < aIds.size(); i++) {
         vAnchors.setModulePosition(aIds[i], ancresChangeRepere[i]);
     }
 
-    // --- PRÉPARATION POUR L'ÉCRAN ---
-    // La fonction envoyerGeometrieCalibration de l'UART attend des tableaux 2D.
-    // On extrait donc uniquement les X et Y du nouveau repère pour l'affichage.
+    // Préparation pour l'écran (2D)
     float ancresCalculees[4][2];
     for (size_t i = 0; i < 4 && i < aIds.size(); i++) {
         ancresCalculees[i][0] = ancresChangeRepere[i].getX();
@@ -389,50 +286,47 @@ void executer_HUB_STATE_GENERATING_GEOMETRY() {
         zone64PointsCalculee[i][1] = pointsChangeRepere[i].getY();
     }
 
-    // Envoi de la géométrie au format 2D pour la tablette
+    // Envoi de la géométrie via UART
     envoyerGeometrieCalibration(ancresCalculees, zone64PointsCalculee);
 
     calibManager.viderPoints();
     etatActuelHub = HUB_STATE_IDLE;
-    Serial.println("[Machine Etats] Géométrie initiale (avec changement de repère) envoyée. Retour en IDLE.");
+    Serial.println("[Machine Etats] Géométrie transmise. Retour en IDLE.");
 }
 
 void executer_HUB_STATE_IDLE() {
-    // Le processeur se repose. Il attend que l'interruption matérielle de l'UART 
-    // (depuis la tablette) modifie la variable etatActuelHub pour déclencher une action.
+    // Repos du Hub. Modifié uniquement par interruption UART depuis l'IHM.
 }
 
 void reinitialiserObjetsMetierHub() {
-  vSafeZone = Polygone(0, std::vector<V3>());
-  Serial.println("[Main Hub] Configuration entièrement vidée de la RAM.");
+    vSafeZone = Polygone(0, std::vector<V3>());
+    Serial.println("[Main Hub] Configuration vidée de la RAM.");
 }
 
 void loop() {
-  // Gère la réception des paquets JSON depuis la tablette
-  loopScreenCommunication();
+    // Gestion de l'UART
+    loopScreenCommunication();
 
-  // /!\ INDISPENSABLE POUR LE BUS CAN /!\
-  // Contrairement au Wi-Fi, le CAN ne possède pas de fonction de "Callback automatique".
-  // Nous devons donc interroger manuellement la carte à chaque milliseconde pour voir
-  // si des ancres nous ont envoyé leurs calculs UWB.
-  //ecouterReseauFilaire();
+    // INTERCEPTION CAN OBLIGATOIRE
+    // Indispensable au fonctionnement du polling, charge les données de manière asynchrone.
+    ecouterReseauFilaire();
 
-  // Machine à états Switch/Case (Design Pattern State)
-  switch (etatActuelHub) {
-      case HUB_STATE_IDLE:
-          executer_HUB_STATE_IDLE();
-          break;
-      case HUB_STATE_DETECTING_TAGS_FOR_INIT:
-          executer_HUB_STATE_DETECTING_TAGS_FOR_INIT();
-          break;
-      case HUB_STATE_COLLECTING_POINTS:
-          executer_HUB_STATE_COLLECTING_POINTS();
-          break;
-      case HUB_STATE_GENERATING_GEOMETRY:
-          executer_HUB_STATE_GENERATING_GEOMETRY();
-          break;
-      case HUB_STATE_RUNNING:
-          executer_HUB_STATE_RUNNING();
-          break;
-  }
+    // Design Pattern State
+    switch (etatActuelHub) {
+        case HUB_STATE_IDLE:
+            executer_HUB_STATE_IDLE();
+            break;
+        case HUB_STATE_DETECTING_TAGS_FOR_INIT:
+            executer_HUB_STATE_DETECTING_TAGS_FOR_INIT();
+            break;
+        case HUB_STATE_COLLECTING_POINTS:
+            executer_HUB_STATE_COLLECTING_POINTS();
+            break;
+        case HUB_STATE_GENERATING_GEOMETRY:
+            executer_HUB_STATE_GENERATING_GEOMETRY();
+            break;
+        case HUB_STATE_RUNNING:
+            executer_HUB_STATE_RUNNING();
+            break;
+    }
 }
