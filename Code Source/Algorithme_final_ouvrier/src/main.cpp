@@ -36,60 +36,35 @@ void loop()
     //Serial.println(" hPa");
   }
 
-  // FIN TESTS
+  bool vIsDistanceReceived = false;
+  float vTagDistanceFromSafeZone = -1.0f;
 
   String vMessageReceived;
   UWBMessage vMessageReceivedData;
 
-  // On vérifie si le hub veut que l'on passe en mode calibration de la zone de sécurité
+  // On vérifie si le module UWB du tag a reçu un message quelconque (AT+RANGE ou bien ordre du Hub)
   if (receiveUWBMessage(Serial1, vMessageReceived, Serial))
   {
-    if (decodeUWBMessage(vMessageReceived, vMessageReceivedData))
+    if (decodeUWBMessage(vMessageReceived, vMessageReceivedData, Serial))
     {
-      if (vMessageReceivedData.orderType == HUB_ORDER_START_TAG_CALIBRATION)
+      // Si c'est un AT+RANGE, on l'envoie aux ancres
+      if (vMessageReceivedData.aIsStandardDistanceMessage)
+      {
+        sendDistancesToAnchor(Serial1, Serial, vMessageReceived);
+      }
+      // Si c'est un ordre de calibration du tag, on la démarre
+      else if (vMessageReceivedData.orderType == HUB_ORDER_START_TAG_CALIBRATION)
       {
         // On stoppe le bipper s'il sonne toujours
         noTone(XIAO_TO_BIPPER_PIN);
 
         safeZoneCalibration();
       }
-    }
-    else
-    {
-      Serial.println("[PRINCIPAL] Impossible de décoder le message reçu");
-    }
-  }
-  else
-  {
-    Serial.println("On a pas reçu de message : " + vMessageReceived);
-  }
-
-  // On envoie aux ancres nos distances par rapport à elles
-  sendDistancesToAnchor(Serial1, Serial);
-
-  // On attend de recevoir par transmission UWB d’une ancre relayant un message du hub qui contient sa distance à la zone de sécurité
-  bool vIsDistanceReceived = false;
-  float vTagDistanceFromSafeZone = -1.0f;
-
-  // On définit une sécurité de 800ms pour éviter le blocage infini
-  uint32_t vStartTime = millis();
-  const uint32_t vTimeoutMs = 800;
-
-  while (!vIsDistanceReceived && (millis() - vStartTime < vTimeoutMs))
-  {
-    if (receiveUWBMessage(Serial1, vMessageReceived, Serial))
-    {
-      if (decodeUWBMessage(vMessageReceived, vMessageReceivedData))
+      // Si c'est la distance du tag par rapport au véhicule, on récupère la distance
+      else if (vMessageReceivedData.orderType == HUB_ORDER_TAG_DISTANCE_FROM_SF)
       {
-        if (vMessageReceivedData.orderType == HUB_ORDER_TAG_DISTANCE_FROM_SF)
-        {
-          vIsDistanceReceived = true;
-          vTagDistanceFromSafeZone = vMessageReceivedData.dataValue;
-        }
-      }
-      else
-      {
-        Serial.println("[PRINCIPAL] Impossible de décoder le message reçu");
+        vIsDistanceReceived = true;
+        vTagDistanceFromSafeZone = vMessageReceivedData.dataValue;
       }
     }
   }
@@ -122,7 +97,7 @@ void loop()
     }
   }
  // On vérifie si la batterie est faible
- vStartTime = millis();
+ uint32_t vStartTime = millis();
  const uint32_t TimeoutBatMS = 1000; // 
 
   if (millis() - vStartTime > TimeoutBatMS)
@@ -137,17 +112,5 @@ void loop()
       digitalWrite(LED_RED, LOW);
     }
   vStartTime = millis();
-    /*
-    else
-    {
-      int batteryLevel = calculBattery();
-      Serial.print("[XIAO] Batterie OK : ");
-      Serial.print(batteryLevel);
-      Serial.println(" V");
-      break;
-    }
-    */
-    
   }
-
 }
