@@ -28,9 +28,11 @@
 #define HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL 4
 #define HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL 5
 #define HUB_ORDER_REQUEST_DISTANCES 6
-#define HUB_ORDER_SET_AS_TAG 7 // h
-#define HUB_ORDER_SET_AS_ANCHOR 8 // h
-#define HUB_ORDER_DISTANCE_FROM_SF 9 // h
+
+
+#define HUB_ORDER_SET_AS_TAG 8 // h
+#define HUB_ORDER_SET_AS_ANCHOR 9 // h
+#define HUB_ORDER_DISTANCE_FROM_SF 10 // h
 
 // Macro pour extraire des chiffres de nombres en hexadécimal
 #define readFirstHexaNumber(H) (H & 0xF0)
