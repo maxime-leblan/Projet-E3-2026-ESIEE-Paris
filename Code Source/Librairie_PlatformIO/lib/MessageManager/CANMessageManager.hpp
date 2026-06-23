@@ -20,6 +20,7 @@
 #define MESSAGE_TAG_ID_AND_DISTANCE ((uint8_t)0x20)
 #define MESSAGE_HUB_ORDER ((uint8_t)0x30)
 #define MESSAGE_TAG_ID_AND_ALL_DISTANCES ((uint8_t)0x40)
+#define MESSAGE_STATIC_ANCHOR_ID_AND_ALL_DISTANCES ((uint8_t)0x50)
 
 // Convention de nommage des différents types d'ordre du Hub
 #define HUB_ORDER_TOGGLE_MODULE_MODE 1
@@ -28,6 +29,7 @@
 #define HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL 4
 #define HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL 5
 #define HUB_ORDER_REQUEST_DISTANCES 6
+#define HUB_ORDER_REQUEST_ANCHOR_DISTANCES_DURING_CALIB 7
 
 // Macro pour extraire des chiffres de nombres en hexadécimal
 #define readFirstHexaNumber(H) (H & 0xF0)
@@ -55,6 +57,12 @@ struct __attribute__((packed)) MsgAllDistances {
     uint16_t aDistances[4]; 
 };
 
+// Structure pour le message de type 5 (Id Ancre statique + tableau de distances aux ancres tags)
+struct __attribute__((packed)) MsgStaticAnchorAllDistances {
+    // Remplacement du std::vector par un tableau fixe (4 ancres)
+    uint16_t aDistances[4]; 
+};
+
 // Structure pour le message de type 3 pour l'ordre HUB_ORDER_TOGGLE_MODULE_MODE
 struct __attribute__((packed)) MsgToggleHubOrder {
     uint8_t staticAnchorId; // L'ID de l'ancre qui reste fixe en mode Ancre
@@ -73,6 +81,11 @@ struct __attribute__((packed)) MsgAnchorCalibHubOrder {
 // Structure pour l'ordre HUB_ORDER_REQUEST_DISTANCES
 struct __attribute__((packed)) MsgRequestDistancesHubOrder {
     uint8_t aTagId; // L'ID du Tag dont le Hub veut récupérer les distances
+};
+
+// Structure pour l'ordre HUB_ORDER_REQUEST_ANCHOR_DISTANCES_DURING_CALIB
+struct __attribute__((packed)) MsgRequestAnchorDistancesDuringCalibHubOrder {
+    uint8_t aStaticAnchorId; // L'ID du Tag dont le Hub veut récupérer les distances
 };
 
 /**
@@ -119,6 +132,13 @@ void sendCanDistance(uint8_t id_ancre, uint8_t id_tag, float dist);
  * @param pAllTagDistances Tableau contenant les distances du Tag par rapport à toutes les ancres
  */
 void sendCanDistanceFromAnchorToHub(uint8_t pAnchorId, uint8_t pTagId, std::vector<uint16_t> pAllTagDistances);
+
+/**
+ * Permet d'envoyer un message depuis l'Ancre statique (pendant la calibration des positions des ancres) au Hub contenant toutes ses distances par rapport aux ancres
+ * @param pStaticAnchorId Identifiant de l'ancre qui va envoyer le message
+ * @param pAllStaticAnchorDistances Tableau contenant les distances du Tag par rapport à toutes les ancres
+ */
+void sendCanDistanceFromStaticAnchorToHub(uint8_t pStaticAnchorId, std::vector<uint16_t> pAllStaticAnchorDistances);
 
 /**
  * Permet d'envoyer un message, contenant un identifiant, entre le Hub et l'Ancre dans les 2 sens.

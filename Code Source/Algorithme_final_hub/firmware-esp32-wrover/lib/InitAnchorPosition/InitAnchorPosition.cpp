@@ -22,7 +22,7 @@ std::unordered_map<std::string, float> getAnchorDistances(int pAnchorId, UWBModu
 
     unsigned long startTime = millis();
     
-    // Timeout de 1000ms pour garantir plusieurs cycles de polling
+    // Timeout de 5000ms pour garantir plusieurs cycles de polling
     while (millis() - startTime < 5000) 
     {
         // 1. Polling : L'ancre statique demande les distances pour les modules devenus Tags
