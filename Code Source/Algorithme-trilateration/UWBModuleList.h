@@ -61,6 +61,11 @@ class UWBModuleList
     */
     void addModule(int pId, UWBModule pModule);
 
+    /**
+     * Efface tout le contenu de la liste des modules
+     */
+    void clearAll();
+
     /*
     Modifie la position du module dont l'identifiant est passé en paramètre
     pModuleId - identifiant du module dont on veut modifier la position

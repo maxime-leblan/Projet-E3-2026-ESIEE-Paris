@@ -47,6 +47,11 @@ void UWBModuleList::addModule(int pId, UWBModule pModule)
     aUWBModuleList[pId] = pModule;
 }
 
+void clearAll()
+{
+    aUWBModuleList.clear();
+}
+
 void UWBModuleList::setModulePosition(int pModuleId, V3 pNewPosition)
 {
     aUWBModuleList[pModuleId].setPosition(pNewPosition);
