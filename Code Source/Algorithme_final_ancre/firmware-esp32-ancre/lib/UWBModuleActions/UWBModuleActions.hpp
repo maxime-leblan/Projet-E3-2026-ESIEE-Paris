@@ -16,6 +16,12 @@
 #define ANCHOR_RATE 1
 #define ANCHOR_FILTER_STATUS 0
 #define ANCHOR_DEFAULT_MODE 1
+#define ACTIVATE_AT_RANGE 1
+#define ACTIVATE_AT_RDATA 1
+#define NUMBER_OF_ANCHORS 4
+#define MAX_SUPPORTED_TAGS 6
+#define TAG_MODE 0
+#define ANCHOR_MODE 1
 
 extern HardwareSerial UWBSerial;
 // stocke le mode UWB actuel de l'ancre
