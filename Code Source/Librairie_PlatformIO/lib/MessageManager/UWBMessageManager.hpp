@@ -9,6 +9,7 @@
 
 // Dans UWBDataManager.hpp
 struct UWBMessage {
+    bool aIsStandardDistanceMessage; // indique si le message est un message AT+RANGE ou non
     int senderId;
     int receiverId;
     int orderType;
@@ -18,7 +19,7 @@ struct UWBMessage {
 /**
  * Décode un message UWB envoyé à l'origine en CAN par le Hub puis convertit en message UWB par une Ancre en utilisant les regex spécifiques par type et stocke le résultat dans la structure UWBMessage. Cette fonction est uniquement utilisable par un Tag
  */
-bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage);
+bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage, Stream & pSerial);
 
 /**
  * Tente de réceptionner un message personnalisé envoyé entre une ancre et un tag via UWB
@@ -30,35 +31,35 @@ bool receiveUWBMessage(Stream &pUWBSerial, String &outRawMessage, Stream & pSeri
  * Tente de réceptionner le message classique contenant l'id du tag émetteur avec toutes les distances aux ancres via UWB. Cette fonction est utilisé par les ancres. La fonction est compatible avec la XIAO (tag)
  * @return True si on a bien réceptionné un message, false sinon
  */
-bool receiveUWBDistanceMessage(Stream &pUWBSerial, Stream &pSerial, String &outRawMessage);
+//bool receiveUWBDistanceMessage(Stream &pUWBSerial, Stream &pSerial, String &outRawMessage);
 
 /**
  * Tente d'extraire un message de distance UWB du moniteur série pUWBSerial du Tag qui a appelé la fonction. Renvoie la String extraite dans outRawMessage.
  * @return Le message contenant les distances extraites, ou la chaine vide "" si rien n'a été lu.
  */
-void readDistancesInTagSerial(Stream & pUWBSerial, Stream & pSerial, String &outRawMessage);
+//void readDistancesInTagSerial(Stream & pUWBSerial, Stream & pSerial, String &outRawMessage);
 
 /**
  * Configure le module UWB pour permettre l'envoi de messages personnalisés. La fonction est compatible avec la XIAO (tag)
  */
-void configureUWBForMessaging(Stream &pUWBSerial);
+//void configureUWBForMessaging(Stream &pUWBSerial);
 
 /**
  * Envoie la distance au Tag par rapport à la zone de sécurité
  * Format: <ID_Emetteur>:<ID_Destinataire>:3:<Distance>
  */
-void sendDistanceToTag(Stream &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, float pDistance);
+void sendDistanceToTag(Stream &pUWBSerial, Stream & pSerial, uint8_t pSenderID, uint8_t pReceiverID, float pDistance);
 
 /**
  * 
  */
-void sendDistancesToAnchor(Stream & pUWBSerial, Stream & pSerial);
+void sendDistancesToAnchor(Stream & pUWBSerial, Stream & pSerial, String & pRawRangeMessage);
 
 /**
  * Envoie un ordre au Tag
  * Format: <ID_Emetteur>:<ID_Destinataire>:<Type_Ordre>
  */
-void sendOrderToTag(Stream &pUWBSerial, uint8_t pSenderID, uint8_t pReceiverID, uint8_t pOrderType);
+void sendOrderToTag(Stream &pUWBSerial, Stream & pSerial, uint8_t pSenderID, uint8_t pReceiverID, uint8_t pOrderType);
 
 /**
  * Envoie des commandes au module UWB par le port pUWBSerial et affiche du texte de débug dans pSerial
