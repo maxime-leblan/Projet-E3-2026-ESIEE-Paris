@@ -73,8 +73,11 @@ void initUWBModule(int pAnchorId)
 
     sendATCommand("AT?", Serial, UWBSerial);
 
+    /*
     sendATCommand("AT+RESTORE", Serial, UWBSerial);
-    delay(500);
+    delay(2000);
+    */
+    
 
     sendATCommand("AT+SETCFG=" + String(pAnchorId) + ",1,1,0", Serial, UWBSerial); 
     sendATCommand("AT+SETCAP=6,10,1", Serial, UWBSerial); 
@@ -101,8 +104,10 @@ void toggleUWBMode(int pAnchorId)
     delay(1500); // Laisse le temps au module de booter complètement
 
     // 1. HARD RESET LOGICIEL (Pour nettoyer l'ancien mode de la mémoire Flash)
+    /*
     sendATCommand("AT+RESTORE", Serial, UWBSerial);
     delay(500);
+    */
     
     if (gCurrentUWBMode == ANCHOR_MODE) {
         Serial.printf("[UWB] Passage de Ancre vers mode TAG (ID: %d)\n", pAnchorId);
