@@ -47,7 +47,7 @@ void UWBModuleList::addModule(int pId, UWBModule pModule)
     aUWBModuleList[pId] = pModule;
 }
 
-void clearAll()
+void UWBModuleList::clearAll()
 {
     aUWBModuleList.clear();
 }
