@@ -2,8 +2,8 @@
 #include "UartMessageManager.hpp"
 
 #define HUB_UART_NUM 1
-#define HUB_TX_PIN 33
-#define HUB_RX_PIN 32
+#define HUB_TX_PIN 32
+#define HUB_RX_PIN 33
 #define HUB_BAUDRATE 115200
 
 HardwareSerial ScreenSerial(HUB_UART_NUM);

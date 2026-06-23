@@ -23,6 +23,8 @@
 #define BUZZER_GPIO_PIN 4
 #define BUZZER_FREQUENCY 600
 
+#define TAG_ID_CIBLE 4 // ID du tag que l'on souhaite suivre en temps réel (pour le polling du Hub)
+
 // --- VARIABLES GLOBALES ---
 RecuperationDonneesAncres recupDonnees;
 UWBModuleList vAnchors;
@@ -156,7 +158,7 @@ void executer_HUB_STATE_RUNNING() {
     const unsigned long POLL_INTERVAL = 20; // 50 Hz
     uint8_t ancreCible = 0; // L'ancre désignée pour renvoyer la donnée
     
-    uint8_t tagCible = 4;   
+    uint8_t tagCible = TAG_ID_CIBLE;   
 
     // 1. POLLING CYCLIQUE NON-BLOQUANT
     if (millis() - lastPollTimeRunning >= POLL_INTERVAL) {
@@ -243,16 +245,10 @@ void executer_HUB_STATE_RUNNING() {
         float ys[1] = {posProjectee2D.getY()};
         float distsScreen[1] = {distCentreVehicule};
         bool alarmes[1] = {inDanger};
+        Serial.printf("[HUB IHM] Préparation de l'envoi des données au Screen (Tag %d, X=%.2f, Y=%.2f, DistCentre=%.2f, Danger=%s)\n", 
+                      tagMoyenne.tag_id, posProjectee2D.getX(), posProjectee2D.getY(), distCentreVehicule, inDanger ? "OUI" : "NON");
         
-        static unsigned long chronoRuntime = 0;
-        if (millis() - chronoRuntime >= 33) { // Limitation du rafraîchissement écran (30 FPS max)
-            Serial.printf("[HUB IHM] [%lu] Rafraîchissement de l'écran déclenché (FPS respecté).\n", millis());
-            envoyerMiseAJourTagsRuntime(ids, xs, ys, distsScreen, alarmes, 1);
-            chronoRuntime = millis();
-        } else {
-            // (Optionnel) Dé-commente cette ligne si tu veux voir quand l'écran skippe une frame pour maintenir les performances
-            // Serial.println("[HUB IHM] Rafraîchissement écran ignoré (limite 30 FPS).");
-        }
+        envoyerMiseAJourTagsRuntime(ids, xs, ys, distsScreen, alarmes, 1);
     } else {
         // --- LOG ANTI-FLOOD SI AUCUNE DONNÉE ---
         // Permet de savoir si le système tourne à vide sans spammer la console 50 fois par seconde.
@@ -275,7 +271,7 @@ void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
     calibManager.viderPoints();
    
     // Configuration pour l'étape suivante
-    idTagSelectionne = 4;
+    idTagSelectionne = TAG_ID_CIBLE;
    
     Serial.println("[Hub] Initialisation terminée. Passage en collecte de points pour géométrie.");
     etatActuelHub = HUB_STATE_COLLECTING_POINTS;
