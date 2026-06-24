@@ -23,7 +23,8 @@
 #define BUZZER_GPIO_PIN 4
 #define BUZZER_FREQUENCY 600
 
-#define TAG_ID_CIBLE 4 // ID du tag que l'on souhaite suivre en temps réel (pour le polling du Hub)
+#define TAG_CIBLE 4 // ID du tag que l'on souhaite suivre en temps réel (pour le polling du Hub)
+#define ANCRE_MASTER 0
 
 // --- VARIABLES GLOBALES ---
 RecuperationDonneesAncres recupDonnees;
@@ -66,6 +67,91 @@ void ecouterReseauFilaire() {
             }
         }
     }
+}
+
+V3 getCoordonnesTag(uint8_t tagCible){
+
+    static unsigned long lastPollTimeRunning = 0;
+    const unsigned long POLL_INTERVAL = 20; // 50 Hz
+    
+    // 1. POLLING CYCLIQUE NON-BLOQUANT
+    if (millis() - lastPollTimeRunning >= POLL_INTERVAL) {
+        Serial.printf("[HUB POLL] [%lu] Envoi requête CAN (Ancre: %d, Cible Tag: %d)\n", millis(), ANCRE_MASTER, tagCible);
+        sendCanRequestDistances(ANCRE_MASTER, tagCible);
+        lastPollTimeRunning = millis();
+    }
+
+    // 2. RÉCUPÉRATION ET TRAITEMENT
+    DistanceMoyennes tagMoyenne;
+    
+    if (recupDonnees.getDonneesLisseesPourTag(tagCible, tagMoyenne)) {
+        Serial.printf("[HUB DATA] Succès : Données lissées récupérées pour le Tag %d.\n", tagCible);
+        
+        std::vector<int> aIds = vAnchors.giveModuleIdList();
+        std::unordered_map<int, float> distMap;
+
+        Serial.printf("[HUB MATHS] Distances lissées (cm) pour le Tag %d : [%.2f, %.2f, %.2f, %.2f]\n", 
+                      tagMoyenne.tag_id,
+                      tagMoyenne.distances[0],
+                      tagMoyenne.distances[1],
+                      tagMoyenne.distances[2],
+                      tagMoyenne.distances[3]);
+        
+        Serial.printf("[HUB MATHS] Nombre d'ancres trouvées en mémoire (vAnchors) : %d\n", aIds.size());
+
+        for(int i = 0; i < 4 && i < aIds.size(); i++) {
+            distMap[aIds[i]] = tagMoyenne.distances[i]/100.0f; // Conversion en mètres
+        }
+
+        Serial.printf("[HUB MATHS] Distances mappées (mètres) pour le Tag %d : [", tagMoyenne.tag_id);
+        for (const auto& pair : distMap) {
+            Serial.printf("Ancre %d: %.2fm, ", pair.first, pair.second);
+        }
+        Serial.println("]");
+
+        // TRILATÉRATION
+        // On initialise la matrice A nécessaire au calcul
+        Serial.println("[HUB TRILAT] Début de l'initialisation de la Matrice A...");
+        initMatrixA(vAnchors);
+        
+        Serial.printf("[HUB TRILAT] État actuel des ancres : %s\n", vAnchors.toString().c_str());
+
+        Serial.println("[HUB TRILAT] Lancement du calcul trilateration3D...");
+        V3 pos3D = trilateration3D(vAnchors, distMap);
+
+        Serial.printf("[HUB MATHS] Position 3D calculée pour le Tag %d : X=%.2f, Y=%.2f, Z=%.2f\n", 
+                      tagMoyenne.tag_id, pos3D.getX(), pos3D.getY(), pos3D.getZ());
+        return pos3D;
+    } else {
+        // --- LOG ANTI-FLOOD SI AUCUNE DONNÉE ---
+        // Permet de savoir si le système tourne à vide sans spammer la console 50 fois par seconde.
+        static unsigned long lastNoDataLog = 0;
+        if (millis() - lastNoDataLog > 1000) {
+            Serial.printf("[HUB DATA ALERTE] Aucune donnée lissée disponible pour le Tag %d en ce moment...\n", tagCible);
+            lastNoDataLog = millis();
+        }
+    }
+}
+
+float getDistanceToEpicentreFromTag(V3 pos3D){
+    return std::sqrt(pos3D.getX() * pos3D.getX() + pos3D.getY() * pos3D.getY());
+}
+
+/**
+ * Recupere la distance du tag cible et l'envoie à l'application
+ * Des que l'utilisateur aura selectionne le tag, l'applicatino enverra une commande qui executera HUB_COLLECTING_POINT avec le bon tag
+*/
+void AskUserForTag() {
+    Serial.println("Recupération de la distance à l'épicentre du tag cible pour l'etalonnage");
+    
+    V3 tag4_position = getCoordonnesTag(TAG_CIBLE);
+
+    int ids[1] = {TAG_CIBLE};
+    float distances[1] = {getDistanceToEpicentreFromTag(tag4_position)};
+    int count = 1;
+    envoyerListeTagsDecouverts(ids, distances, count);
+    Serial.println("Distance envoyée à l'appplication");
+    etatActuelHub = HUB_STATE_IDLE;
 }
 
 // Application de la configuration reçue de l'IHM Écran
@@ -154,59 +240,8 @@ void setup() {
 }
 
 void executer_HUB_STATE_RUNNING() {
-    static unsigned long lastPollTimeRunning = 0;
-    const unsigned long POLL_INTERVAL = 20; // 50 Hz
-    uint8_t ancreCible = 0; // L'ancre désignée pour renvoyer la donnée
-    
-    uint8_t tagCible = TAG_ID_CIBLE;   
 
-    // 1. POLLING CYCLIQUE NON-BLOQUANT
-    if (millis() - lastPollTimeRunning >= POLL_INTERVAL) {
-        Serial.printf("[HUB POLL] [%lu] Envoi requête CAN (Ancre: %d, Cible Tag: %d)\n", millis(), ancreCible, tagCible);
-        sendCanRequestDistances(ancreCible, tagCible);
-        lastPollTimeRunning = millis();
-    }
-
-    // 2. RÉCUPÉRATION ET TRAITEMENT
-    DistanceMoyennes tagMoyenne;
-    
-    if (recupDonnees.getDonneesLisseesPourTag(tagCible, tagMoyenne)) {
-        Serial.printf("[HUB DATA] Succès : Données lissées récupérées pour le Tag %d.\n", tagCible);
-        
-        std::vector<int> aIds = vAnchors.giveModuleIdList();
-        std::unordered_map<int, float> distMap;
-
-        Serial.printf("[HUB MATHS] Distances lissées (cm) pour le Tag %d : [%.2f, %.2f, %.2f, %.2f]\n", 
-                      tagMoyenne.tag_id,
-                      tagMoyenne.distances[0],
-                      tagMoyenne.distances[1],
-                      tagMoyenne.distances[2],
-                      tagMoyenne.distances[3]);
-        
-        Serial.printf("[HUB MATHS] Nombre d'ancres trouvées en mémoire (vAnchors) : %d\n", aIds.size());
-
-        for(int i = 0; i < 4 && i < aIds.size(); i++) {
-            distMap[aIds[i]] = tagMoyenne.distances[i]/100.0f; // Conversion en mètres
-        }
-
-        Serial.printf("[HUB MATHS] Distances mappées (mètres) pour le Tag %d : [", tagMoyenne.tag_id);
-        for (const auto& pair : distMap) {
-            Serial.printf("Ancre %d: %.2fm, ", pair.first, pair.second);
-        }
-        Serial.println("]");
-
-        // TRILATÉRATION
-        // On initialise la matrice A nécessaire au calcul
-        Serial.println("[HUB TRILAT] Début de l'initialisation de la Matrice A...");
-        initMatrixA(vAnchors);
-        
-        Serial.printf("[HUB TRILAT] État actuel des ancres : %s\n", vAnchors.toString().c_str());
-
-        Serial.println("[HUB TRILAT] Lancement du calcul trilateration3D...");
-        V3 pos3D = trilateration3D(vAnchors, distMap);
-
-        Serial.printf("[HUB MATHS] Position 3D calculée pour le Tag %d : X=%.2f, Y=%.2f, Z=%.2f\n", 
-                      tagMoyenne.tag_id, pos3D.getX(), pos3D.getY(), pos3D.getZ());
+        V3 pos3D = getCoordonnesTag(TAG_CIBLE);   
 
         if (std::abs(pos3D.getZ()) > HAUTEUR_MAX_TAG_METRES) {
             Serial.printf("[HUB TRILAT ERREUR] Calcul rejeté ! Z (%.2fm) dépasse la limite max (%.2fm).\n", 
@@ -215,24 +250,24 @@ void executer_HUB_STATE_RUNNING() {
         }
 
         Serial.printf("[HUB MATHS] Position 2D projetée pour le Tag %d : X=%.2f, Y=%.2f\n", 
-                      tagMoyenne.tag_id, pos3D.getX(), pos3D.getY());
+                      TAG_CIBLE, pos3D.getX(), pos3D.getY());
 
         // ÉVALUATION DANGER
         Serial.println("[HUB ZONE] Évaluation du danger par rapport à la SafeZone...");
         V3 posProjectee2D(pos3D.getX(), pos3D.getY(), 0.0f);
         bool inDanger = vSafeZone.isInside(posProjectee2D);
         float distSafeZone = vSafeZone.getDistanceFrom(posProjectee2D);
-        float distCentreVehicule = std::sqrt(pos3D.getX() * pos3D.getX() + pos3D.getY() * pos3D.getY());
+        float distCentreVehicule = getDistanceToEpicentreFromTag(pos3D);
 
         Serial.printf("[HUB ZONE] Résultat Tag %d -> Danger: %s | Dist. SafeZone: %.2fm | Dist. Centre: %.2fm\n", 
-                      tagMoyenne.tag_id, inDanger ? "OUI" : "NON", distSafeZone, distCentreVehicule);
+                      TAG_CIBLE, inDanger ? "OUI" : "NON", distSafeZone, distCentreVehicule);
 
         Serial.printf("\n[HUB MATHS] Tag %d à %.2fm de la SafeZone. Envoi alerte CAN à Ancre %d.\n", 
-                      tagMoyenne.tag_id, distSafeZone, ancreCible);
+                      TAG_CIBLE, distSafeZone, ANCRE_MASTER);
 
         // RETOUR D'INFORMATION (Alerte CAN)
         Serial.printf("[HUB ALERT] Envoi du message CAN (distance: %.2fm) en cours...\n", distSafeZone);
-        sendCanDistance(ancreCible, tagMoyenne.tag_id, distSafeZone);
+        sendCanDistance(ANCRE_MASTER, TAG_CIBLE, distSafeZone);
         
         if (inDanger) {
             Serial.println("[HUB ALERT DANGER] *** VIOLATION DE LA SAFEZONE ! ACTIVATION DU BUZZER ***");
@@ -240,24 +275,15 @@ void executer_HUB_STATE_RUNNING() {
         }
 
         // Mise à jour de l'écran (Tableaux C pour l'interface de ScreenCommunicationManager)
-        int ids[1] = {tagMoyenne.tag_id};
+        int ids[1] = {TAG_CIBLE};
         float xs[1] = {posProjectee2D.getX()};
         float ys[1] = {posProjectee2D.getY()};
         float distsScreen[1] = {distCentreVehicule};
         bool alarmes[1] = {inDanger};
         Serial.printf("[HUB IHM] Préparation de l'envoi des données au Screen (Tag %d, X=%.2f, Y=%.2f, DistCentre=%.2f, Danger=%s)\n", 
-                      tagMoyenne.tag_id, posProjectee2D.getX(), posProjectee2D.getY(), distCentreVehicule, inDanger ? "OUI" : "NON");
+                      TAG_CIBLE, posProjectee2D.getX(), posProjectee2D.getY(), distCentreVehicule, inDanger ? "OUI" : "NON");
         
         envoyerMiseAJourTagsRuntime(ids, xs, ys, distsScreen, alarmes, 1);
-    } else {
-        // --- LOG ANTI-FLOOD SI AUCUNE DONNÉE ---
-        // Permet de savoir si le système tourne à vide sans spammer la console 50 fois par seconde.
-        static unsigned long lastNoDataLog = 0;
-        if (millis() - lastNoDataLog > 1000) {
-            Serial.printf("[HUB DATA ALERTE] Aucune donnée lissée disponible pour le Tag %d en ce moment...\n", tagCible);
-            lastNoDataLog = millis();
-        }
-    }
 }
 
 void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
@@ -271,12 +297,10 @@ void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
     // Changement de repère officiel
     alignAnchorsCoordinatesWithGridOrigin(vAnchors);
     calibManager.viderPoints();
-   
-    // Configuration pour l'étape suivante
-    idTagSelectionne = TAG_ID_CIBLE;
-   
+
+    AskUserForTag();
+
     Serial.println("[Hub] Initialisation terminée. Passage en collecte de points pour géométrie.");
-    etatActuelHub = HUB_STATE_COLLECTING_POINTS;
 }
 
 void executer_HUB_STATE_COLLECTING_POINTS() {
