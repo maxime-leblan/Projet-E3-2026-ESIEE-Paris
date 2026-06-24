@@ -142,7 +142,4 @@ void initTestHardcodedAnchorsPosition(UWBModuleList & pAnchors)
 
     // On calcule les positions des ancres
     initAnchorsCoordinatesWithGD(pAnchors, vMesuredDistances, ITERATIONS, LEARNING_RATE);
-
-    // On translate l'épicentre des ancres au centre du repère
-    alignAnchorsCoordinatesWithGridOrigin(pAnchors);
 }
