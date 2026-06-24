@@ -104,7 +104,7 @@ vector<V3> initSafeZone(const char* pSafeZoneNamespace, int pNbSafeZonePoints)
     return vSafeZone;
 }
 
-void initHub()
+void initRamHub()
 {
     Serial.println("\n--- TEST ESP32 WROVER COUPLÉ À PLATFORMIO ---");
 

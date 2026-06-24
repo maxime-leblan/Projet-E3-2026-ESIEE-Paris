@@ -2,9 +2,8 @@
 #include "HubDataStorage.hpp"
 #include "GestionnaireAncres.hpp"
 #include "InitAnchorPosition.hpp"
-
-// ---- LIBRAIRIE CAN ----
 #include "CANMessageManager.hpp"
+#include "RelaisBoutonBuzzer.hpp"
 
 #include <ArduinoEigenDense.h>
 #include <ArduinoJson.h>
@@ -19,18 +18,6 @@
 #include "LissagePlanExclusion.hpp"
 #include "CalibrationManager.hpp"
 
-#define HAUTEUR_MAX_TAG_METRES 5.0f
-#define BUZZER_GPIO_PIN 4
-#define BUZZER_FREQUENCY 600
-
-#define TAG_CIBLE 4 // ID du tag que l'on souhaite suivre en temps réel (pour le polling du Hub)
-#define ANCRE_MASTER 0
-
-#define RELAIS_GPIO 2 //GPIO2 != D2 (GPIO9)
-
-void afficherCoordonneesAncres();
-void afficherCoordonneesTag(uint8_t tagId, const V3& pos3D);
-
 // --- VARIABLES GLOBALES ---
 RecuperationDonneesAncres recupDonnees;
 UWBModuleList vAnchors;
@@ -39,6 +26,15 @@ CalibrationManager calibManager;
 
 // Dictionnaire pour retenir la hauteur (Z) des ancres avant que l'écran ne valide le X et Y
 std::map<int, float> hauteursAncresTemporaires;
+
+#define HAUTEUR_MAX_TAG_METRES 5.0f
+
+#define TAG_CIBLE 4 // ID du tag que l'on souhaite suivre en temps réel (pour le polling du Hub)
+#define ANCRE_MASTER 0
+
+// Prototypes
+void afficherCoordonneesAncres();
+void afficherCoordonneesTag(uint8_t tagId, const V3& pos3D);
 
 /**
  * @brief Fonction vitale pour le réseau CAN.
@@ -239,18 +235,13 @@ void afficherCoordonneesTag(uint8_t tagId, const V3& pos3D) {
 }
 
 void setup() {
-    // ACTIVATION RELAIS VITAL
-    pinMode(RELAIS_GPIO, OUTPUT);
-    digitalWrite(RELAIS_GPIO, HIGH);
-
+    initRelaisBoutonBuzzer(); // Immédiat pour mettre le système sous tension
+    
     Serial.begin(115200);
     delay(2000);
-
     Serial.println("\n[Boot] --- Initialisation du Hub ---");
 
-    pinMode(2, OUTPUT);
-
-    initHub();
+    initRamHub();
     setupScreenCommunication();
     initGestionnaireAncres();
 
@@ -315,7 +306,7 @@ void executer_HUB_STATE_RUNNING() {
         
         if (inDanger) {
             Serial.println("[HUB ALERT DANGER] *** VIOLATION DE LA SAFEZONE ! ACTIVATION DU BUZZER ***");
-            tone(BUZZER_GPIO_PIN, BUZZER_FREQUENCY, 1000);
+            faireSonnerBuzzer(1000); // 1 seconde
         }
 
         // Mise à jour de l'écran (Tableaux C pour l'interface de ScreenCommunicationManager)
