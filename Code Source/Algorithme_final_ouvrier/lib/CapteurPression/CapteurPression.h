@@ -8,7 +8,7 @@
 #define BMP_CS D3
 
 void initialiserBMP581();
-float lirePressionBMP581();
+float getPressionBMP581();
 void infosBMP();
 
 #endif

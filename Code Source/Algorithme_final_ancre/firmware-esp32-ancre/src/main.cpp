@@ -9,12 +9,13 @@
 #include "Messages.hpp" 
 
 // IMPORTANT : Remplacer par 0, 1, 2 ou 3 selon la carte flashée
-#define MY_ANCHOR_ID 1
+#define MY_ANCHOR_ID 0
 #define MAX_SUPPORTED_TAGS 6 
 
 struct MemoireTag {
     bool donneeValide = false;
     std::vector<uint16_t> distances = {0, 0, 0, 0};
+    int pressionPa = 0; // +1Pa = -8,3cm
 };
 
 MemoireTag memoiresDesTags[MAX_SUPPORTED_TAGS];
@@ -47,9 +48,11 @@ void loop() {
     // ====================================================================
     // ÉTAPE 1 : ÉCOUTE UWB (Active sur TOUTES les ancres 0, 1, 2, 3)
     // ====================================================================
-    // Toutes les cartes captent le broadcast radio et mettent à jour leur OLED
     while (receiveUWBMessage(UWBSerial, rawUWBMessage, Serial)) {
-        if (rawUWBMessage.startsWith("AT+RANGE") || rawUWBMessage.startsWith("AT+RDATA")) {
+        // Log direct dès qu'une trame radio arrive
+        Serial.println("[ANCRE RX DIAG] Trame UWB brute détectée : " + rawUWBMessage);
+        
+        if (rawUWBMessage.indexOf("AT+RANGE") != -1 || rawUWBMessage.indexOf("&") != -1) {
             dernierMessageValide = rawUWBMessage; 
         }
     }
@@ -66,6 +69,10 @@ void loop() {
                     std::string stdRawMsg(cleanRangeMsg.c_str());
                     std::vector<int> parsedData = getDataFromString(stdRawMsg, "[0-9]+");
                     
+                    // Log de contrôle du nombre d'entiers extraits pour les distances
+                    Serial.printf("[ANCRE PARSE DIAG] Entiers trouvés par la Regex : %d (Attendu au moins %d)\n", 
+                                parsedData.size(), (FIRST_TAG_DISTANCE_INDEX + 4));
+
                     if (parsedData.size() >= (FIRST_TAG_DISTANCE_INDEX + 4)) {
                         uint8_t tid = (uint8_t)getTagIdFromTagData(parsedData);
                         
@@ -75,19 +82,37 @@ void loop() {
                             for (int i = 0; i < 4; i++) {
                                 memoiresDesTags[tid].distances.push_back((uint16_t)getDistanceFromAnchor(parsedData, i));
                             }
+                            
+                            // Sauvegarde
+                            memoiresDesTags[tid].pressionPa = decodedMsg.pressionPa;
                             memoiresDesTags[tid].donneeValide = true;
                             
-                            // Rafraîchissement automatique de la zone basse (les 4 distances)
+                            // --- TRACE FINALE COMPLÈTE ---
+                            Serial.printf("[SUCCÈS STOCKAGE ANCRE] Tag ID: %d | Pression: %d Pa | Distances: [%d, %d, %d, %d]\n", 
+                                        tid, 
+                                        memoiresDesTags[tid].pressionPa,
+                                        memoiresDesTags[tid].distances[0],
+                                        memoiresDesTags[tid].distances[1],
+                                        memoiresDesTags[tid].distances[2],
+                                        memoiresDesTags[tid].distances[3]);
+                            
                             updateUWBData(tid, 
-                                          memoiresDesTags[tid].distances[0], 
-                                          memoiresDesTags[tid].distances[1], 
-                                          memoiresDesTags[tid].distances[2], 
-                                          memoiresDesTags[tid].distances[3]);
+                                        memoiresDesTags[tid].distances[0], 
+                                        memoiresDesTags[tid].distances[1], 
+                                        memoiresDesTags[tid].distances[2], 
+                                        memoiresDesTags[tid].distances[3]);
+                        } else {
+                            Serial.printf("[ANCRE ERROR] ID Tag hors limites (%d)\n", tid);
                         }
+                    } else {
+                        Serial.println("[ANCRE ERROR] Structure de trame AT+RANGE incomplète, impossible de mapper les distances.");
                     }
                 }
             }
+        } else {
+            Serial.println("[ANCRE ERROR] Échec complet du décodage par decodeUWBMessage.");
         }
+        dernierMessageValide = ""; // Nettoyage
         while (UWBSerial.available()) { UWBSerial.read(); }
     }
 

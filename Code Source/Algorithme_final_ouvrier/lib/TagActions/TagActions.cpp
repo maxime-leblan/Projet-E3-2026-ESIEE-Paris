@@ -71,6 +71,7 @@ void initialiserUWB() {
 
 void safeZoneCalibration()
 {
+    return;
     bool isCalibrationFinished = false;
     String vReceivedMessage;
     UWBMessage vReceivedMessageData;

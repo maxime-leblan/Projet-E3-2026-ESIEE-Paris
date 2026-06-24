@@ -1,54 +1,92 @@
 #include "UWBMessageManager.hpp"
 
-bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage, Stream & pSerial) {
+#include "UWBMessageManager.hpp"
 
-    // On vérifie si on a reçu un simple message de distance du module UWB lui-même
-    if (pRawMessage.indexOf("AT+RANGE") != -1)
-    {
+#include "UWBMessageManager.hpp"
+
+bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage, Stream & pSerial) {
+    String messageATraiter = pRawMessage;
+    messageATraiter.trim();
+
+    if (messageATraiter.length() == 0) return false;
+
+    // ====================================================================
+    // CAS 1 : C'est une trame locale de Ping/Pong générée par le module
+    // (L'Ancre en a BESOIN, le Tag l'ignorera dans son main)
+    // ====================================================================
+    if (messageATraiter.indexOf("AT+RANGE") != -1) {
+        
+        // Sécurité : Si deux messages se collent, on coupe au 2ème
+        int secondRange = messageATraiter.indexOf("AT+RANGE", messageATraiter.indexOf("AT+RANGE") + 8);
+        if (secondRange != -1) {
+            messageATraiter = messageATraiter.substring(0, secondRange);
+            messageATraiter.trim();
+        }
+
         outMessage.senderId = 0;
         outMessage.receiverId = 0;
         outMessage.orderType = 0;
-        outMessage.dataValue = 0.0f; // Pas de donnée supplémentaire pour les ordres 1 et 2
-        outMessage.aIsStandardDistanceMessage = true;
+        outMessage.dataValue = 0.0f;
+        outMessage.pressionPa = 0; // On a retiré le Tag TX, donc plus de pression RF
+        outMessage.aIsStandardDistanceMessage = true; 
 
-        pSerial.println("[UWB DECOD] Message décodé de type AT+RANGE");
+        // pSerial.println("[UWB DECOD] Trame AT+RANGE locale détectée.");
         return true;
     }
 
-    // 1. Essayer de décoder comme un message de type DISTANCE (3)
-    std::vector<float> distData = getFloatDataFromString(pRawMessage.c_str(), UWB_MESSAGE_DISTANCE_REGEX);
-    if (!distData.empty()) {
-        outMessage.senderId = getSenderIdFromUWBMessage(distData);
-        outMessage.receiverId = getReceiverIdFromUWBMessage(distData);
-        outMessage.orderType = getOrderTypeFromUWBMessage(distData);
-        outMessage.dataValue = getDistanceFromUWBMessage(distData); // La distance est le 4ème élément
+    // ====================================================================
+    // CAS 2 : C'est un message UWB personnalisé (AT+RDATA ou +RDATA)
+    // ====================================================================
+    int rdataIndex = messageATraiter.indexOf("AT+RDATA=");
+    if (rdataIndex == -1) rdataIndex = messageATraiter.indexOf("+RDATA=");
+
+    if (rdataIndex != -1) {
+        int commaCount = 0;
+        int payloadStart = -1;
+        // Correction du warning unsigned/signed
+        for (unsigned int i = rdataIndex; i < messageATraiter.length(); i++) {
+            if (messageATraiter[i] == ',') {
+                commaCount++;
+                if (commaCount == 4) {
+                    payloadStart = i + 1;
+                    break;
+                }
+            }
+        }
+        
+        if (payloadStart != -1) {
+            messageATraiter = messageATraiter.substring(payloadStart);
+            messageATraiter.trim();
+            // pSerial.println("[UWB DECOD] Payload utile extrait : " + messageATraiter);
+        } else {
+            return false;
+        }
+    }
+
+    // ====================================================================
+    // CAS 3 : Décodage du Payload via Regex
+    // ====================================================================
+    std::vector<float> extractedData = getFloatDataFromString(messageATraiter.c_str(), "[+-]?([0-9]*[.])?[0-9]+");
+
+    if (extractedData.size() >= 3) {
+        outMessage.senderId = getSenderIdFromUWBMessage(extractedData);
+        outMessage.receiverId = getReceiverIdFromUWBMessage(extractedData);
+        outMessage.orderType = getOrderTypeFromUWBMessage(extractedData);
         outMessage.aIsStandardDistanceMessage = false;
 
-        pSerial.println("[UWB DECOD] Message décodé de type 'Distance entre tag et véhicule'. Contenu :");
-        pSerial.println("[UWB DECOD] Distance = " + String(outMessage.dataValue));
-        pSerial.println("[UWB DECOD] Type d'ordre = " + String(outMessage.orderType));
-        pSerial.println("[UWB DECOD] ID émetteur = " + String(outMessage.senderId));
-        pSerial.println("[UWB DECOD] ID destinataire = " + String(outMessage.receiverId));
+        if (extractedData.size() >= 4) {
+            outMessage.dataValue = getDistanceFromUWBMessage(extractedData);
+            pSerial.printf("[UWB DECOD] Payload DISTANCE : Emetteur=%d | Destinataire=%d | Ordre=%d | Dist=%.2f\n", 
+                           outMessage.senderId, outMessage.receiverId, outMessage.orderType, outMessage.dataValue);
+        } else {
+            outMessage.dataValue = 0.0f;
+            pSerial.printf("[UWB DECOD] Payload ORDRE : Emetteur=%d | Destinataire=%d | Ordre=%d\n", 
+                           outMessage.senderId, outMessage.receiverId, outMessage.orderType);
+        }
         return true;
     }
 
-    // 2. Si ce n'est pas une distance, essayer de décoder comme un ORDRE (1 ou 2)
-    std::vector<float> orderData = getFloatDataFromString(pRawMessage.c_str(), UWB_MESSAGE_ORDER_REGEX);
-    if (!orderData.empty()) {
-        outMessage.senderId = getSenderIdFromUWBMessage(orderData);
-        outMessage.receiverId = getReceiverIdFromUWBMessage(orderData);
-        outMessage.orderType = getOrderTypeFromUWBMessage(orderData);
-        outMessage.dataValue = 0.0f; // Pas de donnée supplémentaire pour les ordres 1 et 2
-        outMessage.aIsStandardDistanceMessage = false;
-
-        pSerial.println("[UWB DECOD] Message décodé de type 'Ordre du Hub pour le tag'");
-        pSerial.println("[UWB DECOD] Type d'ordre = " + String(outMessage.orderType));
-        pSerial.println("[UWB DECOD] ID émetteur = " + String(outMessage.senderId));
-        pSerial.println("[UWB DECOD] ID destinataire = " + String(outMessage.receiverId));
-        return true;
-    }
-
-    return false; // Échec du décodage si aucune regex ne correspond
+    return false;
 }
 
 bool receiveUWBMessage(Stream &pUWBSerial, String &outRawMessage, Stream & pSerial) {
@@ -56,7 +94,7 @@ bool receiveUWBMessage(Stream &pUWBSerial, String &outRawMessage, Stream & pSeri
         String input = pUWBSerial.readStringUntil('\n');
         input.trim(); // Nettoie les caractères invisibles (comme \r)
 
-        pSerial.println("[UWB]  Message brut reçu du module UWB : " + input);
+        //pSerial.println("[UWB]  Message brut reçu du module UWB : " + input);
         outRawMessage = input;
         return true;
     }
@@ -133,6 +171,23 @@ void sendDistancesToAnchor(Stream & pUWBSerial, Stream & pSerial, String & pRawR
     // Affichage de confirmation dans le moniteur série
     pSerial.println("[UWB SEND T->A] Tag a envoyé : " + atCommand);
 
+}
+
+void sendDistancesWithPressionToAnchor(Stream & pUWBSerial, Stream & pSerial, String & pRawRangeMessage, float pPression_hPa) {
+    pSerial.println("\nON SKIP CARRMENT L'ENVOI\n");
+    return;
+    // 3. Construction de la commande d'envoi radio
+    // La syntaxe est : AT+DATA=<LongueurDuMessage>,<MessageBrut>
+
+    String vPressionStr = String((long)round(pPression_hPa * 100.0)); 
+    String vMessage = vPressionStr + " & " + pRawRangeMessage;
+    String atCommand = "AT+DATA=" + String(vMessage.length()) + "," + vMessage;
+    
+    // 4. Envoi au module UWB pour diffusion aux ancres
+    pUWBSerial.println(atCommand);
+    
+    // Affichage de confirmation dans le moniteur série
+    pSerial.println("[UWB SEND T->A] Tag a envoyé : " + atCommand);
 }
 
 /*

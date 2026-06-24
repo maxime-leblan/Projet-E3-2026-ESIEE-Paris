@@ -13,6 +13,7 @@ struct UWBMessage {
     int senderId;
     int receiverId;
     int orderType;
+    int pressionPa;
     float dataValue; // Utilisé pour la distance ou toute autre donnée numérique
 };
 
@@ -54,6 +55,11 @@ void sendDistanceToTag(Stream &pUWBSerial, Stream & pSerial, uint8_t pSenderID, 
  * 
  */
 void sendDistancesToAnchor(Stream & pUWBSerial, Stream & pSerial, String & pRawRangeMessage);
+
+/**
+ * Nouvelle fonction qui envoie la pression en début de string "[Pression] & AT+RANGE..."
+ */
+void sendDistancesWithPressionToAnchor(Stream & pUWBSerial, Stream & pSerial, String & pRawRangeMessage, float pPression_hPa);
 
 /**
  * Envoie un ordre au Tag

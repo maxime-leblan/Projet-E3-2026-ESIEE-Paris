@@ -1,147 +1,174 @@
 #include <Adafruit_TinyUSB.h>
 #include "TagActions.hpp"
-#include "CapteurPression.h"
+#include "CapteurPression.hpp"
 
 void setup()
 {
-  digitalWrite(LED_RED, LOW);
-  initialiserXiao();
-  initialiserUWB();
-  initialiserBMP581();
+  // --- SÉQUENCE DE DÉMARRAGE ---
+  Serial.begin(115200);
+  // Petite pause optionnelle pour laisser le temps d'ouvrir le moniteur série
+  // while(!Serial) delay(10); 
 
+  Serial.println("\n==================================================");
+  Serial.println("[SETUP] Démarrage du Tag Ouvrier VigiZone...");
+  Serial.println("==================================================");
+
+  digitalWrite(LED_RED, LOW);
   
+  Serial.println("[SETUP] Étape 1/3 : Initialisation de la carte XIAO...");
+  initialiserXiao();
+  
+  Serial.println("[SETUP] Étape 2/3 : Initialisation du module UWB...");
+  initialiserUWB();
+  
+  Serial.println("[SETUP] Étape 3/3 : Initialisation du capteur BMP581 (SPI)...");
+  initialiserBMP581(D3, SPI); 
+  
+  Serial.println("[SETUP] Configuration des broches d'alimentation et LEDs...");
   pinMode(LED_RED_CARTE, OUTPUT);
-  pinMode(LED_BLUE, HIGH); // On éteint la LED bleue par défaut
+  pinMode(LED_BLUE, HIGH); 
   pinMode(PIN_VBAT_ENABLE, OUTPUT);
-  digitalWrite(PIN_VBAT_ENABLE, HIGH); // On garde éteint par défaut
+  digitalWrite(PIN_VBAT_ENABLE, HIGH); 
   analogReadResolution(12);  
-  digitalWrite(LED_RED, HIGH);           // Configuration de la résolution 12 bits
+  digitalWrite(LED_RED, HIGH);           
   
-  
+  Serial.println("[SETUP] Terminé. Entrée dans la boucle principale.");
+  Serial.println("==================================================\n");
 }
 
 void loop()
 {
-  //Serial.println("-------- START LOOP --------");
-
   digitalWrite(LED_RED, HIGH);
   digitalWrite(LED_GREEN, LOW);
-  // TESTS
-
-  
-  //String vMessage1;
-  //readDistancesInTagSerial(Serial1, Serial, vMessage1);
-  //Serial.println("Ça marche dans la loop");
-  
-
-  // Mesure de la pression actuelle
-  float vCurrentPressure = lirePressionBMP581();
-  if (vCurrentPressure != -1.0) {
-    //Serial.print("Pression : ");
-    //Serial.print(vCurrentPressure, 2);
-    //Serial.println(" hPa");
-  }
 
   bool vIsDistanceReceived = false;
-  float vTagDistanceFromSafeZone = -1.0f;
+  float vTagDistanceFromSafeZone = 0.0f; // Initialisé à 0
 
   String vMessageReceived;
   UWBMessage vMessageReceivedData;
 
-  // On vérifie si le module UWB du tag a reçu un message quelconque (AT+RANGE ou bien ordre du Hub)
+  // ====================================================================
+  // 1. ÉCOUTE ET RÉCEPTION RADIO
+  // ====================================================================
   if (receiveUWBMessage(Serial1, vMessageReceived, Serial))
   {
+    //Serial.printf("[%lu] [RX] Trame captée : %s\n", millis(), vMessageReceived.c_str());
+    
     if (decodeUWBMessage(vMessageReceived, vMessageReceivedData, Serial))
     {
-      // Si c'est un AT+RANGE, on l'envoie aux ancres
-      if (vMessageReceivedData.aIsStandardDistanceMessage)
-      {
-        sendDistancesToAnchor(Serial1, Serial, vMessageReceived);
+      Serial.printf("[%lu] [PARSER] Décodage réussi. Analyse du type d'ordre...\n", millis());
+
+      // --- TRI : LE TAG IGNORE SES PROPRES CALCULS ---
+      if (vMessageReceivedData.aIsStandardDistanceMessage) {
+         //Serial.printf("[%lu] [TRI] Trame AT+RANGE locale ignorée.\n", millis());
       }
-      // Si c'est un ordre de calibration du tag, on la démarre
       else if (vMessageReceivedData.orderType == HUB_ORDER_START_TAG_CALIBRATION)
       {
-        // On stoppe le bipper s'il sonne toujours
+        Serial.printf("[%lu] [ACTION] Ordre reçu : DÉMARRER CALIBRATION.\n", millis());
         noTone(XIAO_TO_BIPPER_PIN);
-
         safeZoneCalibration();
+        Serial.printf("[%lu] [ACTION] Calibration terminée, retour à l'écoute.\n", millis());
       }
-      // Si c'est la distance du tag par rapport au véhicule, on récupère la distance
-      else if (vMessageReceivedData.orderType == HUB_ORDER_TAG_DISTANCE_FROM_SF)
+      else if (vMessageReceivedData.orderType == HUB_ORDER_TAG_DISTANCE_FROM_SF || vMessageReceivedData.orderType == 3)
       {
         vIsDistanceReceived = true;
         vTagDistanceFromSafeZone = vMessageReceivedData.dataValue;
+        Serial.printf("[%lu] [ACTION] Ordre reçu : MISE À JOUR DISTANCE = %.2f mètres.\n", millis(), vTagDistanceFromSafeZone);
       }
+      else 
+      {
+         Serial.printf("[%lu] [ACTION] Ordre inconnu ignoré (Type : %d).\n", millis(), vMessageReceivedData.orderType);
+      }
+    }
+    else 
+    {
+      Serial.printf("[%lu] [PARSER ERROR] Impossible de décoder la trame.\n", millis());
     }
   }
 
-  // On vérifie d'abords que l'on a bien reçu une distance
+  // ====================================================================
+  // 2. GESTION DES ALARMES ET MISE EN VEILLE
+  // ====================================================================
   if (vIsDistanceReceived)
   {
-    // Si la distance reçue est > 0, on calcule le temps de mise en veille du tag puis on le met en veille
-    if (vTagDistanceFromSafeZone > 0)
-    {
-      // On stoppe le bipper s'il sonne toujours
-          noTone(XIAO_TO_BIPPER_PIN);
+    Serial.printf("[%lu] [LOGIQUE] Évaluation de la sécurité pour D = %.2f m...\n", millis(), vTagDistanceFromSafeZone);
 
+    if (vTagDistanceFromSafeZone > 0.0f)
+    {
+      Serial.printf("[%lu] [LOGIQUE] Résultat : HORS ZONE DE DANGER. Coupure du bipper.\n", millis());
+      noTone(XIAO_TO_BIPPER_PIN);
+      
       // On calcule le temps de veille en ms
       int vSleepTime = (vTagDistanceFromSafeZone / AVG_RUNNING_SPEED) * 1000;
+      Serial.printf("[%lu] [ENERGIE] Lancement de la séquence de VEILLE pour %d ms.\n", millis(), vSleepTime);
 
-      // On met tout le matériel en veille
+      // Désactivation matérielle
+      Serial.printf("[%lu] -> Extinction UWB...\n", millis());
       veilleUWB();
+      
+      Serial.printf("[%lu] -> Sommeil XIAO...\n", millis());
+      // --- ATTENTION : Le port série USB risque d'être coupé pendant veilleXiao ---
+      Serial.flush(); // Force l'envoi des logs avant de dormir
+      
       veilleXiao(vSleepTime);
 
-      // Puis on se réveille
+      // Réactivation matérielle
+      // Note: Le premier log au réveil peut être manqué si l'USB met du temps à se reconnecter
       reveilXiao();
+      Serial.printf("[%lu] -> Réveil XIAO OK. Relance UWB...\n", millis());
+      
       reveilUWB();
+      Serial.printf("[%lu] -> Réveil UWB OK. Fin du cycle de veille.\n", millis());
     }
-    // Sinon on fait bipper le tag
     else
     {
-      // On fait sonner le bipper (rajouter )
+      Serial.printf("[%lu] [LOGIQUE] Résultat : DANGER ! Pénétration dans la zone (%.2f m <= 0.0m).\n", millis(), vTagDistanceFromSafeZone);
+      Serial.printf("[%lu] [ALARME] DÉCLENCHEMENT DU BIPPER à %d Hz.\n", millis(), BIPPER_FREQUENCY);
       tone(XIAO_TO_BIPPER_PIN, BIPPER_FREQUENCY);
     }
   }
  
-  //  MISE À JOUR DE L'ÉTAT DE LA BATTERIE (Toutes les 5s) ---
+  // ====================================================================
+  // 3. GESTION DE L'ÉNERGIE ET DES VOYANTS (Background)
+  // ====================================================================
   static uint32_t lastBatCheck = 0;
   static bool isBatteryLow = false;
 
+  // On vérifie la batterie toutes les 5 secondes
   if (millis() - lastBatCheck > 5000) {
     lastBatCheck = millis();
     isBatteryLow = calculBatteryLow();
+    
+    if (isBatteryLow) {
+        Serial.printf("[%lu] [DIAGNOSTIC] Alerte : Niveau de batterie FAIBLE !\n", millis());
+    } else {
+        // Optionnel : Décommenter pour avoir un heartbeat régulier confirmant que la boucle tourne
+        // Serial.printf("[%lu] [DIAGNOSTIC] Batterie OK. Système nominal.\n", millis());
+    }
   }
+  
   bool isChargerPlugged = (NRF_POWER->USBREGSTATUS & 0x01);
   bool isCharging = (digitalRead(PIN_CHARGE_STATUS) == LOW);
 
-  // GESTION CENTRALISÉE DE LA LED PAR PRIORITÉ ---
   static uint32_t lastBlinkTime = 0;
   static bool ledState = false;
 
   if (isChargerPlugged && isCharging) {
-    // PRIORITÉ 1 : En charge -> Clignotement lent )
     if (millis() - lastBlinkTime > 500) { 
       lastBlinkTime = millis();
       ledState = !ledState;
       digitalWrite(LED_RED_CARTE, ledState ? HIGH : LOW); 
+      // Éviter de logger les clignotements pour ne pas polluer la console
     }
   } 
   else if (isBatteryLow) {
-    // PRIORITÉ 2 : Batterie faible (et pas en charge) -> Clignotement rapide
     if (millis() - lastBlinkTime > 200) {
       lastBlinkTime = millis();
       ledState = !ledState;
-      Serial.println("[XIAO] Batterie faible !");
       digitalWrite(LED_RED_CARTE, ledState ? HIGH : LOW);
     }
   } 
   else {
-    // PRIORITÉ 3 : Tout est normal -> On éteint la LED
     digitalWrite(LED_RED_CARTE, LOW);
   }
-
-  // (Sommeil/Réveil selon la charge) ---
-   // veille_UWB_chargebattery();
-
-  //Serial.println("-------- END LOOP --------\n");
 }
