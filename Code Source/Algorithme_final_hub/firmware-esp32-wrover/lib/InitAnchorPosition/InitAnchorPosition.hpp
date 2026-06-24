@@ -37,3 +37,8 @@ void sendToAnchorsInitialisationPhaseSignal(UWBModuleList & pAnchors, int pSigna
  */
 void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId);
 
+/**
+ * Cette fonction initialise les positions des ancres dans le repère par hardcoding, CE N'EST DONC PAS AUTOMATIQUE. Celle-ci est utilisée uniquement pour les tests.
+ * @param pAnchors Référence à la variable contenant la liste des Ancres du véhicule.
+ */
+void initTestHardcodedAnchorsPosition(UWBModuleList & pAnchors);
