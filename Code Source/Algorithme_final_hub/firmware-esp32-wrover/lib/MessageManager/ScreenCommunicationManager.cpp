@@ -95,7 +95,7 @@ void loopScreenCommunication() {
                 etatActuelHub = HUB_STATE_DETECTING_TAGS_FOR_INIT;
 
                 // Extraction des distances si elles sont fournies pour aider le scan initial
-                if (doc.containsKey("distances")) {
+                if (doc["distances"].is<JsonObject>()) {
                     JsonObject dist = doc["distances"];
                     dist01 = dist["d01"].as<float>();
                     dist02 = dist["d02"].as<float>();
