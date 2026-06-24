@@ -141,66 +141,72 @@ void initAnchorsCoordinatesWithGD(UWBModuleList & pAnchors, unordered_map<string
     // on trie la liste pour ensuite pouvoir obtenir les bonnes distances dans pDistances car les clés sont de la forme : "12"
     sort(vAnchorIdList.begin(), vAnchorIdList.end());
 
-    pAnchors.setModulePosition(vAnchorIdList[0], V3(0, 0, 0));
-    pAnchors.setModulePosition(vAnchorIdList[1], V3(1, 0, 0)); 
-    pAnchors.setModulePosition(vAnchorIdList[2], V3(1, 1, 0)); 
-    pAnchors.setModulePosition(vAnchorIdList[3], V3(1, 1, 1)); 
+    int vAnchorAmount = vAnchorIdList.size();
+    string vKey;
 
-    for (int vIter = 0; vIter < pIter; vIter++)
+    for (int iter = 0; iter < pIter; iter++)
     {
-        // enregistrement des positions actuelles des ancres dans une liste
-        vector<V3> vPos(4);
-        for (int i = 0; i < 4; i++) {
-            vPos[i] = pAnchors.getModule(vAnchorIdList[i]).getPosition();
-        }
+        vector<V3> vGradients(vAnchorAmount, V3(0, 0, 0));
 
-        // Tableau pour accumuler les gradients de chaque ancre
-        vector<V3> vGradients = { V3(0,0,0), V3(0,0,0), V3(0,0,0), V3(0,0,0) };
-
-        // Calcul des gradients pour chaque noeud
-        // La fonction de coût est la somme des (d_ij_mesurée - d_ij_calculée)^2
-        for (int i = 0; i < 4; i++)
+        // Calcul des gradients pour chaque paire d'ancres
+        for (int i = 0; i < vAnchorAmount; i++)
         {
-            for (int j = 0; j < 4; j++)
+            for (int j = 0; j < vAnchorAmount; j++)
             {
                 if (i == j) continue;
 
-                // Récupération de la clé de distance ("12", "23", etc.) avec l'ID plus petit en premier
-                string vKey = (i < j) ? (to_string(vAnchorIdList[i]) + to_string(vAnchorIdList[j])) 
-                                      : (to_string(vAnchorIdList[j]) + to_string(vAnchorIdList[i]));
-                
-                float vDistMesuree = pDistances[vKey];
-                
-                V3 vVectDiff = vPos[i] - vPos[j];
-                float vDistCalculee = vVectDiff.norm();
+                // Construction de la clé de manière sécurisée (toujours le plus petit en premier)
+                int minId = min(vAnchorIdList[i], vAnchorIdList[j]);
+                int maxId = max(vAnchorIdList[i], vAnchorIdList[j]);
+                vKey = to_string(minId) + to_string(maxId);
 
-                // Éviter la division par zéro si deux points se superposent par erreur
-                if (vDistCalculee > 1e-4f) 
-                {
-                    V3 vVectUnitaire = vVectDiff.getNormalized();
-                    
-                    // Dérivée partielle du Stress par rapport à la position P_i :
-                    // Grad = -2 * (d_mesurée - d_calculée) * (Vecteur_Unitaire_j_vers_i)
-                    vGradients[i] = vGradients[i] - 2.0f * (vDistMesuree - vDistCalculee) * vVectUnitaire;
+                // Si la distance n'existe pas, on l'ignore (sécurité)
+                if (pDistances.find(vKey) == pDistances.end()) continue;
+
+                float vGoalDistance = pDistances[vKey];
+                V3 posI = pAnchors.giveModulePositionList()[vAnchorIdList[i]];
+                V3 posJ = pAnchors.giveModulePositionList()[vAnchorIdList[j]];
+
+                V3 diff = posI - posJ;
+                float vCurrentDistance = diff.norm();
+
+                // Sécurité contre la division par zéro si deux points sont confondus
+                if (vCurrentDistance < 0.001f) {
+                    // On pousse légèrement dans une direction aléatoire pour séparer les points
+                    diff = V3((float)rand()/RAND_MAX, (float)rand()/RAND_MAX, (float)rand()/RAND_MAX);
+                    vCurrentDistance = diff.norm();
                 }
+
+                // Vraie formule du gradient (Forces des ressorts)
+                float vError = (vCurrentDistance - vGoalDistance) / vCurrentDistance;
+                
+                // On accumule la force sur l'ancre i
+                vGradients[i] += diff * vError;
             }
         }
 
-        // Mise à jour des positions (P = P - alpha * Gradient)
-        for (int i = 1; i < 4; i++)
+        // Mise à jour des positions
+        for (int i = 0; i < vAnchorAmount; i++)
         {
-            V3 vNewPos = vPos[i] - (vGradients[i] * pAlpha);
+            V3 vCurrentPos = pAnchors.giveModulePositionList()[vAnchorIdList[i]];
             
-            // APPLICATION DES CONTRAINTES DE REPÈRE :
-            if (i == 1) // Ancre 2 : on force y et z à 0 (axe X)
+            // Le gradient total est divisé par le nombre d'ancres pour stabiliser l'apprentissage
+            V3 vNewPos = vCurrentPos - (vGradients[i] * (pAlpha / vAnchorAmount));
+
+            // Application des contraintes géométriques
+            if (i == 0) // Ancre 1 : Fixée à l'origine
+            {
+                vNewPos = V3(0.0f, 0.0f, 0.0f);
+            }
+            else if (i == 1) // Ancre 2 : Fixée sur l'axe X
             {
                 vNewPos = V3(vNewPos.x, 0.0f, 0.0f);
             }
-            else if (i == 2) // Ancre 3 : on force z à 0 (plan XY)
+            else if (i == 2) // Ancre 3 : Fixée sur le plan XY
             {
                 vNewPos = V3(vNewPos.x, vNewPos.y, 0.0f);
             }
-            // L'Ancre 4 (i == 3) reste totalement libre en 3D (x, y, z)
+            // L'Ancre 4 (i == 3) est libre en 3D
 
             pAnchors.setModulePosition(vAnchorIdList[i], vNewPos);
         }
