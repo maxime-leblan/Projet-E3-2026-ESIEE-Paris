@@ -66,7 +66,7 @@ bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage, Stream 
         pSerial.println("[UWB DECOD] ID destinataire = " + String(outMessage.receiverId));
         return true;
     }
-
+    pSerial.printf("[UWB DECOD ERROR] Echec du parsing Regex sur le message : %s\n", messageATraiter.c_str());
     return false; // Échec du décodage si aucune regex ne correspond
 }
 

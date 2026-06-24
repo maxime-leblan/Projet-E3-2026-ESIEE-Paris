@@ -37,9 +37,14 @@ void loop()
     if (decodeUWBMessage(vMessageReceived, vMessageReceivedData, Serial))
     {
       // Si c'est un AT+RANGE, on l'envoie aux ancres
-      if (vMessageReceivedData.aIsStandardDistanceMessage)
-      {
+      if (vMessageReceivedData.aIsStandardDistanceMessage){
         float vCurrentPression = getPressionBMP581();
+        
+        Serial.printf("[TAG TX DIAG] Lecture BMP581 = %.2f hPa\n", vCurrentPression);
+        if (vCurrentPression <= 0.0f) {
+          Serial.println("[TAG TX ERROR] Alerte : Valeur de pression invalide (Erreur capteur ou SPI) !");
+        }
+        
         sendDistancesWithPressionToAnchor(Serial1, Serial, vMessageReceived, vCurrentPression);
       }
       // Si c'est un ordre de calibration du tag, on la démarre
