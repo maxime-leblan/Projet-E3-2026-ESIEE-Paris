@@ -131,12 +131,14 @@ V3 getCoordonnesTag(uint8_t tagCible) {
             distMap[aIds[i]] = donnees.aDistances[i] / 100.0f; 
         }
 
-        Serial.printf("[HUB TRILAT] Distances contenues dans le DISTMAP : [%d, %d, %d, %d] mètres\n", 
+        Serial.printf("[HUB TRILAT] Distances contenues dans le DISTMAP : [%.2f, %.2f, %.2f, %.2f] mètres\n", 
                       distMap[0], distMap[1], distMap[2], distMap[3]);
 
         // Exécution de l'algorithme de trilatération
+        
         initMatrixA(vAnchors); 
         pos3D = trilateration3D(vAnchors, distMap);
+        Serial.println("[HUB TRILAT] Position calculée du Tag " + String(tagCible) + " : " + String(pos3D.toString().c_str()));
         afficherCoordonneesTag(TAG_CIBLE, pos3D);
         
         /* Contrôle de validité mathématique
@@ -383,6 +385,7 @@ void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
 
 void executer_HUB_STATE_COLLECTING_POINTS() {
     V3 pos3D = getCoordonnesTag(TAG_CIBLE);
+    Serial.println("[Hub CALIB] Position 3D du Tag cible : " + String(pos3D.toString().c_str()));
     calibManager.ajouterPoint(pos3D);
    /*  static unsigned long lastPollTimeCalib = 0;
     const unsigned long POLL_INTERVAL = 20;
@@ -471,6 +474,7 @@ void executer_HUB_STATE_DEBUG_3D_MEASURE() {
     clearSerialMonitor();
 
     V3 pos3D = getCoordonnesTag(TAG_CIBLE);
+    Serial.println("[Hub CALIB] Position 3D du Tag cible : " + String(pos3D.toString().c_str()));
 
     afficherCoordonneesAncres();
     delay(500);

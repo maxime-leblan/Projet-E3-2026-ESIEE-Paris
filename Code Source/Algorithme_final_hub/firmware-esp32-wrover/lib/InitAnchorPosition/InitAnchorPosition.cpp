@@ -144,12 +144,12 @@ void initTestHardcodedAnchorsPosition(UWBModuleList & pAnchors)
 
     unordered_map<string, float> vMesuredDistances;
 
-    vMesuredDistances["12"] = dist01; // 3.58 // 3.58
-    vMesuredDistances["13"] = dist02; // 4.42 // 4.68
-    vMesuredDistances["14"] = dist03; // 3.24 // 3.15
-    vMesuredDistances["23"] = dist12; // 3.48 // 3.05
-    vMesuredDistances["24"] = dist13; // 4.74 // 5.15
-    vMesuredDistances["34"] = dist23; // 3.44 // 4.12
+    vMesuredDistances["12"] = 4.64; //dist01; // 3.58 // 3.58
+    vMesuredDistances["13"] = 3.86; //dist02; // 4.42 // 4.68
+    vMesuredDistances["14"] = 6.80; //dist03; // 3.24 // 3.15
+    vMesuredDistances["23"] = 4.13;//dist12; // 3.48 // 3.05
+    vMesuredDistances["24"] = 7.0;//dist13; // 4.74 // 5.15
+    vMesuredDistances["34"] = 4.0;//dist23; // 3.44 // 4.12
 
     Serial.println("[Hub INIT ANCRES] Coordonées des ancres avant 1er calcul :");
     Serial.println(pAnchors.toString().c_str());
