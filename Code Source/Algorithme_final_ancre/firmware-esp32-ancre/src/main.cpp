@@ -15,6 +15,7 @@
 struct MemoireTag {
     bool donneeValide = false;
     std::vector<uint16_t> distances = {0, 0, 0, 0};
+    int pressionPa = 0; // +1Pa = -8,3cm
 };
 
 MemoireTag memoiresDesTags[MAX_SUPPORTED_TAGS];
@@ -47,9 +48,9 @@ void loop() {
     // ====================================================================
     // ÉTAPE 1 : ÉCOUTE UWB (Active sur TOUTES les ancres 0, 1, 2, 3)
     // ====================================================================
-    // Toutes les cartes captent le broadcast radio et mettent à jour leur OLED
     while (receiveUWBMessage(UWBSerial, rawUWBMessage, Serial)) {
-        if (rawUWBMessage.startsWith("AT+RANGE") || rawUWBMessage.startsWith("AT+RDATA")) {
+        // CORRECTION : On accepte aussi AT+RDATA ou +RDATA qui contient notre payload personnalisé
+        if (rawUWBMessage.indexOf("AT+RANGE") != -1 || rawUWBMessage.indexOf("AT+RDATA") != -1 || rawUWBMessage.indexOf("&") != -1) {
             dernierMessageValide = rawUWBMessage; 
         }
     }
@@ -59,6 +60,7 @@ void loop() {
         
         if (decodeUWBMessage(dernierMessageValide, decodedMsg, Serial)) {
             if (decodedMsg.aIsStandardDistanceMessage) {
+                // On cherche "AT+RANGE" dans la chaîne nettoyée ou brute
                 int rangeStart = dernierMessageValide.indexOf("AT+RANGE");
                 
                 if (rangeStart != -1) {
@@ -75,7 +77,11 @@ void loop() {
                             for (int i = 0; i < 4; i++) {
                                 memoiresDesTags[tid].distances.push_back((uint16_t)getDistanceFromAnchor(parsedData, i));
                             }
+                            
+                            memoiresDesTags[tid].pressionPa = decodedMsg.pressionPa;
                             memoiresDesTags[tid].donneeValide = true;
+                            
+                            Serial.printf("[STOCKAGE ANCRE] Mémoire Tag %d mise à jour : Pression = %d Pa\n", tid, memoiresDesTags[tid].pressionPa);
                             
                             // Rafraîchissement automatique de la zone basse (les 4 distances)
                             updateUWBData(tid, 

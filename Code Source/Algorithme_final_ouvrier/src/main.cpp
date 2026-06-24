@@ -1,14 +1,13 @@
 #include <Adafruit_TinyUSB.h>
 #include "TagActions.hpp"
-#include "CapteurPression.h"
+#include "CapteurPression.hpp"
 
 void setup()
 {
   digitalWrite(LED_RED, LOW);
   initialiserXiao();
   initialiserUWB();
-  initialiserBMP581();
-
+  initialiserBMP581(D3, SPI); // CS = D3, sur le BUS SPI par défaut (et pas SPI1)
   
   pinMode(LED_RED_CARTE, OUTPUT);
   pinMode(LED_BLUE, HIGH); // On éteint la LED bleue par défaut
@@ -16,7 +15,6 @@ void setup()
   digitalWrite(PIN_VBAT_ENABLE, HIGH); // On garde éteint par défaut
   analogReadResolution(12);  
   digitalWrite(LED_RED, HIGH);           // Configuration de la résolution 12 bits
-  
   
 }
 
@@ -26,21 +24,6 @@ void loop()
 
   digitalWrite(LED_RED, HIGH);
   digitalWrite(LED_GREEN, LOW);
-  // TESTS
-
-  
-  //String vMessage1;
-  //readDistancesInTagSerial(Serial1, Serial, vMessage1);
-  //Serial.println("Ça marche dans la loop");
-  
-
-  // Mesure de la pression actuelle
-  float vCurrentPressure = lirePressionBMP581();
-  if (vCurrentPressure != -1.0) {
-    //Serial.print("Pression : ");
-    //Serial.print(vCurrentPressure, 2);
-    //Serial.println(" hPa");
-  }
 
   bool vIsDistanceReceived = false;
   float vTagDistanceFromSafeZone = -1.0f;
@@ -56,7 +39,8 @@ void loop()
       // Si c'est un AT+RANGE, on l'envoie aux ancres
       if (vMessageReceivedData.aIsStandardDistanceMessage)
       {
-        sendDistancesToAnchor(Serial1, Serial, vMessageReceived);
+        float vCurrentPression = getPressionBMP581();
+        sendDistancesWithPressionToAnchor(Serial1, Serial, vMessageReceived, vCurrentPression);
       }
       // Si c'est un ordre de calibration du tag, on la démarre
       else if (vMessageReceivedData.orderType == HUB_ORDER_START_TAG_CALIBRATION)

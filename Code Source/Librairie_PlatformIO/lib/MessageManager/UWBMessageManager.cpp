@@ -1,45 +1,64 @@
 #include "UWBMessageManager.hpp"
 
 bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage, Stream & pSerial) {
+    
+    String messageATraiter = pRawMessage;
+    int pressionExtraite = 0;
+
+    // --- NOUVEAU : Extraction de la pression si présente ---
+    int separatorIndex = pRawMessage.indexOf(" & ");
+    if (separatorIndex != -1) {
+        String pressionStr = pRawMessage.substring(0, separatorIndex);
+        pressionStr.trim();
+        pressionExtraite = pressionStr.toInt(); // Convertit "101325" en int Pascal
+        
+        // On isole la suite du message (le message UWB d'origine) pour les Regex
+        messageATraiter = pRawMessage.substring(separatorIndex + 3); 
+        messageATraiter.trim();
+    }
 
     // On vérifie si on a reçu un simple message de distance du module UWB lui-même
-    if (pRawMessage.indexOf("AT+RANGE") != -1)
+    if (messageATraiter.indexOf("AT+RANGE") != -1)
     {
         outMessage.senderId = 0;
         outMessage.receiverId = 0;
         outMessage.orderType = 0;
-        outMessage.dataValue = 0.0f; // Pas de donnée supplémentaire pour les ordres 1 et 2
+        outMessage.dataValue = 0.0f; 
         outMessage.aIsStandardDistanceMessage = true;
+        outMessage.pressionPa = pressionExtraite; // On ajoute la pression
 
-        pSerial.println("[UWB DECOD] Message décodé de type AT+RANGE");
+        pSerial.println("[UWB DECOD] Message décodé de type AT+RANGE avec Pression: " + String(pressionExtraite) + " Pa");
         return true;
     }
 
     // 1. Essayer de décoder comme un message de type DISTANCE (3)
-    std::vector<float> distData = getFloatDataFromString(pRawMessage.c_str(), UWB_MESSAGE_DISTANCE_REGEX);
+    std::vector<float> distData = getFloatDataFromString(messageATraiter.c_str(), UWB_MESSAGE_DISTANCE_REGEX);
     if (!distData.empty()) {
         outMessage.senderId = getSenderIdFromUWBMessage(distData);
         outMessage.receiverId = getReceiverIdFromUWBMessage(distData);
         outMessage.orderType = getOrderTypeFromUWBMessage(distData);
-        outMessage.dataValue = getDistanceFromUWBMessage(distData); // La distance est le 4ème élément
+        outMessage.dataValue = getDistanceFromUWBMessage(distData); 
         outMessage.aIsStandardDistanceMessage = false;
+        outMessage.pressionPa = pressionExtraite; // On propage la pression
 
         pSerial.println("[UWB DECOD] Message décodé de type 'Distance entre tag et véhicule'. Contenu :");
         pSerial.println("[UWB DECOD] Distance = " + String(outMessage.dataValue));
         pSerial.println("[UWB DECOD] Type d'ordre = " + String(outMessage.orderType));
         pSerial.println("[UWB DECOD] ID émetteur = " + String(outMessage.senderId));
         pSerial.println("[UWB DECOD] ID destinataire = " + String(outMessage.receiverId));
+        pSerial.println("[UWB DECOD] Pression stockée = " + String(outMessage.pressionPa) + " Pa");
         return true;
     }
 
-    // 2. Si ce n'est pas une distance, essayer de décoder comme un ORDRE (1 ou 2)
-    std::vector<float> orderData = getFloatDataFromString(pRawMessage.c_str(), UWB_MESSAGE_ORDER_REGEX);
+    // 2. Si ce n'est pas une distance, essayer de décoder comme un ORDRE (1 ou 2) -> REPLACÉ ICI !
+    std::vector<float> orderData = getFloatDataFromString(messageATraiter.c_str(), UWB_MESSAGE_ORDER_REGEX);
     if (!orderData.empty()) {
         outMessage.senderId = getSenderIdFromUWBMessage(orderData);
         outMessage.receiverId = getReceiverIdFromUWBMessage(orderData);
         outMessage.orderType = getOrderTypeFromUWBMessage(orderData);
-        outMessage.dataValue = 0.0f; // Pas de donnée supplémentaire pour les ordres 1 et 2
+        outMessage.dataValue = 0.0f; 
         outMessage.aIsStandardDistanceMessage = false;
+        outMessage.pressionPa = pressionExtraite; // On propage la pression au cas où
 
         pSerial.println("[UWB DECOD] Message décodé de type 'Ordre du Hub pour le tag'");
         pSerial.println("[UWB DECOD] Type d'ordre = " + String(outMessage.orderType));
@@ -133,6 +152,21 @@ void sendDistancesToAnchor(Stream & pUWBSerial, Stream & pSerial, String & pRawR
     // Affichage de confirmation dans le moniteur série
     pSerial.println("[UWB SEND T->A] Tag a envoyé : " + atCommand);
 
+}
+
+void sendDistancesWithPressionToAnchor(Stream & pUWBSerial, Stream & pSerial, String & pRawRangeMessage, float pPression_hPa) {
+    // 3. Construction de la commande d'envoi radio
+    // La syntaxe est : AT+DATA=<LongueurDuMessage>,<MessageBrut>
+
+    String vPressionStr = String((long)round(pPression_hPa * 100.0)); 
+    String vMessage = vPressionStr + " & " + pRawRangeMessage;
+    String atCommand = "AT+DATA=" + String(vMessage.length()) + "," + vMessage;
+    
+    // 4. Envoi au module UWB pour diffusion aux ancres
+    pUWBSerial.println(atCommand);
+    
+    // Affichage de confirmation dans le moniteur série
+    pSerial.println("[UWB SEND T->A] Tag a envoyé : " + atCommand);
 }
 
 /*

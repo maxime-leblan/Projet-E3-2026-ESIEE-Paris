@@ -13,7 +13,7 @@ void initialiserBMP581() {
   bmp.setOutputDataRate(BMP5XX_ODR_10_HZ); 
 }
 
-float lirePressionBMP581() {
+float getPressionBMP581() {
 
   if (bmp.performReading()) {
     return (float)(bmp.pressure);
