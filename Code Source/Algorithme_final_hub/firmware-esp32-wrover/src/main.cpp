@@ -26,7 +26,10 @@
 #define TAG_CIBLE 4 // ID du tag que l'on souhaite suivre en temps réel (pour le polling du Hub)
 #define ANCRE_MASTER 0
 
-#define RELAIS_GPIO 12
+#define RELAIS_GPIO 2 //GPIO2 != D2 (GPIO9)
+
+void afficherCoordonneesAncres();
+void afficherCoordonneesTag(uint8_t tagId, const V3& pos3D);
 
 // --- VARIABLES GLOBALES ---
 RecuperationDonneesAncres recupDonnees;
@@ -118,11 +121,12 @@ V3 getCoordonnesTag(uint8_t tagCible) {
         // Exécution de l'algorithme de trilatération
         initMatrixA(vAnchors); 
         pos3D = trilateration3D(vAnchors, distMap);
-        Serial.printf("[HUB TRILAT] Position 3D calculée : X=%.2f, Y=%.2f, Z=%.2f\n", pos3D.getX(), pos3D.getY(), pos3D.getZ());
+        afficherCoordonneesTag(TAG_CIBLE, pos3D);
         
         // Contrôle de validité mathématique
         if (std::isnan(pos3D.getX()) || std::abs(pos3D.getZ()) > HAUTEUR_MAX_TAG_METRES) {
             Serial.println("[HUB TRILAT] Singularité mathématique (NaN) ou hors zone. Retour à l'origine.");
+            afficherCoordonneesAncres();
             return V3(0, 0, 0);
         }
 
@@ -188,6 +192,7 @@ void appliquerNouvelleConfigurationMaterielle(JsonArray zoneJson, JsonArray sens
     }
    
     saveMapData("Anchors", "Positions", mapAncresPourFlash);
+    afficherCoordonneesAncres();
     etatActuelHub = HUB_STATE_RUNNING;
 }
 
@@ -213,6 +218,23 @@ void afficherCoordonneesAncres() {
                       pos.getY(), 
                       pos.getZ());
     }
+    Serial.println("===================================================\n");
+}
+
+void afficherCoordonneesTag(uint8_t tagId, const V3& pos3D) {
+    Serial.println("\n===================================================");
+    Serial.printf("           COORDONNÉES DU TAG %d\n", tagId);
+    Serial.println("===================================================");
+    Serial.println(" ID  |   X (m)   |   Y (m)   |   Z (m)   ");
+    Serial.println("---------------------------------------------------");
+
+    // Affichage aligné avec le même formatage de flottants
+    Serial.printf(" [%d] |  %7.2f  |  %7.2f  |  %7.2f  \n", 
+                  tagId, 
+                  pos3D.getX(), 
+                  pos3D.getY(), 
+                  pos3D.getZ());
+                  
     Serial.println("===================================================\n");
 }
 
@@ -325,7 +347,6 @@ void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
     AskUserForTag();
 
     Serial.println("[Hub] Initialisation terminée. Passage en collecte de points pour géométrie.");
-
     afficherCoordonneesAncres();
 }
 
@@ -410,8 +431,9 @@ void executer_HUB_STATE_GENERATING_GEOMETRY() {
     envoyerGeometrieCalibration(ancresCalculees, zone64PointsCalculee);
 
     calibManager.viderPoints();
-    etatActuelHub = HUB_STATE_IDLE;
     Serial.println("[Machine Etats] Géométrie transmise. Retour en IDLE.");
+    afficherCoordonneesAncres();
+    etatActuelHub = HUB_STATE_IDLE;
 }
 
 void executer_HUB_STATE_IDLE() {
