@@ -9,7 +9,7 @@
 #include "Messages.hpp" 
 
 // IMPORTANT : Remplacer par 0, 1, 2 ou 3 selon la carte flashée
-#define MY_ANCHOR_ID 1
+#define MY_ANCHOR_ID 0
 #define MAX_SUPPORTED_TAGS 6 
 
 struct MemoireTag {
