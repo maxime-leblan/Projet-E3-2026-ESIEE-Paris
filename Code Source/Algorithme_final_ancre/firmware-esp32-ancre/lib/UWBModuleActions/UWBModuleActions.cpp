@@ -79,10 +79,14 @@ void initUWBModule(int pAnchorId)
     */
     
 
-    sendATCommand("AT+SETCFG=" + String(pAnchorId) + ",1,1,0", Serial, UWBSerial); 
+    sendATCommand("AT+SETCFG=" + String(pAnchorId) + ",1,1,1", Serial, UWBSerial); 
     sendATCommand("AT+SETCAP=6,10,1", Serial, UWBSerial); 
     sendATCommand("AT+SETPAN=" + String(NETWORK_ID), Serial, UWBSerial); 
     sendATCommand("AT+SETRPT=1", Serial, UWBSerial); // REMIS A 1 !
+    if (pAnchorId == 0) sendATCommand("AT+SETANT=16490", Serial, UWBSerial);
+    else if (pAnchorId == 1) sendATCommand("AT+SETANT=16470", Serial, UWBSerial);
+    else if (pAnchorId == 2) sendATCommand("AT+SETANT=16490", Serial, UWBSerial);
+    else if (pAnchorId == 3) sendATCommand("AT+SETANT=16450", Serial, UWBSerial);
     sendATCommand("AT+SAVE", Serial, UWBSerial);
     sendATCommand("AT+RESTART", Serial, UWBSerial);
 
