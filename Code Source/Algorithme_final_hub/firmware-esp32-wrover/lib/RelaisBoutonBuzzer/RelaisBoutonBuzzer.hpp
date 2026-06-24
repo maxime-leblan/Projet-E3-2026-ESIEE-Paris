@@ -7,7 +7,7 @@
 #define BOUTON_READ_GPIO 35 // 2.9V si bouton appuyé, 0V sinon
 #define LED_BOUTON_GPIO  12 
 
-#define BUZZER_FREQUENCY 600
+#define BUZZER_FREQUENCY 200
 
 void initRelaisBoutonBuzzer();
 void IRAM_ATTR couperRelais();
