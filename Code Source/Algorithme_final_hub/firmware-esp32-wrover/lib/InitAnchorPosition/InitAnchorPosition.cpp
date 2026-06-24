@@ -117,18 +117,6 @@ void sendToAnchorsInitialisationPhaseSignal(UWBModuleList & pAnchors, int pSigna
     }
 }
 
-void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId)
-{
-    Serial.println("[INIT ANCRES] On ordonne aux ancres de changer de mode (ID Ancre statique : " + String(pStaticAnchorId) + ")");
-    for (size_t i = 0; i < pAnchorsId.size(); i++)
-    {
-        MsgToggleHubOrder vMessage;
-        vMessage.staticAnchorId = pStaticAnchorId;
-        sendCanOrderFromHubTo(pAnchorsId[i], HUB_ORDER_TOGGLE_MODULE_MODE, vMessage);
-    }
-}
-
-
 extern float dist01;
 extern float dist02;
 extern float dist03;

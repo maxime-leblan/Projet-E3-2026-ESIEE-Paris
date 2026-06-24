@@ -24,3 +24,5 @@ void sendToAnchorsInitialisationPhaseSignal(UWBModuleList & pAnchors, uint8_t pS
  * Force explicitement le rôle matériel d'un module (Ancre ou Tag) via le bus CAN.
  */
 void setAnchorRole(uint8_t pAnchorId, uint8_t pRoleOrder);
+
+void initTestHardcodedAnchorsPosition(UWBModuleList& vAnchors);
