@@ -258,6 +258,8 @@ void afficherCoordonneesTag(uint8_t tagId, const V3& pos3D) {
 
 void setup() {
     initRelaisBoutonBuzzer(); // Immédiat pour mettre le système sous tension
+
+    initialiserBuzzer(BUZZER_GPIO);
     
     Serial.begin(115200);
     delay(2000);
@@ -343,7 +345,8 @@ void executer_HUB_STATE_RUNNING() {
         
         if (inDanger) {
             Serial.println("[HUB ALERT DANGER] *** VIOLATION DE LA SAFEZONE ! ACTIVATION DU BUZZER ***");
-            faireSonnerBuzzer(); // 1 seconde
+            initialiserBuzzer(BUZZER_GPIO);
+            configurerPWM(880, 50); 
         } else {
             Serial.println("[HUB ALERT] Pas de danger détecté. Buzzer désactivé.");
             eteindreBuzzer();
