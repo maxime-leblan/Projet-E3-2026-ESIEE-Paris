@@ -141,5 +141,5 @@ void initTestHardcodedAnchorsPosition(UWBModuleList & pAnchors)
     vMesuredDistances["34"] = 0.13;
 
     // On calcule les positions des ancres
-    initAnchorsCoordinates(pAnchors, vMesuredDistances);
+    initAnchorsCoordinatesWithGD(pAnchors, vMesuredDistances, ITERATIONS, LEARNING_RATE);
 }
