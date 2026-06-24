@@ -71,7 +71,7 @@ void setup_web_server() {
                     hub_doc["nom"] = derniereConfig["nom"];
                     hub_doc["zone"] = derniereConfig["zone"];       // Les 64 points
                     hub_doc["sensors"] = derniereConfig["sensors"]; // Les 4 ancres
-                    if (derniereConfig.containsKey("distances")) {
+                    if (derniereConfig["distances"].is<JsonObject>()) {
                         hub_doc["distances"] = derniereConfig["distances"]; // Distances entres ancres.
                     }
                     
@@ -101,7 +101,7 @@ void setup_web_server() {
 
         // NOUVEAU : Récupération des distances dès l'étape du scan
         if (request->hasParam("d01")) {
-            JsonObject dist = order.createNestedObject("distances");
+            JsonObject dist = order["distances"].to<JsonObject>();
             dist["d01"] = request->getParam("d01")->value().toFloat();
             dist["d02"] = request->getParam("d02")->value().toFloat();
             dist["d03"] = request->getParam("d03")->value().toFloat();

@@ -123,11 +123,16 @@ V3 getCoordonnesTag(uint8_t tagCible) {
 
         std::vector<int> aIds = vAnchors.giveModuleIdList();
         std::unordered_map<int, float> distMap;
+        
+        Serial.println("[HUB TRILAT] On va rentrer des valeur dans DISTMAP qui vient d'être créé : ");
 
         // Conversion en mètres pour la bibliothèque géométrique
         for(int i = 0; i < 4 && i < aIds.size(); i++) {
             distMap[aIds[i]] = donnees.aDistances[i] / 100.0f; 
         }
+
+        Serial.printf("[HUB TRILAT] Distances contenues dans le DISTMAP : [%d, %d, %d, %d] mètres\n", 
+                      distMap[0], distMap[1], distMap[2], distMap[3]);
 
         // Exécution de l'algorithme de trilatération
         initMatrixA(vAnchors); 
