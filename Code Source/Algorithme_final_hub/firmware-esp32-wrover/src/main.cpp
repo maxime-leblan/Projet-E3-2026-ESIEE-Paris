@@ -297,6 +297,7 @@ void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
    
     // Changement de repère officiel
     alignAnchorsCoordinatesWithGridOrigin(vAnchors);
+    Serial.println("[Hub INIT ANCRES] Coordonnées après translation de l'épicentre vers (0, 0, 0) : " + String(vAnchors.toString().c_str()));
     calibManager.viderPoints();
 
     AskUserForTag();
