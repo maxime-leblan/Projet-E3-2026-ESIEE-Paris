@@ -81,5 +81,6 @@ vector<int> UWBModuleList::giveModuleIdList()
         vModuleIdList.push_back(it->first);
     }
 
+    std::sort(vModuleIdList.begin(), vModuleIdList.end());
     return vModuleIdList;
 }
