@@ -14,7 +14,7 @@ int main()
     // on instancie les capteurs
     UWBModuleList vSensors = UWBModuleList();
     UWBModule vTag1 = UWBModule(1, V3(9, 6, 3));
-    vector<V3> vSensorsPosition = {V3(-0.099465, -0.055220, -0.021419), V3(0.033155, -0.055220, -0.021419), V3(0.033155, 0.042382, -0.021419), V3(0.033155, 0.068058, 0.064257)};
+    vector<V3> vSensorsPosition = {V3(-1.650332, -1.524883, -0.146350), V3(1.929668, -1.524883, -0.146350), V3(1.899431, 1.524966, -0.146350), V3(-2.178768, 1.524799, 0.439050)};
 
     // on les ajoute dans la liste des capteurs
     for (int i = 0; i < NUMBER_OF_SENSORS; i++)
@@ -32,10 +32,10 @@ int main()
     }
         */
     
-    vDistances[3] = 3.95;
-    vDistances[2] = 3.86;
-    vDistances[1] = 4.34;
-    vDistances[0] = 3.88;
+    vDistances[3] = 5.17;
+    vDistances[2] = 5.58;
+    vDistances[1] = 4.05;
+    vDistances[0] = 1.57;
 
     // on récupère les coordonnées du vTag1 avec notre algorithme de triangulation
     initMatrixA(vSensors);
