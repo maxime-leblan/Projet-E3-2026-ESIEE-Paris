@@ -297,9 +297,6 @@ void setup() {
     Serial.println("[Boot] --- Fin Setup ---\n");
 
     Serial.println("Transformation des distances en coordonnées temporaires pour les ancres");
-
-    initTestHardcodedAnchorsPosition(vAnchors);
-
 }
 
 void executer_HUB_STATE_RUNNING() {
@@ -354,8 +351,8 @@ void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
    
     // Cette fonction gère son propre timeout/blocage CAN dans InitAnchorPosition.cpp
     // /!\ La fonction ne fonctionnant pas, on va hardcoder les positions des ancres à la place
-    //initAnchorsPosition(vAnchors);
-    initTestHardcodedAnchorsPosition(vAnchors);
+    initAnchorsPosition(vAnchors);
+    //initTestHardcodedAnchorsPosition(vAnchors);
     Serial.println("[Hub INIT ANCRES] Voici les coordonnées de base des ancres : " + String(vAnchors.toString().c_str()));
    
     // Changement de repère officiel
