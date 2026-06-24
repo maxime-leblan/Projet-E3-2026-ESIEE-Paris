@@ -39,12 +39,13 @@ unordered_map<string, float> makeDistanceTabFromCoordinates(vector<V3> pCoordina
     unordered_map<string, float> vDistances;
     string vKey;
 
-    for (int i = 1; i <= 3; i++)
+    // On boucle de 0 à 3 au lieu de 1 à 4
+    for (int i = 0; i <= 2; i++)
     {
-        for (int j = i+1; j <= 4; j++)
+        for (int j = i + 1; j <= 3; j++)
         {
             vKey = to_string(i) + to_string(j);
-            vDistances[vKey] = (pCoordinates[j-1] - pCoordinates[i-1]).norm();
+            vDistances[vKey] = (pCoordinates[j] - pCoordinates[i]).norm();
         }
     }
 
@@ -84,9 +85,9 @@ int main()
     vector<V3> vSensorsPosition = {V3(-1, -1, -1), V3(-1, -1, -1), V3(-1, -1, -1), V3(-1, -1, -1)};
 
     // on les ajoute dans la liste des capteurs
-    for (int i = 1; i <= 4; i++)
+    for (int i = 0; i < 4; i++)
     {
-        UWBModule vTemp = UWBModule(i, vSensorsPosition[i - 1]);
+        UWBModule vTemp = UWBModule(i, vSensorsPosition[i]);
         vSensors.addModule(vTemp.getId(), vTemp);
     }
 
@@ -107,12 +108,13 @@ int main()
     // on stocke les distances entre chaque ancre
     unordered_map<string, float> vMesuredDistances;
 
-    vMesuredDistances["12"] = 0.17;
-    vMesuredDistances["13"] = 0.25;
-    vMesuredDistances["14"] = 0.37;
-    vMesuredDistances["23"] = 0.12;
-    vMesuredDistances["24"] = 0.25;
-    vMesuredDistances["34"] = 0.13; // au lieu de 4.77 (Erreur -15cm)
+    // Remplacement des index (1-4) par (0-3)
+    vMesuredDistances["01"] = 3.58; 
+    vMesuredDistances["02"] = 4.68; 
+    vMesuredDistances["03"] = 3.15; 
+    vMesuredDistances["12"] = 3.05; 
+    vMesuredDistances["13"] = 5.15; 
+    vMesuredDistances["23"] = 4.12;
 
     // on lance l'initialisation des ancres
     initAnchorsCoordinates(vSensors, vMesuredDistances);
@@ -127,12 +129,13 @@ int main()
     // ------------------------------------------------------------------------------
     // Partie avec utilisation de la descente de gradient
 
-    vMesuredDistances["12"] = 0.17;
-    vMesuredDistances["13"] = 0.25;
-    vMesuredDistances["14"] = 0.37;
-    vMesuredDistances["23"] = 0.12;
-    vMesuredDistances["24"] = 0.25;
-    vMesuredDistances["34"] = 0.13; // au lieu de 4.77 (Erreur -15cm)
+    // Remplacement des index (1-4) par (0-3)
+    vMesuredDistances["01"] = 3.58; 
+    vMesuredDistances["02"] = 4.68; 
+    vMesuredDistances["03"] = 3.15; 
+    vMesuredDistances["12"] = 3.05; 
+    vMesuredDistances["13"] = 5.15; 
+    vMesuredDistances["23"] = 4.12;
 
     // on lance l'initialisation des ancres
     initAnchorsCoordinatesWithGD(vSensors, vMesuredDistances, 1000, 0.01);
@@ -141,7 +144,7 @@ int main()
 
     // on affiche les coordonnées données lors de l'initialisation à chaque ancre
     cout << vSensors.toString();
-    cout << "Erreurs algo descente de gradient (en \% par rapport à la vrai distance): \n";
+    cout << "\nErreurs algo descente de gradient (en \% par rapport à la vrai distance): \n";
     printDict(giveErrors(vRealDistances, makeDistanceTabFromCoordinates(giveCoordinates(vSensors))));
 
     // --------------------------------------------------------------------------------

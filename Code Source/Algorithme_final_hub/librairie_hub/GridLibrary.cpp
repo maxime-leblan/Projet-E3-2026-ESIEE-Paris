@@ -141,7 +141,6 @@ void initAnchorsCoordinatesWithGD(UWBModuleList & pAnchors, unordered_map<string
     // on trie la liste pour ensuite pouvoir obtenir les bonnes distances dans pDistances car les clés sont de la forme : "12"
     sort(vAnchorIdList.begin(), vAnchorIdList.end());
 
-    // on donne des positions arbitraire et probablement fausses aux ancres
     pAnchors.setModulePosition(vAnchorIdList[0], V3(0, 0, 0));
     pAnchors.setModulePosition(vAnchorIdList[1], V3(1, 0, 0)); 
     pAnchors.setModulePosition(vAnchorIdList[2], V3(1, 1, 0)); 
