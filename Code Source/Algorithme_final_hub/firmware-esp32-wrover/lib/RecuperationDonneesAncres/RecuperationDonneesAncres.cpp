@@ -1,7 +1,6 @@
 #include "RecuperationDonneesAncres.hpp"
 
 RecuperationDonneesAncres::RecuperationDonneesAncres() {
-    // Plus de chronoFenetre ! Initialisation des accumulateurs à zéro :
     for (int i = 0; i < MAX_TAGS; i++) {
         memset(accumulateurs[i].sommeDistances, 0, sizeof(accumulateurs[i].sommeDistances));
         memset(accumulateurs[i].nbEchantillons, 0, sizeof(accumulateurs[i].nbEchantillons));
@@ -9,65 +8,59 @@ RecuperationDonneesAncres::RecuperationDonneesAncres() {
     }
 }
 
+void RecuperationDonneesAncres::effacerDonneesTag(int tagId) {
+    if (tagId >= 0 && tagId < MAX_TAGS) { // Suppression du ID_DEPART_TAGS
+        memset(accumulateurs[tagId].sommeDistances, 0, sizeof(accumulateurs[tagId].sommeDistances));
+        memset(accumulateurs[tagId].nbEchantillons, 0, sizeof(accumulateurs[tagId].nbEchantillons));
+        accumulateurs[tagId].actif = false;
+    }
+}
+
 void RecuperationDonneesAncres::injecterDonnee(int tagId, float d0, float d1, float d2, float d3) {
-    int idx = tagId - ID_DEPART_TAGS; 
-    if (idx < 0 || idx >= MAX_TAGS) return; 
+    if (tagId < 0 || tagId >= MAX_TAGS) return; // Sécurité directe
 
     float dists[4] = {d0, d1, d2, d3};
-
-    // On ajoute toutes les distances valides (>0)
     for (int i = 0; i<4; i++) {
         if (dists[i] > 0.0f) {
-            accumulateurs[idx].sommeDistances[i] += dists[i];
-            accumulateurs[idx].nbEchantillons[i]++;
-            accumulateurs[idx].actif = true;
+            accumulateurs[tagId].sommeDistances[i] += dists[i];
+            accumulateurs[tagId].nbEchantillons[i]++;
+            accumulateurs[tagId].actif = true;
         }
     }
 }
 
-// Méthode appelée suite à la réception de HUB_ORDER_REQUEST_DISTANCES
 bool RecuperationDonneesAncres::getDonneesLisseesPourTag(int tagId, DistanceMoyennes& resultat_out) {
-    int idx = tagId - ID_DEPART_TAGS;
-    if (idx < 0 || idx >= MAX_TAGS || !accumulateurs[idx].actif) {
-        return false; // Pas de données disponibles pour ce Tag
+    if (tagId < 0 || tagId >= MAX_TAGS || !accumulateurs[tagId].actif) {
+        return false;
     }
 
     resultat_out.tag_id = tagId;
     int ancresValides = 0;
 
     for (int i = 0; i<4; i++) {
-        if (accumulateurs[idx].nbEchantillons[i] > 0) {
-            // Calcul de la moyenne
-            resultat_out.distances[i] = accumulateurs[idx].sommeDistances[i] / (float)accumulateurs[idx].nbEchantillons[i];
+        if (accumulateurs[tagId].nbEchantillons[i] > 0) {
+            resultat_out.distances[i] = accumulateurs[tagId].sommeDistances[i] / (float)accumulateurs[tagId].nbEchantillons[i];
             ancresValides++;
         } else {
             resultat_out.distances[i] = 0.0f;
         }
     }
 
-    // Remise à zero immédiate pour la prochaine requête de polling
-    memset(accumulateurs[idx].sommeDistances, 0, sizeof(accumulateurs[idx].sommeDistances));
-    memset(accumulateurs[idx].nbEchantillons, 0, sizeof(accumulateurs[idx].nbEchantillons));
-    accumulateurs[idx].actif = false;
+    memset(accumulateurs[tagId].sommeDistances, 0, sizeof(accumulateurs[tagId].sommeDistances));
+    memset(accumulateurs[tagId].nbEchantillons, 0, sizeof(accumulateurs[tagId].nbEchantillons));
+    accumulateurs[tagId].actif = false;
 
-    // Tu peux ajuster cette condition si tu as besoin d'au moins 3 distances valides ou non
-    return (ancresValides > 0); 
+    return (ancresValides > 0);
 }
 
-// Remplacement de l'ancienne méthode globale au cas où le Hub demande tout d'un coup
 bool RecuperationDonneesAncres::getToutesDonneesLissees(std::vector<DistanceMoyennes>& resultats_out) {
     resultats_out.clear();
-
     for (int idx = 0; idx < MAX_TAGS; idx++) {
         if (!accumulateurs[idx].actif) continue;
-
         DistanceMoyennes resultatTag;
-        // On réutilise la logique de l'autre fonction pour éviter la duplication
-        if (getDonneesLisseesPourTag(idx + ID_DEPART_TAGS, resultatTag)) {
-            // Vérification de sécurité (ex: si tu veux forcer 3 ancres minimum)
+        if (getDonneesLisseesPourTag(idx, resultatTag)) {
             int ancresValides = 0;
             for(int i=0; i<4; i++) if(resultatTag.distances[i] > 0.0f) ancresValides++;
-            
             if(ancresValides >= 3) {
                 resultats_out.push_back(resultatTag);
             }

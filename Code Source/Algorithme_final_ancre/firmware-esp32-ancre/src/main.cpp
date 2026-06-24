@@ -6,23 +6,22 @@
 #include "UWBMessageManager.hpp"
 #include "InitialisationProtocol.hpp"
 #include "UWBDataManager.hpp"
-#include "Messages.hpp" 
+#include "Messages.hpp"
 
-// IMPORTANT : Remplacer par 0, 1, 2 ou 3 selon la carte flashée
-#define MY_ANCHOR_ID 1
-#define MAX_SUPPORTED_TAGS 6 
+#define MY_ANCHOR_ID 2
+#define MAX_SUPPORTED_TAGS 6
 
+// Mémoire partagée (utilisée par InitialisationProtocol via extern)
 struct MemoireTag {
     bool donneeValide = false;
     std::vector<uint16_t> distances = {0, 0, 0, 0};
 };
-
 MemoireTag memoiresDesTags[MAX_SUPPORTED_TAGS];
 
 void setup() {
     Serial.begin(115200);
     
-    initOLED(MY_ANCHOR_ID); 
+    initOLED(MY_ANCHOR_ID);
     updateCANAction("DEMARRAGE", "Initialisation UWB...");
 
     initUWBModule(MY_ANCHOR_ID);
@@ -30,11 +29,10 @@ void setup() {
 
     Serial.printf("\n[SETUP] === ANCRE %d CONFIGUREE ===\n", MY_ANCHOR_ID);
     
-    // --- AFFICHAGE CONFORME AUX SPÉCIFICATIONS ---
     if (MY_ANCHOR_ID == 0) {
         updateCANAction("ANCRE 0 (MASTER)", "Prete (CAN actif)");
     } else {
-        updateCANAction("CAN", "En attente d'ordre du hub");
+        updateCANAction("CAN", "En attente d'ordre");
     }
 }
 
@@ -44,46 +42,35 @@ void loop() {
     String rawUWBMessage = "";
     String dernierMessageValide = "";
 
-    // ====================================================================
-    // ÉTAPE 1 : ÉCOUTE UWB (Active sur TOUTES les ancres 0, 1, 2, 3)
-    // ====================================================================
-    // Toutes les cartes captent le broadcast radio et mettent à jour leur OLED
+    // 1. ECOUTE UWB
     while (receiveUWBMessage(UWBSerial, rawUWBMessage, Serial)) {
         if (rawUWBMessage.startsWith("AT+RANGE") || rawUWBMessage.startsWith("AT+RDATA")) {
-            dernierMessageValide = rawUWBMessage; 
+            dernierMessageValide = rawUWBMessage;
         }
     }
 
     if (dernierMessageValide != "") {
         UWBMessage decodedMsg;
-        
         if (decodeUWBMessage(dernierMessageValide, decodedMsg, Serial)) {
             if (decodedMsg.aIsStandardDistanceMessage) {
-                int rangeStart = dernierMessageValide.indexOf("AT+RANGE");
+                // --- NOUVEAU PARSING PROPRE ---
+                UWBFrameRange extractedFrame = parseUWBRangeMessage(dernierMessageValide.c_str());
                 
-                if (rangeStart != -1) {
-                    String cleanRangeMsg = dernierMessageValide.substring(rangeStart);
-                    std::string stdRawMsg(cleanRangeMsg.c_str());
-                    std::vector<int> parsedData = getDataFromString(stdRawMsg, "[0-9]+");
+                if (extractedFrame.isValid) {
+                    uint8_t tid = (uint8_t)extractedFrame.tid;
                     
-                    if (parsedData.size() >= (FIRST_TAG_DISTANCE_INDEX + 4)) {
-                        uint8_t tid = (uint8_t)getTagIdFromTagData(parsedData);
-                        
-                        if (tid < MAX_SUPPORTED_TAGS) {
-                            memoiresDesTags[tid].distances.clear();
-                            
-                            for (int i = 0; i < 4; i++) {
-                                memoiresDesTags[tid].distances.push_back((uint16_t)getDistanceFromAnchor(parsedData, i));
-                            }
-                            memoiresDesTags[tid].donneeValide = true;
-                            
-                            // Rafraîchissement automatique de la zone basse (les 4 distances)
-                            updateUWBData(tid, 
-                                          memoiresDesTags[tid].distances[0], 
-                                          memoiresDesTags[tid].distances[1], 
-                                          memoiresDesTags[tid].distances[2], 
-                                          memoiresDesTags[tid].distances[3]);
+                    if (tid < MAX_SUPPORTED_TAGS) {
+                        memoiresDesTags[tid].distances.clear();
+                        for (int i = 0; i < 4; i++) {
+                            memoiresDesTags[tid].distances.push_back((uint16_t)extractedFrame.distances[i]);
                         }
+                        memoiresDesTags[tid].donneeValide = true;
+                        
+                        updateUWBData(tid,
+                                      memoiresDesTags[tid].distances[0],
+                                      memoiresDesTags[tid].distances[1],
+                                      memoiresDesTags[tid].distances[2],
+                                      memoiresDesTags[tid].distances[3]);
                     }
                 }
             }
@@ -91,74 +78,39 @@ void loop() {
         while (UWBSerial.available()) { UWBSerial.read(); }
     }
 
-    // ====================================================================
-    // ÉTAPE 2 : GESTION DU BUS CAN (Filtrée selon le rôle de l'ancre)
-    // ====================================================================
+    // 2. ECOUTE CAN
     if (receiveCanMessage(vCanMessage)) {
-        Serial.println("\n\n[CAN RX] Message reçu sur le bus CAN.");
         if (decodeCanMessage(vCanMessage, vDecodedCanData)) {
-            Serial.printf("[CAN RX] Type : %d, Ancre : %d, Tag : %d, Order : %d, Distance : %.2f\n", 
-                          vDecodedCanData.type, 
-                          vDecodedCanData.id_ancre, 
-                          vDecodedCanData.id_tag, 
-                          vDecodedCanData.aOrderType, 
-                          vDecodedCanData.distance);
             
-            // --- PROTECTION ET ROUTAGE SUR LE BUS CAN ---
+            // Interception de l'ordre d'initialisation globale de géométrie (Idem pour Master et Slaves)
+            if (vDecodedCanData.type == MESSAGE_HUB_ORDER &&
+                vDecodedCanData.id_ancre == MY_ANCHOR_ID &&
+                vDecodedCanData.aOrderType == HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL)
+            {
+                updateCANAction("INIT ANCRE", "Calibration...");
+                runCompleteInitialisationPhase(MY_ANCHOR_ID);
+                updateCANAction("ANCRE " + String(MY_ANCHOR_ID), "Prete (Surveillance)");
+                return; // On skip le reste pour ce cycle
+            }
+
+            // Gestion spécifique au rôle
             if (MY_ANCHOR_ID == 0) {
-                // L'Ancre 0 exécute l'ensemble des tâches de communication avec le Hub
-                
-                if (vDecodedCanData.type == MESSAGE_HUB_ORDER && 
-                    vDecodedCanData.id_ancre == MY_ANCHOR_ID && 
-                    vDecodedCanData.aOrderType == HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL) 
-                {
-                    Serial.println("\n[CAN RX] Ordre CAN : Lancement calibration Ancre 0");
-                    updateCANAction("INIT ANCRE 0", "Calibration...");
-                    runCompleteInitialisationPhase(MY_ANCHOR_ID);
-                    updateCANAction("ANCRE 0 (MASTER)", "Prete (CAN actif)");
-                }
-                else if (vDecodedCanData.type == MESSAGE_TAG_ID_AND_DISTANCE) 
-                {
+                if (vDecodedCanData.type == MESSAGE_TAG_ID_AND_DISTANCE) {
                     sendDistanceToTag(UWBSerial, Serial, MY_ANCHOR_ID, vDecodedCanData.id_tag, vDecodedCanData.distance);
                     updateCANAction("TX UWB", "Alerte relayee");
                 }
-                else if (vDecodedCanData.type == MESSAGE_HUB_ORDER && 
-                         vDecodedCanData.id_ancre == MY_ANCHOR_ID && 
-                         vDecodedCanData.aOrderType == HUB_ORDER_REQUEST_DISTANCES) 
+                else if (vDecodedCanData.type == MESSAGE_HUB_ORDER &&
+                         vDecodedCanData.id_ancre == MY_ANCHOR_ID &&
+                         vDecodedCanData.aOrderType == HUB_ORDER_REQUEST_DISTANCES)
                 {
-                    uint8_t tagCible = vDecodedCanData.id_tag; 
-                    
-                    Serial.printf("\n[CAN RX] Polling -> Le Hub interroge ma memoire pour le Tag %d.\n", tagCible);
-                    // Log de traçabilité : le Hub a bien fait une demande
-                    
+                    uint8_t tagCible = vDecodedCanData.id_tag;
                     if (tagCible < MAX_SUPPORTED_TAGS && memoiresDesTags[tagCible].donneeValide) {
                         sendCanDistanceFromAnchorToHub(MY_ANCHOR_ID, tagCible, memoiresDesTags[tagCible].distances);
-                        
-                        // Log de confirmation de renvoi réussi
-                        Serial.printf("[CAN TX] Succes : Distances du Tag %d expediees au Hub.\n", tagCible);
                         updateCANAction("TX CAN", "Distances OK");
-                    } 
-                    else {
-                        // Log d'alerte critique : met en évidence si le Hub interroge le mauvais Tag (ex: 0 au lieu de 4)
-                        Serial.printf("[CAN TX REFUS] Le Hub demande le Tag %d, mais ma memoire est vide ou invalide pour ce Tag !\n", tagCible);
                     }
-                }
-            } 
-            else {
-                // Les Ancres 1, 2, 3 IGNORENT les requêtes de polling ordinaires.
-                // Elles ne répondent au CAN que si elles reçoivent un ordre d'initialisation global/spécifique.
-                
-                if (vDecodedCanData.type == MESSAGE_HUB_ORDER && 
-                    vDecodedCanData.id_ancre == MY_ANCHOR_ID && 
-                    vDecodedCanData.aOrderType == HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL) 
-                {
-                    updateCANAction("INIT ANCRE", "Calibration...");
-                    runCompleteInitialisationPhase(MY_ANCHOR_ID);
-                    
-                    // Une fois la calibration finie, on restaure le message par défaut
-                    updateCANAction("CAN", "En attente d'ordre du hub");
                 }
             }
         }
     }
 }
+

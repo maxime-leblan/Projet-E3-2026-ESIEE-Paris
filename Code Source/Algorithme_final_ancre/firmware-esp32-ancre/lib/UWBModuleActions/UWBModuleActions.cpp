@@ -3,9 +3,6 @@
 // Les objets I2C_OLED et display ont été supprimés d'ici !
 HardwareSerial UWBSerial(1);
 
-int gCurrentUWBMode = ANCHOR_DEFAULT_MODE;
-
-
 float readDistanceFromUWB(int pModuleId, Stream & pUWBSerial)
 {
     pUWBSerial.println("AT+RANGE");
@@ -85,54 +82,76 @@ void initUWBModule(int pAnchorId)
     updateCANAction("ANCRE " + String(pAnchorId), "Attente Tag...");
 }
 
-void toggleUWBMode(int pAnchorId)
+void setUWBModeTag(int pAnchorId)
 {
-    Serial.println("\n[UWB] Tentative d'inversion du mode (Tag <-> Ancre)...");
-
-    int currentRate = ANCHOR_RATE; 
-    int currentFilter = ANCHOR_FILTER_STATUS; 
+    Serial.printf("\n[UWB] ---> Demande de passage materiel en TAG pour l'Ancre %d\n", pAnchorId);
     
-    if (gCurrentUWBMode == 1) {
-        Serial.printf("[UWB] Passage de Ancre vers mode TAG (ID: %d)\n", pAnchorId);
-        gCurrentUWBMode = 0;
-        updateCANAction("MODE UWB", "Passage en TAG"); // Remplacement pour OLEDManager
-    } else {
-        Serial.printf("[UWB] Passage de Tag vers mode ANCRE (ID: %d)\n", pAnchorId);
-        gCurrentUWBMode = 1;
-        updateCANAction("MODE UWB", "Passage en ANCRE"); // Remplacement pour OLEDManager
-    }
-
-    String setCommand = "AT+SETCFG=" + String(pAnchorId) + "," + String(gCurrentUWBMode) + "," + String(currentRate) + "," + String(currentFilter);
-    sendATCommand(setCommand, Serial, UWBSerial);
+    // 1. L'ORDRE DE SILENCE : On stoppe le spam UART de la puce UWB
+    UWBSerial.println("AT+SETRPT=0");
+    delay(150); // On laisse le temps à la puce de se taire
+    while(UWBSerial.available()) { UWBSerial.read(); } // On vide tous les résidus du buffer
+    
+    // 2. CONFIGURATION SEREINE
+    sendATCommand("AT+SETCFG=" + String(pAnchorId) + ",0,1,0", Serial, UWBSerial);
+    sendATCommand("AT+SETPAN=" + String(NETWORK_ID), Serial, UWBSerial);
+    sendATCommand("AT+SETRPT=1", Serial, UWBSerial); // On réactive le rapport automatique
     sendATCommand("AT+SAVE", Serial, UWBSerial);
-
-    while(UWBSerial.available()) { UWBSerial.read(); }
-
-    UWBSerial.println("AT+RESTART");
-    Serial.println("[UWB] Commande AT+RESTART envoyee. Attente du redemarrage...");
-
-    unsigned long startRestartTime = millis();
-    const unsigned long restartTimeout = 3000; 
-    bool bootLogDetected = false;
-    String bootResponse = "";
-
-    while (millis() - startRestartTime < restartTimeout) 
-    {
-        while (UWBSerial.available()) 
-        {
-            char c = UWBSerial.read();
-            bootResponse += c;
-            bootLogDetected = true; 
-            startRestartTime = millis(); 
-        }
-
-        if (bootLogDetected && (millis() - startRestartTime > 200)) 
-        {
-            Serial.println("[UWB] Module stable détecté !");
-            break; 
-        }
-        yield(); 
-    }
     
-    Serial.println("[UWB] Changement de mode effectif et fonctionnel.\n");
+    // 3. REDÉMARRAGE SIMPLE (Un seul suffit car la ligne est dégagée)
+    Serial.println("Envoi -> AT+RESTART");
+    UWBSerial.println("AT+RESTART");
+    sendATCommand("AT+RESTART", Serial, UWBSerial);
+    
+    // 4. SCANNER DE BOOT
+    Serial.println("[BOOT UWB] --- Ecoute du redemarrage matériel ---");
+    unsigned long bootStart = millis();
+    while (millis() - bootStart < 4000) {
+        if (UWBSerial.available()) {
+            String line = UWBSerial.readStringUntil('\n');
+            line.trim();
+            if (line.length() > 0) {
+                Serial.print("[BOOT UWB] ");
+                Serial.println(line);
+            }
+        }
+    }
+    Serial.println("[BOOT UWB] --- Fin de l'ecoute ---");
+    Serial.println("[UWB] Tag pret et reveille.");
+}
+
+void setUWBModeAnchor(int pAnchorId)
+{
+    Serial.printf("\n[UWB] ---> Demande de passage materiel en ANCRE pour l'Ancre %d\n", pAnchorId);
+    
+    // 1. L'ORDRE DE SILENCE
+    UWBSerial.println("AT+SETRPT=0");
+    delay(150);
+    while(UWBSerial.available()) { UWBSerial.read(); }
+    
+    // 2. CONFIGURATION SEREINE
+    sendATCommand("AT+SETCFG=" + String(pAnchorId) + ",1,1,0", Serial, UWBSerial);
+    sendATCommand("AT+SETPAN=" + String(NETWORK_ID), Serial, UWBSerial);
+    sendATCommand("AT+SETRPT=0", Serial, UWBSerial); // Une ancre DOIT rester muette !
+    sendATCommand("AT+SAVE", Serial, UWBSerial);
+    
+    // 3. REDÉMARRAGE SIMPLE
+    Serial.println("Envoi -> AT+RESTART");
+    UWBSerial.println("AT+RESTART");
+    sendATCommand("AT+RESTART", Serial, UWBSerial);
+    
+    // 4. SCANNER DE BOOT
+    Serial.println("[BOOT UWB] --- Ecoute du redemarrage matériel ---");
+    unsigned long bootStart = millis();
+    while (millis() - bootStart < 4000) {
+        if (UWBSerial.available()) {
+            String line = UWBSerial.readStringUntil('\n');
+            line.trim();
+            if (line.length() > 0) {
+                Serial.print("[BOOT UWB] ");
+                Serial.println(line);
+            }
+        }
+    }
+    Serial.println("[BOOT UWB] --- Fin de l'ecoute ---");
+    Serial.println("[UWB] Ancre prete et reveillee.");
 }

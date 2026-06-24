@@ -2,100 +2,21 @@
 #include "Config.hpp"
 #include "RecuperationDonneesAncres.hpp"
 #include <Arduino.h>
-#include <algorithm> // Pour std::remove
+#include <algorithm>
 
-// Déclarations externes nécessaires pour faire le lien avec le main.cpp
 extern RecuperationDonneesAncres recupDonnees;
 extern void ecouterReseauFilaire();
 
-std::unordered_map<std::string, float> getAnchorDistances(int pAnchorId, UWBModuleList pAnchors)
+void setAnchorRole(uint8_t pAnchorId, uint8_t pRoleOrder)
 {
-    Serial.println("[INIT ANCRES] On va calculer les distances relatives à l'ancre d'id " + String(pAnchorId));
-    std::unordered_map<std::string, float> vDistances;
-    std::vector<int> vAnchorsId = pAnchors.giveModuleIdList();
-   
-    // Filtrage strict : on isole l'id de l'ancre qui effectue la mesure
-    vAnchorsId.erase(std::remove(vAnchorsId.begin(), vAnchorsId.end(), pAnchorId), vAnchorsId.end());
-
-    // Basculement de rôle : Les autres modules deviennent temporairement des Tags
-    toggleAnchorsMode(vAnchorsId, pAnchorId);
-
-    unsigned long startTime = millis();
-    
-    // Timeout de 5000ms pour garantir plusieurs cycles de polling
-    while (millis() - startTime < 5000) 
-    {
-        // 1. Polling : L'ancre statique demande les distances pour les modules devenus Tags
-        for (int vCurrentTagId : vAnchorsId) 
-        {
-            sendCanRequestDistances(pAnchorId, vCurrentTagId);
-            delay(10); // Délai de traitement du bus matériel
-        }
-
-        // 2. Réception : Vidage du buffer TWAI/CAN vers l'accumulateur 'recupDonnees'
-        ecouterReseauFilaire();
-
-        // 3. Extraction ciblée : On interroge les données lissées uniquement pour les tags ciblés
-        for (int vCurrentTagId : vAnchorsId) 
-        {
-            DistanceMoyennes tagMoyenne;
-            
-            // Si des données lissées sont disponibles pour ce module précis
-            if (recupDonnees.getDonneesLisseesPourTag(vCurrentTagId, tagMoyenne)) 
-            {
-                // Règle d'unicité : on ne stocke que si l'ID demandeur est inférieur à l'ID cible (évite les doublons 1-2 et 2-1)
-                if (pAnchorId < vCurrentTagId) 
-                {
-                    if (tagMoyenne.distances[pAnchorId] > 0.0f) 
-                    {
-                        std::string vKey = std::to_string(pAnchorId + 1) + std::to_string(vCurrentTagId + 1);
-                        vDistances[vKey] = tagMoyenne.distances[pAnchorId];
-                    }
-                }
-            }
-        }
-        delay(20);
-    }
-
-    // Rétablissement : on renvoie le même ordre pour que les modules redeviennent des Ancres
-    toggleAnchorsMode(vAnchorsId, pAnchorId);
-    
-    Serial.println("[INIT ANCRES] Fin du calcul des distances relatives à l'ancre d'id " + String(pAnchorId));
-    return vDistances;
+    MsgAnchorCalibHubOrder vMessage = {pAnchorId};
+    sendCanOrderFromHubTo(pAnchorId, pRoleOrder, vMessage);
+    Serial.printf("[HUB CALIB] Ordre de role (Ordre: %d) envoye a l'ancre %d\n", pRoleOrder, pAnchorId);
 }
 
-void initAnchorsPosition(UWBModuleList & pAnchors)
-{
-    Serial.println("[INIT ANCRES] ---- DEMARRAGE INIT ANCRES PROTOCOLE ----");
-    sendToAnchorsInitialisationPhaseSignal(pAnchors, HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL);
-
-    std::unordered_map<std::string, float> vAnchorDistances;
-    std::vector<int> vAnchorsId = pAnchors.giveModuleIdList();
-
-    for (int vCurrentId : vAnchorsId)
-    {
-        std::unordered_map<std::string, float> vCurrentAnchorDistances = getAnchorDistances(vCurrentId, pAnchors);
-
-        for (auto it = vCurrentAnchorDistances.begin(); it != vCurrentAnchorDistances.end(); ++it)
-        {
-            vAnchorDistances[it->first] = it->second;
-        }
-    }
-
-    sendToAnchorsInitialisationPhaseSignal(pAnchors, HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL);
-
-    Serial.println("[INIT ANCRES] ---- REALIGNEMENT COORD ANCRES ----");
-    // Calcul mathématique des coordonnées à partir de la matrice des distances
-    initAnchorsCoordinatesWithGD(pAnchors, vAnchorDistances, ITERATIONS, LEARNING_RATE);
-    Serial.println("[INIT ANCRES] ---- FIN INIT ANCRES PROTOCOLE ----");
-}
-
-void sendToAnchorsInitialisationPhaseSignal(UWBModuleList & pAnchors, int pSignalType)
+void sendToAnchorsInitialisationPhaseSignal(UWBModuleList & pAnchors, uint8_t pSignalType)
 {
     std::vector<int> vAnchorsId = pAnchors.giveModuleIdList();
-
-    Serial.println("[INIT ANCRES] On envoie à toutes les ancres le signal d'init : " + String(pSignalType));
-
     for (uint8_t vCurrentId : vAnchorsId)
     {
         MsgAnchorCalibHubOrder vMessage = {vCurrentId};
@@ -103,14 +24,99 @@ void sendToAnchorsInitialisationPhaseSignal(UWBModuleList & pAnchors, int pSigna
     }
 }
 
-void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId)
+void initAnchorsPosition(UWBModuleList & pAnchors)
 {
-    Serial.println("[INIT ANCRES] On ordonne aux ancres de changer de mode (ID Ancre statique : " + String(pStaticAnchorId) + ")");
-    for (size_t i = 0; i < pAnchorsId.size(); i++)
+    Serial.println("\n[HUB CALIB] === DEBUT DU PROTOCOLE DE CALIBRATION SPATIALE ===");
+    sendToAnchorsInitialisationPhaseSignal(pAnchors, HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL);
+    delay(500);
+
+    std::unordered_map<std::string, float> vAnchorDistances;
+    std::vector<int> vAnchorsId = pAnchors.giveModuleIdList();
+
+    // Application stricte de la règle : on présume que les 4 modules sont déjà en Ancres.
+    Serial.println("[HUB CALIB] Les 4 modules sont par defaut des ANCRES. Demarrage de la rotation.");
+
+    for (int idCibleTag : vAnchorsId)
     {
-        MsgToggleHubOrder vMessage;
-        vMessage.staticAnchorId = pStaticAnchorId;
-        sendCanOrderFromHubTo(pAnchorsId[i], HUB_ORDER_TOGGLE_MODULE_MODE, vMessage);
+        Serial.printf("\n[HUB CALIB] --- Phase: L'Ancre %d devient le TAG temporaire ---\n", idCibleTag);
+
+        // 1. ISOLEMENT : On ne modifie QUE la cible
+        setAnchorRole(idCibleTag, HUB_ORDER_SET_AS_TAG);
+        
+        Serial.println("[HUB CALIB] Attente du reboot complet de la puce UWB (5.0s)...");
+        delay(5000); 
+
+        recupDonnees.effacerDonneesTag(idCibleTag);
+
+        Serial.println("[HUB CALIB] Purge des anciens messages CAN en attente...");
+        twai_message_t dummyMsg;
+        while(twai_receive(&dummyMsg, 0) == ESP_OK) {
+            //Vidange
+        }
+
+        // 2. COLLECTE RALENTIE : Boucle de 5 secondes avec espacement massif des requêtes
+        unsigned long startTime = millis();
+        while (millis() - startTime < 5000)
+        {
+            // Interrogation des 3 modules restés Ancres
+            for (int idAncre : vAnchorsId)
+            {
+                if (idAncre != idCibleTag) {
+                    sendCanRequestDistances(idAncre, idCibleTag);
+                    delay(100); // 100ms de pause stricte entre chaque requête filaire
+                }
+            }
+
+            ecouterReseauFilaire();
+
+            DistanceMoyennes tagMoyenne;
+            if (recupDonnees.getDonneesLisseesPourTag(idCibleTag, tagMoyenne))
+            {
+                for (int idAncre : vAnchorsId)
+                {
+                    if (idAncre != idCibleTag)
+                    {
+                        float dist = tagMoyenne.distances[idAncre];
+                        if (dist > 0.0f)
+                        {
+                            Serial.printf("[HUB DEBUG] En direct : Ancre %d <---> Tag Temporaire %d = %.2f cm\n", idAncre, idCibleTag, dist);
+
+                            int minId = std::min(idAncre, idCibleTag);
+                            int maxId = std::max(idAncre, idCibleTag);
+                            std::string vKey = std::to_string(minId + 1) + std::to_string(maxId + 1);
+
+                            if (vAnchorDistances.find(vKey) == vAnchorDistances.end() || vAnchorDistances[vKey] == 0) {
+                                vAnchorDistances[vKey] = dist;
+                                Serial.printf("[HUB CALIB] Succes : Distance validee %s -> %.2f cm\n", vKey.c_str(), dist);
+                            }
+                        }
+                    }
+                }
+            }
+            delay(200); // Pause globale supplémentaire pour laisser respirer le microcontrôleur
+        }
+
+        // 3. RESTAURATION : On ne restaure QUE la cible
+        Serial.printf("[HUB CALIB] Fin de collecte. L'Ancre %d redevient ANCRE.\n", idCibleTag);
+        setAnchorRole(idCibleTag, HUB_ORDER_SET_AS_ANCHOR);
+        
+        Serial.println("[HUB CALIB] Attente du retour physique en mode Ancre (5.0s)...");
+        delay(5000);
     }
+
+    Serial.println("\n[HUB CALIB] Fin de la collecte des distances inter-ancres.");
+    delay(500);
+
+    sendToAnchorsInitialisationPhaseSignal(pAnchors, HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL);
+
+    if (vAnchorDistances.size() < 6) {
+        Serial.printf("[HUB ERREUR CRITIQUE] Calibration avortee ! Seulement %d distances captees sur les 6 requises.\n", vAnchorDistances.size());
+        return; 
+    }
+
+    Serial.println("[HUB CALIB] Traitement mathématique (Descente de Gradient) en cours...");
+    initAnchorsCoordinatesWithGD(pAnchors, vAnchorDistances, ITERATIONS, LEARNING_RATE);
+    
+    Serial.println("[HUB CALIB] === FIN DU PROTOCOLE DE CALIBRATION ===");
 }
 

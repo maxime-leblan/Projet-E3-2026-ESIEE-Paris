@@ -131,7 +131,7 @@ void setup() {
     vector<V3> vSensorsPosition = {V3(3, 0, 1), V3(0, 3, 0), V3(3, 6, 0), V3(6, 3, 0)};
 
     // on les ajoute dans la liste des capteurs
-    for (int i = 1; i <= ANCHORS_NUMBER; i++)
+    for (int i = 0; i < ANCHORS_NUMBER; i++)
     {
         UWBModule vTemp = UWBModule(i, vSensorsPosition[i - 1]);
         vAnchors.addModule(vTemp.getId(), vTemp);
@@ -262,18 +262,19 @@ void executer_HUB_STATE_RUNNING() {
 
 void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
     Serial.println("[Hub] Lancement de l'auto-calibration matérielle des ancres...");
-   
-    // Cette fonction gère son propre timeout/blocage CAN dans InitAnchorPosition.cpp
+    
+    // Appel du protocole corrigé
     initAnchorsPosition(vAnchors);
-   
-    // Changement de repère officiel
+    
+    // Changement de repère officiel et purge
     alignAnchorsCoordinatesWithGridOrigin(vAnchors);
     calibManager.viderPoints();
-   
-    // Configuration pour l'étape suivante
-    idTagSelectionne = TAG_ID_CIBLE;
-   
+    
+    idTagSelectionne = TAG_ID_CIBLE; // A REMPLACER AVEC LA SELECTION DE L'IHM (Écran)
+    
     Serial.println("[Hub] Initialisation terminée. Passage en collecte de points pour géométrie.");
+    Serial.println("Voici la pos des ancres actuels :");
+    Serial.println(vAnchors.toString().c_str());
     etatActuelHub = HUB_STATE_COLLECTING_POINTS;
 }
 

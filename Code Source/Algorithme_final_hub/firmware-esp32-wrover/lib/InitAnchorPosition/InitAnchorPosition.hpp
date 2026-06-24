@@ -6,34 +6,21 @@
 #include <vector>
 #include <string>
 
-// Paramètres pour la descente de gradient
 #define ITERATIONS 100
 #define LEARNING_RATE 0.01
 
 /**
- * Renvoie un dictionnaire contenant les distances entre l'Ancre statique passée en paramètre et les autres modules (temporairement Tags).
- * @param pAnchorId Identifiant de l'Ancre qui reste fixe et qui effectue les mesures.
- * @param pAnchors Liste complète des modules du système.
- */
-std::unordered_map<std::string, float> getAnchorDistances(int pAnchorId, UWBModuleList pAnchors);
-
-/**
- * Orchestre le protocole de calibration matérielle puis attribue les positions calculées par descente de gradient.
- * @param pAnchors Référence à la variable contenant la liste des Ancres du véhicule.
+ * Orchestre le protocole de calibration matérielle par permutation des rôles Ancre/Tag,
+ * puis calcule les positions 3D via descente de gradient.
  */
 void initAnchorsPosition(UWBModuleList & pAnchors);
 
 /**
- * Envoie à toutes les Ancres un signal indiquant le début ou la fin de la phase d'initialisation.
- * @param pAnchors Référence à la variable contenant la liste des Ancres.
- * @param pSignalType HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL ou HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL.
+ * Diffuse un ordre global d'initialisation sur le bus CAN.
  */
-void sendToAnchorsInitialisationPhaseSignal(UWBModuleList & pAnchors, int pSignalType);
+void sendToAnchorsInitialisationPhaseSignal(UWBModuleList & pAnchors, uint8_t pSignalType);
 
 /**
- * Envoie l'ordre CAN de basculement de mode aux modules listés.
- * @param pAnchorsId Liste des identifiants des modules devant changer d'état (Ancre <-> Tag).
- * @param pStaticAnchorId Identifiant de l'Ancre qui reste fixe pendant l'opération.
+ * Force explicitement le rôle matériel d'un module (Ancre ou Tag) via le bus CAN.
  */
-void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId);
-
+void setAnchorRole(uint8_t pAnchorId, uint8_t pRoleOrder);

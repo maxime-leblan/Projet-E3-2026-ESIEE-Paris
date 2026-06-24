@@ -8,10 +8,11 @@ bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage, Stream 
         outMessage.senderId = 0;
         outMessage.receiverId = 0;
         outMessage.orderType = 0;
-        outMessage.dataValue = 0.0f; // Pas de donnée supplémentaire pour les ordres 1 et 2
+        outMessage.dataValue = 0.0f; 
         outMessage.aIsStandardDistanceMessage = true;
 
-        pSerial.println("[UWB DECOD] Message décodé de type AT+RANGE");
+        // Gardé silencieux pour ne pas polluer l'écran en calibration
+        // pSerial.println("[UWB DECOD] Message décodé de type AT+RANGE");
         return true;
     }
 
@@ -21,7 +22,7 @@ bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage, Stream 
         outMessage.senderId = getSenderIdFromUWBMessage(distData);
         outMessage.receiverId = getReceiverIdFromUWBMessage(distData);
         outMessage.orderType = getOrderTypeFromUWBMessage(distData);
-        outMessage.dataValue = getDistanceFromUWBMessage(distData); // La distance est le 4ème élément
+        outMessage.dataValue = getDistanceFromUWBMessage(distData); 
         outMessage.aIsStandardDistanceMessage = false;
 
         pSerial.println("[UWB DECOD] Message décodé de type 'Distance entre tag et véhicule'. Contenu :");
@@ -38,7 +39,7 @@ bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage, Stream 
         outMessage.senderId = getSenderIdFromUWBMessage(orderData);
         outMessage.receiverId = getReceiverIdFromUWBMessage(orderData);
         outMessage.orderType = getOrderTypeFromUWBMessage(orderData);
-        outMessage.dataValue = 0.0f; // Pas de donnée supplémentaire pour les ordres 1 et 2
+        outMessage.dataValue = 0.0f; 
         outMessage.aIsStandardDistanceMessage = false;
 
         pSerial.println("[UWB DECOD] Message décodé de type 'Ordre du Hub pour le tag'");
@@ -48,63 +49,35 @@ bool decodeUWBMessage(const String &pRawMessage, UWBMessage &outMessage, Stream 
         return true;
     }
 
-    return false; // Échec du décodage si aucune regex ne correspond
+    return false; 
 }
 
 bool receiveUWBMessage(Stream &pUWBSerial, String &outRawMessage, Stream & pSerial) {
     if (pUWBSerial.available()) {
+        // On lit jusqu'au saut de ligne
         String input = pUWBSerial.readStringUntil('\n');
-        input.trim(); // Nettoie les caractères invisibles (comme \r)
 
-        pSerial.println("[UWB]  Message brut reçu du module UWB : " + input);
+        // =========================================================
+        // DEBOGAGE BRUT BRUT (Niveau UART)
+        // =========================================================
+        if (input.length() > 0) {
+            pSerial.print("[UART BRUT] Taille: ");
+            pSerial.print(input.length());
+            pSerial.print(" | Chaine: >>>");
+            pSerial.print(input);
+            pSerial.println("<<<");
+        }
+        // =========================================================
+
+        input.trim(); // Nettoie les caractères invisibles (comme \r ou les espaces)
+        
         outRawMessage = input;
         return true;
     }
     return false;
 }
-
-/*
-bool receiveUWBDistanceMessage(Stream &pUWBSerial, Stream & pSerial , String &outRawMessage)
-{
-    if (pUWBSerial.available()) {
-        String input = pUWBSerial.readStringUntil('\n');
-        input.trim(); // Nettoie les caractères invisibles (comme \r)
-        pSerial.println("[UWB]  Message brut reçu du module UWB : " + input);
-        outRawMessage = input;
-        pSerial.println("[UWB] Résultat stocké dans la variable de sortie : " + outRawMessage);
-        return true;
-    }
-    return false;
-}
-    */
-
-/*
-void readDistancesInTagSerial(Stream & pUWBSerial, Stream & pSerial, String &outRawMessage)
-{
-    if (pUWBSerial.available()) {
-        String data = pUWBSerial.readStringUntil('\n');
-        data.trim();
-
-        outRawMessage = data;
-
-        if (data != "")
-        {
-            pSerial.println("Tag vient de lire le message distance de son UWBSerial : " + data);
-        }
-        else
-        {
-            pSerial.println("Le UWBSerial du Tag est vide, distance impossible à lire : " + data);
-        }
-    }
-    else 
-    {
-        pSerial.println("Pas de message dans la file du tag");
-    }
-}
-*/
 
 void sendOrderToTag(Stream &pUWBSerial, Stream & pSerial, uint8_t pSenderID, uint8_t pReceiverID, uint8_t pOrderType) {
-    // Construction du message : ex "0:4:1"
     String message = String(pSenderID) + ":" + String(pReceiverID) + ":" + String(pOrderType);
     String atCommand = "AT+DATA=" + String(message.length()) + "," + message;
     pUWBSerial.println(atCommand);
@@ -113,109 +86,78 @@ void sendOrderToTag(Stream &pUWBSerial, Stream & pSerial, uint8_t pSenderID, uin
 }
 
 void sendDistanceToTag(Stream &pUWBSerial, Stream & pSerial, uint8_t pSenderID, uint8_t pReceiverID, float pDistance) {
-    // Construction du message : ex "0:4:3:5.45"
     String message = String(pSenderID) + ":" + String(pReceiverID) + ":3:" + String(pDistance, 2);
     String atCommand = "AT+DATA=" + String(message.length()) + "," + message;
     pUWBSerial.println(atCommand);
 
     pSerial.println("[UWB SEND A->T] Ancre " + String(pSenderID) + " a envoyé à Tag " + String(pReceiverID) + "le message : " + atCommand);
-
 }
 
 void sendDistancesToAnchor(Stream & pUWBSerial, Stream & pSerial, String & pRawRangeMessage) {
-    // 3. Construction de la commande d'envoi radio
-    // La syntaxe est : AT+DATA=<LongueurDuMessage>,<MessageBrut>
     String atCommand = "AT+DATA=" + String(pRawRangeMessage.length()) + "," + pRawRangeMessage;
-    
-    // 4. Envoi au module UWB pour diffusion aux ancres
     pUWBSerial.println(atCommand);
-    
-    // Affichage de confirmation dans le moniteur série
     pSerial.println("[UWB SEND T->A] Tag a envoyé : " + atCommand);
-
 }
-
-/*
-void configureUWBForMessaging(Stream &pUWBSerial) {
-    // AT+SETCAP=(x1),(x2),(x3)
-    // x3 = 1 active le mode "Extended packet" indispensable pour AT+DATA
-    // On garde des valeurs par défaut pour x1 et x2 (ex: 10, 10)
-    
-    pUWBSerial.println("AT+SETCAP=10,10,1");
-    delay(500); // Temps pour que le module traite la commande
-    
-    pUWBSerial.println("AT+SAVE");
-    delay(500); // Temps pour la sauvegarde en mémoire flash
-}
-    */
 
 String sendATCommand(String command, Stream & pSerial, Stream & pUWBSerial) {
     String response = "";
-    pSerial.print("Envoi au module UWB -> "); 
+    pSerial.print("Envoi au module UWB -> ");
     pSerial.println(command);
     
     while(pUWBSerial.available()) { pUWBSerial.read(); }
     pUWBSerial.println(command);
     
     uint32_t startTime = millis();
-    const uint32_t maxGuardTimeout = 1000; // Augmenté à 1 seconde de sécurité
+    const uint32_t maxGuardTimeout = 1000; 
 
     while ((millis() - startTime) < maxGuardTimeout) {
         if (pUWBSerial.available()) {
             char c = (char)pUWBSerial.read();
             response += c;
             
-            // CORRECTION : On attend UNIQUEMENT le OK ou ERROR final, on ignore les sauts de lignes simples.
             if (response.endsWith("OK\r\n") || response.endsWith("ERROR\r\n")) {
-                delay(5); // On laisse 5ms pour ramasser les derniers caractères résiduels
+                delay(5); 
                 while (pUWBSerial.available()) { response += (char)pUWBSerial.read(); }
-                break; 
+                break;
             }
         }
     }
     
-    pSerial.print("Réponse du module UWB <- "); 
-    pSerial.println(response); 
+    pSerial.print("Réponse du module UWB <- ");
+    pSerial.println(response);
     return response;
 }
 
 String sendATCommandWithResult(String command, Stream & pSerial, Stream & pUWBSerial) {
     String resultData = "";
     
-    pSerial.print("Envoi au module UWB (attente resultat) -> "); 
+    pSerial.print("Envoi au module UWB (attente resultat) -> ");
     pSerial.println(command);
     
-    // 1. On vide le buffer des anciens messages fantômes
     while(pUWBSerial.available()) { pUWBSerial.read(); }
-    
-    // 2. On envoie la commande
     pUWBSerial.println(command);
     
-    // 3. On lit la réponse ligne par ligne
     uint32_t startTime = millis();
-    const uint32_t maxGuardTimeout = 1000; // 1 seconde de sécurité maximum
+    const uint32_t maxGuardTimeout = 1000; 
 
     while ((millis() - startTime) < maxGuardTimeout) {
         if (pUWBSerial.available()) {
-            // On lit le texte jusqu'au prochain saut de ligne
             String line = pUWBSerial.readStringUntil('\n');
-            line.trim(); // On supprime les espaces et les retours chariots invisibles (\r)
+            line.trim(); 
             
-            // Si on lit "OK" ou "ERROR", la conversation est terminée, on sort de la boucle
             if (line == "OK" || line == "ERROR") {
                 break;
             }
             
-            // Si la ligne n'est pas vide ET qu'elle n'est pas l'écho de notre propre commande
             if (line.length() > 0 && line != command) {
-                // C'est la ligne contenant la donnée utile ! On la sauvegarde.
                 resultData = line;
             }
         }
     }
     
-    pSerial.print("Résultat extrait <- "); 
-    pSerial.println(resultData != "" ? resultData : "[Aucun resultat/Erreur]"); 
+    pSerial.print("Résultat extrait <- ");
+    pSerial.println(resultData != "" ? resultData : "[Aucun resultat/Erreur]");
     
     return resultData;
 }
+

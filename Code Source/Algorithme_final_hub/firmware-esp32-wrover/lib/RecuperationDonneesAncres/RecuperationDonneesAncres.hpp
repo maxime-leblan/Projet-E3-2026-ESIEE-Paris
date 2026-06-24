@@ -32,5 +32,7 @@ class RecuperationDonneesAncres {
 
         // OPTIONNEL : Si tu as besoin de tout vider/récupérer d'un coup
         bool getToutesDonneesLissees(std::vector<DistanceMoyennes>& resultats_out);
+
+        void effacerDonneesTag(int tagId);
 };
 

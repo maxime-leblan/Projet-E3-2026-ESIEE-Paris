@@ -78,7 +78,7 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
 
                 // On oriente le décodage de la structure selon le sous-type d'ordre
                 switch (output.aOrderType) {
-                    
+                   
                     case HUB_ORDER_TOGGLE_MODULE_MODE:
                         // La taille attendue de la trame totale est : 1 octet (ordre) + taille de la structure
                         if (message.data_length_code == (1 + sizeof(MsgToggleHubOrder))) {
@@ -93,88 +93,88 @@ bool decodeCanMessage(const twai_message_t &message, DecodedData &output)
                         return false;
 
                     case HUB_ORDER_START_TAG_CALIBRATION:
-                        // La taille attendue de la trame totale est : 1 octet (ordre) + taille de la structure
                         if (message.data_length_code == (1 + sizeof(MsgTagCalibHubOrder))) {
                             MsgTagCalibHubOrder payload;
-                            // Copie des données à partir de l'index 1 (juste après l'octet d'ordre)
                             memcpy(&payload, &message.data[1], sizeof(MsgTagCalibHubOrder));
-                            // On stocke les données dans la variable de sortie
                             output.id_tag = payload.aTagId;
                             return true;
                         }
                         Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_START_TAG_CALIBRATION");
                         return false;
+
                     case HUB_ORDER_END_TAG_CALIBRATION:
-                        // La taille attendue de la trame totale est : 1 octet (ordre) + taille de la structure
                         if (message.data_length_code == (1 + sizeof(MsgTagCalibHubOrder))) {
                             MsgTagCalibHubOrder payload;
-                            // Copie des données à partir de l'index 1 (juste après l'octet d'ordre)
                             memcpy(&payload, &message.data[1], sizeof(MsgTagCalibHubOrder));
-                            // On stocke les données dans la variable de sortie
                             output.id_tag = payload.aTagId;
                             return true;
                         }
                         Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_END_TAG_CALIBRATION");
                         return false;
-                    
+                   
                     case HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL:
-                        // La taille attendue de la trame totale est : 1 octet (ordre) + taille de la structure
                         if (message.data_length_code == (1 + sizeof(MsgAnchorCalibHubOrder))) {
                             MsgAnchorCalibHubOrder payload;
-                            // Copie des données à partir de l'index 1 (juste après l'octet d'ordre)
                             memcpy(&payload, &message.data[1], sizeof(MsgAnchorCalibHubOrder));
-                            // On a juste besoin de l'id_ancre qu'on a déjà stocké plus haut
+                            // L'ID de l'ancre est déjà extrait au niveau du type général
                             return true;
                         }
                         Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_START_ANCHOR_INIT_POSITION_PROTOCOL");
                         return false;
 
                     case HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL:
-                        // La taille attendue de la trame totale est : 1 octet (ordre) + taille de la structure
                         if (message.data_length_code == (1 + sizeof(MsgAnchorCalibHubOrder))) {
                             MsgAnchorCalibHubOrder payload;
-                            // Copie des données à partir de l'index 1 (juste après l'octet d'ordre)
                             memcpy(&payload, &message.data[1], sizeof(MsgAnchorCalibHubOrder));
-                            // On a juste besoin de l'id_ancre qu'on a déjà stocké plus haut
                             return true;
                         }
                         Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_END_ANCHOR_INIT_POSITION_PROTOCOL");
                         return false;
 
                     case HUB_ORDER_REQUEST_DISTANCES:
-                        // La taille attendue de la trame totale est : 1 octet (ordre) + taille de la structure
                         if (message.data_length_code == (1 + sizeof(MsgRequestDistancesHubOrder))) {
                             MsgRequestDistancesHubOrder payload;
-                            // Copie des données à partir de l'index 1 (juste après l'octet d'ordre)
                             memcpy(&payload, &message.data[1], sizeof(MsgRequestDistancesHubOrder));
-                            // On stocke le Tag demandé dans la variable de sortie
-                            output.id_tag = payload.aTagId; 
+                            output.id_tag = payload.aTagId;
                             return true;
                         }
                         Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_REQUEST_DISTANCES");
                         return false;
-                    
+                   
                     case HUB_ORDER_REQUEST_ANCHOR_DISTANCES_DURING_CALIB:
-                        // La taille attendue de la trame totale est : 1 octet (ordre) + taille de la structure
                         if (message.data_length_code == (1 + sizeof(MsgRequestAnchorDistancesDuringCalibHubOrder))) {
                             MsgRequestAnchorDistancesDuringCalibHubOrder payload;
-                            // Copie des données à partir de l'index 1 (juste après l'octet d'ordre)
                             memcpy(&payload, &message.data[1], sizeof(MsgRequestAnchorDistancesDuringCalibHubOrder));
-                            // On stocke le Tag demandé dans la variable de sortie
-                            output.aStaticAnchorIdDuringToggle = payload.aStaticAnchorId; 
+                            output.aStaticAnchorIdDuringToggle = payload.aStaticAnchorId;
                             return true;
                         }
                         Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_REQUEST_ANCHOR_DISTANCES_DURING_CALIB");
                         return false;
 
-                    // Tu pourras ajouter tes futurs ordres ici très facilement :
-                    // case DEUXIEME_ORDRE_FUTUR:
-                    //     if (message.data_length_code == (1 + sizeof(MsgFutur))) { ... }
+                    // --- NOUVEAUX ORDRES DE FORÇAGE D'ÉTAT UWB ---
+                    case HUB_ORDER_SET_AS_TAG:
+                        if (message.data_length_code == (1 + sizeof(MsgAnchorCalibHubOrder))) {
+                            MsgAnchorCalibHubOrder payload;
+                            memcpy(&payload, &message.data[1], sizeof(MsgAnchorCalibHubOrder));
+                            return true;
+                        }
+                        Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_SET_AS_TAG");
+                        return false;
+
+                    case HUB_ORDER_SET_AS_ANCHOR:
+                        if (message.data_length_code == (1 + sizeof(MsgAnchorCalibHubOrder))) {
+                            MsgAnchorCalibHubOrder payload;
+                            memcpy(&payload, &message.data[1], sizeof(MsgAnchorCalibHubOrder));
+                            return true;
+                        }
+                        Serial.println("Erreur decodage : Taille incorrecte pour HUB_ORDER_SET_AS_ANCHOR");
+                        return false;
 
                     default:
                         Serial.printf("Ordre Hub inconnu recu : %d\n", output.aOrderType);
                         return false;
                 }
+
             }
             Serial.println("Erreur decodage : Trame MESSAGE_HUB_ORDER vide");
             return false;
@@ -190,26 +190,39 @@ bool receiveCanMessage(twai_message_t &messageRecu)
     esp_err_t result = twai_receive(&messageRecu, pdMS_TO_TICKS(DATA_RECEPTION_TIME));
     if (result == ESP_OK)
     {
-        Serial.printf(("[CAN] Message received, <identifier> = " + String(messageRecu.identifier) + "\n").c_str());
+        // -------------------------------------------------------------
+        // NOUVEAU LOG DE DEBUG AVANCÉ POUR LE CAN
+        // -------------------------------------------------------------
+        Serial.print("[CAN RX] ID: ");
+        Serial.print(messageRecu.identifier);
+        Serial.print(" | Ext: ");
+        Serial.print(messageRecu.extd ? "Oui" : "Non");
+        Serial.print(" | DLC (Taille): ");
+        Serial.print(messageRecu.data_length_code);
+        Serial.print(" | DATA: [ ");
+        
+        // Affichage de chaque octet du message en format Hexadécimal
+        for (int i = 0; i < messageRecu.data_length_code; i++) {
+            if (messageRecu.data[i] < 0x10) Serial.print("0"); // Zéro de padding
+            Serial.print(messageRecu.data[i], HEX);
+            Serial.print(" ");
+        }
+        Serial.println("]");
         return true;
     }
-    /*
-    else if (result == ESP_ERR_TIMEOUT)
-    {
-        Serial.printf("[CAN] Failed to receive the message : Timed out waiting for message\n");
-    }
-    */
     else if (result == ESP_ERR_INVALID_ARG)
     {
-        Serial.printf("[CAN] Failed to receive the message : Arguments are invalid\n");
+        Serial.println("[CAN ERREUR] Failed to receive : Arguments are invalid");
     }
     else if (result == ESP_ERR_INVALID_STATE)
     {
-        Serial.printf("[CAN] Failed to receive the message : TWAI driver is not installed\n");
+        Serial.println("[CAN ERREUR] Failed to receive : TWAI driver is not installed");
     }
 
     return false;
 }
+
+
 
 void sendCanDistance(uint8_t id_ancre, uint8_t id_tag, float dist) {
     twai_message_t message;
