@@ -39,12 +39,13 @@ unordered_map<string, float> makeDistanceTabFromCoordinates(vector<V3> pCoordina
     unordered_map<string, float> vDistances;
     string vKey;
 
-    // On boucle de 0 à 3 au lieu de 1 à 4
+    // Les boucles parcourent les index de coordonnées (0 à 3)
     for (int i = 0; i <= 2; i++)
     {
         for (int j = i + 1; j <= 3; j++)
         {
-            vKey = to_string(i) + to_string(j);
+            // Mais la clé générée applique un décalage de +1 ("12", "13", etc.)
+            vKey = to_string(i + 1) + to_string(j + 1);
             vDistances[vKey] = (pCoordinates[j] - pCoordinates[i]).norm();
         }
     }
@@ -103,18 +104,17 @@ int main()
     */
     vector<V3> vRealCoordinates = {V3(0, 0, 0), V3(4, 0, 0), V3(1.83, 3.99, 0), V3(2.33, 6.53, 4)};
 
-    unordered_map<string, float> vRealDistances = makeDistanceTabFromCoordinates(vRealCoordinates);
+    //unordered_map<string, float> vRealDistances = makeDistanceTabFromCoordinates(vRealCoordinates);
 
     // on stocke les distances entre chaque ancre
     unordered_map<string, float> vMesuredDistances;
 
-    // Remplacement des index (1-4) par (0-3)
-    vMesuredDistances["01"] = 3.58; 
-    vMesuredDistances["02"] = 4.68; 
-    vMesuredDistances["03"] = 3.15; 
-    vMesuredDistances["12"] = 3.05; 
-    vMesuredDistances["13"] = 5.15; 
-    vMesuredDistances["23"] = 4.12;
+    vMesuredDistances["12"] = 3.58;
+    vMesuredDistances["13"] = 4.68;
+    vMesuredDistances["14"] = 3.15;
+    vMesuredDistances["23"] = 3.05;
+    vMesuredDistances["24"] = 5.15;
+    vMesuredDistances["34"] = 4.12;
 
     // on lance l'initialisation des ancres
     initAnchorsCoordinates(vSensors, vMesuredDistances);
@@ -124,18 +124,18 @@ int main()
 
     // on affiche les pourcentages d'erreurs pour chaque distance
     cout << "Erreurs algo classique (en \% par rapport à la vrai distance): \n";
-    printDict(giveErrors(vRealDistances, vMesuredDistances));
+    //printDict(giveErrors(vRealDistances, vMesuredDistances));
 
     // ------------------------------------------------------------------------------
     // Partie avec utilisation de la descente de gradient
 
     // Remplacement des index (1-4) par (0-3)
-    vMesuredDistances["01"] = 3.58; 
-    vMesuredDistances["02"] = 4.68; 
-    vMesuredDistances["03"] = 3.15; 
-    vMesuredDistances["12"] = 3.05; 
-    vMesuredDistances["13"] = 5.15; 
-    vMesuredDistances["23"] = 4.12;
+    vMesuredDistances["12"] = 3.58;
+    vMesuredDistances["13"] = 4.68;
+    vMesuredDistances["14"] = 3.15;
+    vMesuredDistances["23"] = 3.05;
+    vMesuredDistances["24"] = 5.15;
+    vMesuredDistances["34"] = 4.12;
 
     // on lance l'initialisation des ancres
     initAnchorsCoordinatesWithGD(vSensors, vMesuredDistances, 1000, 0.01);
@@ -145,7 +145,7 @@ int main()
     // on affiche les coordonnées données lors de l'initialisation à chaque ancre
     cout << vSensors.toString();
     cout << "\nErreurs algo descente de gradient (en \% par rapport à la vrai distance): \n";
-    printDict(giveErrors(vRealDistances, makeDistanceTabFromCoordinates(giveCoordinates(vSensors))));
+    //printDict(giveErrors(vRealDistances, makeDistanceTabFromCoordinates(giveCoordinates(vSensors))));
 
     // --------------------------------------------------------------------------------
     // Application d'une matrice de rotation sur une liste de points
