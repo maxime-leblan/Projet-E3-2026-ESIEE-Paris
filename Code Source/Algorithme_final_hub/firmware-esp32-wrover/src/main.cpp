@@ -131,7 +131,7 @@ void setup() {
     vector<V3> vSensorsPosition = {V3(3, 0, 1), V3(0, 3, 0), V3(3, 6, 0), V3(6, 3, 0)};
 
     // on les ajoute dans la liste des capteurs
-    for (int i = 1; i <= ANCHORS_NUMBER; i++)
+    for (int i = 0; i < ANCHORS_NUMBER; i++)
     {
         UWBModule vTemp = UWBModule(i, vSensorsPosition[i - 1]);
         vAnchors.addModule(vTemp.getId(), vTemp);
@@ -267,6 +267,7 @@ void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
     // /!\ La fonction ne fonctionnant pas, on va hardcoder les positions des ancres à la place
     //initAnchorsPosition(vAnchors);
     initTestHardcodedAnchorsPosition(vAnchors);
+    Serial.println("[Hub INIT ANCRES] Voici les coordonnées de base des ancres : " + String(vAnchors.toString().c_str()));
    
     // Changement de repère officiel
     alignAnchorsCoordinatesWithGridOrigin(vAnchors);
