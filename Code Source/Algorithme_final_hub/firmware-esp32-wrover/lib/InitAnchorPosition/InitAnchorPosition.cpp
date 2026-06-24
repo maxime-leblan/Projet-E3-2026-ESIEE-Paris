@@ -128,6 +128,14 @@ void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId)
     }
 }
 
+
+extern float dist01;
+extern float dist02;
+extern float dist03;
+extern float dist12;
+extern float dist13;
+extern float dist23;
+
 void initTestHardcodedAnchorsPosition(UWBModuleList & pAnchors)
 {
     // On hardcode les distances
@@ -136,12 +144,12 @@ void initTestHardcodedAnchorsPosition(UWBModuleList & pAnchors)
 
     unordered_map<string, float> vMesuredDistances;
 
-    vMesuredDistances["12"] = 3.58; // 3.58
-    vMesuredDistances["13"] = 4.42; // 4.68
-    vMesuredDistances["14"] = 3.24; // 3.15
-    vMesuredDistances["23"] = 3.48; // 3.05
-    vMesuredDistances["24"] = 4.74; // 5.15
-    vMesuredDistances["34"] = 3.44; // 4.12
+    vMesuredDistances["12"] = dist01; // 3.58 // 3.58
+    vMesuredDistances["13"] = dist02; // 4.42 // 4.68
+    vMesuredDistances["14"] = dist03; // 3.24 // 3.15
+    vMesuredDistances["23"] = dist12; // 3.48 // 3.05
+    vMesuredDistances["24"] = dist13; // 4.74 // 5.15
+    vMesuredDistances["34"] = dist23; // 3.44 // 4.12
 
     Serial.println("[Hub INIT ANCRES] Coordonées des ancres avant 1er calcul :");
     Serial.println(pAnchors.toString().c_str());

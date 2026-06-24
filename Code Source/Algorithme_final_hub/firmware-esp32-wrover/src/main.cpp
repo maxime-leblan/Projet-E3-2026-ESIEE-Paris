@@ -34,6 +34,8 @@ std::map<int, float> hauteursAncresTemporaires;
 #define TAG_CIBLE 4 // ID du tag que l'on souhaite suivre en temps réel (pour le polling du Hub)
 #define ANCRE_MASTER 0
 
+extern bool aDesDistancesManuelles;
+
 // Prototypes
 void afficherCoordonneesAncres();
 void afficherCoordonneesTag(uint8_t tagId, const V3& pos3D);
@@ -352,10 +354,15 @@ void executer_HUB_STATE_RUNNING() {
 void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
     Serial.println("[Hub] Lancement de l'auto-calibration matérielle des ancres...");
    
-    // Cette fonction gère son propre timeout/blocage CAN dans InitAnchorPosition.cpp
-    // /!\ La fonction ne fonctionnant pas, on va hardcoder les positions des ancres à la place
-    //initAnchorsPosition(vAnchors);
-    initTestHardcodedAnchorsPosition(vAnchors);
+    
+    if (aDesDistancesManuelles) {
+        initTestHardcodedAnchorsPosition(vAnchors);
+    } else {
+        // Cette fonction gère son propre timeout/blocage CAN dans InitAnchorPosition.cpp
+        //initAnchorsPosition(vAnchors);
+        // /!\ La fonction ne fonctionnant pas, on va hardcoder les positions des ancres à la place
+    }
+    
     Serial.println("[Hub INIT ANCRES] Voici les coordonnées de base des ancres : " + String(vAnchors.toString().c_str()));
    
     // Changement de repère officiel

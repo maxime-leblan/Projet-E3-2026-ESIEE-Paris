@@ -71,6 +71,9 @@ void setup_web_server() {
                     hub_doc["nom"] = derniereConfig["nom"];
                     hub_doc["zone"] = derniereConfig["zone"];       // Les 64 points
                     hub_doc["sensors"] = derniereConfig["sensors"]; // Les 4 ancres
+                    if (derniereConfig.containsKey("distances")) {
+                        hub_doc["distances"] = derniereConfig["distances"]; // Distances entres ancres.
+                    }
                     
                     // Envoi physique immédiat via UART (Serial2) au Hub WROVER
                     envoyer_commande_hub(hub_doc);
@@ -94,9 +97,22 @@ void setup_web_server() {
 
         // 1. On réveille le Hub et on lui dit de scanner
         JsonDocument order;
-        order["cmd"] = "start_calib"; 
+        order["cmd"] = "start_calib";
+
+        // NOUVEAU : Récupération des distances dès l'étape du scan
+        if (request->hasParam("d01")) {
+            JsonObject dist = order.createNestedObject("distances");
+            dist["d01"] = request->getParam("d01")->value().toFloat();
+            dist["d02"] = request->getParam("d02")->value().toFloat();
+            dist["d03"] = request->getParam("d03")->value().toFloat();
+            dist["d12"] = request->getParam("d12")->value().toFloat();
+            dist["d13"] = request->getParam("d13")->value().toFloat();
+            dist["d23"] = request->getParam("d23")->value().toFloat();
+            Serial.println("[WEB API] Distances transmises au Hub pour la détection initiale.");
+        }
+
         envoyer_commande_hub(order);
-        
+       
         calib_state = 0;
         json_tags_decouverts = "[]";
 
@@ -111,24 +127,23 @@ void setup_web_server() {
         request->send(200, "application/json", json_tags_decouverts);
     });
 
+
     server.on("/api/hub/start", HTTP_ANY, [](AsyncWebServerRequest *request){
         int tag_id = 0;
-
-        if (request->hasParam("tag_id")) { // Recherche dans l'URL
-            tag_id = request->getParam("tag_id")->value().toInt(); 
-        } else if (request->hasParam("tag_id", true)) { // Recherche dans l'URL
-            tag_id = request->getParam("tag_id", true)->value().toInt(); 
+        if (request->hasParam("tag_id")) {
+            tag_id = request->getParam("tag_id")->value().toInt();
+        } else if (request->hasParam("tag_id", true)) {
+            tag_id = request->getParam("tag_id", true)->value().toInt();
         }
 
         Serial.printf("[WEB API] Le téléphone a validé le Tag cible : #%d\n", tag_id);
 
-        // On envoie l'ID choisi au Hub pour qu'il génère la forme de la machine (64 points)
         JsonDocument doc;
         doc["cmd"] = "select_tag";
         doc["tag_id"] = tag_id;
         envoyer_commande_hub(doc);
 
-        calib_state = 1; // On dit à l'écran d'attendre la géométrie
+        calib_state = 1; 
         request->send(200, "text/plain", "OK");
     });
 
