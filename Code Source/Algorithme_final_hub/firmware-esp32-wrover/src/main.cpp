@@ -359,7 +359,7 @@ void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
         initTestHardcodedAnchorsPosition(vAnchors);
     } else {
         // Cette fonction gère son propre timeout/blocage CAN dans InitAnchorPosition.cpp
-        //initAnchorsPosition(vAnchors);
+        initAnchorsPosition(vAnchors);
         // /!\ La fonction ne fonctionnant pas, on va hardcoder les positions des ancres à la place
     }
     
