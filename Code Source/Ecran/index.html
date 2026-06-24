@@ -111,6 +111,23 @@
                 </div>
                 <p style="font-size:0.75rem; color:var(--muted);">L'image sera automatiquement redimensionnée à ces dimensions réelles sur l'écran.</p>
             </div>
+
+            <div style="background:var(--panel); padding:15px; border-radius:8px; border:1px solid var(--border); margin-bottom:15px;">
+                <label style="color:var(--text); font-weight:bold; margin-bottom:10px;">Distances entre ancres (Optionnel)</label>
+                <div class="row">
+                    <div class="col"><label>Distance Ancre 0 à Ancre 1 (m)</label><input type="number" step="0.01" id="c_dist_01"></div>
+                    <div class="col"><label>Distance Ancre 0 à Ancre 2 (m)</label><input type="number" step="0.01" id="c_dist_02"></div>
+                </div>
+                <div class="row">
+                    <div class="col"><label>Distance Ancre 0 à Ancre 3 (m)</label><input type="number" step="0.01" id="c_dist_03"></div>
+                    <div class="col"><label>Distance Ancre 1 à Ancre 2 (m)</label><input type="number" step="0.01" id="c_dist_12"></div>
+                </div>
+                <div class="row">
+                    <div class="col"><label>Distance Ancre 1 à Ancre 3 (m)</label><input type="number" step="0.01" id="c_dist_13"></div>
+                    <div class="col"><label>Distance Ancre 2 à Ancre 3 (m)</label><input type="number" step="0.01" id="c_dist_23"></div>
+                </div>
+                <p style="font-size:0.75rem; color:var(--muted);">Si une case est remplie, toutes les autres doivent l'être.</p>
+            </div>
            
             <button onclick="requestTags()">Suivant</button>
         </div>
@@ -251,7 +268,7 @@
         // VIRTUAL SCROLLER POUR L'HISTORIQUE WARNINGS
         // ==========================================
         let allWarningsArray = [];
-        let warnRowHeight = 40; 
+        let warnRowHeight = 40;
         let lastRenderedStart = -1;
 
         async function loadWarnings() {
@@ -283,7 +300,7 @@
 
         function setupVirtualScroll() {
             let view = document.getElementById('view-hist-warn');
-            view.scrollTop = 0; 
+            view.scrollTop = 0;
             view.onscroll = () => { window.requestAnimationFrame(() => renderWarnChunk(view)); };
             renderWarnChunk(view);
         }
@@ -407,6 +424,8 @@
             editingCalibIndex = -1;
             newCalib = { zone: [], sensors: [], v_width: 5, v_length: 8, image: "" };
             document.getElementById('c_nom').value = ""; document.getElementById('c_op').value = ""; document.getElementById('c_img_file').value = "";
+            document.getElementById('c_dist_01').value = ""; document.getElementById('c_dist_02').value = ""; document.getElementById('c_dist_03').value = "";
+            document.getElementById('c_dist_12').value = ""; document.getElementById('c_dist_13').value = ""; document.getElementById('c_dist_23').value = "";
             pendingImageFile = null;
             nav('view-calib-setup');
         }
@@ -414,11 +433,33 @@
         async function requestTags() {
             let n = document.getElementById('c_nom').value;
             if(!n) return alert("Le nom est obligatoire");
+
+            let distIds = ['c_dist_01', 'c_dist_02', 'c_dist_03', 'c_dist_12', 'c_dist_13', 'c_dist_23'];
+            let distFilled = 0;
+            distIds.forEach(id => { if(document.getElementById(id).value !== "") distFilled++; });
+
+            if(distFilled > 0 && distFilled < 6) {
+                return alert("Si vous renseignez une distance, les 6 distances entre ancres doivent être remplies.");
+            }
+
             newCalib.nom = n;
             newCalib.operateur = document.getElementById('c_op').value || "Inconnu";
             newCalib.v_width = parseFloat(document.getElementById('c_width').value) || 5;
             newCalib.v_length = parseFloat(document.getElementById('c_height').value) || 8;
             newCalib.date = new Date().toLocaleString();
+
+            if(distFilled === 6) {
+                newCalib.distances = {
+                    d01: parseFloat(document.getElementById('c_dist_01').value),
+                    d02: parseFloat(document.getElementById('c_dist_02').value),
+                    d03: parseFloat(document.getElementById('c_dist_03').value),
+                    d12: parseFloat(document.getElementById('c_dist_12').value),
+                    d13: parseFloat(document.getElementById('c_dist_13').value),
+                    d23: parseFloat(document.getElementById('c_dist_23').value)
+                };
+            } else {
+                newCalib.distances = null;
+            }
 
             let fileInput = document.getElementById('c_img_file');
             if(fileInput.files.length > 0) {
@@ -429,12 +470,18 @@
             document.getElementById('btnStartCalib').disabled = true;
             saveDraft();
             nav('view-calib-tags');
-            
+           
             let sel = document.getElementById('tagSelect');
             sel.innerHTML = "<option value=''>Recherche en cours...</option>";
            
             try {
-                let res = await fetch('/api/hub/tags');
+                // Construction de l'URL avec les distances si elles existent
+                let url = '/api/hub/tags';
+                if (distFilled === 6) {
+                    url += `?d01=${newCalib.distances.d01}&d02=${newCalib.distances.d02}&d03=${newCalib.distances.d03}&d12=${newCalib.distances.d12}&d13=${newCalib.distances.d13}&d23=${newCalib.distances.d23}`;
+                }
+
+                let res = await fetch(url);
                 let tags = await res.json();
                 tags.sort((a,b) => a.dist - b.dist);
                 sel.innerHTML = "<option value=''>-- Choisissez un tag --</option>";
@@ -448,10 +495,14 @@
             let tid = document.getElementById('tagSelect').value;
             if(!tid || tid === "" || tid === "undefined") { alert("Veuillez sélectionner un tag valide !"); return; }
             if(!confirm("Cela calibre directement sur le Tag #" + tid + ". Continuer ?")) return;
+            
             nav('view-calib-wait');
+
             await fetch('/api/hub/start?tag_id=' + tid);
             pollingTimer = setInterval(pollHubStatus, 1000);
         }
+
+
 
         async function stopMeasure() {
             if(!confirm("Arrêter l'acquisition et générer la géométrie ?")) return;
@@ -492,7 +543,7 @@
         function editExistingCalib(i) {
             editingCalibIndex = i;
             newCalib = JSON.parse(JSON.stringify(activeCalibs[i]));
-            editPointIdx = 0; pendingImageFile = null; 
+            editPointIdx = 0; pendingImageFile = null;
             startAlignMode();
         }
 
@@ -590,7 +641,7 @@
         function processAndUploadImage(file, widthM, heightM, filename) {
             return new Promise((resolve, reject) => {
                 let pxW = Math.round(widthM * P_METER);
-                if (pxW % 2 !== 0) pxW++; 
+                if (pxW % 2 !== 0) pxW++;
                 let pxH = Math.round(heightM * P_METER);
 
                 let img = new Image();
@@ -611,7 +662,7 @@
                         let r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
                         let rgb565 = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
                         view.setUint16(offset, rgb565, true);
-                        view.setUint8(offset + 2, a); 
+                        view.setUint8(offset + 2, a);
                         offset += 3;
                     }
 
@@ -653,7 +704,7 @@
         function drawCanvas() {
             ctx.save();
             ctx.clearRect(0,0,800,480);
-            
+           
             if (editMode) {
                 ctx.translate(CX + fsPanX, CY + fsPanY);
                 ctx.scale(fsZoom, fsZoom);
@@ -664,16 +715,16 @@
             let pxH = newCalib.v_length * P_METER;
             let baseLineW = 1 / (editMode ? fsZoom : 1);
 
-            ctx.strokeStyle = '#0288d1'; 
+            ctx.strokeStyle = '#0288d1';
             ctx.lineWidth = 2 * baseLineW;
-            ctx.setLineDash([5, 5]); 
+            ctx.setLineDash([5, 5]);
             ctx.strokeRect(CX - pxW/2, CY - pxH/2, pxW, pxH);
-            ctx.setLineDash([]); 
+            ctx.setLineDash([]);
 
             if (bgImgObj && bgImgObj.complete) {
-                ctx.globalAlpha = 0.4; 
+                ctx.globalAlpha = 0.4;
                 ctx.drawImage(bgImgObj, CX-pxW/2, CY-pxH/2, pxW, pxH);
-                ctx.globalAlpha = 1.0; 
+                ctx.globalAlpha = 1.0;
             }
 
             ctx.strokeStyle = '#333'; ctx.lineWidth = 1 * baseLineW;
@@ -706,7 +757,7 @@
                 }
                 ctx.closePath();
 
-                if (alignMode) { ctx.strokeStyle = '#fbc02d'; ctx.setLineDash([5,5]); } 
+                if (alignMode) { ctx.strokeStyle = '#fbc02d'; ctx.setLineDash([5,5]); }
                 else { ctx.strokeStyle = '#ef4444'; ctx.setLineDash([]); }
 
                 ctx.lineWidth = 3 * baseLineW;
@@ -788,10 +839,10 @@
         function getEventPos(e) {
             let rect = cvs.getBoundingClientRect();
             let evt = e.touches ? e.touches[0] : e;
-            
+           
             let rawX = (evt.clientX - rect.left) * (cvs.width / rect.width);
             let rawY = (evt.clientY - rect.top) * (cvs.height / rect.height);
-            
+           
             if (editMode) {
                 rawX = (rawX - CX - fsPanX) / fsZoom + CX;
                 rawY = (rawY - CY - fsPanY) / fsZoom + CY;
@@ -800,9 +851,9 @@
         }
 
         cvs.addEventListener('touchstart', e => {
-            e.preventDefault(); 
-            if(alignMode) { 
-                isDraggingAlign = true; lastAlignTouch = getEventPos(e); 
+            e.preventDefault();
+            if(alignMode) {
+                isDraggingAlign = true; lastAlignTouch = getEventPos(e);
             } else if(editMode) {
                 if (e.touches && e.touches.length === 2) {
                     draggedPt = -1;
@@ -823,7 +874,7 @@
         }, {passive: false});
 
         cvs.addEventListener('touchmove', e => {
-            e.preventDefault(); 
+            e.preventDefault();
             if(alignMode && isDraggingAlign) {
                 let pos = getEventPos(e);
                 globalTx += (pos.x - lastAlignTouch.x) / P_METER;
@@ -849,7 +900,7 @@
                         lastPinchCenter = center;
                         drawCanvas();
                     }
-                } 
+                }
                 else if(isPanningFs) {
                     let evt = e.touches ? e.touches[0] : e;
                     let rect = cvs.getBoundingClientRect();
@@ -857,7 +908,7 @@
                     fsPanY += (evt.clientY - lastPanTouch.y) * (480 / rect.height);
                     lastPanTouch = {x: evt.clientX, y: evt.clientY};
                     drawCanvas();
-                } 
+                }
                 else if (draggedPt !== -1) {
                     let pos = getEventPos(e);
                     handleMove(pos);
@@ -865,8 +916,8 @@
             }
         }, {passive: false});
 
-        cvs.addEventListener('touchend', e => { 
-            isDraggingAlign = false; 
+        cvs.addEventListener('touchend', e => {
+            isDraggingAlign = false;
             if(editMode) {
                 if(!e.touches || e.touches.length === 0) {
                     draggedPt = -1; isPanningFs = false; initialPinchDist = null;
@@ -886,14 +937,14 @@
         }, {passive: false});
 
         function handleDown(pos) {
-            let z = newCalib.zone; 
-            let minD = 40 / (editMode ? fsZoom : 1); 
+            let z = newCalib.zone;
+            let minD = 40 / (editMode ? fsZoom : 1);
             draggedPt = -1;
             for(let i=0; i<z.length; i++) {
                 let px = mToP(z[i]);
-                if(Math.hypot(px.x - pos.x, px.y - pos.y) < minD) { 
-                    minD = Math.hypot(px.x - pos.x, px.y - pos.y); 
-                    draggedPt = i; 
+                if(Math.hypot(px.x - pos.x, px.y - pos.y) < minD) {
+                    minD = Math.hypot(px.x - pos.x, px.y - pos.y);
+                    draggedPt = i;
                 }
             }
             if(draggedPt !== -1) { saveHistoryState(); editPointIdx = Number(draggedPt); updatePointUI(); }

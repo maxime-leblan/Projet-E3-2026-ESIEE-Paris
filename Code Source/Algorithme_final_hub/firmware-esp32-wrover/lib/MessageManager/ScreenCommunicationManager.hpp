@@ -11,7 +11,8 @@ enum HubState {
     HUB_STATE_DETECTING_TAGS_FOR_INIT = 1,  ///< Phase de scan initial de tous les tags environnants
     HUB_STATE_COLLECTING_POINTS = 2,        ///< Phase de récupération de la zone d'exclusion
     HUB_STATE_GENERATING_GEOMETRY = 3,      ///< Calcul du plan initial (ancres + 64 points)
-    HUB_STATE_RUNNING = 4                   ///< Mode surveillance actif
+    HUB_STATE_RUNNING = 4,                  ///< Mode surveillance actif
+    HUB_STATE_DEBUG_3D_MEASURE = 5
 };
 
 // Variables globales partagées, modifiables par l'UART (interceptions de commandes)
