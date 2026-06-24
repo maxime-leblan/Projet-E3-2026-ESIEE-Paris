@@ -73,6 +73,7 @@ V3 getCoordonnesTag(uint8_t tagCible){
 
     static unsigned long lastPollTimeRunning = 0;
     const unsigned long POLL_INTERVAL = 20; // 50 Hz
+    V3 pos3D;
     
     // 1. POLLING CYCLIQUE NON-BLOQUANT
     if (millis() - lastPollTimeRunning >= POLL_INTERVAL) {
@@ -117,11 +118,10 @@ V3 getCoordonnesTag(uint8_t tagCible){
         Serial.printf("[HUB TRILAT] État actuel des ancres : %s\n", vAnchors.toString().c_str());
 
         Serial.println("[HUB TRILAT] Lancement du calcul trilateration3D...");
-        V3 pos3D = trilateration3D(vAnchors, distMap);
+        pos3D = trilateration3D(vAnchors, distMap);
 
         Serial.printf("[HUB MATHS] Position 3D calculée pour le Tag %d : X=%.2f, Y=%.2f, Z=%.2f\n", 
                       tagMoyenne.tag_id, pos3D.getX(), pos3D.getY(), pos3D.getZ());
-        return pos3D;
     } else {
         // --- LOG ANTI-FLOOD SI AUCUNE DONNÉE ---
         // Permet de savoir si le système tourne à vide sans spammer la console 50 fois par seconde.
@@ -130,7 +130,9 @@ V3 getCoordonnesTag(uint8_t tagCible){
             Serial.printf("[HUB DATA ALERTE] Aucune donnée lissée disponible pour le Tag %d en ce moment...\n", tagCible);
             lastNoDataLog = millis();
         }
+        pos3D =  V3(0,0,0);
     }
+    return pos3D;
 }
 
 float getDistanceToEpicentreFromTag(V3 pos3D){
