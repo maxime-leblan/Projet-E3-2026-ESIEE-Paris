@@ -26,135 +26,98 @@ V3 trilateration3D(UWBModuleList pSensors, unordered_map<int, float> pDistances,
 
 void initMatrixA(UWBModuleList pSensors)
 {
-    int vNbSensors = pSensors.size();
-    int vNbRowInCramerSystem = (vNbSensors * (vNbSensors - 1))/2;
-    int vISensor;
-    int vMinISensor;
+    std::vector<int> aIds = pSensors.giveModuleIdList();
+    std::sort(aIds.begin(), aIds.end());
+    int vNbSensors = aIds.size();
 
     for (int i_coord = 1; i_coord <= NUMBER_OF_COORDONATES; i_coord++)
     {
-        vMinISensor = 2;
-        vISensor = vMinISensor;
-
-        for (int i_line = 0; i_line < vNbRowInCramerSystem; i_line++)
+        int i_line = 0;
+        for (int i = 0; i < vNbSensors - 1; i++) 
         {
-            if (vISensor > vNbSensors)
+            for (int j = i + 1; j < vNbSensors; j++) 
             {
-                vMinISensor++;
-                vISensor = vMinISensor;
+                gA(i_line, i_coord - 1) = 2 * (pSensors.getModule(aIds[j]).getPosition().getCoordonateNumber(i_coord) - 
+                                               pSensors.getModule(aIds[i]).getPosition().getCoordonateNumber(i_coord));
+                i_line++;
             }
-            
-            gA(i_line, i_coord - 1) = 2 * (pSensors.getModule(vISensor).getPosition().getCoordonateNumber(i_coord) - 
-                                        pSensors.getModule(vMinISensor - 1).getPosition().getCoordonateNumber(i_coord));
-
-            vISensor++;
         }
     }
 }
 
 void initMatrixA2D(UWBModuleList pSensors)
 {
-    int vNbSensors = pSensors.size();
-    int vNbRowInCramerSystem = (vNbSensors * (vNbSensors - 1))/2;
-    int vISensor;
-    int vMinISensor;
+    std::vector<int> aIds = pSensors.giveModuleIdList();
+    std::sort(aIds.begin(), aIds.end());
+    int vNbSensors = aIds.size();
 
     for (int i_coord = 1; i_coord <= NUMBER_OF_COORDONATES - 1; i_coord++)
     {
-        vMinISensor = 2;
-        vISensor = vMinISensor;
-
-        for (int i_line = 0; i_line < vNbRowInCramerSystem; i_line++)
+        int i_line = 0;
+        for (int i = 0; i < vNbSensors - 1; i++) 
         {
-            if (vISensor > vNbSensors)
+            for (int j = i + 1; j < vNbSensors; j++) 
             {
-                vMinISensor++;
-                vISensor = vMinISensor;
+                gA2D(i_line, i_coord - 1) = 2 * (pSensors.getModule(aIds[j]).getPosition().getCoordonateNumber(i_coord) - 
+                                                 pSensors.getModule(aIds[i]).getPosition().getCoordonateNumber(i_coord));
+                i_line++;
             }
-            
-            gA2D(i_line, i_coord - 1) = 2 * (pSensors.getModule(vISensor).getPosition().getCoordonateNumber(i_coord) - 
-                                        pSensors.getModule(vMinISensor - 1).getPosition().getCoordonateNumber(i_coord));
-
-            vISensor++;
         }
     }
 }
 
 void initMatrixB(UWBModuleList pSensors, unordered_map<int, float> pDistances)
 {
-    int vNbSensors = pSensors.size();
-    int vNbRowInCramerSystem = (vNbSensors * (vNbSensors - 1))/2;
-    int vISensor;
-    int vMinISensor;
-    V3 vSensorPositionFromFirstPattern;
-    V3 vSensorPositionFromSecondPattern;
-
+    std::vector<int> aIds = pSensors.giveModuleIdList();
+    std::sort(aIds.begin(), aIds.end());
+    int vNbSensors = aIds.size();
     
-    vMinISensor = 2;
-    vISensor = vMinISensor;
-
-    for (int i_line = 0; i_line < vNbRowInCramerSystem; i_line++)
+    int i_line = 0;
+    for (int i = 0; i < vNbSensors - 1; i++) 
     {
-        if (vISensor > vNbSensors)
+        for (int j = i + 1; j < vNbSensors; j++) 
         {
-            vMinISensor++;
-            vISensor = vMinISensor;
+            V3 posJ = pSensors.getModule(aIds[j]).getPosition();
+            V3 posI = pSensors.getModule(aIds[i]).getPosition();
+            
+            gB(i_line, 0) = (posJ.getCoordonateNumber(AXIS_X)*posJ.getCoordonateNumber(AXIS_X) + 
+                             posJ.getCoordonateNumber(AXIS_Y)*posJ.getCoordonateNumber(AXIS_Y) + 
+                             posJ.getCoordonateNumber(AXIS_Z)*posJ.getCoordonateNumber(AXIS_Z)) - 
+                            (posI.getCoordonateNumber(AXIS_X)*posI.getCoordonateNumber(AXIS_X) + 
+                             posI.getCoordonateNumber(AXIS_Y)*posI.getCoordonateNumber(AXIS_Y) + 
+                             posI.getCoordonateNumber(AXIS_Z)*posI.getCoordonateNumber(AXIS_Z)) - 
+                            (pDistances[aIds[j]] * pDistances[aIds[j]] - 
+                             pDistances[aIds[i]] * pDistances[aIds[i]]);
+            i_line++;
         }
-
-        vSensorPositionFromFirstPattern = pSensors.getModule(vISensor).getPosition();
-        vSensorPositionFromSecondPattern = pSensors.getModule(vMinISensor - 1).getPosition();
-
-        gB(i_line, 0) = (vSensorPositionFromFirstPattern.getCoordonateNumber(AXIS_X) * vSensorPositionFromFirstPattern.getCoordonateNumber(AXIS_X) +
-                        vSensorPositionFromFirstPattern.getCoordonateNumber(AXIS_Y) * vSensorPositionFromFirstPattern.getCoordonateNumber(AXIS_Y) + 
-                        vSensorPositionFromFirstPattern.getCoordonateNumber(AXIS_Z) * vSensorPositionFromFirstPattern.getCoordonateNumber(AXIS_Z)) - 
-                        (vSensorPositionFromSecondPattern.getCoordonateNumber(AXIS_X) * vSensorPositionFromSecondPattern.getCoordonateNumber(AXIS_X) + 
-                        vSensorPositionFromSecondPattern.getCoordonateNumber(AXIS_Y) * vSensorPositionFromSecondPattern.getCoordonateNumber(AXIS_Y) + 
-                        vSensorPositionFromSecondPattern.getCoordonateNumber(AXIS_Z) * vSensorPositionFromSecondPattern.getCoordonateNumber(AXIS_Z)) - 
-                        (pDistances[vISensor] * pDistances[vISensor] - 
-                        pDistances[(vMinISensor - 1)] * pDistances[(vMinISensor - 1)]);
-
-        vISensor++;
     }
 }
 
 void initMatrixB2D(UWBModuleList pSensors, unordered_map<int, float> pDistances, float pAltitude)
 {
-    int vNbSensors = pSensors.size();
-    int vNbRowInCramerSystem = (vNbSensors * (vNbSensors - 1))/2;
-    int vISensor;
-    int vMinISensor;
-    V3 vSensorPositionFromFirstPattern;
-    V3 vSensorPositionFromSecondPattern;
-
-    float vSquareRadiusFromFirstPattern;
-    float vSquareRadiusFromSecondPattern;
-
-    vMinISensor = 2;
-    vISensor = vMinISensor;
-
-    for (int i_line = 0; i_line < vNbRowInCramerSystem; i_line++)
+    std::vector<int> aIds = pSensors.giveModuleIdList();
+    std::sort(aIds.begin(), aIds.end());
+    int vNbSensors = aIds.size();
+    
+    int i_line = 0;
+    for (int i = 0; i < vNbSensors - 1; i++) 
     {
-        if (vISensor > vNbSensors)
+        for (int j = i + 1; j < vNbSensors; j++) 
         {
-            vMinISensor++;
-            vISensor = vMinISensor;
+            V3 posJ = pSensors.getModule(aIds[j]).getPosition();
+            V3 posI = pSensors.getModule(aIds[i]).getPosition();
+            
+            float vSqRadJ = pDistances[aIds[j]] * pDistances[aIds[j]] -
+                            (pAltitude - posJ.getCoordonateNumber(AXIS_Z)) * (pAltitude - posJ.getCoordonateNumber(AXIS_Z));
+            float vSqRadI = pDistances[aIds[i]] * pDistances[aIds[i]] -
+                            (pAltitude - posI.getCoordonateNumber(AXIS_Z)) * (pAltitude - posI.getCoordonateNumber(AXIS_Z));
+            
+            gB2D(i_line, 0) = (posJ.getCoordonateNumber(AXIS_X)*posJ.getCoordonateNumber(AXIS_X) + 
+                               posJ.getCoordonateNumber(AXIS_Y)*posJ.getCoordonateNumber(AXIS_Y)) - 
+                              (posI.getCoordonateNumber(AXIS_X)*posI.getCoordonateNumber(AXIS_X) + 
+                               posI.getCoordonateNumber(AXIS_Y)*posI.getCoordonateNumber(AXIS_Y)) - 
+                              (vSqRadJ - vSqRadI);
+            i_line++;
         }
-
-        vSensorPositionFromFirstPattern = pSensors.getModule(vISensor).getPosition();
-        vSensorPositionFromSecondPattern = pSensors.getModule(vMinISensor - 1).getPosition();
-
-        vSquareRadiusFromFirstPattern = pDistances[vISensor] * pDistances[vISensor] -
-                                (pAltitude - vSensorPositionFromFirstPattern.getCoordonateNumber(AXIS_Z)) * (pAltitude - vSensorPositionFromFirstPattern.getCoordonateNumber(AXIS_Z));
-        
-        vSquareRadiusFromSecondPattern = pDistances[(vMinISensor - 1)] * pDistances[(vMinISensor - 1)] -
-                                (pAltitude - vSensorPositionFromSecondPattern.getCoordonateNumber(AXIS_Z)) * (pAltitude - vSensorPositionFromSecondPattern.getCoordonateNumber(AXIS_Z));
-
-        gB2D(i_line, 0) = (vSensorPositionFromFirstPattern.getCoordonateNumber(AXIS_X) * vSensorPositionFromFirstPattern.getCoordonateNumber(AXIS_X) +
-                        vSensorPositionFromFirstPattern.getCoordonateNumber(AXIS_Y) * vSensorPositionFromFirstPattern.getCoordonateNumber(AXIS_Y)) - 
-                        (vSensorPositionFromSecondPattern.getCoordonateNumber(AXIS_X) * vSensorPositionFromSecondPattern.getCoordonateNumber(AXIS_X) + 
-                        vSensorPositionFromSecondPattern.getCoordonateNumber(AXIS_Y) * vSensorPositionFromSecondPattern.getCoordonateNumber(AXIS_Y)) - 
-                        (vSquareRadiusFromFirstPattern - vSquareRadiusFromSecondPattern);
-
-        vISensor++;
     }
 }

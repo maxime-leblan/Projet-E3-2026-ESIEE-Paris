@@ -8,6 +8,8 @@
 #endif
 
 #include <string>
+#include <vector>
+#include <algorithm>
 
 #include "UWBModuleList.h"
 
