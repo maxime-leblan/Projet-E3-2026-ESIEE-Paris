@@ -133,12 +133,12 @@ void initTestHardcodedAnchorsPosition(UWBModuleList & pAnchors)
     // On hardcode les distances
     unordered_map<string, float> vMesuredDistances;
 
-    vMesuredDistances["12"] = 4;
-    vMesuredDistances["13"] = 5.656;
-    vMesuredDistances["14"] = 4;
-    vMesuredDistances["23"] = 4;
-    vMesuredDistances["24"] = 5.656;
-    vMesuredDistances["34"] = 4;
+    vMesuredDistances["12"] = 3.58;
+    vMesuredDistances["13"] = 4.68;
+    vMesuredDistances["14"] = 3.15;
+    vMesuredDistances["23"] = 3.05;
+    vMesuredDistances["24"] = 5.15;
+    vMesuredDistances["34"] = 4.12;
 
     // On calcule les positions des ancres
     initAnchorsCoordinatesWithGD(pAnchors, vMesuredDistances, ITERATIONS, LEARNING_RATE);
