@@ -87,7 +87,7 @@ vector<V3> initSafeZone(const char* pSafeZoneNamespace, int pNbSafeZonePoints=SA
 /*
 Affiche des messages dans le moniteur série pour vérifier que la PSRAM est bien active
 */
-void initHub();
+void initRamHub();
 
 /*
 Réinitialise complètement la Flash en supprimant tous les namespaces qui étaient stockés sur la partition principale.

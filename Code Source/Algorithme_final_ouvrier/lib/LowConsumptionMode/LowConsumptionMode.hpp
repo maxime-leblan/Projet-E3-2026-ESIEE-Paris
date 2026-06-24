@@ -5,6 +5,10 @@
 // Définissez le pin de la XIAO relié physiquement à la broche "UART2 RX" de l'UWB
 #define UWB_WAKEUP_PIN 0  // Broche D0 de la XIAO ici
 #define PIN_VBAT_ENABLE 14             // Broche de contrôle du MOSFET pour la lecture de la batterie (P0.14)
+#define PIN_CHARGE_STATUS 23
+
+#define LED_RED_CARTE D2 // Broche de la LED rouge de la carte (P0.02)
+
 
 /**
  * Met le module UWB en veille prolongée (Consommation minimale)
@@ -36,8 +40,8 @@ void reveilXiao();
 bool calculBatteryLow();
 
 /**
- * Fonction test de la batterie, retourne la tension de la batterie en centièmes de volts
- * @return Le niveau de batterie en centièmes de volts
- * int calculBattery();
+ * Regarde si la carte est en charge et contrôle l'état de la LED bleue
  */
+void veille_UWB_chargebattery();
+
 

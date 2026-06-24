@@ -2,9 +2,8 @@
 #include "HubDataStorage.hpp"
 #include "GestionnaireAncres.hpp"
 #include "InitAnchorPosition.hpp"
-
-// ---- LIBRAIRIE CAN ----
 #include "CANMessageManager.hpp"
+#include "RelaisBoutonBuzzer.hpp"
 
 #include <ArduinoEigenDense.h>
 #include <ArduinoJson.h>
@@ -19,11 +18,7 @@
 #include "LissagePlanExclusion.hpp"
 #include "CalibrationManager.hpp"
 
-#define HAUTEUR_MAX_TAG_METRES 5.0f
-#define BUZZER_GPIO_PIN 4
-#define BUZZER_FREQUENCY 600
-
-#define TAG_ID_CIBLE 4 // ID du tag que l'on souhaite suivre en temps réel (pour le polling du Hub)
+//#define DEBUG_POSITION
 
 // --- VARIABLES GLOBALES ---
 RecuperationDonneesAncres recupDonnees;
@@ -33,6 +28,26 @@ CalibrationManager calibManager;
 
 // Dictionnaire pour retenir la hauteur (Z) des ancres avant que l'écran ne valide le X et Y
 std::map<int, float> hauteursAncresTemporaires;
+
+#define HAUTEUR_MAX_TAG_METRES 5.0f
+
+#define TAG_CIBLE 4 // ID du tag que l'on souhaite suivre en temps réel (pour le polling du Hub)
+#define ANCRE_MASTER 0
+
+// Prototypes
+void afficherCoordonneesAncres();
+void afficherCoordonneesTag(uint8_t tagId, const V3& pos3D);
+void clearSerialMonitor();
+
+/**
+ * @brief Efface l'écran du moniteur série et replace le curseur en haut à gauche.
+ * Note : Fonctionne parfaitement avec le moniteur de PlatformIO.
+ */
+void clearSerialMonitor() {
+    // \033[2J : Code ANSI pour effacer tout l'écran
+    // \033[H  : Code ANSI pour ramener le curseur à la position d'origine (0,0)
+    Serial.print("\033[2J\033[H");
+}
 
 /**
  * @brief Fonction vitale pour le réseau CAN.
@@ -66,6 +81,90 @@ void ecouterReseauFilaire() {
             }
         }
     }
+}
+
+V3 getCoordonnesTag(uint8_t tagCible) {
+    V3 pos3D(0, 0, 0); // Position de sécurité par défaut si l'ancre ne répond pas
+
+    // 1. PURGE DU BUFFER CAN
+    // On nettoie la file d'attente pour ne pas s'appuyer sur une ancienne trame par erreur
+    twai_message_t vMessage;
+    while(receiveCanMessage(vMessage)) { /* Vidage silencieux */ }
+
+    // 2. ENVOI DE LA REQUÊTE
+    Serial.printf("[HUB SYNC] Requête immédiate des distances pour le Tag %d à l'Ancre %d...\n", tagCible, ANCRE_MASTER);
+    sendCanRequestDistances(ANCRE_MASTER, tagCible);
+
+    // 3. ATTENTE ACTIVE (Bloquante avec Timeout de 150 ms)
+    unsigned long startWait = millis();
+    bool responseReceived = false;
+    DecodedData donnees;
+
+    while (millis() - startWait < 150) {
+        if (receiveCanMessage(vMessage)) {
+            if (decodeCanMessage(vMessage, donnees)) {
+                
+                // On s'assure d'intercepter la bonne réponse pour le bon tag
+                if (donnees.type == MESSAGE_TAG_ID_AND_ALL_DISTANCES && donnees.id_tag == tagCible) {
+                    responseReceived = true;
+                    break; // On a notre tableau de distances, on sort immédiatement de la boucle !
+                }
+            }
+        }
+        delay(2); // Évite de faire surchauffer le processeur pendant l'écoute
+    }
+
+    // 4. TRAITEMENT MATHÉMATIQUE SI RÉPONSE REÇUE
+    if (responseReceived && donnees.aDistances.size() >= 4) {
+        Serial.printf("[HUB DATA] Distances reçues en direct : [%d, %d, %d, %d] cm\n", 
+                      donnees.aDistances[0], donnees.aDistances[1], donnees.aDistances[2], donnees.aDistances[3]);
+
+        std::vector<int> aIds = vAnchors.giveModuleIdList();
+        std::unordered_map<int, float> distMap;
+
+        // Conversion en mètres pour la bibliothèque géométrique
+        for(int i = 0; i < 4 && i < aIds.size(); i++) {
+            distMap[aIds[i]] = donnees.aDistances[i] / 100.0f; 
+        }
+
+        // Exécution de l'algorithme de trilatération
+        initMatrixA(vAnchors); 
+        pos3D = trilateration3D(vAnchors, distMap);
+        afficherCoordonneesTag(TAG_CIBLE, pos3D);
+        
+        /* Contrôle de validité mathématique
+        if (std::isnan(pos3D.getX()) || std::abs(pos3D.getZ()) > HAUTEUR_MAX_TAG_METRES) {
+            Serial.println("[HUB TRILAT] Singularité mathématique (NaN) ou hors zone. Retour à l'origine.");
+            afficherCoordonneesAncres();
+            return V3(0, 0, 0);
+        }*/
+
+    } else {
+        Serial.printf("[HUB DATA] Echec (Timeout) : Aucune réponse de l'ancre %d dans le temps imparti.\n", ANCRE_MASTER);
+    }
+    return pos3D;
+    
+}
+
+float getDistanceToEpicentreFromTag(V3 pos3D){
+    return std::sqrt(pos3D.getX() * pos3D.getX() + pos3D.getY() * pos3D.getY());
+}
+
+/**
+ * Recupere la distance du tag cible et l'envoie à l'application
+ * Des que l'utilisateur aura selectionne le tag, l'applicatino enverra une commande qui executera HUB_COLLECTING_POINT avec le bon tag
+*/
+void AskUserForTag() {
+    Serial.println("Recupération de la distance à l'épicentre du tag cible pour l'etalonnage");
+    
+    V3 tag4_position = getCoordonnesTag(TAG_CIBLE);
+
+    int ids[1] = {TAG_CIBLE};
+    float distances[1] = {getDistanceToEpicentreFromTag(tag4_position)};
+    int count = 1;
+    envoyerListeTagsDecouverts(ids, distances, count);
+    Serial.println("Distance envoyée à l'appplication");
+    etatActuelHub = HUB_STATE_IDLE;
 }
 
 // Application de la configuration reçue de l'IHM Écran
@@ -102,18 +201,60 @@ void appliquerNouvelleConfigurationMaterielle(JsonArray zoneJson, JsonArray sens
     }
    
     saveMapData("Anchors", "Positions", mapAncresPourFlash);
+    afficherCoordonneesAncres();
     etatActuelHub = HUB_STATE_RUNNING;
 }
 
+void afficherCoordonneesAncres() {
+    Serial.println("\n===================================================");
+    Serial.println("           COORDONNÉES DES 4 ANCRES");
+    Serial.println("===================================================");
+    Serial.println(" ID  |   X (m)   |   Y (m)   |   Z (m)  ");
+    Serial.println("---------------------------------------------------");
+
+    std::vector<int> listeIds = vAnchors.giveModuleIdList();
+
+    // On boucle sur les 4 ancres attendues du système
+    for (int id : listeIds) {
+        // Récupération de l'objet module et de sa position V3
+        UWBModule ancre = vAnchors.getModule(id);
+        V3 pos = ancre.getPosition();
+
+        // Affichage aligné et propre
+        Serial.printf(" [%d] |  %7.2f  |  %7.2f  |  %7.2f  \n", 
+                      id, 
+                      pos.getX(), 
+                      pos.getY(), 
+                      pos.getZ());
+    }
+    Serial.println("===================================================\n");
+}
+
+void afficherCoordonneesTag(uint8_t tagId, const V3& pos3D) {
+    Serial.println("\n===================================================");
+    Serial.printf("           COORDONNÉES DU TAG %d\n", tagId);
+    Serial.println("===================================================");
+    Serial.println(" ID  |   X (m)   |   Y (m)   |   Z (m)   ");
+    Serial.println("---------------------------------------------------");
+
+    // Affichage aligné avec le même formatage de flottants
+    Serial.printf(" [%d] |  %7.2f  |  %7.2f  |  %7.2f  \n", 
+                  tagId, 
+                  pos3D.getX(), 
+                  pos3D.getY(), 
+                  pos3D.getZ());
+                  
+    Serial.println("===================================================\n");
+}
+
 void setup() {
+    initRelaisBoutonBuzzer(); // Immédiat pour mettre le système sous tension
+    
     Serial.begin(115200);
     delay(2000);
-
     Serial.println("\n[Boot] --- Initialisation du Hub ---");
 
-    pinMode(2, OUTPUT);
-
-    initHub();
+    initRamHub();
     setupScreenCommunication();
     initGestionnaireAncres();
 
@@ -126,23 +267,24 @@ void setup() {
     // VRAI LIGNE DE CODE
     vAnchors = initAnchors("Anchors");
     // DEBUT CODE DE TEST
-    vAnchors.clearAll();
-    
-    vector<V3> vSensorsPosition = {V3(3, 0, 1), V3(0, 3, 0), V3(3, 6, 0), V3(6, 3, 0)};
-
-    // on les ajoute dans la liste des capteurs
-    for (int i = 0; i < ANCHORS_NUMBER; i++)
-    {
-        UWBModule vTemp = UWBModule(i, vSensorsPosition[i - 1]);
-        vAnchors.addModule(vTemp.getId(), vTemp);
-    }
     // FIN CODE DE TEST
 
     vSafeZone = Polygone(0, initSafeZone("SafeZone"));
+
+    String vText = String((vSafeZone.toString()).c_str());
+    Serial.println("[EXTRACTION FLASH] Coordonnées deans la SafeZone extraites :\n" + vText);
  
     calibManager.initialiserEpicentre(vAnchors);
- 
+    
     // Démarrage automatique si la configuration existe
+    #ifdef DEBUG_POSITION
+
+    etatActuelHub = HUB_STATE_DEBUG_3D_MEASURE;
+    Serial.println("Mode debug position activé. demarrage dans 2 secondes...");
+    delay(2000);
+
+    #else
+
     if (vSafeZone.getPoints().size() > 0 && vAnchors.size() == 4) {
         etatActuelHub = HUB_STATE_RUNNING;
         Serial.println("[Boot] Configuration existante trouvée. Passage en RUNNING.");
@@ -150,63 +292,19 @@ void setup() {
         etatActuelHub = HUB_STATE_IDLE;
     }
 
+    #endif
+
     Serial.println("[Boot] --- Fin Setup ---\n");
+
+    Serial.println("Transformation des distances en coordonnées temporaires pour les ancres");
+
+    initTestHardcodedAnchorsPosition(vAnchors);
+
 }
 
 void executer_HUB_STATE_RUNNING() {
-    static unsigned long lastPollTimeRunning = 0;
-    const unsigned long POLL_INTERVAL = 20; // 50 Hz
-    uint8_t ancreCible = 0; // L'ancre désignée pour renvoyer la donnée
-    
-    uint8_t tagCible = TAG_ID_CIBLE;   
 
-    // 1. POLLING CYCLIQUE NON-BLOQUANT
-    if (millis() - lastPollTimeRunning >= POLL_INTERVAL) {
-        Serial.printf("[HUB POLL] [%lu] Envoi requête CAN (Ancre: %d, Cible Tag: %d)\n", millis(), ancreCible, tagCible);
-        sendCanRequestDistances(ancreCible, tagCible);
-        lastPollTimeRunning = millis();
-    }
-
-    // 2. RÉCUPÉRATION ET TRAITEMENT
-    DistanceMoyennes tagMoyenne;
-    
-    if (recupDonnees.getDonneesLisseesPourTag(tagCible, tagMoyenne)) {
-        Serial.printf("[HUB DATA] Succès : Données lissées récupérées pour le Tag %d.\n", tagCible);
-        
-        std::vector<int> aIds = vAnchors.giveModuleIdList();
-        std::unordered_map<int, float> distMap;
-
-        Serial.printf("[HUB MATHS] Distances lissées (cm) pour le Tag %d : [%.2f, %.2f, %.2f, %.2f]\n", 
-                      tagMoyenne.tag_id,
-                      tagMoyenne.distances[0],
-                      tagMoyenne.distances[1],
-                      tagMoyenne.distances[2],
-                      tagMoyenne.distances[3]);
-        
-        Serial.printf("[HUB MATHS] Nombre d'ancres trouvées en mémoire (vAnchors) : %d\n", aIds.size());
-
-        for(int i = 0; i < 4 && i < aIds.size(); i++) {
-            distMap[aIds[i]] = tagMoyenne.distances[i]/100.0f; // Conversion en mètres
-        }
-
-        Serial.printf("[HUB MATHS] Distances mappées (mètres) pour le Tag %d : [", tagMoyenne.tag_id);
-        for (const auto& pair : distMap) {
-            Serial.printf("Ancre %d: %.2fm, ", pair.first, pair.second);
-        }
-        Serial.println("]");
-
-        // TRILATÉRATION
-        // On initialise la matrice A nécessaire au calcul
-        Serial.println("[HUB TRILAT] Début de l'initialisation de la Matrice A...");
-        initMatrixA(vAnchors);
-        
-        Serial.printf("[HUB TRILAT] État actuel des ancres : %s\n", vAnchors.toString().c_str());
-
-        Serial.println("[HUB TRILAT] Lancement du calcul trilateration3D...");
-        V3 pos3D = trilateration3D(vAnchors, distMap);
-
-        Serial.printf("[HUB MATHS] Position 3D calculée pour le Tag %d : X=%.2f, Y=%.2f, Z=%.2f\n", 
-                      tagMoyenne.tag_id, pos3D.getX(), pos3D.getY(), pos3D.getZ());
+        V3 pos3D = getCoordonnesTag(TAG_CIBLE);   
 
         if (std::abs(pos3D.getZ()) > HAUTEUR_MAX_TAG_METRES) {
             Serial.printf("[HUB TRILAT ERREUR] Calcul rejeté ! Z (%.2fm) dépasse la limite max (%.2fm).\n", 
@@ -215,71 +313,66 @@ void executer_HUB_STATE_RUNNING() {
         }
 
         Serial.printf("[HUB MATHS] Position 2D projetée pour le Tag %d : X=%.2f, Y=%.2f\n", 
-                      tagMoyenne.tag_id, pos3D.getX(), pos3D.getY());
+                      TAG_CIBLE, pos3D.getX(), pos3D.getY());
 
         // ÉVALUATION DANGER
         Serial.println("[HUB ZONE] Évaluation du danger par rapport à la SafeZone...");
         V3 posProjectee2D(pos3D.getX(), pos3D.getY(), 0.0f);
         bool inDanger = vSafeZone.isInside(posProjectee2D);
         float distSafeZone = vSafeZone.getDistanceFrom(posProjectee2D);
-        float distCentreVehicule = std::sqrt(pos3D.getX() * pos3D.getX() + pos3D.getY() * pos3D.getY());
+        float distCentreVehicule = getDistanceToEpicentreFromTag(pos3D);
 
         Serial.printf("[HUB ZONE] Résultat Tag %d -> Danger: %s | Dist. SafeZone: %.2fm | Dist. Centre: %.2fm\n", 
-                      tagMoyenne.tag_id, inDanger ? "OUI" : "NON", distSafeZone, distCentreVehicule);
+                      TAG_CIBLE, inDanger ? "OUI" : "NON", distSafeZone, distCentreVehicule);
 
         Serial.printf("\n[HUB MATHS] Tag %d à %.2fm de la SafeZone. Envoi alerte CAN à Ancre %d.\n", 
-                      tagMoyenne.tag_id, distSafeZone, ancreCible);
+                      TAG_CIBLE, distSafeZone, ANCRE_MASTER);
 
         // RETOUR D'INFORMATION (Alerte CAN)
         Serial.printf("[HUB ALERT] Envoi du message CAN (distance: %.2fm) en cours...\n", distSafeZone);
-        sendCanDistance(ancreCible, tagMoyenne.tag_id, distSafeZone);
+        sendCanDistance(ANCRE_MASTER, TAG_CIBLE, distSafeZone);
         
         if (inDanger) {
             Serial.println("[HUB ALERT DANGER] *** VIOLATION DE LA SAFEZONE ! ACTIVATION DU BUZZER ***");
-            tone(BUZZER_GPIO_PIN, BUZZER_FREQUENCY, 1000);
+            faireSonnerBuzzer(1000); // 1 seconde
         }
 
         // Mise à jour de l'écran (Tableaux C pour l'interface de ScreenCommunicationManager)
-        int ids[1] = {tagMoyenne.tag_id};
+        int ids[1] = {TAG_CIBLE};
         float xs[1] = {posProjectee2D.getX()};
         float ys[1] = {posProjectee2D.getY()};
         float distsScreen[1] = {distCentreVehicule};
         bool alarmes[1] = {inDanger};
         Serial.printf("[HUB IHM] Préparation de l'envoi des données au Screen (Tag %d, X=%.2f, Y=%.2f, DistCentre=%.2f, Danger=%s)\n", 
-                      tagMoyenne.tag_id, posProjectee2D.getX(), posProjectee2D.getY(), distCentreVehicule, inDanger ? "OUI" : "NON");
+                      TAG_CIBLE, posProjectee2D.getX(), posProjectee2D.getY(), distCentreVehicule, inDanger ? "OUI" : "NON");
         
         envoyerMiseAJourTagsRuntime(ids, xs, ys, distsScreen, alarmes, 1);
-    } else {
-        // --- LOG ANTI-FLOOD SI AUCUNE DONNÉE ---
-        // Permet de savoir si le système tourne à vide sans spammer la console 50 fois par seconde.
-        static unsigned long lastNoDataLog = 0;
-        if (millis() - lastNoDataLog > 1000) {
-            Serial.printf("[HUB DATA ALERTE] Aucune donnée lissée disponible pour le Tag %d en ce moment...\n", tagCible);
-            lastNoDataLog = millis();
-        }
-    }
 }
 
 void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
     Serial.println("[Hub] Lancement de l'auto-calibration matérielle des ancres...");
-    
-    // Appel du protocole corrigé
-    initAnchorsPosition(vAnchors);
-    
-    // Changement de repère officiel et purge
+   
+    // Cette fonction gère son propre timeout/blocage CAN dans InitAnchorPosition.cpp
+    // /!\ La fonction ne fonctionnant pas, on va hardcoder les positions des ancres à la place
+    //initAnchorsPosition(vAnchors);
+    initTestHardcodedAnchorsPosition(vAnchors);
+    Serial.println("[Hub INIT ANCRES] Voici les coordonnées de base des ancres : " + String(vAnchors.toString().c_str()));
+   
+    // Changement de repère officiel
     alignAnchorsCoordinatesWithGridOrigin(vAnchors);
+    Serial.println("[Hub INIT ANCRES] Coordonnées après translation de l'épicentre vers (0, 0, 0) : " + String(vAnchors.toString().c_str()));
     calibManager.viderPoints();
-    
-    idTagSelectionne = TAG_ID_CIBLE; // A REMPLACER AVEC LA SELECTION DE L'IHM (Écran)
-    
+
+    AskUserForTag();
+
     Serial.println("[Hub] Initialisation terminée. Passage en collecte de points pour géométrie.");
-    Serial.println("Voici la pos des ancres actuels :");
-    Serial.println(vAnchors.toString().c_str());
-    etatActuelHub = HUB_STATE_COLLECTING_POINTS;
+    afficherCoordonneesAncres();
 }
 
 void executer_HUB_STATE_COLLECTING_POINTS() {
-    static unsigned long lastPollTimeCalib = 0;
+    V3 pos3D = getCoordonnesTag(TAG_CIBLE);
+    calibManager.ajouterPoint(pos3D);
+   /*  static unsigned long lastPollTimeCalib = 0;
     const unsigned long POLL_INTERVAL = 20;
 
     // 1. POLLING POUR LA CALIBRATION
@@ -307,7 +400,7 @@ void executer_HUB_STATE_COLLECTING_POINTS() {
             V3 pos3D = trilateration3D(vAnchors, dists);
             calibManager.ajouterPoint(pos3D);
         }
-    }
+    } */
 }
 
 void executer_HUB_STATE_GENERATING_GEOMETRY() {
@@ -357,8 +450,18 @@ void executer_HUB_STATE_GENERATING_GEOMETRY() {
     envoyerGeometrieCalibration(ancresCalculees, zone64PointsCalculee);
 
     calibManager.viderPoints();
-    etatActuelHub = HUB_STATE_IDLE;
     Serial.println("[Machine Etats] Géométrie transmise. Retour en IDLE.");
+    afficherCoordonneesAncres();
+    etatActuelHub = HUB_STATE_IDLE;
+}
+
+void executer_HUB_STATE_DEBUG_3D_MEASURE() {
+    clearSerialMonitor();
+
+    V3 pos3D = getCoordonnesTag(TAG_CIBLE);
+
+    afficherCoordonneesAncres();
+    delay(500);
 }
 
 void executer_HUB_STATE_IDLE() {
@@ -394,6 +497,9 @@ void loop() {
             break;
         case HUB_STATE_RUNNING:
             executer_HUB_STATE_RUNNING();
+            break;
+        case HUB_STATE_DEBUG_3D_MEASURE:
+            executer_HUB_STATE_DEBUG_3D_MEASURE();
             break;
     }
 }

@@ -4,16 +4,20 @@
 
 void setup()
 {
+  digitalWrite(LED_RED, LOW);
   initialiserXiao();
   initialiserUWB();
   initialiserBMP581();
 
-  digitalWrite(LED_RED, LOW);
-
-
+  
+  pinMode(LED_RED_CARTE, OUTPUT);
+  pinMode(LED_BLUE, HIGH); // On éteint la LED bleue par défaut
   pinMode(PIN_VBAT_ENABLE, OUTPUT);
   digitalWrite(PIN_VBAT_ENABLE, HIGH); // On garde éteint par défaut
-  analogReadResolution(12);             // Configuration de la résolution 12 bits
+  analogReadResolution(12);  
+  digitalWrite(LED_RED, HIGH);           // Configuration de la résolution 12 bits
+  
+  
 }
 
 void loop()
@@ -98,23 +102,46 @@ void loop()
       tone(XIAO_TO_BIPPER_PIN, BIPPER_FREQUENCY);
     }
   }
- // On vérifie si la batterie est faible
- uint32_t vStartTime = millis();
- const uint32_t TimeoutBatMS = 1000; // 
+ 
+  //  MISE À JOUR DE L'ÉTAT DE LA BATTERIE (Toutes les 5s) ---
+  static uint32_t lastBatCheck = 0;
+  static bool isBatteryLow = false;
 
-  if (millis() - vStartTime > TimeoutBatMS)
-  {
-    if(calculBatteryLow())
-    {
-      Serial.println("[XIAO] Batterie faible !");
-      tone(XIAO_TO_BIPPER_PIN, BIPPER_FREQUENCY);
-      digitalWrite(LED_RED, HIGH);
-      delay(2000);
-      noTone(XIAO_TO_BIPPER_PIN);
-      digitalWrite(LED_RED, LOW);
-    }
-  vStartTime = millis();
+  if (millis() - lastBatCheck > 5000) {
+    lastBatCheck = millis();
+    isBatteryLow = calculBatteryLow();
   }
+  bool isChargerPlugged = (NRF_POWER->USBREGSTATUS & 0x01);
+  bool isCharging = (digitalRead(PIN_CHARGE_STATUS) == LOW);
+
+  // GESTION CENTRALISÉE DE LA LED PAR PRIORITÉ ---
+  static uint32_t lastBlinkTime = 0;
+  static bool ledState = false;
+
+  if (isChargerPlugged && isCharging) {
+    // PRIORITÉ 1 : En charge -> Clignotement lent )
+    if (millis() - lastBlinkTime > 500) { 
+      lastBlinkTime = millis();
+      ledState = !ledState;
+      digitalWrite(LED_RED_CARTE, ledState ? HIGH : LOW); 
+    }
+  } 
+  else if (isBatteryLow) {
+    // PRIORITÉ 2 : Batterie faible (et pas en charge) -> Clignotement rapide
+    if (millis() - lastBlinkTime > 200) {
+      lastBlinkTime = millis();
+      ledState = !ledState;
+      Serial.println("[XIAO] Batterie faible !");
+      digitalWrite(LED_RED_CARTE, ledState ? HIGH : LOW);
+    }
+  } 
+  else {
+    // PRIORITÉ 3 : Tout est normal -> On éteint la LED
+    digitalWrite(LED_RED_CARTE, LOW);
+  }
+
+  // (Sommeil/Réveil selon la charge) ---
+   // veille_UWB_chargebattery();
 
   //Serial.println("-------- END LOOP --------\n");
 }

@@ -73,22 +73,35 @@ bool calculBatteryLow() {
     digitalWrite(PIN_VBAT_ENABLE, HIGH);
 
     // Vérification si la tension est inférieure à un seuil critique (par exemple 3.3V)
-    return voltage < 3.5; // Retourne true si la batterie est faible, false sinon
+    return voltage < 3.5 ; // Retourne true si la batterie est faible, false sinon
 }
-/*
-    test de la batterie 
-    
-int calculBattery() {
-    // On active le MOSFET pour permettre la lecture de la tension de batterie
-    digitalWrite(PIN_VBAT_ENABLE, LOW);
-    delay(10); 
 
-    // Lecture de la tension de batterie via la broche analogique
-    int rawValue = analogRead(32); 
-    float voltage = ((rawValue * 3.6) / 4096.0) * 1.51* 2.0 ; // Ajustement pour la tension réelle de la batterie (en tenant compte du diviseur de tension genre en SAH 1.51 c pour une res de 100k et 51k
+void veille_UWB_chargebattery() {
+// 1. Détection matérielle du chargeur : 
+  // On lit le bit 0 du registre USBREGSTATUS du nRF52840 pour savoir si VBUS est alimenté (5V)
+  
+  bool isChargerPlugged = (NRF_POWER->USBREGSTATUS & 0x01);
+  bool isCharging = (digitalRead(PIN_CHARGE_STATUS) == LOW);
 
-    // On désactive le MOSFET après la lecture pour économiser l'énergie
-    digitalWrite(PIN_VBAT_ENABLE, HIGH);
-    return (int)(voltage * 100); // Retourne la tension en centièmes de volts
+  static bool uwbAsleepByCharger = false;
+
+  // On ne clignote QUE si le chargeur est branché ET que la puce est en train de charger
+  if (isChargerPlugged && isCharging) {
+
+    if (!uwbAsleepByCharger) {
+           veilleUWB(); // Appel de votre fonction existante
+            uwbAsleepByCharger = true;
+           Serial.println("[CHARGE] UWB mis en veille (Charge en cours).");
+        }
+    }
+    else {
+    // Si le chargeur est débranché ou que la charge est 100% terminée, on éteint la LED
+    // --- GESTION DE L'UWB : Réveil unique ---
+        if (uwbAsleepByCharger) {
+           reveilUWB(); // Appel de votre fonction existante
+           uwbAsleepByCharger = false;
+           Serial.println("[CHARGE] Fin de charge ou déconnexion : Réveil de l'UWB.");
+       }
+  
+  }
 }
-*/
