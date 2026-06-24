@@ -214,19 +214,12 @@ void setup() {
     // VRAI LIGNE DE CODE
     vAnchors = initAnchors("Anchors");
     // DEBUT CODE DE TEST
-    vAnchors.clearAll();
-    
-    vector<V3> vSensorsPosition = {V3(3, 0, 1), V3(0, 3, 0), V3(3, 6, 0), V3(6, 3, 0)};
-
-    // on les ajoute dans la liste des capteurs
-    for (int i = 0; i < ANCHORS_NUMBER; i++)
-    {
-        UWBModule vTemp = UWBModule(i, vSensorsPosition[i - 1]);
-        vAnchors.addModule(vTemp.getId(), vTemp);
-    }
     // FIN CODE DE TEST
 
     vSafeZone = Polygone(0, initSafeZone("SafeZone"));
+
+    String vText = String((vSafeZone.toString()).c_str());
+    Serial.println("[EXTRACTION FLASH] Coordonnées deans la SafeZone extraites :\n" + vText);
  
     calibManager.initialiserEpicentre(vAnchors);
  

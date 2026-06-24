@@ -23,6 +23,8 @@ UWBModuleList initAnchors(const char* pAnchorsNamespace, int pNbAnchors)
     UWBModuleList vAnchors;
     UWBModule vNewAnchor;
 
+    Serial.println("[EXTRACTION FLASH] Début de l'extraction de données concernant les Ancres du Hub...");
+
     // Ouvre le namespace en mode Lecture/Écriture
     vPrefs.begin(pAnchorsNamespace, false);
 
@@ -30,7 +32,7 @@ UWBModuleList initAnchors(const char* pAnchorsNamespace, int pNbAnchors)
     bool vNamespaceExists = vPrefs.isKey("initDone");
 
     if (!vNamespaceExists) {
-        Serial.println("Namespace Ancre vide ou nouveau. Initialisation...");
+        Serial.println("[EXTRACTION FLASH] Namespace Ancre vide ou nouveau. Initialisation...");
 
         // On attribue aux modules la position (0, 0, 0) par défaut
         for (int i = 0; i < pNbAnchors; i++)
@@ -46,7 +48,7 @@ UWBModuleList initAnchors(const char* pAnchorsNamespace, int pNbAnchors)
         vPrefs.putBool("initDone", true); // Crée la clé témoin
     }
     else {
-        Serial.println("Namespace Ancre existant. Lecture des données...");
+        Serial.println("[EXTRACTION FLASH] Namespace Ancre existant. Lecture des données...");
         
         std::map<int, V3> vAnchorsPosition = loadMapData(pAnchorsNamespace, pAnchorsNamespace, ANCHORS_NUMBER);
 
@@ -58,6 +60,8 @@ UWBModuleList initAnchors(const char* pAnchorsNamespace, int pNbAnchors)
     }
 
     vPrefs.end();
+    String vText = String((vAnchors.toString()).c_str());
+    Serial.println("[EXTRACTION FLASH] Coordonnées des Ancres extraites :\n" + vText);
 
     return vAnchors;
 }
@@ -67,6 +71,8 @@ vector<V3> initSafeZone(const char* pSafeZoneNamespace, int pNbSafeZonePoints)
     Preferences vPrefs;
     vector<V3> vSafeZone;
 
+    Serial.println("[EXTRACTION FLASH] Début de l'extraction de données concernant la SafeZone du Hub...");
+
     // Ouvre le namespace en mode Lecture/Écriture
     vPrefs.begin(pSafeZoneNamespace, false);
 
@@ -75,7 +81,7 @@ vector<V3> initSafeZone(const char* pSafeZoneNamespace, int pNbSafeZonePoints)
 
     if (vNamespaceExists)
     {
-        Serial.println("Namespace SafeZone existant. Lecture des données...");
+        Serial.println("[EXTRACTION FLASH] Namespace SafeZone existant. Lecture des données...");
 
         // On redimensionne le vecteur pour allouer l'espace en mémoire RAM
         vSafeZone.resize(pNbSafeZonePoints);
@@ -85,12 +91,15 @@ vector<V3> initSafeZone(const char* pSafeZoneNamespace, int pNbSafeZonePoints)
     }
     else
     {
-        Serial.println("Namespace SafeZone vide ou nouveau. Lancer la calibration de la zone de sécurité " \
+        Serial.println("[EXTRACTION FLASH] Namespace SafeZone vide ou nouveau. Lancer la calibration de la zone de sécurité " \
             "avant de pouvoir utiliser le prototype.");
         
         // On ajoute 1 unique élément à vSafeZone pour indiquer que la zone de sécurité n'a pas encore été initialisée
         vSafeZone.push_back(V3(0, 0, 0));
     }
+
+    
+    Serial.println("[EXTRACTION FLASH] Coordonnées des Ancres extraites :\n");
 
     return vSafeZone;
 }
