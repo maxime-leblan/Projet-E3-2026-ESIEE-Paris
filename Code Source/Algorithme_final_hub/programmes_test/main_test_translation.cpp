@@ -24,7 +24,7 @@ int main()
     cout << "\nPartie translation des ancres :\n";
 
     // liste des coordonnées des ancres
-    vector<V3> vPointsList = {V3(0.000000, 0.000000, 0.000000), V3(3.580000, 0.000000, 0.000000), V3(2.827151, 3.397590, 0.000000), V3(0.118212, 2.580063, 1.956247)};
+    vector<V3> vPointsList = {V3(0.000000, 0.000000, 0.000000), V3(4.640000, 0.000000, 0.000000), V3(2.087532, 3.246815, 0.000000), V3(2.022586, 5.650949, 3.196235)};
     UWBModuleList vAnchors = UWBModuleList();
 
     // on ajoute les ancres dans la liste des capteurs
