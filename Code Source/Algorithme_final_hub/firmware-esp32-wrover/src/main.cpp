@@ -135,8 +135,8 @@ V3 getCoordonnesTag(uint8_t tagCible) {
                       distMap[0], distMap[1], distMap[2], distMap[3]);
 
         // Exécution de l'algorithme de trilatération
-        
-        initMatrixA(vAnchors); 
+        //Serial.println("[HUB TRILAT] vAnchors avant trilatération : " + vAnchors.toString().c_str());
+        initMatrixA(vAnchors);
         pos3D = trilateration3D(vAnchors, distMap);
         Serial.println("[HUB TRILAT] Position calculée du Tag " + String(tagCible) + " : " + String(pos3D.toString().c_str()));
         afficherCoordonneesTag(TAG_CIBLE, pos3D);
@@ -343,7 +343,10 @@ void executer_HUB_STATE_RUNNING() {
         
         if (inDanger) {
             Serial.println("[HUB ALERT DANGER] *** VIOLATION DE LA SAFEZONE ! ACTIVATION DU BUZZER ***");
-            faireSonnerBuzzer(1000); // 1 seconde
+            faireSonnerBuzzer(); // 1 seconde
+        } else {
+            Serial.println("[HUB ALERT] Pas de danger détecté. Buzzer désactivé.");
+            eteindreBuzzer();
         }
 
         // Mise à jour de l'écran (Tableaux C pour l'interface de ScreenCommunicationManager)

@@ -11,5 +11,5 @@
 
 void initRelaisBoutonBuzzer();
 void IRAM_ATTR couperRelais();
-void faireSonnerBuzzer(int durationMS);
+void faireSonnerBuzzer();
 void eteindreBuzzer();

@@ -18,8 +18,8 @@ void IRAM_ATTR couperRelais() {
     digitalWrite(RELAIS_GPIO, LOW); 
 }
 
-void faireSonnerBuzzer(int durationMS) {
-    tone(BUZZER_GPIO, BUZZER_FREQUENCY, 1000);
+void faireSonnerBuzzer() {
+    tone(BUZZER_GPIO, BUZZER_FREQUENCY);
 }
 
 void eteindreBuzzer() {
