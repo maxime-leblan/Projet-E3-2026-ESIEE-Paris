@@ -131,6 +131,9 @@ void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId)
 void initTestHardcodedAnchorsPosition(UWBModuleList & pAnchors)
 {
     // On hardcode les distances
+
+    Serial.println("[Hub INIT ANCRES] On rentre dans initTestHardcodedAnchorsPosition");
+
     unordered_map<string, float> vMesuredDistances;
 
     vMesuredDistances["12"] = 3.58;
@@ -140,6 +143,16 @@ void initTestHardcodedAnchorsPosition(UWBModuleList & pAnchors)
     vMesuredDistances["24"] = 5.15;
     vMesuredDistances["34"] = 4.12;
 
+    Serial.println("[Hub INIT ANCRES] Coordonées des ancres avant 1er calcul :");
+    Serial.println(pAnchors.toString().c_str());
+
+    initAnchorsCoordinates(pAnchors, vMesuredDistances);
+
+    Serial.println("[Hub INIT ANCRES] Coordonées des ancres avant 2e calcul :");
+    Serial.println(pAnchors.toString().c_str());
+
     // On calcule les positions des ancres
     initAnchorsCoordinatesWithGD(pAnchors, vMesuredDistances, ITERATIONS, LEARNING_RATE);
+    Serial.println("[Hub INIT ANCRES] On sort dans initTestHardcodedAnchorsPosition. Coordonées des ancres après 2e calcul :");
+    Serial.println(pAnchors.toString().c_str());
 }
