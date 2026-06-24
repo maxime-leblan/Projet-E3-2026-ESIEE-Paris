@@ -18,6 +18,8 @@
 #include "LissagePlanExclusion.hpp"
 #include "CalibrationManager.hpp"
 
+//#define DEBUG_POSITION
+
 // --- VARIABLES GLOBALES ---
 RecuperationDonneesAncres recupDonnees;
 UWBModuleList vAnchors;
@@ -35,6 +37,17 @@ std::map<int, float> hauteursAncresTemporaires;
 // Prototypes
 void afficherCoordonneesAncres();
 void afficherCoordonneesTag(uint8_t tagId, const V3& pos3D);
+void clearSerialMonitor();
+
+/**
+ * @brief Efface l'écran du moniteur série et replace le curseur en haut à gauche.
+ * Note : Fonctionne parfaitement avec le moniteur de PlatformIO.
+ */
+void clearSerialMonitor() {
+    // \033[2J : Code ANSI pour effacer tout l'écran
+    // \033[H  : Code ANSI pour ramener le curseur à la position d'origine (0,0)
+    Serial.print("\033[2J\033[H");
+}
 
 /**
  * @brief Fonction vitale pour le réseau CAN.
@@ -119,18 +132,18 @@ V3 getCoordonnesTag(uint8_t tagCible) {
         pos3D = trilateration3D(vAnchors, distMap);
         afficherCoordonneesTag(TAG_CIBLE, pos3D);
         
-        // Contrôle de validité mathématique
+        /* Contrôle de validité mathématique
         if (std::isnan(pos3D.getX()) || std::abs(pos3D.getZ()) > HAUTEUR_MAX_TAG_METRES) {
             Serial.println("[HUB TRILAT] Singularité mathématique (NaN) ou hors zone. Retour à l'origine.");
             afficherCoordonneesAncres();
             return V3(0, 0, 0);
-        }
+        }*/
 
     } else {
         Serial.printf("[HUB DATA] Echec (Timeout) : Aucune réponse de l'ancre %d dans le temps imparti.\n", ANCRE_MASTER);
     }
-
     return pos3D;
+    
 }
 
 float getDistanceToEpicentreFromTag(V3 pos3D){
@@ -262,8 +275,16 @@ void setup() {
     Serial.println("[EXTRACTION FLASH] Coordonnées deans la SafeZone extraites :\n" + vText);
  
     calibManager.initialiserEpicentre(vAnchors);
- 
+    
     // Démarrage automatique si la configuration existe
+    #ifdef DEBUG_POSITION
+
+    etatActuelHub = HUB_STATE_DEBUG_3D_MEASURE;
+    Serial.println("Mode debug position activé. demarrage dans 2 secondes...");
+    delay(2000);
+
+    #else
+
     if (vSafeZone.getPoints().size() > 0 && vAnchors.size() == 4) {
         etatActuelHub = HUB_STATE_RUNNING;
         Serial.println("[Boot] Configuration existante trouvée. Passage en RUNNING.");
@@ -271,7 +292,14 @@ void setup() {
         etatActuelHub = HUB_STATE_IDLE;
     }
 
+    #endif
+
     Serial.println("[Boot] --- Fin Setup ---\n");
+
+    Serial.println("Transformation des distances en coordonnées temporaires pour les ancres");
+
+    initTestHardcodedAnchorsPosition(vAnchors);
+
 }
 
 void executer_HUB_STATE_RUNNING() {
@@ -427,6 +455,15 @@ void executer_HUB_STATE_GENERATING_GEOMETRY() {
     etatActuelHub = HUB_STATE_IDLE;
 }
 
+void executer_HUB_STATE_DEBUG_3D_MEASURE() {
+    clearSerialMonitor();
+
+    V3 pos3D = getCoordonnesTag(TAG_CIBLE);
+
+    afficherCoordonneesAncres();
+    delay(500);
+}
+
 void executer_HUB_STATE_IDLE() {
     // Repos du Hub. Modifié uniquement par interruption UART depuis l'IHM.
 }
@@ -460,6 +497,9 @@ void loop() {
             break;
         case HUB_STATE_RUNNING:
             executer_HUB_STATE_RUNNING();
+            break;
+        case HUB_STATE_DEBUG_3D_MEASURE:
+            executer_HUB_STATE_DEBUG_3D_MEASURE();
             break;
     }
 }
