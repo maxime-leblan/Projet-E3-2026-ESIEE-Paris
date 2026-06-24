@@ -360,6 +360,7 @@ void executer_HUB_STATE_GENERATING_GEOMETRY() {
     Serial.println("[Machine Etats] Géométrie transmise. Retour en IDLE.");
 }
 
+
 void executer_HUB_STATE_IDLE() {
     // Repos du Hub. Modifié uniquement par interruption UART depuis l'IHM.
 }

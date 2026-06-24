@@ -12,6 +12,12 @@ HardwareSerial ScreenSerial(HUB_UART_NUM);
 volatile HubState etatActuelHub = HUB_STATE_IDLE;
 volatile int idTagSelectionne = -1;
 
+// Variables pour les distances manuelles inter-ancres volatile 
+bool aDesDistancesManuelles = false; 
+volatile float dist01 = 0.0, dist02 = 0.0, dist03 = 0.0; 
+volatile float dist12 = 0.0, dist13 = 0.0, dist23 = 0.0; 
+
+
 // On indique au compilateur que cette fonction existe dans le main.cpp
 extern void appliquerNouvelleConfigurationMaterielle(JsonArray zoneJson, JsonArray sensorsJson);
 
@@ -84,15 +90,32 @@ void loopScreenCommunication() {
         if (!err) {
             String cmd = doc["cmd"].as<String>();
 
-            // Étape : L'utilisateur demande un scan
+            // Étape : L'utilisateur demande un scan (avec potentiellement les distances)
             if (cmd == "start_calib") {
                 etatActuelHub = HUB_STATE_DETECTING_TAGS_FOR_INIT;
+
+                // Extraction des distances si elles sont fournies pour aider le scan initial
+                if (doc.containsKey("distances")) {
+                    JsonObject dist = doc["distances"];
+                    dist01 = dist["d01"].as<float>();
+                    dist02 = dist["d02"].as<float>();
+                    dist03 = dist["d03"].as<float>();
+                    dist12 = dist["d12"].as<float>();
+                    dist13 = dist["d13"].as<float>();
+                    dist23 = dist["d23"].as<float>();
+                    
+                    aDesDistancesManuelles = true;
+                    Serial.println("[Hub UART] Distances manuelles recues pour l'init.");
+                } else {
+                    aDesDistancesManuelles = false;
+                }
             }
             // Étape : L'utilisateur sélectionne son tag cible
             else if (cmd == "select_tag") {
                 idTagSelectionne = doc["tag_id"].as<int>();
                 etatActuelHub = HUB_STATE_COLLECTING_POINTS;
             }
+
             // Etape : L'utilisateur demande la fin de la mesure.
             else if (cmd == "stop_measure") {
                 etatActuelHub = HUB_STATE_GENERATING_GEOMETRY;
