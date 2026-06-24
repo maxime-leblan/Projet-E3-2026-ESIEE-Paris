@@ -107,12 +107,12 @@ int main()
     // on stocke les distances entre chaque ancre
     unordered_map<string, float> vMesuredDistances;
 
-    vMesuredDistances["12"] = 3.85; // au lieu de 4 (Erreur +15cm)
-    vMesuredDistances["13"] = 4.55; // au lieu de 4.39 (Erreur -10cm)
-    vMesuredDistances["14"] = 7.80; // au lieu de 8.01 (Erreur +20cm)
-    vMesuredDistances["23"] = 4.25; // au lieu de 4.54 (Erreur +10cm)
-    vMesuredDistances["24"] = 8.05; // au lieu de 7.84 (Erreur -10cm)
-    vMesuredDistances["34"] = 4.5; // au lieu de 4.77 (Erreur -15cm)
+    vMesuredDistances["12"] = 0.17;
+    vMesuredDistances["13"] = 0.25;
+    vMesuredDistances["14"] = 0.37;
+    vMesuredDistances["23"] = 0.12;
+    vMesuredDistances["24"] = 0.25;
+    vMesuredDistances["34"] = 0.13; // au lieu de 4.77 (Erreur -15cm)
 
     // on lance l'initialisation des ancres
     initAnchorsCoordinates(vSensors, vMesuredDistances);
@@ -127,12 +127,12 @@ int main()
     // ------------------------------------------------------------------------------
     // Partie avec utilisation de la descente de gradient
 
-    vMesuredDistances["12"] = 3.85; // au lieu de 4 (Erreur +15cm)
-    vMesuredDistances["13"] = 4.55; // au lieu de 4.39 (Erreur -10cm)
-    vMesuredDistances["14"] = 7.80; // au lieu de 8.01 (Erreur +20cm)
-    vMesuredDistances["23"] = 4.25; // au lieu de 4.54 (Erreur +10cm)
-    vMesuredDistances["24"] = 8.05; // au lieu de 7.84 (Erreur -10cm)
-    vMesuredDistances["34"] = 4.5; // au lieu de 4.77 (Erreur -15cm)
+    vMesuredDistances["12"] = 0.17;
+    vMesuredDistances["13"] = 0.25;
+    vMesuredDistances["14"] = 0.37;
+    vMesuredDistances["23"] = 0.12;
+    vMesuredDistances["24"] = 0.25;
+    vMesuredDistances["34"] = 0.13; // au lieu de 4.77 (Erreur -15cm)
 
     // on lance l'initialisation des ancres
     initAnchorsCoordinatesWithGD(vSensors, vMesuredDistances, 1000, 0.01);
@@ -140,7 +140,7 @@ int main()
     cout << "\nPartie avec descente de gradient : " << "\n";
 
     // on affiche les coordonnées données lors de l'initialisation à chaque ancre
-    printTabUWB(vSensors);
+    cout << vSensors.toString();
     cout << "Erreurs algo descente de gradient (en \% par rapport à la vrai distance): \n";
     printDict(giveErrors(vRealDistances, makeDistanceTabFromCoordinates(giveCoordinates(vSensors))));
 

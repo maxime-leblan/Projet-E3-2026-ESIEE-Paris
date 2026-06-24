@@ -128,3 +128,18 @@ void toggleAnchorsMode(std::vector<int> pAnchorsId, uint8_t pStaticAnchorId)
     }
 }
 
+void initTestHardcodedAnchorsPosition(UWBModuleList & pAnchors)
+{
+    // On hardcode les distances
+    unordered_map<string, float> vMesuredDistances;
+
+    vMesuredDistances["12"] = 0.17;
+    vMesuredDistances["13"] = 0.25;
+    vMesuredDistances["14"] = 0.37;
+    vMesuredDistances["23"] = 0.12;
+    vMesuredDistances["24"] = 0.25;
+    vMesuredDistances["34"] = 0.13;
+
+    // On calcule les positions des ancres
+    initAnchorsCoordinates(pAnchors, vMesuredDistances);
+}

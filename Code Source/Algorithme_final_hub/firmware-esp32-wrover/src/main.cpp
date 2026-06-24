@@ -264,7 +264,9 @@ void executer_HUB_STATE_DETECTING_TAGS_FOR_INIT() {
     Serial.println("[Hub] Lancement de l'auto-calibration matérielle des ancres...");
    
     // Cette fonction gère son propre timeout/blocage CAN dans InitAnchorPosition.cpp
-    initAnchorsPosition(vAnchors);
+    // /!\ La fonction ne fonctionnant pas, on va hardcoder les positions des ancres à la place
+    //initAnchorsPosition(vAnchors);
+    initTestHardcodedAnchorsPosition(vAnchors);
    
     // Changement de repère officiel
     alignAnchorsCoordinatesWithGridOrigin(vAnchors);
