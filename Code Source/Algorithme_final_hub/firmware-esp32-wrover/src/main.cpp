@@ -309,7 +309,7 @@ void setup() {
 
     Serial.println("Transformation des distances en coordonnées temporaires pour les ancres");
 
-    initTestHardcodedAnchorsPosition(vAnchors);
+    //initTestHardcodedAnchorsPosition(vAnchors);
 
 }
 
