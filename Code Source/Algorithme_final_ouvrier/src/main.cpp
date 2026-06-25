@@ -6,8 +6,6 @@ void setup()
 {
   // --- SÉQUENCE DE DÉMARRAGE ---
   Serial.begin(115200);
-  // Petite pause optionnelle pour laisser le temps d'ouvrir le moniteur série
-  // while(!Serial) delay(10); 
 
   Serial.println("\n==================================================");
   Serial.println("[SETUP] Démarrage du Tag Ouvrier VigiZone...");
@@ -24,13 +22,16 @@ void setup()
   Serial.println("[SETUP] Étape 3/3 : Initialisation du capteur BMP581 (SPI)...");
   initialiserBMP581(D3, SPI); 
   
-  Serial.println("[SETUP] Configuration des broches d'alimentation et LEDs...");
+  Serial.println("[SETUP] Configuration de l'alimentation et de la batterie...");
+  
+  // --- APPEL DE TES NOUVELLES FONCTIONS DE BIBLIOTHÈQUE ---
+  initialiserLectureBatterie();
+  activerChargeRapide100mA();
+  
+  // Configuration des LEDs
   pinMode(LED_RED_CARTE, OUTPUT);
   pinMode(LED_BLUE, HIGH); 
-  pinMode(PIN_VBAT_ENABLE, OUTPUT);
-  digitalWrite(PIN_VBAT_ENABLE, HIGH); 
-  analogReadResolution(12);  
-  digitalWrite(LED_RED, HIGH);           
+  digitalWrite(LED_RED, HIGH);    
   
   Serial.println("[SETUP] Terminé. Entrée dans la boucle principale.");
   Serial.println("==================================================\n");
@@ -52,15 +53,11 @@ void loop()
   // ====================================================================
   if (receiveUWBMessage(Serial1, vMessageReceived, Serial))
   {
-    //Serial.printf("[%lu] [RX] Trame captée : %s\n", millis(), vMessageReceived.c_str());
-    
     if (decodeUWBMessage(vMessageReceived, vMessageReceivedData, Serial))
     {
-      Serial.printf("[%lu] [PARSER] Décodage réussi. Analyse du type d'ordre...\n", millis());
-
       // --- TRI : LE TAG IGNORE SES PROPRES CALCULS ---
       if (vMessageReceivedData.aIsStandardDistanceMessage) {
-         //Serial.printf("[%lu] [TRI] Trame AT+RANGE locale ignorée.\n", millis());
+         // Trame AT+RANGE locale ignorée.
       }
       else if (vMessageReceivedData.orderType == HUB_ORDER_START_TAG_CALIBRATION)
       {
@@ -92,7 +89,7 @@ void loop()
   if (vIsDistanceReceived)
   {
     Serial.printf("[%lu] [LOGIQUE] Évaluation de la sécurité pour D = %.2f m...\n", millis(), vTagDistanceFromSafeZone);
-
+    
     if (vTagDistanceFromSafeZone > 0.0f)
     {
       Serial.printf("[%lu] [LOGIQUE] Résultat : HORS ZONE DE DANGER. Coupure du bipper.\n", millis());
@@ -102,18 +99,19 @@ void loop()
       int vSleepTime = (vTagDistanceFromSafeZone / AVG_RUNNING_SPEED) * 1000;
       Serial.printf("[%lu] [ENERGIE] Lancement de la séquence de VEILLE pour %d ms.\n", millis(), vSleepTime);
 
+      Serial.println("! Mise en veille désactivée pour la démo. SKIP du mode éco.\n\n");
+      return;
+
       // Désactivation matérielle
       Serial.printf("[%lu] -> Extinction UWB...\n", millis());
       veilleUWB();
       
       Serial.printf("[%lu] -> Sommeil XIAO...\n", millis());
-      // --- ATTENTION : Le port série USB risque d'être coupé pendant veilleXiao ---
       Serial.flush(); // Force l'envoi des logs avant de dormir
       
       veilleXiao(vSleepTime);
 
       // Réactivation matérielle
-      // Note: Le premier log au réveil peut être manqué si l'USB met du temps à se reconnecter
       reveilXiao();
       Serial.printf("[%lu] -> Réveil XIAO OK. Relance UWB...\n", millis());
       
@@ -141,9 +139,6 @@ void loop()
     
     if (isBatteryLow) {
         Serial.printf("[%lu] [DIAGNOSTIC] Alerte : Niveau de batterie FAIBLE !\n", millis());
-    } else {
-        // Optionnel : Décommenter pour avoir un heartbeat régulier confirmant que la boucle tourne
-        // Serial.printf("[%lu] [DIAGNOSTIC] Batterie OK. Système nominal.\n", millis());
     }
   }
   
@@ -158,7 +153,6 @@ void loop()
       lastBlinkTime = millis();
       ledState = !ledState;
       digitalWrite(LED_RED_CARTE, ledState ? HIGH : LOW); 
-      // Éviter de logger les clignotements pour ne pas polluer la console
     }
   } 
   else if (isBatteryLow) {
