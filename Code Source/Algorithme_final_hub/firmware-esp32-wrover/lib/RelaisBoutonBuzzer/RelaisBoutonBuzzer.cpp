@@ -19,13 +19,13 @@ void initRelaisBoutonBuzzer() {
     digitalWrite(RELAIS_GPIO, HIGH);
     digitalWrite(LED_BOUTON_GPIO, HIGH);
     // Dès que le BOUTON_READ_GPIO passe à un niveau HAUT (RISING), on appelle couperRelaisUrgence
-    attachInterrupt(digitalPinToInterrupt(BOUTON_READ_GPIO), couperRelais, RISING);
+    //attachInterrupt(digitalPinToInterrupt(BOUTON_READ_GPIO), couperRelais, RISING);
 }
 
 // interruption bouton pour couper le relais
 void IRAM_ATTR couperRelais() {
     // Action immédiate : on éteint le GPIO
-    digitalWrite(RELAIS_GPIO, LOW); 
+    //digitalWrite(RELAIS_GPIO, LOW); 
 }
 
 void faireSonnerBuzzer() {
