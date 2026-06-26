@@ -48,5 +48,14 @@ Afin de pouvoir mieux visualiser la représentation des positions des Ancres et 
 
 \subsection{Algorithme de Trilatération}
 
-Le choix de la technologie UWB ayant été effectué par notre équipe, nous savons donc que notre système doit être capable de récupérer les distances entre chaque ancre et chaque tag comportant un module UWB. Seulement, pour pouvoir répondre au cahier des charges que nous avons établi, notre système a besoin de pouvoir situer de la manière la plus précise et la plus conforme à la réalité possible la position de l'ouvrier par rapport au véhicule et à sa zone de sécurité.
-C'est pourquoi nous avons effectué différentes recherches pour établir la liste des algorithmes existants qui seraient les plus aptes à répondre à notre problématique tout en étant capable d'exploiter au mieux les données récoltées par notre système. La technologie UWB existant depuis plusieurs décennie, nous avons donc pu obtenir une quantité importante de 
+Le choix de la technologie UWB ayant été effectué par notre équipe, nous savons donc que notre système est capable de récupérer les distances entre chaque ancre et chaque tag comportant un module UWB. Seulement, pour pouvoir répondre au cahier des charges que nous avons établi, notre système a besoin de pouvoir situer de la manière la plus précise et la plus conforme à la réalité possible la position relative de l'ouvrier par rapport au véhicule et à sa zone de sécurité.
+C'est pourquoi nous avons effectué différentes recherches pour établir la liste des algorithmes existants qui seraient les plus aptes à répondre à notre problématique tout en étant capable d'exploiter au mieux les données récoltées par notre système. La technologie UWB existant depuis plusieurs décennies, nous avons donc pu obtenir une quantité importante d'articles traitant notre problème de calcul d'une position dans un repère en trois dimensions, et l'algorithme qui est le plus ressorti est celui de la Trilatération par la méthode des Moindres Carrés.
+
+Le premier article ayant retenu notre attention est intitulé \emph{Lübeck University of Applied Sciences: Technical Report 2015} de Mathias Pelka. Ce court article se focalise principalement sur la résolution mathématique d'un système comportant les quatres équations des sphères ayant pour rayon la distance entre une des quatres ancres et le tag de l'ouvrier. Il fournit également un exemple d'implémentation de cet algorithme avec MATHLAB.
+
+Le second article intitulé \emph{UWB-Based Real-Time Indoor Positioning Systems: A
+Comprehensive Review} détaille quant à lui les différentes méthodes pour effectuer la trilatération en incluant la méthode des moindres carrés, et explicite l'équation matricielle finale découlant de la résolution du système d'équations établi dans le premier article, et que l'on obtient pour pouvoir calculer algorithmiquement les coordonnées d'un tag.
+
+\bigskip
+
+Nous allons maintenant nous focaliser sur la résolution mathématique du problème pour pouvoir dégager une solution algorithme exploitable dans le cadre de notre système de détection fonctionnant à l'aide de quatres ancres et au moins un tag.
