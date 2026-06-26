@@ -1,8 +1,5 @@
 \cite{OKI-78SR_Series} % Example of a citation to a reference in the bibliography
 
-Reference to Figure~\vref{fig:gallery}. % The \vref command specifies the location of the reference
-
-
 
 \lipsum[13] % Dummy text
 
@@ -91,7 +88,22 @@ qui visent à savoir quels sont les composants mis sur le schéma, ainsi que ceu
 \label{fig: mise en oeuvre}
 \end{figure}
 
-Pour récupérer les différents empreintes/symboles,
+Pour récupérer les différents empreintes/symboles, nous avons utilisés plusieurs banque de données spécialisés,
+tels que : 
+
+\begin{itemize}
+    \item Mouser \cite{Mouser}
+    \item componentsearchengine \cite{componentsearchengine}
+    \item EasyEDA \cite{EasyEDA}
+    \item LCSC \cite{LCSC}
+\end{itemize}
+
+Cela nous à permis d'avoir la majeure partie des empreintes/symboles.
+Cependant, certains composants très spécifique sont difficilement trouvable, voir inexistant.
+Pour palier à ce problème, KiCad intègre une création de composant, avec une précision allant jusqu'au nanomètre.
+Nous avons pu grâce à cette outil, refaire l'empreinte du BMP581 \cite{BMP581},
+ou encore l'abaisseur de tension "ATTENTION METTRE CITATION".
+
  nous avons mis en place une librairie kicad propre au projet.
 
 

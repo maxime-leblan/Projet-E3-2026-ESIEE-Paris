@@ -5,44 +5,53 @@ Reallocating 'name_of_file' (item size: 1) to 6 items.
 The style file: plain.bst
 Reallocating 'name_of_file' (item size: 1) to 7 items.
 Database file #1: sample.bib
-You've used 2 entries,
+Warning--entry type for "componentsearchengine" isn't style-file defined
+--line 127 of file sample.bib
+Warning--entry type for "Mouser" isn't style-file defined
+--line 137 of file sample.bib
+Warning--entry type for "EasyEDA" isn't style-file defined
+--line 147 of file sample.bib
+Warning--entry type for "LCSC" isn't style-file defined
+--line 157 of file sample.bib
+You've used 7 entries,
             2118 wiz_defined-function locations,
-            510 strings with 4165 characters,
-and the built_in function-call counts, 396 in all, are:
-= -- 34
-> -- 14
+            527 strings with 4366 characters,
+and the built_in function-call counts, 1356 in all, are:
+= -- 115
+> -- 49
 < -- 0
-+ -- 6
-- -- 4
-* -- 18
-:= -- 75
-add.period$ -- 4
-call.type$ -- 2
-change.case$ -- 6
++ -- 21
+- -- 14
+* -- 46
+:= -- 232
+add.period$ -- 14
+call.type$ -- 7
+change.case$ -- 25
 chr.to.int$ -- 0
-cite$ -- 2
-duplicate$ -- 18
-empty$ -- 37
-format.name$ -- 4
-if$ -- 77
+cite$ -- 7
+duplicate$ -- 55
+empty$ -- 143
+format.name$ -- 14
+if$ -- 283
 int.to.chr$ -- 0
-int.to.str$ -- 2
+int.to.str$ -- 7
 missing$ -- 0
-newline$ -- 11
-num.names$ -- 4
-pop$ -- 10
+newline$ -- 31
+num.names$ -- 14
+pop$ -- 47
 preamble$ -- 1
-purify$ -- 6
+purify$ -- 21
 quote$ -- 0
-skip$ -- 14
+skip$ -- 61
 stack$ -- 0
-substring$ -- 10
-swap$ -- 4
+substring$ -- 35
+swap$ -- 10
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 8
+type$ -- 28
 warning$ -- 0
-while$ -- 4
-width$ -- 3
-write$ -- 18
+while$ -- 14
+width$ -- 8
+write$ -- 54
+(There were 4 warnings)
