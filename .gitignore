@@ -8,5 +8,8 @@ Code Source/Algorithme trilatération/main_test
 *.log
 *.gz
 *.toc
+*.fls
+*.lof
+*.lot
 build/
 .vscode/
