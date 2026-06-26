@@ -531,9 +531,9 @@ INPUT .\Figures\logo_VIGIZONE.png
 INPUT .\Figures\logo_VIGIZONE.png
 INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\vf\adobe\palatino\pplrc9d.vf
 INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\adobe\palatino\pplr8r.tfm
-INPUT .\Introduction\Introduction.tex
-INPUT .\Introduction\Introduction.tex
-INPUT Introduction\Introduction.tex
+INPUT .\Partie_Commune\partiecommune.tex
+INPUT .\Partie_Commune\partiecommune.tex
+INPUT Partie_Commune\partiecommune.tex
 INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\nowacki\iwona\ec-iwonab-sc.tfm
 INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\nowacki\iwona\ec-iwonabi.tfm
 INPUT C:\Users\jerem\AppData\Local\Programs\MiKTeX\fonts\tfm\nowacki\iwona\ec-iwonabi-sc.tfm
