@@ -15,7 +15,7 @@ Nous allons donc dans un premier temps nous intéresser à l'implémentation du 
 
 L'objectif étant de déterminer de la manière la plus exacte possible la position d'un Tag par rapport à notre engin de chantier, il faut donc que notre système utilise un repère auquel le Hub pourrait se réferrer pour pouvoir positionner les Ancres fixées sur le véhicule, les Tags des compagnons ainsi que la zone de sécurité autour du véhicule.
 
-Pour l'implémentation de ce dispositif, nous avons dans un premier temps rédigé une librairie dénommée {\ttfamily{V3}} permettant de représenter des vecteurs en trois dimensions, puis nous avons utilisé le paradigme de la \uline{Programmation Orientée Objets (POO)} afin de modéliser les classes suivantes :
+Pour l'implémentation de ce dispositif, nous avons dans un premier temps rédigé une librairie allégée dénommée {\ttfamily{V3.h}} permettant de représenter des vecteurs en trois dimensions, puis nous avons utilisé le paradigme de la \uline{Programmation Orientée Objets (POO)} afin de modéliser les classes suivantes :
 
 \begin{itemize}
     \item {\ttfamily{\textbf{UWBModule}}} : Cette classe permet de représenter à la fois les Tags ainsi que les Ancres en stockant comme information pour chaque module son identifiant et sa position.
@@ -25,12 +25,25 @@ Pour l'implémentation de ce dispositif, nous avons dans un premier temps rédig
 <Inclure un schéma représentant la structure des 2 classes>
 \bigskip
 
-Afin de pouvoir mieux visualiser la représentation des positions des Ancres et des Tags dans le repère du Hub, nous avons mis en place un programme simple permettant de générer une image en trois dimensions de tous les points enregistrés par le Hub. Pour cela, nous avons utilisé la librairie {\ttfamily{<raylib.h>}} qui est téléchargeable depuis le terminal de commande Linux.
+Pour la librairie {\ttfamily{V3.h}}, nous avons uniquement implémenté les fonctions mathématiques de base dont nous avions besoin afin de limiter la place prise par la librairie sur la Flash des ESP32. Nous avons donc écris le code des fonctions suivantes :
 
-\begin{figure}[tb]
+\begin{itemize}
+    \item {\ttfamily{\textbf{getNormalised()}}} : Renvoie le vecteur normalisé du vecteur sur lequel la méthode a été appelé.
+    \item {\ttfamily{\textbf{prodScal(const V3 \& a, const V3 \& b)}}} : Renvoie le produit scalaire canonique en trois dimensions du vecteur {\ttfamily{a}} et le vecteur {\ttfamily{b}}.
+    \item {\ttfamily{\textbf{prodScal2D(const V3 \& a, const V3 \& b)}}} : Renvoie le produit scalaire canonique en deux dimensions du vecteur {\ttfamily{a}} et le vecteur {\ttfamily{b}}.
+    \item {\ttfamily{\textbf{prodVect(const V3 \& a, const V3 \& b)}}} : Renvoie le produit vectoriel du vecteur {\ttfamily{a}} et le vecteur {\ttfamily{b}}. 
+\end{itemize}
+
+\subsection{Visualisation 3D}
+
+Afin de pouvoir mieux visualiser la représentation des positions des Ancres et des Tags dans le repère du Hub, nous avons mis en place un programme simple permettant de générer une image en trois dimensions de tous les points enregistrés par le Hub. Pour cela, nous avons utilisé la librairie externe {\ttfamily{<raylib.h>}} qui est téléchargeable depuis le web sur le terminal de commandes Linux. Nous l'avons utilisée pour implémenter notre programme de visualisation 3D dans notre librairie {\ttfamily{3DVisualisation.hpp}}.
+
+\begin{figure}[!ht]
 \centering 
-\includegraphics[width=0.5\columnwidth]{calibrage_ancres.png} 
-\caption[calibrage Ancres de base]{Positionnement des ancres lors du \emph{Jour des Projets}}
+\includegraphics[width=0.5\columnwidth]{exemple_raylib.png} 
+\caption[calibrage Ancres de base]{Exemple d'affichage de points et de segments avec la librairie {\ttfamily{<raylib.h>}}}
 \end{figure}
 
-\subsubsection{Algorithme de Trilatération}
+
+
+\subsection{Algorithme de Trilatération}
