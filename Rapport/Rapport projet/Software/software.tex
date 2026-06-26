@@ -13,4 +13,28 @@ Nous allons donc dans un premier temps nous intéresser à l'implémentation du 
 
 \subsection{Repère du Hub en trois dimensions}
 
+<<<<<<< Updated upstream:Rapport/Rapport projet/Software/software.tex
+=======
+L'objectif étant de déterminer de la manière la plus exacte possible la position d'un Tag par rapport à notre engin de chantier, il faut donc que notre système utilise un repère auquel le Hub pourrait se réferrer pour pouvoir positionner les Ancres fixées sur le véhicule, les Tags des compagnons ainsi que la zone de sécurité autour du véhicule.
+
+Pour l'implémentation de ce dispositif, nous avons dans un premier temps rédigé une librairie dénommée {\ttfamily{V3}} permettant de représenter des vecteurs en trois dimensions, puis nous avons utilisé le paradigme de la \uline{Programmation Orientée Objets (POO)} afin de modéliser les classes suivantes :
+
+\begin{itemize}
+    \item {\ttfamily{\textbf{UWBModule}}} : Cette classe permet de représenter à la fois les Tags ainsi que les Ancres en stockant comme information pour chaque module son identifiant et sa position.
+    \item {\ttfamily{\textbf{UWBModuleList}}} : Cette classe stocke plusieurs module UWB dans une même structure de données, permettant ainsi d'effectuer des manipulations sur l'ensemble des Ancres et des Tags connus du Hub. Afin de garantir un accès efficace aux données, la structure de données de dictionnaire native en {\ttfamily{C++ <unordered\_map.h>}} a été utilisée afin de garantir un accès aux données avec une complexité temporelle en {\emph{O(1)}}.
+\end{itemize}
+\bigskip
+<Inclure un schéma représentant la structure des 2 classes>
+\bigskip
+
+Afin de pouvoir mieux visualiser la représentation des positions des Ancres et des Tags dans le repère du Hub, nous avons mis en place un programme simple permettant de générer une image en trois dimensions de tous les points enregistrés par le Hub. Pour cela, nous avons utilisé la librairie {\ttfamily{<raylib.h>}} qui est téléchargeable depuis le terminal de commande Linux.
+
+\begin{figure}[tb]
+\centering 
+\includegraphics[width=0.5\columnwidth]{GalleriaStampe} 
+\caption[An example of a floating figure]{An example of a floating figure (a reproduction from the \emph{Gallery of prints}, M.~Escher,\index{Escher, M.~C.} from \url{http://www.mcescher.com/}).} % The text in the square bracket is the caption for the list of figures while the text in the curly brackets is the figure caption
+\label{fig:gallery} 
+\end{figure}
+
+>>>>>>> Stashed changes:Rapport/Rapport projet/Software/software_maxime.tex
 \subsubsection{Algorithme de Trilatération}
