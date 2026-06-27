@@ -14,3 +14,6 @@ Code Source/Algorithme trilatération/main_test
 build/
 .vscode/
 *.pdf
+*.bbl
+*.blg
+*.synctex(busy)
