@@ -1,5 +1,9 @@
 \begin{thebibliography}{1}
 
+\bibitem{5A-XL4015-DC-DC-Abaisser-Alimentation}
+Az-Delivery.
+\newblock {\em 5A\_XL4015\_DC-DC Data Sheet}, /.
+
 \bibitem{BMP581}
 Bosch.
 \newblock {\em BST-BMP581-DS004-13 Data Sheet}, 2025.
@@ -15,6 +19,10 @@ EasyEDA.
 \bibitem{LCSC}
 LCSC.
 \newblock https://www.lcsc.com.
+
+\bibitem{UWB-AT-Module}
+Makerfabs\_Team.
+\newblock {\em UWB\_AT\_Module Data Sheet}, 2023.
 
 \bibitem{Mouser}
 Mouser.
