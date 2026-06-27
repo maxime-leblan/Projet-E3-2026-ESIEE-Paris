@@ -45,7 +45,7 @@ BCOR5mm, % Binding correction
   opacity=1,
   contents={%
     \begin{tikzpicture}[remember picture, overlay]
-      \node[anchor=north west, xshift=-1cm, yshift=-0.3cm, opacity=0.9] at (current page.north west) {\includegraphics[width=5cm]{Logo_ESIEE.png}};
+      \node[anchor=north west, xshift=-1cm, yshift=-0.3cm, opacity=0.9] at (current page.north west) {\includegraphics[width=5cm]{vigizone.jpeg}};
       \node[anchor=north east, xshift=0.7cm, yshift=-0.3cm, opacity=0.9] at (current page.north east) {\includegraphics[width=2cm]{logo_VIGIZONE.png}};
     \end{tikzpicture}%
   }
@@ -81,6 +81,21 @@ BCOR5mm, % Binding correction
 
 \setcounter{tocdepth}{2} % Set the depth of the table of contents to show sections and subsections only
 
+
+% --- BANDEAU DE BAS DE PAGE ---
+
+% Active la ligne de séparation au-dessus du pied de page
+\KOMAoptions{footsepline=true} 
+\addtokomafont{footsepline}{\color{halfgray}}
+
+% Configuration du pied de page centralisée et sécurisée dans une boîte
+\cfoot{\small%
+    \parbox{\textwidth}{\centering%
+         Rédigé par : B.C, J.H, D.B, B.N, L.M, F.J \hfill \today \hfill 
+        \raisebox{-0.8\height}{\includegraphics[height=0.8cm]{Figures/Logo_ESIEE.png}}%
+    }
+}
+%BLONDEL.C, JOUHAUD.H, DE KEYN.B, BEN RAÏES.N, LE BLAN.M, FOUILLOUX.J 
 %----------------------------------------------------------------------------------------
 %	AUTHOR AFFILIATIONS
 %----------------------------------------------------------------------------------------
