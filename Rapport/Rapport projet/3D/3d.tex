@@ -1,0 +1,77 @@
+% Ecriture de la partie Software du rapport
+
+Afin d'être capable d'estimer avec précision la position du compagnon en temps réel tout en étant capable de retranscrire l'information le plus rapidement possible et de la manière la plus exacte, nous avons divisé le travail à effectuer sur la partie software en plusieurs parties :
+
+\begin{itemize}
+    \item L'implémentation d'un repère virtuel en trois dimensions permettant au Hub de se représenter l'emplacement des Ancres, des Tags portés par les compagnons ainsi que la délimitation de la zone de sécurité de l'engin.
+    \item La recherche puis l'implémentation d'algorithmes dont l'objectif est de situer précisément dans le repère du Hub la position des compagnons ainsi que la distance de chacun d'entre eux par rapport à l'engin de chantier.
+    \item L'écriture d'un programme de retranscription visuel du repère virtuel du Hub sur l'écran du conducteur de l'engin de chantier afin de pouvoir visualiser toutes les informations collectées par le Hub de la manière la plus concise et claire possible. Ce programme doit également permettre au conducteur de pouvoir personnaliser la zone de sécurité de l'engin quand il le souhaite, ce qui implique une interface utilisateur simple et épurée.
+    \item L'implémentation des programmes permettant de faire communiquer les microcontroleurs ESP32-S3 (Ancres et Tags) avec l'ESP32-WROVER-E (Hub) ainsi que des programmes permettant de faire la liaison entre les librairies contenant les algorithmes de calcul mathématiques liés au repère en trois dimensions et le Hub.
+\end{itemize}
+\bigskip % Pour sauter une ligne
+Nous allons donc dans un premier temps nous intéresser à l'implémentation du repère en lui-même et du programme de visualisation du repère que nous avons utilisé pour vérifier le bon fonctionnement de nos différents algorithmes mathématiques de manipulation d'objets au sein d'espaces vectoriels.
+
+\subsection{Repère du Hub en trois dimensions}
+
+L'objectif étant de déterminer de la manière la plus exacte possible la position d'un Tag par rapport à notre engin de chantier, il faut donc que notre système utilise un repère auquel le Hub pourrait se réferrer pour pouvoir positionner les Ancres fixées sur le véhicule, les Tags des compagnons ainsi que la zone de sécurité autour du véhicule.
+
+Pour l'implémentation de ce dispositif, nous avons dans un premier temps rédigé une librairie allégée dénommée {\ttfamily{V3.h}} permettant de représenter des vecteurs en trois dimensions, puis nous avons utilisé le paradigme de la \uline{Programmation Orientée Objets (POO)} afin de modéliser les classes suivantes :
+
+\begin{itemize}
+    \item {\ttfamily{\textbf{UWBModule}}} : Cette classe permet de représenter à la fois les Tags ainsi que les Ancres en stockant comme information pour chaque module son identifiant et sa position.
+    \item {\ttfamily{\textbf{UWBModuleList}}} : Cette classe stocke plusieurs module UWB dans une même structure de données, permettant ainsi d'effectuer des manipulations sur l'ensemble des Ancres et des Tags connus du Hub. Afin de garantir un accès efficace aux données, la structure de données de dictionnaire native en {\ttfamily{C++ <unordered\_map.h>}} a été utilisée afin de garantir un accès aux données avec une complexité temporelle en {\emph{O(1)}}.
+\end{itemize}
+\bigskip
+<Inclure un schéma représentant la structure des 2 classes>
+\bigskip
+
+Pour la librairie {\ttfamily{V3.h}}, nous avons uniquement implémenté les fonctions mathématiques de base dont nous avions besoin afin de limiter la place prise par la librairie sur la Flash des ESP32. Nous avons donc écris le code des fonctions suivantes :
+
+\begin{itemize}
+    \item {\ttfamily{\textbf{getNormalised()}}} : Renvoie le vecteur normalisé du vecteur sur lequel la méthode a été appelé.
+    \item {\ttfamily{\textbf{prodScal(const V3 \& a, const V3 \& b)}}} : Renvoie le produit scalaire canonique en trois dimensions du vecteur {\ttfamily{a}} et le vecteur {\ttfamily{b}}.
+    \item {\ttfamily{\textbf{prodScal2D(const V3 \& a, const V3 \& b)}}} : Renvoie le produit scalaire canonique en deux dimensions du vecteur {\ttfamily{a}} et le vecteur {\ttfamily{b}}.
+    \item {\ttfamily{\textbf{prodVect(const V3 \& a, const V3 \& b)}}} : Renvoie le produit vectoriel du vecteur {\ttfamily{a}} et le vecteur {\ttfamily{b}}. 
+\end{itemize}
+
+\subsection{Visualisation 3D}
+
+Afin de pouvoir mieux visualiser la représentation des positions des Ancres et des Tags dans le repère du Hub, nous avons mis en place un programme simple permettant de générer une image en trois dimensions de tous les points enregistrés par le Hub. Pour cela, nous avons utilisé la librairie externe {\ttfamily{<raylib.h>}} qui est téléchargeable depuis le web sur le terminal de commandes Linux. Nous l'avons utilisée pour implémenter notre programme de visualisation 3D dans notre librairie {\ttfamily{3DVisualisation.hpp}}.
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.5\columnwidth]{exemple_raylib.png} 
+\caption[calibrage Ancres de base]{Exemple d'affichage de points et de segments avec la librairie {\ttfamily{<raylib.h>}}}
+\end{figure}
+
+
+
+\subsection{Algorithme de Trilatération}
+
+Le choix de la technologie UWB ayant été effectué par notre équipe, nous savons donc que notre système est capable de récupérer les distances entre chaque ancre et chaque tag comportant un module UWB. Seulement, pour pouvoir répondre au cahier des charges que nous avons établi, notre système a besoin de pouvoir situer de la manière la plus précise et la plus conforme à la réalité possible la position relative de l'ouvrier par rapport au véhicule et à sa zone de sécurité.
+C'est pourquoi nous avons effectué différentes recherches pour établir la liste des algorithmes existants qui seraient les plus aptes à répondre à notre problématique tout en étant capable d'exploiter au mieux les données récoltées par notre système. La technologie UWB existant depuis plusieurs décennies, nous avons donc pu obtenir une quantité importante d'articles traitant notre problème de calcul d'une position dans un repère en trois dimensions, et l'algorithme qui est le plus ressorti est celui de la Trilatération par la méthode des Moindres Carrés.
+
+Le premier article de recherche ayant retenu notre attention est intitulé \emph{Lübeck University of Applied Sciences: Technical Report 2015} de Mathias Pelka. Ce court article se focalise principalement sur la résolution mathématique d'un système comportant les quatres équations des sphères ayant pour rayon la distance entre une des quatres ancres et le tag de l'ouvrier. Il fournit également un exemple d'implémentation de cet algorithme avec MATHLAB.
+
+Le deuxième article intitulé \emph{UWB-Based Real-Time Indoor Positioning Systems: A
+Comprehensive Review} détaille quant à lui les différentes méthodes pour effectuer la trilatération en incluant la méthode des moindres carrés, et explicite l'équation matricielle théorique finale découlant de la résolution du système d'équations établi dans le premier article, et que l'on obtient pour pouvoir calculer algorithmiquement les coordonnées d'un tag.
+
+En ce qui concerne l'application de la méthode des Moindres Carrés pour obtenir l'équation matricielle que nous avons utilisée dans notre algorithme, nous nous sommes basés sur des extraits d'exemple d'application de la méthode sur des problèmes d'optimisation prsésentés par l'Université de Stanford et l'UCLA dans le document \emph{Introduction to Applied Linear Algebra – Vectors, Matrices, and Least Squares (Chapitre 8 : Least Squares)}. L'application du gradient sur l'équation matricielle d'origine est également détaillée dans un cours d'informatique du MIT intitulé \emph{Least squares and the normal equations} et rédigé par Alex Townsend.
+
+\bigskip
+
+Nous allons maintenant nous focaliser sur la résolution mathématique du problème pour pouvoir dégager une solution algorithme exploitable dans le cadre de notre système de détection fonctionnant à l'aide de quatres ancres et au moins un tag. Nous allons pour cela nous appuyer sur les démonstrations exposées dans les articles mentionnés précédemment.
+
+\subsubsection{Définition des notions}
+
+Étant donné que les modules UWB de Makerfabs nous permettent de récupérer les distances entre chaque ancre et le tag dont nous voulons connaître la position, et que nous pouvons obtenir les coordonnées de chaque ancre dans le repère virtuel du hub à l'aide de l'algorithme \emph{Multidimensional Scaling} (que nous aborderons par la suite), nous pouvons définir les notions suivantes :
+
+\bigskip
+
+Soit $i\in\ie{1}{4}$. On appelle $d_i$ la distance entre l'ancre $i$ et le tag de l'ouvrier. On attribue pour chaque ancre un triplet de coordonnées $(x_i, y_i, z_i)$ connues, et on note $(x, y, z)$ les coordonnées du tag ouvrier que l'on cherche à déterminer. On rappelle que l'équation d'une sphère de rayon $r$ et de centre $(x_0, y_0, z_0)$ est de la forme :
+
+\begin{equation}
+    (x-x_0)^2+(y-y_0)^2+(z-z_0)^2=r^2
+\end{equation}
+
+Étant donné que nous connaissons 
