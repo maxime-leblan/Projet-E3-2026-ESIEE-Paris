@@ -71,9 +71,14 @@ BCOR5mm, % Binding correction
 %	HEADERS
 %----------------------------------------------------------------------------------------
 
-\renewcommand{\sectionmark}[1]{\markright{\spacedlowsmallcaps{#1}}} % The header for all pages (oneside) or for even pages (twoside)
-%\renewcommand{\subsectionmark}[1]{\markright{\thesubsection~#1}} % Uncomment when using the twoside option - this modifies the header on odd pages
-\lehead{\mbox{\llap{\small\thepage\kern1em\color{halfgray} \vline}\color{halfgray}\hspace{0.5em}\rightmark\hfil}} % The header style
+%----------------------------------------------------------------------------------------
+%	ALIGNEMENT DES TITRES DE SECTION AU CENTRE
+%----------------------------------------------------------------------------------------
+\titleformat{\section}[block]
+  {\normalfont\Large\filcenter} % \filcenter permet de centrer le texte
+  {\thesection} % Affiche le numéro de la section
+  {1em} % Espace entre le numéro et le titre
+  {\spacedlowsmallcaps} % Applique le style des petites majuscules espacées typique de classicthesis
 
 \pagestyle{scrheadings} % Enable the headers specified in this block
 
@@ -85,14 +90,13 @@ BCOR5mm, % Binding correction
 % --- BANDEAU DE BAS DE PAGE ---
 
 % Active la ligne de séparation au-dessus du pied de page
-\KOMAoptions{footsepline=true} 
+\KOMAoptions{footsepline=false} 
 \addtokomafont{footsepline}{\color{halfgray}}
 
 % Configuration du pied de page centralisée et sécurisée dans une boîte
 \cfoot{\small%
     \parbox{\textwidth}{\centering%
-         Rédigé par : B.C, J.H, D.B, B.N, L.M, F.J \hfill \today \hfill 
-        \raisebox{-0.8\height}{\includegraphics[height=0.8cm]{Figures/Logo_ESIEE.png}}%
+        \raisebox{-0.8\height}{\includegraphics[height=1cm]{Figures/Logo_ESIEE.png}}%
     }
 }
 %BLONDEL.C, JOUHAUD.H, DE KEYN.B, BEN RAÏES.N, LE BLAN.M, FOUILLOUX.J 
