@@ -1,77 +1,18 @@
-% Ecriture de la partie Software du rapport
+a) Objectifs et contraintes initiales
+La dernière étape de notre projet consistait à concevoir une enveloppe physique pour protéger nos cartes électroniques. L'objectif était de créer un boîtier sur mesure, imprimable en 3D, capable d'accueillir notre circuit imprimé tout en laissant un accès aux connectiques.
+Cependant, cette phase comportait une contrainte : nous étions dans l'obligation d'attendre la fin de la conception du PCB sous KiCad. En effet, la moindre modification du placement des composants ou des trous de fixation sur la carte avait un impact direct sur la géométrie de notre futur boîtier.
+b) Découverte de l'outil et problématiques de prise en main
+Pour réaliser cette modélisation, nous avons choisi d'utiliser le logiciel Autodesk Fusion 360. La modélisation 3D était une étape relativement nouvelle pour nous, car personne n'avait d'expérience préalable dans ce domaine. 
+La prise en main du logiciel s'est avérée complexe. Face au peu de tutoriels disponibles pour nous accompagner spécifiquement sur l'intégration d'une carte électronique dans un boîtier imprimable, nous avons procédé par itération. Nous avons donc décidé de réaliser une "boîte test" pour commencer. Ce premier essai nous a permis de comprendre le fonctionnement de l'espace de travail, la gestion de l'historique de conception, et l'utilisation des outils de base tels que les esquisses 2D et les extrusions.
+c) Schéma général de conception : La méthode "Top-Down"
+Une fois familiarisés avec Fusion 360, nous avons pu mettre en place une méthodologie plus rigoureuse appelée conception "Top-Down". Au lieu de modéliser le boîtier à l'aveugle, nous avons importé le modèle 3D de notre carte électronique (le fichier .STEP généré par KiCad) directement au centre de notre espace de travail. 
 
-Afin d'être capable d'estimer avec précision la position du compagnon en temps réel tout en étant capable de retranscrire l'information le plus rapidement possible et de la manière la plus exacte, nous avons divisé le travail à effectuer sur la partie software en plusieurs parties :
+Voici les fonctions clés que nous avons utilisées pour construire le boîtier autour d'elle :
+L'outil Projeter (Raccourci P) : Cet outil a été fondamental dans notre conception. Il nous a permis de "calquer" le contour exact de la carte électronique sur le fond ou le couvercle de notre boîtier. Cela nous a permis de garantir que les trous de fixation pour les vis soient positionnés au millimètre près pour l’assemblage et l'impression 3D.
 
-\begin{itemize}
-    \item L'implémentation d'un repère virtuel en trois dimensions permettant au Hub de se représenter l'emplacement des Ancres, des Tags portés par les compagnons ainsi que la délimitation de la zone de sécurité de l'engin.
-    \item La recherche puis l'implémentation d'algorithmes dont l'objectif est de situer précisément dans le repère du Hub la position des compagnons ainsi que la distance de chacun d'entre eux par rapport à l'engin de chantier.
-    \item L'écriture d'un programme de retranscription visuel du repère virtuel du Hub sur l'écran du conducteur de l'engin de chantier afin de pouvoir visualiser toutes les informations collectées par le Hub de la manière la plus concise et claire possible. Ce programme doit également permettre au conducteur de pouvoir personnaliser la zone de sécurité de l'engin quand il le souhaite, ce qui implique une interface utilisateur simple et épurée.
-    \item L'implémentation des programmes permettant de faire communiquer les microcontroleurs ESP32-S3 (Ancres et Tags) avec l'ESP32-WROVER-E (Hub) ainsi que des programmes permettant de faire la liaison entre les librairies contenant les algorithmes de calcul mathématiques liés au repère en trois dimensions et le Hub.
-\end{itemize}
-\bigskip % Pour sauter une ligne
-Nous allons donc dans un premier temps nous intéresser à l'implémentation du repère en lui-même et du programme de visualisation du repère que nous avons utilisé pour vérifier le bon fonctionnement de nos différents algorithmes mathématiques de manipulation d'objets au sein d'espaces vectoriels.
+L'outil Décalage (Offset) : À partir du contour projeté, nous avons défini l'épaisseur des murs extérieurs. Nous avons opté pour une épaisseur de 2.5 mm. Cette valeur a été choisie en fonction des recherches que nous avons effectuées sur le rechargement sans fil mais aussi sur les caractéristiques techniques des imprimantes 3D qui étaient à notre disposition.
+d) Assemblage et système de fermeture
+La problématique majeure de notre modélisation était de concevoir un système permettant de maintenir la carte fermement au fond du boîtier, tout en ayant un couvercle vissable et démontable.
+Pour ce faire, nous avons modélisé des pylônes de fixation directement fusionnés aux quatre coins intérieurs de la boîte. L'outil d’Extrusion a été paramétré sur l'opération "Joindre" pour que ces piliers de 8 mm de diamètre fassent corps avec les murs.
+Ensuite, nous devions percer ces piliers pour le passage des vis. Nous avons utilisé de nouveau l'outil Extrusion, mais cette fois-ci avec l'opération "Couper", pour vider le centre des pylônes avec un diamètre de 3.2 mm. Ce diamètre correspond aux vis M3 standard que nous avons utilisées.
 
-\subsection{Repère du Hub en trois dimensions}
-
-L'objectif étant de déterminer de la manière la plus exacte possible la position d'un Tag par rapport à notre engin de chantier, il faut donc que notre système utilise un repère auquel le Hub pourrait se réferrer pour pouvoir positionner les Ancres fixées sur le véhicule, les Tags des compagnons ainsi que la zone de sécurité autour du véhicule.
-
-Pour l'implémentation de ce dispositif, nous avons dans un premier temps rédigé une librairie allégée dénommée {\ttfamily{V3.h}} permettant de représenter des vecteurs en trois dimensions, puis nous avons utilisé le paradigme de la \uline{Programmation Orientée Objets (POO)} afin de modéliser les classes suivantes :
-
-\begin{itemize}
-    \item {\ttfamily{\textbf{UWBModule}}} : Cette classe permet de représenter à la fois les Tags ainsi que les Ancres en stockant comme information pour chaque module son identifiant et sa position.
-    \item {\ttfamily{\textbf{UWBModuleList}}} : Cette classe stocke plusieurs module UWB dans une même structure de données, permettant ainsi d'effectuer des manipulations sur l'ensemble des Ancres et des Tags connus du Hub. Afin de garantir un accès efficace aux données, la structure de données de dictionnaire native en {\ttfamily{C++ <unordered\_map.h>}} a été utilisée afin de garantir un accès aux données avec une complexité temporelle en {\emph{O(1)}}.
-\end{itemize}
-\bigskip
-<Inclure un schéma représentant la structure des 2 classes>
-\bigskip
-
-Pour la librairie {\ttfamily{V3.h}}, nous avons uniquement implémenté les fonctions mathématiques de base dont nous avions besoin afin de limiter la place prise par la librairie sur la Flash des ESP32. Nous avons donc écris le code des fonctions suivantes :
-
-\begin{itemize}
-    \item {\ttfamily{\textbf{getNormalised()}}} : Renvoie le vecteur normalisé du vecteur sur lequel la méthode a été appelé.
-    \item {\ttfamily{\textbf{prodScal(const V3 \& a, const V3 \& b)}}} : Renvoie le produit scalaire canonique en trois dimensions du vecteur {\ttfamily{a}} et le vecteur {\ttfamily{b}}.
-    \item {\ttfamily{\textbf{prodScal2D(const V3 \& a, const V3 \& b)}}} : Renvoie le produit scalaire canonique en deux dimensions du vecteur {\ttfamily{a}} et le vecteur {\ttfamily{b}}.
-    \item {\ttfamily{\textbf{prodVect(const V3 \& a, const V3 \& b)}}} : Renvoie le produit vectoriel du vecteur {\ttfamily{a}} et le vecteur {\ttfamily{b}}. 
-\end{itemize}
-
-\subsection{Visualisation 3D}
-
-Afin de pouvoir mieux visualiser la représentation des positions des Ancres et des Tags dans le repère du Hub, nous avons mis en place un programme simple permettant de générer une image en trois dimensions de tous les points enregistrés par le Hub. Pour cela, nous avons utilisé la librairie externe {\ttfamily{<raylib.h>}} qui est téléchargeable depuis le web sur le terminal de commandes Linux. Nous l'avons utilisée pour implémenter notre programme de visualisation 3D dans notre librairie {\ttfamily{3DVisualisation.hpp}}.
-
-\begin{figure}[!ht]
-\centering 
-\includegraphics[width=0.5\columnwidth]{exemple_raylib.png} 
-\caption[calibrage Ancres de base]{Exemple d'affichage de points et de segments avec la librairie {\ttfamily{<raylib.h>}}}
-\end{figure}
-
-
-
-\subsection{Algorithme de Trilatération}
-
-Le choix de la technologie UWB ayant été effectué par notre équipe, nous savons donc que notre système est capable de récupérer les distances entre chaque ancre et chaque tag comportant un module UWB. Seulement, pour pouvoir répondre au cahier des charges que nous avons établi, notre système a besoin de pouvoir situer de la manière la plus précise et la plus conforme à la réalité possible la position relative de l'ouvrier par rapport au véhicule et à sa zone de sécurité.
-C'est pourquoi nous avons effectué différentes recherches pour établir la liste des algorithmes existants qui seraient les plus aptes à répondre à notre problématique tout en étant capable d'exploiter au mieux les données récoltées par notre système. La technologie UWB existant depuis plusieurs décennies, nous avons donc pu obtenir une quantité importante d'articles traitant notre problème de calcul d'une position dans un repère en trois dimensions, et l'algorithme qui est le plus ressorti est celui de la Trilatération par la méthode des Moindres Carrés.
-
-Le premier article de recherche ayant retenu notre attention est intitulé \emph{Lübeck University of Applied Sciences: Technical Report 2015} de Mathias Pelka. Ce court article se focalise principalement sur la résolution mathématique d'un système comportant les quatres équations des sphères ayant pour rayon la distance entre une des quatres ancres et le tag de l'ouvrier. Il fournit également un exemple d'implémentation de cet algorithme avec MATHLAB.
-
-Le deuxième article intitulé \emph{UWB-Based Real-Time Indoor Positioning Systems: A
-Comprehensive Review} détaille quant à lui les différentes méthodes pour effectuer la trilatération en incluant la méthode des moindres carrés, et explicite l'équation matricielle théorique finale découlant de la résolution du système d'équations établi dans le premier article, et que l'on obtient pour pouvoir calculer algorithmiquement les coordonnées d'un tag.
-
-En ce qui concerne l'application de la méthode des Moindres Carrés pour obtenir l'équation matricielle que nous avons utilisée dans notre algorithme, nous nous sommes basés sur des extraits d'exemple d'application de la méthode sur des problèmes d'optimisation prsésentés par l'Université de Stanford et l'UCLA dans le document \emph{Introduction to Applied Linear Algebra – Vectors, Matrices, and Least Squares (Chapitre 8 : Least Squares)}. L'application du gradient sur l'équation matricielle d'origine est également détaillée dans un cours d'informatique du MIT intitulé \emph{Least squares and the normal equations} et rédigé par Alex Townsend.
-
-\bigskip
-
-Nous allons maintenant nous focaliser sur la résolution mathématique du problème pour pouvoir dégager une solution algorithme exploitable dans le cadre de notre système de détection fonctionnant à l'aide de quatres ancres et au moins un tag. Nous allons pour cela nous appuyer sur les démonstrations exposées dans les articles mentionnés précédemment.
-
-\subsubsection{Définition des notions}
-
-Étant donné que les modules UWB de Makerfabs nous permettent de récupérer les distances entre chaque ancre et le tag dont nous voulons connaître la position, et que nous pouvons obtenir les coordonnées de chaque ancre dans le repère virtuel du hub à l'aide de l'algorithme \emph{Multidimensional Scaling} (que nous aborderons par la suite), nous pouvons définir les notions suivantes :
-
-\bigskip
-
-Soit $i\in\ie{1}{4}$. On appelle $d_i$ la distance entre l'ancre $i$ et le tag de l'ouvrier. On attribue pour chaque ancre un triplet de coordonnées $(x_i, y_i, z_i)$ connues, et on note $(x, y, z)$ les coordonnées du tag ouvrier que l'on cherche à déterminer. On rappelle que l'équation d'une sphère de rayon $r$ et de centre $(x_0, y_0, z_0)$ est de la forme :
-
-\begin{equation}
-    (x-x_0)^2+(y-y_0)^2+(z-z_0)^2=r^2
-\end{equation}
-
-Étant donné que nous connaissons 
