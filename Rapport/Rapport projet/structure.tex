@@ -64,7 +64,13 @@ dottedtoc % Dotted lines leading to the page numbers in the table of contents
 %	THEOREM STYLES
 %---------------------------------------------------------------------------------------
 
-\geometry{hmargin=2.5cm,vmargin=1.5cm}
+\geometry{
+    hmargin=2.5cm,
+    top=3cm,          % Écrase le vmargin par défaut en haut
+    bottom=1.5cm,     % Conserve tes 1.5cm en bas
+    headheight=25pt,  % Donne de l'air à ton en-tête ESIEE
+    headsep=20pt      % Pousse le texte vers le bas
+}
 \theoremstyle{definition} % Define theorem styles here based on the definition style (used for definitions and examples)
 \newtheorem{definition}{Definition}
 
