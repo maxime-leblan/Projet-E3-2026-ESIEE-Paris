@@ -56,6 +56,10 @@ dottedtoc % Dotted lines leading to the page numbers in the table of contents
 % Pour inclure une image à un endroit précis entre 2 textes
 \usepackage{float}
 
+% Pour pouvoir écrire une commande générant des intervalles mathématiques d'entiers
+\usepackage{mathtools, stmaryrd}
+\usepackage{xparse}
+
 %----------------------------------------------------------------------------------------
 %	THEOREM STYLES
 %---------------------------------------------------------------------------------------
@@ -84,3 +88,9 @@ pdfkeywords={}, % PDF Keywords
 pdfcreator={pdfLaTeX}, % PDF Creator
 pdfproducer={LaTeX with hyperref and ClassicThesis} % PDF producer
 }
+
+%----------------------------------------------------------------------------------------
+%	COMMANDS
+%---------------------------------------------------------------------------------------
+
+\DeclarePairedDelimiterX{\ie}[2]{\llbracket}{\rrbracket}{#1\mkern1.5mu;\mkern1.5mu#2}
