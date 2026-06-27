@@ -16,3 +16,4 @@ build/
 *.pdf
 *.bbl
 *.blg
+*.synctex(busy)
