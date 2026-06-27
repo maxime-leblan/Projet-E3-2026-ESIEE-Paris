@@ -51,11 +51,27 @@ Afin de pouvoir mieux visualiser la représentation des positions des Ancres et 
 Le choix de la technologie UWB ayant été effectué par notre équipe, nous savons donc que notre système est capable de récupérer les distances entre chaque ancre et chaque tag comportant un module UWB. Seulement, pour pouvoir répondre au cahier des charges que nous avons établi, notre système a besoin de pouvoir situer de la manière la plus précise et la plus conforme à la réalité possible la position relative de l'ouvrier par rapport au véhicule et à sa zone de sécurité.
 C'est pourquoi nous avons effectué différentes recherches pour établir la liste des algorithmes existants qui seraient les plus aptes à répondre à notre problématique tout en étant capable d'exploiter au mieux les données récoltées par notre système. La technologie UWB existant depuis plusieurs décennies, nous avons donc pu obtenir une quantité importante d'articles traitant notre problème de calcul d'une position dans un repère en trois dimensions, et l'algorithme qui est le plus ressorti est celui de la Trilatération par la méthode des Moindres Carrés.
 
-Le premier article ayant retenu notre attention est intitulé \emph{Lübeck University of Applied Sciences: Technical Report 2015} de Mathias Pelka. Ce court article se focalise principalement sur la résolution mathématique d'un système comportant les quatres équations des sphères ayant pour rayon la distance entre une des quatres ancres et le tag de l'ouvrier. Il fournit également un exemple d'implémentation de cet algorithme avec MATHLAB.
+Le premier article de recherche ayant retenu notre attention est intitulé \emph{Lübeck University of Applied Sciences: Technical Report 2015} de Mathias Pelka. Ce court article se focalise principalement sur la résolution mathématique d'un système comportant les quatres équations des sphères ayant pour rayon la distance entre une des quatres ancres et le tag de l'ouvrier. Il fournit également un exemple d'implémentation de cet algorithme avec MATHLAB.
 
-Le second article intitulé \emph{UWB-Based Real-Time Indoor Positioning Systems: A
-Comprehensive Review} détaille quant à lui les différentes méthodes pour effectuer la trilatération en incluant la méthode des moindres carrés, et explicite l'équation matricielle finale découlant de la résolution du système d'équations établi dans le premier article, et que l'on obtient pour pouvoir calculer algorithmiquement les coordonnées d'un tag.
+Le deuxième article intitulé \emph{UWB-Based Real-Time Indoor Positioning Systems: A
+Comprehensive Review} détaille quant à lui les différentes méthodes pour effectuer la trilatération en incluant la méthode des moindres carrés, et explicite l'équation matricielle théorique finale découlant de la résolution du système d'équations établi dans le premier article, et que l'on obtient pour pouvoir calculer algorithmiquement les coordonnées d'un tag.
+
+En ce qui concerne l'application de la méthode des Moindres Carrés pour obtenir l'équation matricielle que nous avons utilisée dans notre algorithme, nous nous sommes basés sur des extraits d'exemple d'application de la méthode sur des problèmes d'optimisation prsésentés par l'Université de Stanford et l'UCLA dans le document \emph{Introduction to Applied Linear Algebra – Vectors, Matrices, and Least Squares (Chapitre 8 : Least Squares)}. L'application du gradient sur l'équation matricielle d'origine est également détaillée dans un cours d'informatique du MIT intitulé \emph{Least squares and the normal equations} et rédigé par Alex Townsend.
 
 \bigskip
 
-Nous allons maintenant nous focaliser sur la résolution mathématique du problème pour pouvoir dégager une solution algorithme exploitable dans le cadre de notre système de détection fonctionnant à l'aide de quatres ancres et au moins un tag.
+Nous allons maintenant nous focaliser sur la résolution mathématique du problème pour pouvoir dégager une solution algorithme exploitable dans le cadre de notre système de détection fonctionnant à l'aide de quatres ancres et au moins un tag. Nous allons pour cela nous appuyer sur les démonstrations exposées dans les articles mentionnés précédemment.
+
+\subsubsection{Définition des notions}
+
+Étant donné que les modules UWB de Makerfabs nous permettent de récupérer les distances entre chaque ancre et le tag dont nous voulons connaître la position, et que nous pouvons obtenir les coordonnées de chaque ancre dans le repère virtuel du hub à l'aide de l'algorithme \emph{Multidimensional Scaling} (que nous aborderons par la suite), nous pouvons définir les notions suivantes :
+
+\bigskip
+
+Soit $i\in\ie{1}{4}$. On appelle $d_i$ la distance entre l'ancre $i$ et le tag de l'ouvrier. On attribue pour chaque ancre un triplet de coordonnées $(x_i, y_i, z_i)$ connues, et on note $(x, y, z)$ les coordonnées du tag ouvrier que l'on cherche à déterminer. On rappelle que l'équation d'une sphère de rayon $r$ et de centre $(x_0, y_0, z_0)$ est de la forme :
+
+\begin{equation}
+    (x-x_0)^2+(y-y_0)^2+(z-z_0)^2=r^2
+\end{equation}
+
+Étant donné que nous connaissons 
