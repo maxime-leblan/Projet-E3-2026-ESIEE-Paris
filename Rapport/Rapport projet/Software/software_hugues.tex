@@ -34,7 +34,7 @@ Une fois les points centrés sur ce barycentre, nous calculons leur matrice de c
 
 Une fois le plan mathématique établi, la fonction \texttt{echantillonner64Points} est employée pour uniformiser la géométrie de la zone. Les contraintes matérielles liées à l'utilisation des microcontrôleurs ESP32 nécessitent de travailler avec des structures de données de taille fixe afin de garantir un temps de calcul constant ($\mathcal{O}(1)$ en allocation). 
 
-La taille du polygone a ainsi été fixée à 64 points. Cette valeur n'est pas arbitraire : elle correspond à un compromis optimal offrant une résolution visuelle suffisamment fine pour l'affichage sur l'écran de l'interface utilisateur de l'engin, tout en minimisant la charge mémoire. De plus, sur ces 64 points, l'algorithme ne calcule par interpolation que 62 points intermédiaires. Le point d'indice 0 est le point de départ projeté, et le 64\textsuperscript{ème} point (indice 63) est strictement identique au premier, garantissant ainsi la fermeture parfaite du polygone géométrique.
+La taille du polygone a ainsi été fixée à 64 points. Cette valeur n'est pas arbitraire : elle correspond à un compromis optimal offrant une résolution visuelle suffisamment fine pour l'affichage sur l'écran de l'interface utilisateur de l'engin, tout en minimisant la charge mémoire. De plus, sur ces 64 points, l'algorithme ne calcule par interpolation que 63 points intermédiaires. Le point d'indice 0 est le point de départ projeté, et le 64\textsuperscript{ème} point (indice 63) est strictement identique au premier, garantissant ainsi la fermeture parfaite du polygone géométrique.
 
 L'algorithme opère selon le processus suivant :
 
