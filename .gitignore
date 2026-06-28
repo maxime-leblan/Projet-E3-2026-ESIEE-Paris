@@ -17,3 +17,5 @@ build/
 *.bbl
 *.blg
 *.synctex(busy)
+*.bbl
+*.blg

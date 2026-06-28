@@ -151,7 +151,7 @@ Pour pouvoir réduire au maximum les incertitudes liées aux mesures de nos dist
    \right.
 \]
 
-En repassant dans le domaine matriciel, on peut réécrire à nouveau les matrices $A$ et $B$, de taille $6 \times 3$ cette fois-ci, de la manière suivante : 
+En repassant dans le domaine matriciel, on peut réécrire à nouveau les matrices $A$ et $B$, avec cette fois-ci $A$ de taille $6 \times 3$ et $B$ un vecteur de taille $6 \times 1$, de la manière suivante : 
 
 \bigskip
 
@@ -202,7 +202,7 @@ Comme $X^T A^T B$ est un nombre scalaire (une matrice de taille $1 \times 1$), i
    \Rightarrow S(X) = X^T A^T A X - 2 X^T A^T B + B^T B
 \end{equation}
 
-Étant donné que l'on cherchait à l'origine à minimiser $S(X)$, on va donc chercher à déterminer la solution de l'équation $\nabla S(X)=0$. On en déduit l'équation matricielle suivante :
+Étant donné que l'objectif consistait à l'origine à minimiser $S(X)$, nous allons donc chercher à déterminer la solution de l'équation $\nabla S(X)=0$. On en déduit l'équation matricielle suivante :
 
 \begin{equation}
    \Rightarrow \nabla_X S(X) = 2 A^T A X - 2 A^T B
@@ -218,3 +218,18 @@ On peut ensuite isoler $X$ pour en déduire les coordonnées finales du tag ouvr
    X = (A^T A)^{-1} A^T B
 \end{equation}
 
+\subsubsection{Implémentation de l'algorithme}
+
+Pour pouvoir mettre en oeuvre cet algorithme dans le code de notre projet, nous avons créé la librairie {\ttfamily{Trilateration.h}}. Cette librairie utilise la librairie {\ttfamily{Eigen}} qui est spécialement optimisé pour les calculs matriciels en {\ttfamily{C++}} afin de limiter la complexité temporelle et spatial de ces calculs. Notre librairie {\ttfamily{Trilateration.h}} contient donc les fonctions suivantes :
+
+\begin{itemize}
+   \item {\ttfamily{initMatrixA()}} : Cette fonction initialise la matrice $A$ de l'équation $(13)$ dans la variable globale {\ttfamily{gA}}.
+   \item {\ttfamily{initMatrixB()}} : Cette fonction initialise la matrice $B$ de l'équation $(13)$ dans la variable globale {\ttfamily{gB}}.
+   \item {\ttfamily{trilateration3D(UWBModuleList \& pAnchors,\allowbreak unordered\_map<int, float> pDistances)}} : Cette fonction renvoie des coordonnées de type {\ttfamily{V3}} correspondant au tag dont l'on veut connaître la position.
+\end{itemize}
+
+Nous venons donc de voir la méthode utilisée par notre système pour déterminer la position exacte du tag dans le repère virtuel du hub. Cependant, comme précisé dans l'introduction de la méthode, nous avons besoin de connaître les coordonnées de chaque ancres $(x_i, y_i, z_i)$ dans le repère virtuel du hub. Pour que les distances entre les ancres sur le véhicule de chantier correspondent avec les distances entre les ancres dans le repère virtuel du hub, nous devons donc implémenter un algorithme chargé de déterminer les coordonnées de chaque ancre. C'est ce que nous allons donc aborder dans la partie suivante.
+
+\subsection{Algorithme de Multidimensional Scaling}
+
+L'algorithme de \emph{Multidimensional Scaling} consiste pour résumer à appliquer l'algorithme de la descente de gradient en prenant comme fonction de coût la fonction \emph{Stress} dont l'élaboration et l'utilisation sont explicitées par le mathématicien J. B. KRUSKAL dans son article paru en 1964 intitulé \emph{Multidimensional scaling by optimizing goodness of fit to a nonmetric hypothesis}.
