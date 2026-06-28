@@ -56,7 +56,7 @@ Le premier article de recherche ayant retenu notre attention est intitulé \emph
 Le deuxième article intitulé \emph{UWB-Based Real-Time Indoor Positioning Systems: A
 Comprehensive Review} détaille quant à lui les différentes méthodes pour effectuer la trilatération en incluant la méthode des moindres carrés, et explicite l'équation matricielle théorique finale découlant de la résolution du système d'équations établi dans le premier article, et que l'on obtient pour pouvoir calculer algorithmiquement les coordonnées d'un tag.
 
-En ce qui concerne l'application de la méthode des Moindres Carrés pour obtenir l'équation matricielle que nous avons utilisée dans notre algorithme, nous nous sommes basés sur des extraits d'exemple d'application de la méthode sur des problèmes d'optimisation prsésentés par l'Université de Stanford et l'UCLA dans le document \emph{Introduction to Applied Linear Algebra – Vectors, Matrices, and Least Squares (Chapitre 8 : Least Squares)}. L'application du gradient sur l'équation matricielle d'origine est également détaillée dans un cours d'informatique du MIT intitulé \emph{Least squares and the normal equations} et rédigé par Alex Townsend.
+En ce qui concerne l'application de la méthode des Moindres Carrés pour obtenir l'équation matricielle que nous avons utilisée dans notre algorithme, nous nous sommes basés sur des extraits d'exemple d'application de la méthode sur des problèmes d'optimisation présentés par l'Université de Stanford et l'UCLA dans le document \emph{Introduction to Applied Linear Algebra – Vectors, Matrices, and Least Squares (Chapitre 8 : Least Squares)}. L'application du gradient sur l'équation matricielle d'origine est également détaillée dans un cours d'informatique du MIT intitulé \emph{Least squares and the normal equations} et rédigé par Alex Townsend.
 
 \bigskip
 
@@ -230,6 +230,61 @@ Pour pouvoir mettre en oeuvre cet algorithme dans le code de notre projet, nous 
 
 Nous venons donc de voir la méthode utilisée par notre système pour déterminer la position exacte du tag dans le repère virtuel du hub. Cependant, comme précisé dans l'introduction de la méthode, nous avons besoin de connaître les coordonnées de chaque ancres $(x_i, y_i, z_i)$ dans le repère virtuel du hub. Pour que les distances entre les ancres sur le véhicule de chantier correspondent avec les distances entre les ancres dans le repère virtuel du hub, nous devons donc implémenter un algorithme chargé de déterminer les coordonnées de chaque ancre. C'est ce que nous allons donc aborder dans la partie suivante.
 
+\textbf{<RAJOUTER DES IMAGES>}
+
 \subsection{Algorithme de Multidimensional Scaling}
 
-L'algorithme de \emph{Multidimensional Scaling} consiste pour résumer à appliquer l'algorithme de la descente de gradient en prenant comme fonction de coût la fonction \emph{Stress} dont l'élaboration et l'utilisation sont explicitées par le mathématicien J. B. KRUSKAL dans son article paru en 1964 intitulé \emph{Multidimensional scaling by optimizing goodness of fit to a nonmetric hypothesis}.
+L'algorithme de \emph{Multidimensional Scaling} consiste pour résumer à appliquer l'algorithme de la descente de gradient en prenant comme fonction de coût la fonction \emph{Stress} dont l'élaboration et l'utilisation sont explicitées par le mathématicien J. B. KRUSKAL dans son article paru en 1964 intitulé \emph{Multidimensional scaling by optimizing goodness of fit to a nonmetric hypothesis}. Un résumé de l'ensemble des recherches autour de cet algorithme a été élaboré dans l'article intitulé \emph{The Past, Present, and Future of Multidimensional Scaling}, co-écris par Patrick J.F. Groenen et Ingwer Borg et paru en 2013. 
+
+Pour résumer, l'objectif de cet algorithme au sein de notre système est de déterminer, à chaque itération de celui-ci, si les distances entre chaque ancre calculées à l'aide des coordonnées des ancres du repère virtuel stocké dans le hub correspondent bien aux distances mesurées par les modules UWB des ancres. Si ce n'est pas le cas, l'algorithme va légèrement modifier les positions de chaque ancre dans le repère du hub pour que les distances calculées par le hub se rapprochent le plus possible des distances réelles entre les ancres.
+
+Nous allons dans un premier temps définir les notions liées à l'algorithme avant d'expliciter les procédés mathématiques qui y sont utilisés.
+
+\subsubsection{Définition des notions}
+
+\begin{definition}
+   Soit $X = [X_1, X_2, X_3, X_4]^T$ la matrice contenant les coordonnées 3D des quatres ancres, tel que pour tout $ (i,j) \in \ie{1}{4}^2, X_i = (x_i, y_i, z_i) \in \mathbb{R}^3$. Notons $d_{ij}$ la distance mesurée entre l'ancre $i$ et l'ancre $j$, et $\hat{d}_{ij}(X)$ la distance euclidienne calculée à partir des coordonnées actuelles. Alors on définit $\hat{d}_{ij}(X)$ tel que :
+   
+   $$\hat{d}_{ij}(X) = \|X_i - X_j\|_2 = \sqrt{(x_i - x_j)^2 + (y_i - y_j)^2 + (z_i - z_j)^2}$$
+\end{definition}
+
+\begin{definition}
+   On appelle fonction de \emph{Stress} la fonction $E:M_{4,3}(\mathbb{R})\rightarrow\mathbb{R}$ et qui est définie par :
+
+   $$E(X) = \frac{1}{2} \sum_{i=1}^{4} \sum_{j \neq i} \left( \hat{d}_{ij}(X) - d_{ij} \right)^2$$
+
+   Cette fonction correspond à la fonction de coût que nous allons utiliser par la suite pour la descente de gradient.
+\end{definition}
+
+\subsubsection{Descente de gradient}
+
+Afin de pouvoir appliquer l'algorithme de la descente de gradient pour l'algorithme du \emph{Multidimensional Scaling}, nous devons dans un premier temps calculer le gradient de la fonction de coût choisie, qui est donc ici la fonction de \emph{Stress}. En appliquant les règles de dérivation des fonctions composées, on obtient l'équation suivante :
+
+$$\nabla_{X_i} E(X) = \sum_{j \neq i} \left( \hat{d}_{ij}(X) - d_{ij} \right) \cdot \nabla_{X_i} \hat{d}_{ij}(X)$$
+
+On peut ensuite calculer le gradient par rapport à $X_i$ de la distance $\hat{d}_{ij}(X)$ calculée par le hub :
+
+$$\nabla_{X_i} \hat{d}_{ij}(X) = \nabla_{X_i} \|X_i - X_j\|_2 = \frac{X_i - X_j}{\|X_i - X_j\|_2}$$
+
+On réinjecte le résultat dans l'équation d'origine, ce qui nous donne l'équation finale suivante : 
+
+\begin{equation}
+   \nabla_{X_i} E(X) = \sum_{j \neq i} \left( \hat{d}_{ij}(X) - d_{ij} \right) \cdot \frac{X_i - X_j}{\|X_i - X_j\|_2}
+\end{equation}
+
+Soient $n \in \mathbb{N}$ le nombre d'itérations effectuées par l'algorithme de la descente de gradient et $\alpha \in \mathbb{R}$ la vitesse d'apprentissage de l'algorithme. Pour tout $k \in \ie{1}{n}$, $X_i^{(k)}$ correspond à la valeur de $X_i$ à la $k$-ième itération. L'algorithme applique donc en boucle pour chaque ensemble de coordonnées, en fonction du nombre d'itérations passé en paramètre, le calcul présenté ci-dessous : 
+
+$$X_i^{(k+1)} = X_i^{(k)} - \alpha \cdot \nabla_{X_i} E(X^{(k)})$$
+
+\subsubsection{Implémentation de l'algorithme}
+
+Afin de simplifier les calculs effectués par l'ESP32-WROVER-E du hub lors de l'exécution de l'algorithme, nous avons réécris l'équation $(13)$ de la manière suivante dans notre programme :
+
+$$\nabla_{X_i} E(X) = \sum_{j \neq i} (X_i - X_j) \cdot \left( \frac{\hat{d}_{ij}(X) - d_{ij}}{\hat{d}_{ij}(X)} \right)$$
+
+Nous avons donc utilisé cette équation dans notre programme implémentant l'algorithme de \emph{Multidimensional Scaling}, avec comme paramètres $n=1000$ et $\alpha=0.01$. Nous avons créé la librairie {\ttfamily{GridLibrary.hpp}} dans laquelle nous avons implémenté l'algorithme dans la fonction {\ttfamily{initAnchorsCoordinatesWithGD}}.
+
+\textbf{<RAJOUTER DES IMAGES>}
+
+\subsection{Algorithme de changement de base}
+
