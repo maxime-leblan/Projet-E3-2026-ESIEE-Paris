@@ -67,6 +67,41 @@ Cette mise en place fractionnée, où les membres étaient concentrés sur une p
 
 \subsection{Cahier des charges fonctionnel}
 
+\subsubsection{Présentation générale et objectifs}
+Le projet VigiZone a pour objectif principal d'assurer la sécurité des ouvriers sur les chantiers en prévenant les collisions mortelles entre les employés et les engins de chantier.
+Une zone de sécurité doit pouvoir être délimitée au préalable autour de l’engin.
+Le système embarqué doit être capable de localiser les piétons autour d'une machine et d'alerter à la fois le conducteur et le piéton en cas de pénétration dans la zone dangereuse.
+
+\subsubsection{Architecture du système}
+Le dispositif VigiZone repose sur une architecture structurée autour de trois sous-systèmes interdépendants :
+Le hub central : unité centrale avec écran et alarme, située dans la cabine de l'engin, qui calcule les distances et déclenche les alarmes.
+Le boîtier véhicule (ancres) : capteurs disposés sur l'engin pour la localisation des ouvriers.
+Le boîtier ouvrier (tag) : équipement de protection individuelle porté par l'ouvrier sur son casque doté d’une alarme.
+
+\subsubsection{Détails du rôle des sous-systèmes}
+
+Le rôle du hub central est de fusionner les données et de calculer des distances par trilatération grâce aux informations captées par chaque ancre. En cas d'intrusion dans un périmètre critique, une alarme sonore prévient immédiatement le conducteur de la machine, et transmet au tag de l’ouvrier l’ordre d’activer l’alarme sonore également. 
+Un écran dans la cabine affiche la position du tag détecté par rapport à l’engin. Le système est alimenté directement par la batterie du véhicule. Afin de permettre aux tags ouvriers de se mettre régulièrement en veille, la distance relative à la zone de sécurité est transmise aux différents tags régulièrement. L’appairage Wi-fi avec l’application mobile se lance grâce au bouton de mise en route lorsque le système est déjà allumé. 
+Si un tag ouvrier est détecté dans la zone correspondant au véhicule même, il est considéré comme étant celui du conducteur et ne déclenche pas l’alarme. Le hub détecte toujours la présence d’un conducteur via son tag. Si le conducteur est absent pendant plus de deux heures, le système coupe son alimentation, et doit être rallumé grâce à un bouton-poussoir lors de la prochaine utilisation.
+
+Le rôle des ancres autour du véhicule est de localiser le tag ouvrier et de transmettre les données par câble.
+
+Le rôle du tag ouvrier est de prévenir l’ouvrier par alarme sonore un risque de collision avec un engin. L’alarme sonore doit être assez puissante pour garantir que l'ouvrier entend l'alerte malgré le bruit ambiant du chantier. Le dispositif est ultra-compact et accroché au casque ou à la ceinture par clips ou aimants. Il est alimenté par une batterie avec un système de recharge sans fil, évitant l'usure de connecteurs mécaniques en milieu poussiéreux. Il n’a pas de bouton pour éviter un arrêt volontaire ou involontaire et s’allume dès qu’il n’est pas en charge. Le tag se met en veille profonde la plupart du temps en fonction de sa distance à la zone de sécurité du véhicule le plus proche. Son autonomie serait donc entre 8h et 48h en fonction de la distance par rapport à un véhicule.
+
+\subsubsection{Installation et étalonnage}
+Les quatre ancres doivent être positionnées aussi loin que possible les unes des autres sur l’armature du véhicule, aimantées par exemple, avec un environnement le plus dégagé possible en direction de la zone à détecter. Elles sont reliées en série par un câble transportant l’alimentation et la communication par quatre fils.
+Afin de fonctionner correctement l’unité centrale a besoin de mesurer avec précision : la distance entre chaque ancre du véhicule afin de calculer la position des tags et l’inclinaison par rapport à la gravité. Ces deux premières mesures devraient être accessibles directement, mais requièrent potentiellement un étalonnage ponctuel en fonction de la masse métallique du véhicule.
+
+\subsubsection{Applications mobiles}
+Le système est muni d’une application mobile permettant la visualisation en temps réel des détections en cours, et de l’état des appareils (batterie, distances, alarme) à des fins de maintenance. Il sera également possible à tout moment de récupérer les journaux du système des dernières 48h en cas d’accident afin d’apporter des preuves quant à une défaillance ou non du système. La connexion au système se fera par Wi-fi dans un rayon de 5 mètres autour de l’unité centrale.
+
+\subsubsection{Contraintes physiques et environnementales}
+Tous les boîtiers doivent être étanches et résistants aux chocs pour ne pas être endommagés face aux conditions extérieures comme l’eau, la pluie, la poussière, la boue ou encore des projections de béton. De plus, il doit fonctionner pour des températures allant de -20°C à +60°C selon les environnements ainsi que les périodes de l’année.
+
+\subsubsection{Estimation budgétaire}
+Le coût total du matériel pour la validation du système est estimé à environ 600 €.
+
+
 \subsection{Choix de la technologie}
 
 Lors de nos premières réunions avec GTM OUEST, la consigne de départ était qu'il fallait idéalement trouver une solution pour protéger les ouvriers sans avoir à les équiper d'un dispositif supplémentaire (sans EPI). Nous avons donc d'abord exploré des technologies capables de détecter des personnes non équipées de manière passive, comme le LiDAR couplé à une caméra IA, ou encore le radar millimétrique (mmWave).
@@ -82,6 +117,13 @@ Face à ces coûts très élevés et à la complexité technique du traitement d
 
 
 C'est pour cela que nous avons finalement choisi d'utiliser la technologie UWB. Même si cela oblige l'ouvrier à porter un capteur avec une batterie qu'il faut penser à recharger, ses avantages prenaient largement le dessus. La précision de la position est très élevée et fiable, car l'UWB se base sur le temps de vol du signal. De plus, c'est un signal robuste qui traverse bien les obstacles. Enfin, le coût matériel restait tout à fait modéré (environ 250€ pour la base et 40€ par tag), tout en nous laissant une complexité technique très gérable, centrée principalement sur le traitement de nos algorithmes de trilatération.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.8\columnwidth]{tableau_choix_tech.png}
+\caption[Tableau comparatif des différentes technologies étudiées]{Tableau comparatif des différentes technologies étudiées}
+\label{fig:choix_tech}
+\end{figure}
 
 \subsection{Projets similaires existants}
 
