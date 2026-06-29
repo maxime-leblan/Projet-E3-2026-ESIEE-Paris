@@ -54,7 +54,7 @@ Ce sous-système, destiné à être porté sur le casque de l'employé, est soum
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{tag_ouvrier_composants.png}
+    \includegraphics[width=1\textwidth]{tag_ouvrier_composants.png}
     \caption{Architecture matérielle du dispositif porté par l'employé, centré sur la XIAO nRF52840, intégrant la charge Qi, la télémétrie UWB, l'altimétrie et l'alerte sonore.}
     \label{fig:tag_ouvrier}
 \end{figure}
@@ -65,7 +65,7 @@ Le cœur logique du tag est une carte Seeed Studio XIAO nRF52840. Son architectu
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{XIAO_BLE_pinout.png}
+    \includegraphics[width=0.8\textwidth]{XIAO_BLE_pinout.png}
     \caption{Carte Seeed Studio XIAO nRF52840.}
     \label{fig:xiao_img}
 \end{figure}
@@ -99,32 +99,32 @@ Le cœur logique du tag est une carte Seeed Studio XIAO nRF52840. Son architectu
     \label{tab:specs_xiao}
 \end{table}
 
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|l|l|}
-        \hline
-        \textbf{Broche} & \textbf{Connexion cible} \\
-        \hline
-        BAT+ / BAT- & Batterie Li-Po 3.7V 500mAh \\
-        \hline
-        D1 (P0.03) & Sortie logique pour le Buzzer \\
-        \hline
-        D2 (P0.28) & Sortie logique pour la LED rouge \\
-        \hline
-        D6 (Tx) / D7 (Rx) & UART1 RX / TX du module MaUWB \\
-        \hline
-        D0 (P0.02) & UART2 RX du module MaUWB \\
-        \hline
-        D8 / D9 / D10 & SCK / MISO / MOSI vers le baromètre BMP581 \\
-        \hline
-        D3 / D4 & CSB / INT vers le baromètre BMP581 \\
-        \hline
-        3V3 / GND & Alimentation logique partagée \\
-        \hline
-    \end{tabular}
-    \caption{Brochage complet du microcontrôleur XIAO nRF52840 dans le Tag.}
-    \label{tab:pinout_xiao}
-\end{table}
+% \begin{table}[H]
+%     \centering
+%     \begin{tabular}{|l|l|}
+%         \hline
+%         \textbf{Broche} & \textbf{Connexion cible} \\
+%         \hline
+%         BAT+ / BAT- & Batterie Li-Po 3.7V 500mAh \\
+%         \hline
+%         D1 (P0.03) & Sortie logique pour le Buzzer \\
+%         \hline
+%         D2 (P0.28) & Sortie logique pour la LED rouge \\
+%         \hline
+%         D6 (Tx) / D7 (Rx) & UART1 RX / TX du module MaUWB \\
+%         \hline
+%         D0 (P0.02) & UART2 RX du module MaUWB \\
+%         \hline
+%         D8 / D9 / D10 & SCK / MISO / MOSI vers le baromètre BMP581 \\
+%         \hline
+%         D3 / D4 & CSB / INT vers le baromètre BMP581 \\
+%         \hline
+%         3V3 / GND & Alimentation logique partagée \\
+%         \hline
+%     \end{tabular}
+%     \caption{Brochage complet du microcontrôleur XIAO nRF52840 dans le Tag.}
+%     \label{tab:pinout_xiao}
+% \end{table}
 
 \subsubsection{Indicateur Visuel (LED Rouge 3mm)}
 Afin de communiquer avec l'utilisateur, une LED rouge de 3~mm a été ajoutée pour être insérée dans un trou percé à travers la paroi du tag. Pilotée par le microcontrôleur, elle signale une batterie faible, indique la recharge en cours, et émet un clignotement de maintien en vie (\textit{keep-alive}) confirmant le bon fonctionnement du dispositif.
@@ -253,7 +253,6 @@ Indépendant du système UWB, l'axe vertical est verrouillé par un capteur de p
     \label{tab:pinout_bmp581}
 \end{table}
 
-
 \subsubsection{Étanchéité et Recharge}
 
 \textbf{Le Récepteur de Charge Sans Fil (Qi Adafruit)}
@@ -262,7 +261,7 @@ Les environnements de chantier imposant une forte présence de poussière et d'e
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{Adafruit_charger_wireless.png}
+    \includegraphics[width=0.6\textwidth]{Adafruit_charger_wireless.png}
     \caption{Module récepteur de charge sans fil Adafruit 1901.}
     \label{fig:adafruit_img}
 \end{figure}
@@ -295,7 +294,7 @@ La seule perméabilité volontaire du boîtier est assurée par une membrane ePT
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{amphenol_membrane.png}
+    \includegraphics[width=0.8\textwidth]{amphenol_membrane.png}
     \caption{Membrane ePTFE Amphenol LTW (issu de la datasheet)}
     \label{fig:membrane_img}
 \end{figure}
@@ -307,7 +306,7 @@ L'alerte sonore de l'ouvrier est actuellement gérée par un buzzer magnétique 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\textwidth]{buzzer_complete.png}
+    \includegraphics[width=0.8\textwidth]{buzzer_complete.png}
     \caption{Avertisseur sonore magnétique Same Sky.}
     \label{fig:buzzer_img}
 \end{figure}
@@ -368,6 +367,13 @@ L'alerte sonore de l'ouvrier est actuellement gérée par un buzzer magnétique 
 
 Situé dans la cabine de l'engin, le Hub centralise les données du réseau périphérique, calcule les distances et interagit avec le conducteur \cite{Desc_Projet}.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{hub_cabine_composants.png}
+    \caption{Organisation interne de l'unité de traitement centrale, mettant en évidence la répartition des bus de communication (UART, SPI, CAN) et le partage des tâches avec l'écran MaTouch.}
+    \label{fig:hub_cabine}
+\end{figure}
+
 \subsubsection{Interface Graphique et Enregistreur (MaTouch 7" ESP32-S3)}
 
 Initialement, nous avions l'intention d'utiliser un simple écran piloté par le hub directement. Nous avons rapidement réalisé que le traitement du flux vidéo exigeait une puissance de calcul colossale et imposait une communication SPI à haut débit mobilisant de multiples câbles pour garantir une résolution acceptable. Or, le WROVER devait déjà dédier ses deux blocs SPI matériels aux capteurs critiques, et nous ne disposions plus d'assez de broches. Voulant à tout prix conserver un faisceau de câblage restreint (deux fils pour les données et deux fils pour l'alimentation), nous avons pivoté vers un écran 7 pouces intégrant son propre processeur ESP32-S3 \cite{MaTouch_7}. Le protocole I2C étant incapable de couvrir de longues distances de manière fiable, et le SPI exigeant trop de fils, nous avons logiquement choisi l'UART pour assurer la communication asynchrone entre le Hub et l'écran. 
@@ -376,7 +382,7 @@ L'écran embarque également un lecteur de carte SD faisant office de boîte noi
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{maTouch_both_view.png}
+    \includegraphics[width=0.9\textwidth]{maTouch_both_view.png}
     \caption{Écran autonome Makerfabs MaTouch 7".}
     \label{fig:matouch_img}
 \end{figure}
@@ -408,15 +414,15 @@ L'écran embarque également un lecteur de carte SD faisant office de boîte noi
     \centering
     \begin{tabular}{|l|l|}
         \hline
-        \textbf{Broche} & \textbf{Broche cible / Composant cible} \\
+        \textbf{Broche (connecteur Grove modifié)} & \textbf{ESP32-WROVER} \\
         \hline
-        USB-C 5V & Bus +5V (Hack Grove vers ligne d'alimentation) \\
+        USB-C 5V & Bus 5V \\
         \hline
         Bus GND & Masse Commune \\
         \hline
-        GPIO 33 (en Tx) & RX (ESP32-WROVER) \\
+        GPIO 19 (en Tx) & GPIO 32 (en RX) \\
         \hline
-        GPIO 32 (en Rx) & TX (ESP32-WROVER) \\
+        GPIO 20 (en Rx) & GPIO 33 (en TX) \\
         \hline
     \end{tabular}
     \caption{Connexions de l'écran autonome MaTouch 7" vers le Hub \cite{MaTouch_7}.}
@@ -429,7 +435,7 @@ Le traitement mathématique est confié à un ESP32 WROVER dont l'architecture d
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\textwidth]{devkit_c_v4_pinout.png}
+    \includegraphics[width=1\textwidth]{devkit_c_v4_pinout.png}
     \caption{Carte de développement ESP32 WROVER.}
     \label{fig:wrover_img}
 \end{figure}
@@ -444,13 +450,11 @@ Le traitement mathématique est confié à un ESP32 WROVER dont l'architecture d
         \hline
         Connectivité Radio & Wi-Fi et Bluetooth (BR/EDR/BLE) \\
         \hline
-        Courant de sortie nominal (par broche) & 12 mA \\
+        Courant de sortie (par broche) & nominal 12 mA / maximal 40mA \\
         \hline
-        Courant de sortie maximal (par broche) & 40 mA \\
+        Courant de sortie toutes broches combinées & maximum 1200 mA \\
         \hline
-        Courant de sortie max (toutes broches combinées) & $\approx 1200$ mA \\
-        \hline
-        Consommation en fonctionnement actif & $\approx 80\text{ mA}$ à $240\text{ mA}$ (selon activité RF) \\
+        Consommation en fonctionnement & $\approx 80\text{ mA}$ à $240\text{ mA}$ (selon activité RF) \\
         \hline
         Blocs matériels UART / SPI / TWAI & 3 / 4 / 1 \\
         \hline
@@ -461,34 +465,34 @@ Le traitement mathématique est confié à un ESP32 WROVER dont l'architecture d
     \label{tab:specs_wrover}
 \end{table}
 
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|l|l|}
-        \hline
-        \textbf{Broche} & \textbf{Broche cible / Composant cible} \\
-        \hline
-        GPIO 25 (TX) / 34 (RX) & Transceiver TCAN1051 (CAN) \\
-        \hline
-        GPIO 18 / 19 / 23 & VSPI (SCLK / MISO / MOSI) vers BMI088 \\
-        \hline
-        GPIO 14 / 13 / 27 & HSPI remappé (SCL / SDA / SDO) vers BMP581 \\
-        \hline
-        GPIO 5 / 21 & CSB / INT vers BMP581 \\
-        \hline
-        GPIO 26 / 22 & CSB1 (accél.) / CSB2 (gyro.) vers BMI088 \\
-        \hline
-        GPIO 39 / 36 & INT1 / INT3 vers BMI088 \\
-        \hline
-        GPIO 2 & Sortie Logique (Maintien Relais via 2N2222) \\
-        \hline
-        GPIO 35 & Entrée Analogique (Lecture état Bouton Poussoir) \\
-        \hline
-        GPIO 4 & Sortie Logique (Déclenchement Buzzer via 2N2222) \\
-        \hline
-    \end{tabular}
-    \caption{Brochage complet de l'ESP32 WROVER pour la gestion des bus et périphériques \cite{ESP32_WROVER}.}
-    \label{tab:pinout_wrover}
-\end{table}
+% \begin{table}[H]
+%     \centering
+%     \begin{tabular}{|l|l|}
+%         \hline
+%         \textbf{Broche} & \textbf{Broche cible / Composant cible} \\
+%         \hline
+%         GPIO 25 (TX) / 34 (RX) & Transceiver TCAN1051 (CAN) \\
+%         \hline
+%         GPIO 18 / 19 / 23 & VSPI (SCLK / MISO / MOSI) vers BMI088 \\
+%         \hline
+%         GPIO 14 / 13 / 27 & HSPI remappé (SCL / SDA / SDO) vers BMP581 \\
+%         \hline
+%         GPIO 5 / 21 & CSB / INT vers BMP581 \\
+%         \hline
+%         GPIO 26 / 22 & CSB1 (accél.) / CSB2 (gyro.) vers BMI088 \\
+%         \hline
+%         GPIO 39 / 36 & INT1 / INT3 vers BMI088 \\
+%         \hline
+%         GPIO 2 & Sortie Logique (Maintien Relais via 2N2222) \\
+%         \hline
+%         GPIO 35 & Entrée Analogique (Lecture état Bouton Poussoir) \\
+%         \hline
+%         GPIO 4 & Sortie Logique (Déclenchement Buzzer via 2N2222) \\
+%         \hline
+%     \end{tabular}
+%     \caption{Brochage complet de l'ESP32 WROVER pour la gestion des bus et périphériques \cite{ESP32_WROVER}.}
+%     \label{tab:pinout_wrover}
+% \end{table}
 
 \subsubsection{Référentiel Altimétrique (Bosch BMP581)}
 
@@ -505,19 +509,21 @@ Le Hub embarque son propre baromètre BMP581, rigoureusement identique à celui 
     \centering
     \begin{tabular}{|l|l|}
         \hline
-        \textbf{Broche} & \textbf{Broche cible / Composant cible} \\
+        \textbf{Broche} & \textbf{ESP32-WROVER} \\
         \hline
-        VCC (VDD) / GND & Bus 3V3 / Bus GND \\
+        VCC & Bus 3V3 \\
         \hline
-        SCL & GPIO 14 (ESP32-WROVER) \\
+        GND & Masse commune \\
         \hline
-        SDA (SDI) & GPIO 13 (ESP32-WROVER) \\
+        SCL & GPIO 14 \\
         \hline
-        SDO & GPIO 27 (ESP32-WROVER) \\
+        SDA (SDI) & GPIO 13 \\
         \hline
-        CS (CSB) & GPIO 5 (ESP32-WROVER) \\
+        SDO & GPIO 27 \\
         \hline
-        INT & GPIO 21 (ESP32-WROVER) \\
+        CS (CSB) & GPIO 5 \\
+        \hline
+        INT & GPIO 21 \\
         \hline
     \end{tabular}
     \caption{Brochage du baromètre BMP581 sur le bus HSPI remappé du Hub.}
@@ -564,17 +570,25 @@ Afin de corriger l'inclinaison du véhicule, le référentiel gravitaire est fou
     \centering
     \begin{tabular}{|l|l|}
         \hline
-        \textbf{Broche} & \textbf{Broche cible / Composant cible} \\
+        \textbf{Broche} & \textbf{ESP32-WROVER (en VSPI)} \\
         \hline
-        Bus 3V3 & VCC (ESP32-WROVER Pin 3V3) \\
+        VCC & Bus 3V3 \\
         \hline
-        Bus GND & GND (Masse Commune) \\
+        GND & Masse Commune \\
         \hline
-        GPIO 19 / 23 / 18 & MISO / MOSI / SCLK (VSPI ESP32-WROVER) \\
+        MISO & GPIO 19 \\
         \hline
-        CSB1 (accél.) / CSB2 (gyro.) & GPIO 26 / GPIO 22 (ESP32-WROVER) \\
+        MOSI & GPIO 23 \\
         \hline
-        VN (GPIO 39) / VP (GPIO 36) & INT1 / INT3 (ESP32-WROVER) \\
+        SCLK & GPIO 18 \\
+        \hline
+        CSB1 (accél.) & GPIO 26 \\
+        \hline
+        CSB2 (gyro.) & GPIO 22 \\
+        \hline
+        GPIO 39 VN (accél.) & INT1 \\
+        \hline
+        GPIO 36 VP (gyro.) & INT3 \\
         \hline
     \end{tabular}
     \caption{Interfaçage de l'IMU BMI088 avec le bus matériel VSPI du Hub \cite{BMI088}.}
@@ -619,19 +633,23 @@ La traduction des signaux logiques du contrôleur TWAI de l'ESP32 vers le résea
     \centering
     \begin{tabular}{|l|l|}
         \hline
-        \textbf{Broche} & \textbf{Broche cible / Composant cible} \\
+        \textbf{Broche} & \textbf{ESP32-WROVER / Bus CAN} \\
         \hline
-        1 (TXD) / 4 (RXD) & GPIO 25 / GPIO 34 (WROVER) ou TX / RX (Ancre) \\
+        1 (TXD) & GPIO 25 \\
         \hline
-        2 (GND) & Bus GND (Masse Commune) \\
+        2 (GND) & Masse Commune \\
         \hline
-        3 (VCC) & Bus +5V \\
+        3 (VCC) & Bus 5V \\
         \hline
-        5 (VIO) & Bus 3V3 (Référence logique ESP32) \\
+        4 (RXD) & GPIO 34 \\
         \hline
-        6 (CANL) / 7 (CANH) & Fil CANL / Fil CANH (Câble LIYCY) \\
+        5 (VIO) & Bus 3V3 \\
         \hline
-        8 (S) & Bus GND (Empêche le Silent Mode) \\
+        6 (CANL) & Fil CANL (Câble Bus CAN) \\
+        \hline
+        7 (CANH) & Fil CANH (Câble Bus CAN) \\
+        \hline
+        8 (S) & Masse commune \\
         \hline
     \end{tabular}
     \caption{Brochage standardisé du transceiver CAN TCAN1051V-Q1 \cite{TCAN1051-Q1}.}
@@ -640,16 +658,16 @@ La traduction des signaux logiques du contrôleur TWAI de l'ESP32 vers le résea
 
 \textbf{Note sur le câblage ($V_{IO}$) :} La sélection de la version comportant la lettre "V" est primordiale dans cette architecture : cette déclinaison intègre une entrée d'alimentation secondaire spécifique ($V_{IO}$) qui permet de décaler le niveau logique des seuils d'entrée et du signal de sortie RXD pour l'aligner parfaitement sur la tension de 3.3V du microcontrôleur. Cela protège l'ESP32 sans nécessiter aucun composant d'adaptation supplémentaire, tout en propulsant le bus de puissance CAN en 5V \cite{TCAN1051-Q1}. Par ailleurs, le forçage de la broche \texttt{8 (S)} à la masse empêche la puce de basculer en mode silencieux.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{hub_cabine_composants.png}
-    \caption{Organisation interne de l'unité de traitement centrale, mettant en évidence la répartition des bus de communication (UART, SPI, CAN) et le partage des tâches avec l'écran MaTouch.}
-    \label{fig:hub_cabine}
-\end{figure}
-
 \newpage
 % -------------------------------------------------------------------------
 \subsection{Sous-Système 3 : Le Réseau Périphérique (Les Ancres)}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{ancre_vehicule_composants.png}
+    \caption{Architecture d'une ancre périphérique, montrant l'abaissement local de la tension et la traduction du signal série de la puce UWB vers le bus CAN différentiel.}
+    \label{fig:ancre_vehicule}
+\end{figure}
 
 \subsubsection{Logique Télémétrique (Makerfabs ESP32-S3 + UWB)}
 
@@ -681,19 +699,78 @@ En réalité, nous avions besoin des modules MaUWB-DW3000 seuls pour nos ancres,
     \label{tab:specs_makerfabs_ancre}
 \end{table}
 
+% \begin{table}[H]
+%     \centering
+%     \begin{tabular}{|l|l|}
+%         \hline
+%         \textbf{Broche} & \textbf{Broche cible / Composant cible} \\
+%         \hline
+%         5V IN / GND & Sortie 5V / GND de l'abaisseur OKI-78SR \\
+%         \hline
+%         TX / RX & Broche 1 (TXD) / Broche 4 (RXD) du TCAN1051 \\
+%         \hline
+%     \end{tabular}
+%     \caption{Connexions d'une ancre véhicule typique \cite{Slides_Choix}.}
+%     \label{tab:pinout_ancre_uwb}
+% \end{table}
+
+\subsubsection{Transceiver CAN (TCAN1051V-Q1)}
+
+La traduction des signaux logiques du contrôleur TWAI de l'ESP32 vers le réseau différentiel du véhicule est assurée par le transceiver TCAN1051V-Q1 \cite{TCAN1051-Q1}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{tcan_complete.png}
+    \caption{Transceiver CAN Texas Instruments TCAN1051V-Q1.}
+    \label{fig:tcan_img}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{6cm}|p{8cm}|}
+        \hline
+        \textbf{Caractéristique / Fonctionnalité} & \textbf{Spécification} \\
+        \hline
+        Vitesse de transmission max & Jusqu'à 1 Mbps (Classic CAN) / 2 Mbps (version non-G) \\
+        \hline
+        Protection contre les défauts de bus & $\pm 58\text{ V}$ \\
+        \hline
+        Immunité aux décharges (ESD/HBM) & $\pm 16\text{ kV}$ \\
+        \hline
+        Qualification environnement auto & OUI (AEC-Q100) \\
+        \hline
+        Broche VIO (Level Shifting logique) & OUI (Spécifique à la variante "V") \\
+        \hline
+    \end{tabular}
+    \caption{Spécifications du transceiver CAN Texas Instruments TCAN1051V-Q1 \cite{TCAN1051-Q1}.}
+    \label{tab:specs_tcan}
+\end{table}
+
 \begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
-        \textbf{Broche} & \textbf{Broche cible / Composant cible} \\
+        \textbf{Broche} & \textbf{ESP32-WROVER / Bus CAN} \\
         \hline
-        5V IN / GND & Sortie 5V / GND de l'abaisseur OKI-78SR \\
+        1 (TXD) & GPIO  \\
         \hline
-        TX / RX & Broche 1 (TXD) / Broche 4 (RXD) du TCAN1051 \\
+        2 (GND) & Masse Commune \\
+        \hline
+        3 (VCC) & Bus 5V \\
+        \hline
+        4 (RXD) & GPIO 34 \\
+        \hline
+        5 (VIO) & Bus 3V3 \\
+        \hline
+        6 (CANL) & Fil CANL (Câble Bus CAN) \\
+        \hline
+        7 (CANH) & Fil CANH (Câble Bus CAN) \\
+        \hline
+        8 (S) & Masse commune \\
         \hline
     \end{tabular}
-    \caption{Connexions d'une ancre véhicule typique \cite{Slides_Choix}.}
-    \label{tab:pinout_ancre_uwb}
+    \caption{Brochage standardisé du transceiver CAN TCAN1051V-Q1 \cite{TCAN1051-Q1}.}
+    \label{tab:pinout_tcan}
 \end{table}
 
 \subsubsection{Régulation Locale (Murata OKI-78SR-5)}
@@ -732,9 +809,9 @@ Le réseau d'ancres reçoit une alimentation globale de 12V, qui est abaissée a
         \hline
         1 (Vin) & 12V (Ligne d'alimentation / Bouton) \\
         \hline
-        2 (GND) & Masse (Bus GND) \\
+        2 (GND) & Masse Commune \\
         \hline
-        3 (Vout) & Bus +5V local \\
+        3 (Vout) & Bus 5V \\
         \hline
     \end{tabular}
     \caption{Brochage du régulateur Murata OKI-78SR-5 \cite{OKI-78SR_Series}.}
@@ -750,13 +827,6 @@ Le réseau physique repose sur un câble blindé, ignifugé et torsadé, doté d
 \end{equation}
 
 Par exemple, si l'on prend une longueur probable de $L = 30$ mètres sur un gros engin, avec une résistivité $\rho \approx 0.017\text{ }\Omega\cdot\text{mm}^2/\text{m}$, la résistance cumulée du cuivre génère une chute d'environ $\Delta U = 3\text{ Volts}$ pour une consommation électrique de 1~A mesurée en conditions réelles sur le terrain. La tension résiduelle aux bornes de la dernière ancre sera donc de 9V, une valeur confortablement supérieure à la limite critique des 7V exigés par le régulateur interne. Enfin, l'utilisation provisoire de borniers à vis traversant les boîtiers 3D devra idéalement laisser place à des connecteurs Weipu SF12 \cite{Weipu_SF12}. Leurs contacts à sertir sans soudure et leur conception "Push-Pull" lisse (empêchant l'accumulation de ciment) répondront parfaitement aux exigences d'étanchéité et de résistance aux vibrations des engins de BTP.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{ancre_vehicule_composants.png}
-    \caption{Architecture d'une ancre périphérique, montrant l'abaissement local de la tension et la traduction du signal série de la puce UWB vers le bus CAN différentiel.}
-    \label{fig:ancre_vehicule}
-\end{figure}
 
 \newpage
 % -------------------------------------------------------------------------
@@ -894,24 +964,6 @@ En aval du relais se trouve l'abaisseur de tension (Buck). Initialement, nous av
     \caption{Brochage du module abaisseur XL4015.}
     \label{tab:pinout_xl4015}
 \end{table}
-
-\newpage
-% -------------------------------------------------------------------------
-\subsection{Problèmes Rencontrés et Adaptations Matérielles}
-
-La philosophie de conception basée sur des modules pré-assemblés nous a permis de gagner un temps précieux, mais n'a pas été exempte de difficultés physiques d'intégration. Plusieurs obstacles techniques nous ont contraints à réaliser des modifications matérielles (hacks) directement sur les cartes de développement.
-
-\subsubsection{Récupération des modules UWB pour les Tags}
-Comme mentionné précédemment, la pénurie de modules nus MaUWB-DW3000 nous a obligés à acquérir des cartes de développement complètes ESP32-S3 de Makerfabs. S'il était judicieux de les utiliser telles quelles pour le réseau d'ancres du véhicule, leur taille était totalement incompatible avec l'équipement de l'ouvrier (Tag). Nous avons donc dû dessouder minutieusement le module UWB de la carte mère Makerfabs à l'aide d'une station à air chaud, pour ensuite le ressouder directement sur le circuit imprimé personnalisé de notre Tag, qui était piloté par la carte XIAO nRF52840. Bien que cette méthode ait considérablement augmenté le coût unitaire du composant, c'était la seule solution viable pour obtenir le matériel dans les temps impartis.
-
-\subsubsection{Connectique de débogage du Hub (ESP32 WROVER)}
-Lors de l'assemblage physique du Hub dans la cabine, la disposition des composants sur le circuit imprimé a posé un problème majeur : le connecteur micro-USB natif de l'ESP32 WROVER, indispensable pour programmer et déboguer la carte, s'est retrouvé physiquement bloqué par un potentiomètre. Pour contourner ce problème d'accès, nous avons tenté de souder une deuxième prise micro-USB déportée sur l'autre face de la carte. Au cours de cette manipulation délicate, le convertisseur UART-vers-USB intégré a été irrémédiablement endommagé. Pour sauver le cerveau du système, nous avons été contraints de dessouder un convertisseur UART sain d'une autre carte de développement (NodeMCU) pour venir le greffer sur l'ESP32 WROVER. Cette greffe s'est avérée fonctionnelle et a permis de rétablir la communication série.
-
-\subsubsection{Programmation des Ancres Makerfabs}
-La carte de développement Makerfabs utilisée pour les ancres possède deux ports USB Type-C distincts : l'un relié au convertisseur USB-TTL (UART), l'autre offrant un accès natif à l'USB de l'ESP32. Cette particularité nous a causé de multiples soucis de développement. Lors de l'utilisation du port USB natif, la carte effectuait parfois des "programmations fantômes" où le code semblait téléversé, mais le moniteur série ne s'affichait pas et l'écran OLED ne se mettait pas à jour. La résolution de ce problème a nécessité d'imposer un processus strict consistant à utiliser exclusivement le port USB-TTL pour le téléversement et le moniteur série.
-
-\subsubsection{Déportation de l'alimentation de l'écran MaTouch}
-L'écran autonome du Hub requérant une alimentation stable en 5V, nous souhaitions utiliser la liaison filaire (port Grove) qui servait déjà à l'UART pour acheminer cette énergie. Or, le connecteur Grove de l'écran est conçu pour fournir du 3.3V en sortie, et non pour recevoir du 5V. Nous avons donc opéré une modification matérielle sur l'écran : la piste de sortie 3.3V a été sectionnée au cutter de précision et remplacée par un pont filaire soudé directement vers l'entrée des diodes de protection du port USB-C. Cette astuce transforme le connecteur de données en une entrée 5V sécurisée. L'alimentation injectée permet au Hub d'alimenter l'écran tout en conservant la protection matérielle si un ordinateur y est simultanément branché pour le débogage, isolant ainsi parfaitement les sources de tension.
 
 % =========================================================================
 % FIN DE LA SECTION
