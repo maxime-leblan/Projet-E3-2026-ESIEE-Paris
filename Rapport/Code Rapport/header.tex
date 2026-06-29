@@ -1,5 +1,37 @@
 \usepackage[french]{babel}
-% fziffggzig
+
+% --- Gestion des couleurs ---
+\usepackage{xcolor}
+% Définition d'un bleu élégant similaire à ton image
+\definecolor{TableOfContentColor}{RGB}{0, 51, 153} 
+
+% Gestion du style de certaines parties du texte
+\usepackage{titlesec}
+
+% --- Gestion des liens et de la couleur du sommaire ---
+\usepackage[
+    colorlinks=true,
+    linkcolor=TableOfContentColor,    % Colore les titres et numéros de la table des matières
+    urlcolor=TableOfContentColor,
+    citecolor=TableOfContentColor
+]{hyperref}
+
+% Encodage des caractères
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+
+%  Gestion de la mise en page et des marges :
+\usepackage{geometry}
+\geometry{a4paper}
+
+
+% Pour afficher dans le sommaire jusqu'aux sous-sous-sections (ex: 1.1.1)
+\setcounter{tocdepth}{3}
+\setcounter{secnumdepth}{3}
+
+% Pour gérer les soulignements qui vont automatiquement à la ligne en cas de débordement de la marge
+\usepackage[normalem]{ulem}
 
 %Choix du thème de la police (sans serif, petites capitales dans les titres...) 
 \usepackage{amssymb} 
@@ -31,6 +63,19 @@
 	blanker, left=1cm, borderline west={0.5mm}{0.6cm}{black!50}, breakable,
 	before skip=2ex plus 0.1ex, after skip=2ex plus 0.1ex, #1
 }
+
+% On force les titres à rester en Noir, avec leur police par défaut (rmfamily), en gras
+\titleformat{\section}{\normalfont\Large\bfseries\color{black}}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries\color{black}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalfont\normalsize\bfseries\color{black}}{\thesubsubsection}{1em}{}
+
+% On définit la taille des marges
+\geometry{inner=1.25cm, outer=1.25cm, top=2cm, bottom=2cm}
+
+% ---- COMMANDES PERSONNALISEES ----
+
+
+
 % Commande pour utiliser une indentation :
 % \begin{indentation}
 %     <texte>

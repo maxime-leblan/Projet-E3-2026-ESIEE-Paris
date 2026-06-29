@@ -1,0 +1,73 @@
+\subsection{Objectifs et contraintes initiales}
+
+
+La conception d'une enveloppe physique pour protéger nos cartes électroniques constituait une étape essentielle de notre projet. En effet, nos cartes ne pouvaient pas rester simplement à l'air libre. L'objectif était de créer un boîtier sur mesure, imprimable en 3D, capable d'accueillir notre circuit imprimé tout en l'isolant efficacement des éléments extérieurs tels que la poussière, la pluie ou les gravats, et en laissant un accès aux connectiques.
+
+Cependant, cette phase comportait une contrainte : nous étions dans l'obligation d'attendre la fin de la conception du PCB sous KiCad \cite{KiCad}. En effet, la moindre modification du placement des composants ou des trous de fixation sur la carte avait un impact direct sur la géométrie de notre futur boîtier. Il en allait de même pour la taille et la hauteur des composants, pour lesquelles nous devions consulter les datasheets et effectuer des mesures manuelles précises afin d'obtenir l'espacement le plus optimisé possible.
+
+
+\subsection{Découverte de l'outil et problématiques de prise en main}
+
+
+Pour réaliser cette modélisation, nous avons choisi d'utiliser le logiciel Autodesk Fusion 360 \cite{Fusion360}. La modélisation 3D était une étape relativement nouvelle pour nous, car personne n'avait d'expérience préalable dans ce domaine. 
+La prise en main du logiciel s'est avérée complexe. Face au peu de tutoriels disponibles pour nous accompagner spécifiquement sur l'intégration d'une carte électronique dans un boîtier imprimable, nous avons procédé par itération. Nous avons donc décidé de réaliser une "boîte test" pour commencer. Ce premier essai nous a permis de comprendre le fonctionnement de l'espace de travail, la gestion de l'historique de conception, et l'utilisation des outils de base tels que les esquisses 2D et les extrusions.
+
+Afin de valider nos dimensions et de confronter notre modèle à la réalité, nous avons procédé à l'impression de ce premier prototype. Cette étape n'a pas été réalisée avec du matériel personnel, mais directement au sein de l'école : nous avons utilisé les imprimantes 3D mises à notre disposition par l'association étudiante ESIEESPACE.
+
+
+\subsection{Schéma général de conception : La méthode "Top-Down"}
+Une fois familiarisés avec Fusion 360 \cite{Fusion360}, nous avons pu mettre en place une méthodologie plus rigoureuse appelée conception "Top-Down". Au lieu de modéliser le boîtier à l'aveugle, nous avons importé le modèle 3D de notre carte électronique (le fichier .STEP généré par KiCad \cite{KiCad}) directement au centre de notre espace de travail. Cette première étape, visible sur la Figure \ref{fig:-photo_carte_fusion360}, nous a permis de disposer d'une base visuelle concrète et à l'échelle pour construire le reste du boîtier.
+
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.5\columnwidth]{photo_carte_fusion360.png} 
+\caption[Modèle 3D de la carte électronique importé sous Fusion 360]{Modèle 3D de la carte électronique importé sous Fusion 360}
+\label{fig:-photo_carte_fusion360}
+\end{figure}
+
+
+Voici les fonctions clés que nous avons utilisées pour construire le boîtier autour d'elle :
+
+\begin{itemize}
+    \item \textbf{L'outil Projeter (Raccourci P) :} Cet outil a été fondamental dans notre conception. Il nous a permis de "calquer" le contour exact de la carte électronique sur le fond ou le couvercle de notre boîtier. Cela nous a permis de garantir que les trous de fixation pour les vis soient positionnés au millimètre près pour l’assemblage et l'impression 3D. La Figure \ref{fig:-photo_projection_fusion360} illustre l'utilisation de cette fonction pour récupérer l'empreinte exacte d'un perçage de la carte vers la face de notre boîtier.
+    
+    \begin{figure}[!ht]
+    \centering 
+    \includegraphics[width=0.5\columnwidth]{photo_projection_fusion360.png} 
+    \caption[Utilisation de l'outil Projeter pour définir l'emplacement exact des perçages]{Utilisation de l'outil Projeter pour définir l'emplacement exact des perçages}
+    \label{fig:-photo_projection_fusion360}
+    \end{figure}
+    
+    \item \textbf{L'outil Décalage (Offset) :} À partir du contour projeté, nous avons défini l'épaisseur des murs extérieurs. Nous avons opté pour une épaisseur de 2,5 mm. Cette valeur a été choisie en fonction des recherches que nous avons effectuées sur le rechargement sans fil, mais aussi sur les caractéristiques techniques des imprimantes 3D qui étaient à notre disposition. Le résultat de cette modélisation, regroupant les pylônes de fixation creusés, l'emplacement de la carte et les différentes ouvertures sur le couvercle, est présenté sur la Figure \ref{fig:-photo_boitier_fini_fusion360}.
+    
+    \begin{figure}[!ht]
+    \centering 
+    \includegraphics[width=0.5\columnwidth]{photo_boitier_fini_fusion360.png} 
+    \caption[Vue d'ensemble du boîtier modélisé avec ses pylônes de fixation et son couvercle démontable]{Vue d'ensemble du boîtier modélisé avec ses pylônes de fixation et son couvercle démontable}
+    \label{fig:-photo_boitier_fini_fusion360}
+    \end{figure}
+    
+\end{itemize}
+\subsection{Assemblage et système de fermeture}
+
+
+La problématique majeure de notre modélisation était de concevoir un système permettant de maintenir la carte fermement au fond du boîtier. En effet, nos cartes ne pouvaient pas rester à l'air libre : elles devaient être protégées de l'environnement (pluie, poussière, gravats) et vissées solidement pour ne pas bouger avec les mouvements et les vibrations. Parallèlement, nous devions concevoir un couvercle démontable afin de faciliter la maintenance, ce qui est indispensable pour changer de potentiels câbles ou composants, ou encore pour mettre à jour le firmware.
+
+Pour ce faire, nous avons modélisé des pylônes de fixation directement fusionnés aux quatre coins intérieurs de la boîte. L'outil d’Extrusion a été paramétré sur l'opération "Joindre" pour que ces piliers de 8 mm de diamètre fassent corps avec les murs. Ensuite, nous devions percer ces piliers pour le passage des vis. Nous avons utilisé de nouveau l'outil Extrusion, mais cette fois-ci avec l'opération "Couper", pour vider le centre des pylônes avec un diamètre de 3,2 mm. Ce diamètre correspond aux vis M3 standards que nous avons utilisées.
+
+À la base, nous voulions utiliser des vis en plastique pour la fixation, afin d'éviter tout problème de court-circuit sur les cartes électroniques. Cependant, avec l'équipement à notre disposition, nous ne pouvions pas réaliser les rainures adaptées pour ce type de vis. Nous nous sommes donc rabattus sur des vis métalliques. Il reste néanmoins possible d'ajouter des plots anti-vibration pour sécuriser davantage l'installation. Par ailleurs, une adaptation manuelle a été requise : les PCB fournis par l'école ne comportant pas de trous pour nos vis, nous avons dû mesurer les espacements à la main pour correspondre au fichier KiCad \cite{KiCad}, puis percer les cartes nous-mêmes à l'aide d'une perceuse à colonne.
+
+Ensuite, il a fallu modéliser chaque perçage nécessaire aux interfaces extérieures. Nous avons notamment prévu un trou pour intégrer un bouton en montage panneau, ainsi qu'un emplacement pour une LED. 
+
+Nous avons aussi dû adapter ces conceptions aux conditions d'utilisation finales : par exemple, le boîtier directement manipulé par l'ouvrier ne possède pas de système de fermeture à vis. Une attention particulière a été portée à la membrane : nous avons réalisé un perçage, qui a ensuite été collée avec un joint afin de rendre le boîtier parfaitement hermétique. 
+
+Enfin, avant de lancer la fabrication, nous avons utilisé le logiciel de découpe de Bambu Studio \cite{Bambu_Studio}. Cela nous a permis de visualiser finement nos boîtes couche par couche et de vérifier tous les paramètres avant l'impression 3D. L'interface de préparation et le placement de nos pièces sur le plateau de l'imprimante sont détaillés sur la Figure \ref{fig:-bambu_studio}.
+
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.5\columnwidth]{bambu_studio.png} 
+\caption[Préparation et paramétrage de l'impression 3D sur le logiciel Bambu Studio]{Préparation et paramétrage de l'impression 3D sur le logiciel Bambu Studio}
+\label{fig:-bambu_studio}
+\end{figure}

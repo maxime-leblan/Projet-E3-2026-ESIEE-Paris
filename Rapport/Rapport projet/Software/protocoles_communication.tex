@@ -1,0 +1,89 @@
+\newpage
+\subsection{Protocoles de communications}
+
+Dans les sous-parties précédentes, nous avons abordé en détail le fonctionnement et l'implémentation des différents algorithmes utilisés par le hub afin de mettre en place son repère virtuel et pour déterminer la position du tag par rapport au véhicule. Cependant, pour le bon fonctionnement de notre système, le hub a régulièrement besoin de requérir des informations des ancres, ainsi que de transmettre des ordres et des données à la fois aux ancres et aux tags. De plus, nous devons également prendre en compte le type de matériel que nous avons choisi d'utiliser afin d'adapter nos protocoles aux technologies utilisées. Étant donné que nous avons relié par CAN les ancres au hub et que les tags peuvent communiquer avec les ancres par UWB, nous avons donc deux protocoles à mettre en place, que nous allons vous présenter dans ce qui suit.
+
+\subsubsection{Protocole CAN}
+
+Pour pouvoir exploiter la communication CAN que nous avons installé dans notre système, nous avons choisi d'utiliser la librairie {\ttfamily \textbf{driver/twai.h}} afin de pouvoir gérer les trames de données envoyées au plus proche du hardware. Nous avons utilisé les fonctions {\ttfamily \textbf{twai\_transmit}} et {\ttfamily \textbf{twai\_receive}} de cette librairie pour pouvoir transmettre et recevoir des trames de données en les intégrants à notre librairie personnalisée intitulée {\ttfamily \textbf{CANMessageManager.hpp}}. On peut voir dans le tableau ci-contre la structure d'une trame de données transportée par CAN :
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|p{7.5cm}|}
+        \hline
+        \textbf{Attribut} & \textbf{Taille} & \textbf{Contenu}\\
+        \hline
+        .identifier & 11 à 29 bits & type de message + identifiant du destinataire ou de l'émetteur\\
+        \hline
+        .extd & 8 bits & 0 indique que .identifier est codé sur 11 bits, 1 indique qu'il est codé sur 29 bits\\
+        \hline
+        .rtr & 8 bits & 0 indique une trame de données classique, 1 indique une trame de données étendue\\
+        \hline
+        .data\_length\_code & 8 bits & indique la taille du message transporté\\
+        \hline
+        .data & 64 bits & contient le message à envoyer de type {\ttfamily \textbf{struct}}\\
+        \hline
+    \end{tabular}
+    \caption{Structure d'une trame CAN}
+\end{table}
+
+En ce qui concerne le type de message que nous avons du implémenter pour faire communiquer les tags, les ancres et le hub entre eux, nous avons défini les types dans le tableaux ci-dessous :
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{5cm}|l|p{7.5cm}|}
+        \hline
+        \textbf{Nom} & \textbf{Valeur (sur 8 bits)} & \textbf{Rôle}\\
+        \hline
+        MESSAGE\_ID\_ONLY & 0x10 & Contient l'identifiant de l'ancre qui a envoyé un message au hub.\\
+        \hline
+        MESSAGE\_TAG\_ID\_AND\_\allowbreak DISTANCE & 0x20 & Contient l'identifiant d'un tag et sa distance par rapport à la zone de sécurité du véhicule.\\
+        \hline
+        MESSAGE\_HUB\_ORDER & 0x30 & Contient un entier indiquant un type d'ordres spécifiques envoyés par le hub aux ancres à destination soit d'une ancre, soit d'un tag.\\
+        \hline
+        MESSAGE\_TAG\_ID\_AND\_\allowbreak ALL\_DISTANCES & 0x40 & Contient l'identifiant d'un tag et un tableau stockant toutes les distances entre chaque ancre et ce tag.\\
+        \hline
+        MESSAGE\_STATIC\_ANCHOR\_\allowbreak ID\_AND\_ALL\_DISTANCES & 0x50 & Contient l'identifiant de l'ancre statique pendant la calibration des ancres ainsi qu'un tableau de toutes les distances de cette ancre par rapport aux trois autres ancres.\\
+        \hline
+    \end{tabular}
+    \caption{Type de messages CAN}
+\end{table}
+
+En ce qui concerne les différents types d'ordres envoyés par le hub, ceux-ci sont listés avec leur fonction dans le tableau ci-contre :
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|p{5cm}|l|p{7.5cm}|}
+        \hline
+        \textbf{Nom} & \textbf{Valeur (sur 8 bits)} & \textbf{Rôle}\\
+        \hline
+        HUB\_ORDER\_TOGGLE\allowbreak\_MODULE\_MODE & 1 & Indique à l'ancre destinataire de ce message qu'elle doit inverser son mode de fonctionnement (i.e. se transformer en tag ou bien en ancre en fonction de son précédent mode de fonctionnement).\\
+        \hline
+        HUB\_ORDER\_START\allowbreak\_TAG\_CALIBRATION & 2 & Indique au tag que le processus de calibration de la zone de sécurité démarre.\\
+        \hline
+        HUB\_ORDER\_END\allowbreak\_TAG\_CALIBRATION & 3 & Indique au tag que le processus de calibration de la zone de sécurité est terminé.\\
+        \hline
+        HUB\_ORDER\_START\_ANCHOR\allowbreak\_INIT\_POSITION\_PROTOCOL & 4 & Indique aux ancres que le processus d'initialisation des coordonnées des ancres démarre.\\
+        \hline
+        HUB\_ORDER\_END\_ANCHOR\allowbreak\_INIT\_POSITION\_PROTOCOL & 5 & Indique aux ancres que le processus d'initialisation des coordonnées des ancres est terminé.\\
+        \hline
+        HUB\_ORDER\_REQUEST\allowbreak\_DISTANCES & 6 & Demande à une ancre les distances d'un tag en particulier par rapport aux quatres ancres du véhicule.\\
+        \hline
+        HUB\_ORDER\_REQUEST\allowbreak\_ANCHOR\_DISTANCES\allowbreak\_DURING\_CALIB & 7 & Demande à l'ancre statique ses distances par rapport aux trois autres ancres pendant le processus d'initialisation des ancres.\\
+        \hline
+    \end{tabular}
+    \caption{Type d'ordres du hub par CAN}
+\end{table}
+
+Nous avons donc utilisé ces conventions de messagerie avant d'écrire toutes nos fonctions d'envoie, de réception et de décodage de message CAN au sein de notre système. Nous allons maintenant traiter le cas des messages UWB, dont la structure était bien plus simple que celle du CAN.
+
+\subsubsection{Protocole UWB}
+
+En ce qui concerne l'UWB, nous avons pu utiliser les différentes commandes intégrées dans la STM32 des modules MaUWB de Makerfabs. Les seules données échangées entre les tags et le hub par l'intermédiaire des ancres pouvaient prendre uniquement la forme {\ttfamily \textbf{<id\_émetteur>:<id\_destinataire>\allowbreak:<type\_ordre\_int>:<eventuelle\_donnée\_int>}}. Les fonctions de traitement des messages UWB ont toutes été implémentées dans la librairie intitulée forme {\ttfamily \textbf{UWBMessageManager.hpp}} que nous avons créée. Les différents types de messages sont les suivants :
+
+
+\begin{itemize}
+    \item {\ttfamily \textbf{Ordre 1}} : Indique au tag que la calibration de la zone de sécurité a débuté, et que celui-ci doit donc envoyer ses distances aux ancres en continu.
+    \item {\ttfamily \textbf{Ordre 2}} : Indique au tag que la calibration de la zone de sécurité s'est terminé.
+    \item {\ttfamily \textbf{Ordre 3}} : Donne au tag sa distance par rapport à la zone de sécurité du véhicule.
+\end{itemize}

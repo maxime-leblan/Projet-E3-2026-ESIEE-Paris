@@ -1,0 +1,229 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Arsclassica Article
+% LaTeX Template
+% Version 1.1 (1/8/17)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Lorenzo Pantieri (http://www.lorenzopantieri.net) with extensive modifications by:
+% Vel (vel@latextemplates.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[
+10pt, % Main document font size
+a4paper, % Paper type, use 'letterpaper' for US Letter paper
+oneside, % One page layout (no page indentation)
+%twoside, % Two page layout (page indentation for binding and different headers)
+headinclude,footinclude, % Extra spacing for the header and footer
+BCOR5mm, % Binding correction
+]{scrartcl}
+
+
+
+\usepackage[english]{babel}
+\usepackage{float}
+
+\input{structure.tex} % Include the structure.tex file which specified the document structure and layout
+
+\hyphenation{Fortran hy-phen-ation} % Specify custom hyphenation points in words with dashes where you would like hyphenation to occur, or alternatively, don't put any dashes in a word to stop hyphenation altogether
+
+
+
+\backgroundsetup{
+  scale=0.9,
+  angle=0,
+  position=current page.north,
+  opacity=1,
+  contents={%
+    \begin{tikzpicture}[remember picture, overlay]
+      \node[anchor=north west, xshift=-1cm, yshift=-0.3cm, opacity=0.9] at (current page.north west) {\includegraphics[width=5cm]{vigizone.jpeg}};
+      \node[anchor=north east, xshift=0.7cm, yshift=-0.3cm, opacity=0.9] at (current page.north east) {\includegraphics[width=2cm]{logo_VIGIZONE.png}};
+    \end{tikzpicture}%
+  }
+}
+
+%----------------------------------------------------------------------------------------
+%	TITLE AND AUTHOR(S)
+%----------------------------------------------------------------------------------------
+
+\title{\normalfont\spacedallcaps{Rapport Projet}} % The article title
+
+%\subtitle{Subtitle} % Uncomment to display a subtitle
+
+\author{\spacedlowsmallcaps{EISEE PARIS* \& VIGIZONE\textsuperscript{1}}} % The article author(s) - author affiliations need to be specified in the AUTHOR AFFILIATIONS block
+
+\date{26/06/2026} % An optional date to appear under the author(s)
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	HEADERS
+%----------------------------------------------------------------------------------------
+
+%----------------------------------------------------------------------------------------
+%	ALIGNEMENT DES TITRES DE SECTION AU CENTRE
+%----------------------------------------------------------------------------------------
+\titleformat{\section}[block]
+  {\normalfont\Large\filcenter} % \filcenter permet de centrer le texte
+  {\thesection} % Affiche le numéro de la section
+  {1em} % Espace entre le numéro et le titre
+  {\spacedlowsmallcaps} % Applique le style des petites majuscules espacées typique de classicthesis
+
+\pagestyle{scrheadings} % Enable the headers specified in this block
+
+\maketitle % Print the title/author/date block
+
+\setcounter{tocdepth}{2} % Set the depth of the table of contents to show sections and subsections only
+
+
+% --- BANDEAU DE BAS DE PAGE ---
+
+% Active la ligne de séparation au-dessus du pied de page
+\KOMAoptions{footsepline=false} 
+\addtokomafont{footsepline}{\color{halfgray}}
+
+% Configuration du pied de page centralisée et sécurisée dans une boîte
+\cfoot{\small%
+    \parbox{\textwidth}{\centering%
+        \raisebox{-0.8\height}{\includegraphics[height=1cm]{Figures/Logo_ESIEE.png}}%
+    }
+}
+%BLONDEL.C, JOUHAUD.H, DE KEYN.B, BEN RAÏES.N, LE BLAN.M, FOUILLOUX.J 
+%----------------------------------------------------------------------------------------
+%	AUTHOR AFFILIATIONS
+%----------------------------------------------------------------------------------------
+
+\let\thefootnote\relax\footnotetext{\textsuperscript{*} \textit{ Cité Descartes, 2 Bd Blaise Pascal, 93160 Noisy-le-Grand}} % Author affiliation
+\let\thefootnote\relax\footnotetext{\textsuperscript{1} \textit{GROUPE DISC09 : BLONDEL.C, JOUHAUD.H, DE KEYN.B, BEN RAÏES.N,LEBLAN.M, FOUILLOUX.J}} % Author affiliation
+
+
+%----------------------------------------------------------------------------------------
+%	ABSTRACT
+%----------------------------------------------------------------------------------------
+
+\section*{Abstract} % This section will not appear in the table of contents due to the star (\section*)
+\input{Abstract/Abstract.tex} % Include the file specifying the abstract content
+
+
+%----------------------------------------------------------------------------------------
+%	Photo de groupe
+%----------------------------------------------------------------------------------------
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.5\columnwidth]{prix_jdp_groupe_projet.jpeg} 
+\caption[Photo du groupe VigiZone]{Photo du groupe VigiZone} % The text in the square bracket is the caption for the list of figures while the text in the curly brackets is the figure caption
+\end{figure}
+
+%----------------------------------------------------------------------------------------
+%	TABLE OF CONTENTS & LISTS OF FIGURES AND TABLES
+%----------------------------------------------------------------------------------------
+
+\newpage % Start the table of contents on a new page
+
+\tableofcontents % Print the table of contents
+
+\listoffigures % Print the list of figures
+
+\listoftables % Print the list of tables
+
+
+
+%----------------------------------------------------------------------------------------
+
+\newpage % Start the article content on the second page, remove this if you have a longer abstract that goes onto the second page
+
+%----------------------------------------------------------------------------------------
+%	INTRODUCTION
+%----------------------------------------------------------------------------------------
+
+\section{Partie Commune}
+\input{Partie_Commune/partiecommune.tex} % Include the file specifying the introduction content
+
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	REFLEXION
+%----------------------------------------------------------------------------------------
+
+\section{Étude Préliminaire et Conception} % The \section command automatically numbers the sections
+\input{Etude _Preliminaire _et _Conception/Etude_preliminaire.tex} % Include the file specifying the methods
+
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	HARDWARE
+%----------------------------------------------------------------------------------------
+
+\section{Hardware} % The \section command automatically numbers the sections
+\input{Hardware/Hardware.tex} % Include the file specifying the results and discussion
+
+\newpage
+
+
+%----------------------------------------------------------------------------------------
+%	3D
+%----------------------------------------------------------------------------------------
+
+\section{3D} % The \section command automatically numbers the sections
+\input{3D/3d.tex} % Include the file specifying the results and discussion
+
+\newpage
+
+%----------------------------------------------------------------------------------------
+%	Software
+%----------------------------------------------------------------------------------------
+
+\section{Software} % The \section command automatically numbers the sections
+\input{Software/software_maxime.tex} % Include the file specifying the results and discussion
+\input{Software/software_hugues.tex}
+\input{Software/ecran.tex}
+\input{Software/protocoles_communication.tex}
+\input{Software/protocoles_ecran_hub.tex}
+\input{Software/altitude_gravite.tex}
+
+\newpage
+
+
+
+%----------------------------------------------------------------------------------------
+%	Conclusion
+%----------------------------------------------------------------------------------------
+%
+%\section{Conclusion} % The \section command automatically numbers the sections
+%\input{Conclusion/Conclusion.tex} % Include the file specifying the results and discussion
+%
+%\newpage
+
+%----------------------------------------------------------------------------------------
+% Area for improvement
+%----------------------------------------------------------------------------------------
+
+\section{Area for improvement} % The \section command automatically numbers the sections
+\input{Axe/Axe.tex} % Include the file specifying the results and discussion
+
+%----------------------------------------------------------------------------------------
+%	BIBLIOGRAPHY
+%----------------------------------------------------------------------------------------
+\newpage
+\renewcommand{\refname}{\spacedlowsmallcaps{References}} % For modifying the bibliography heading
+
+\bibliographystyle{plain}
+
+\bibliography{sample} % The file containing the bibliography
+
+%----------------------------------------------------------------------------------------
+
+\end{document}

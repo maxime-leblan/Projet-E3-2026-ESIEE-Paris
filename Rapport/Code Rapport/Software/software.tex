@@ -1,0 +1,28 @@
+% Ecriture de la partie Software du rapport
+
+Afin d'être capable d'estimer avec précision la position du compagnon en temps réel tout en étant capable de retranscrire l'information le plus rapidement possible et de la manière la plus exacte, nous avons divisé le travail à effectuer sur la partie software en plusieurs parties :
+
+\begin{itemize}
+    \item L'implémentation d'un repère virtuel en trois dimensions permettant au Hub de se représenter l'emplacement des Ancres, des Tags portés par les compagnons ainsi que la délimitation de la zone de sécurité de l'engin.
+    \item La recherche puis l'implémentation d'algorithmes dont l'objectif est de situer précisément dans le repère du Hub la position des compagnons ainsi que la distance de chacun d'entre eux par rapport à l'engin de chantier.
+    \item L'écriture d'un programme de retranscription visuel du repère virtuel du Hub sur l'écran du conducteur de l'engin de chantier afin de pouvoir visualiser toutes les informations collectées par le Hub de la manière la plus concise et claire possible. Ce programme doit également permettre au conducteur de pouvoir personnaliser la zone de sécurité de l'engin quand il le souhaite, ce qui implique une interface utilisateur simple et épurée.
+    \item L'implémentation des programmes permettant de faire communiquer les microcontroleurs ESP32-S3 (Ancres et Tags) avec l'ESP32-WROVER-E (Hub) ainsi que des programmes permettant de faire la liaison entre les librairies contenant les algorithmes de calcul mathématiques liés au repère en trois dimensions et le Hub.
+\end{itemize}
+\bigskip % Pour sauter une ligne
+Nous allons donc dans un premier temps nous intéresser à l'implémentation du repère en lui-même et du programme de visualisation du repère que nous avons utilisé pour vérifier le bon fonctionnement de nos différents algorithmes mathématiques de manipulation d'objets au sein d'espaces vectoriels.
+
+\subsection{Repère du Hub en trois dimensions}
+
+L'objectif étant de déterminer de la manière la plus exacte possible la position d'un Tag par rapport à notre engin de chantier, il faut donc que notre système utilise un repère auquel le Hub pourrait se réferrer pour pouvoir positionner les Ancres fixées sur le véhicule, les Tags des compagnons ainsi que la zone de sécurité autour du véhicule.
+
+Pour l'implémentation de ce dispositif, nous avons dans un premier temps rédigé une librairie dénommée {\ttfamily{V3}} permettant de représenter des vecteurs en trois dimensions, puis nous avons utilisé le paradigme de la \uline{Programmation Orientée Objets (POO)} afin de modéliser les classes suivantes :
+
+\begin{itemize}
+    \item {\ttfamily{\textbf{UWBModule}}} : Cette classe permet de représenter à la fois les Tags ainsi que les Ancres en stockant comme information pour chaque module son identifiant et sa position.
+    \item {\ttfamily{\textbf{UWBModuleList}}} : Cette classe stocke plusieurs module UWB dans une même structure de données, permettant ainsi d'effectuer des manipulations sur l'ensemble des Ancres et des Tags connus du Hub. Afin de garantir un accès efficace aux données, la structure de données de dictionnaire native en {\ttfamily{C++ <unordered\_map.h>}} a été utilisée afin de garantir un accès aux données avec une complexité temporelle en {\emph{O(1)}}.
+\end{itemize}
+\bigskip
+<Inclure un schéma représentant la structure des 2 classes>
+\bigskip
+
+\subsubsection{Algorithme de Trilatération}

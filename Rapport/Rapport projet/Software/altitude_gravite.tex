@@ -1,0 +1,53 @@
+% =========================================================================
+% SECTION : FUSION MULTI-CAPTEURS ET CORRECTION SPATIALE
+% =========================================================================
+\newpage
+\section{Limites de l'UWB et Nécessité d'une Fusion Multi-Capteurs}
+
+Bien que la technologie Ultra-Wideband (UWB) constitue le cœur de notre système de détection, son utilisation isolée présente des limites physiques et géométriques majeures dans un environnement de chantier. Pour obtenir une localisation tridimensionnelle fiable, nous avons pensé à hybrider la mesure de l'altitude grâce à un capteur barométrique et une centrale inertielle \cite{Heiligers_2020}. 
+
+L'état d'avancement actuel de notre prototype valide l'acquisition matérielle de l'ensemble de ces données : les capteurs mesurent les grandeurs physiques avec précision, et la pression lue par le tag ouvrier est correctement transmise par radio UWB à une ancre, puis acheminée via le bus CAN jusqu'au Hub central. Toutefois, par manque de temps, l'algorithme mathématique final permettant de fusionner ces données pour le calcul de la projection 2D de la zone de sécurité n'a pas encore été implémenté. La section suivante détaille le fonctionnement théorique et l'utilité de ces mesures.
+
+\subsection{Le problème géométrique de l'UWB pur}
+
+Dans un système idéal, la position tridimensionnelle d'un ouvrier est calculée en résolvant un système d'équations basé sur la distance $d_i$ mesurée par le temps de vol vers quatre ancres distinctes :
+
+\begin{equation}
+    d_i = \sqrt{(X - x_i)^2 + (Y - y_i)^2 + (Z - z_i)^2} + \epsilon_i
+\end{equation}
+
+Où $\epsilon_i$ représente l'erreur de mesure. Cependant, la réalité d'un engin de chantier impose que les quatre ancres soient souvent fixées sur un même plan (le toit de la cabine ou le châssis). Cette disposition quasi-coplanaire engendre un phénomène mathématique connu sous le nom de mauvaise GDOP (\textit{Geometric Dilution of Precision}) \cite{Zhao_2022}. Si la résolution spatiale sur les axes horizontaux ($X$ et $Y$) est excellente, l'incertitude sur l'axe vertical ($Z$) explose. 
+C'est pourquoi il est conseillé d'optimiser le volume formé par les ancres en leur faisant former un tétraèdre.
+
+Par ailleurs, l'UWB est vulnérable au phénomène de NLOS (\textit{Non-Line-of-Sight}). Si par exemple une benne métallique s'interpose entre le tag et une ancre, le signal radio parcourt un trajet indirect par rebond \cite{Zhao_2022}. La distance mesurée s'en trouve artificiellement rallongée, rendant le calcul de la position 3D soit impossible, soit totalement aberrant.
+La STM32 du module maUWB se charge déjà de filtrer ce genre d'interférence, mais les mesures deviennent nécessairement moins précises.
+
+\subsection{Verrouillage de l'axe Z par Altimétrie Différentielle}
+
+Pour pallier l'incertitude verticale de l'UWB, nous avons intégré un capteur de pression Bosch BMP581 de chaque côté de la chaîne (un sur le tag, un sur le Hub). 
+
+\textbf{Pourquoi utiliser deux capteurs ?}
+L'altitude absolue calculée via la loi du nivellement barométrique de Laplace dépend intimement des conditions météorologiques. Une simple dépression atmosphérique modifierait l'altitude perçue. En calculant la différence de pression $\Delta P = P_{tag} - P_{vehicule}$, nous annulons les variations météorologiques pour ne conserver que la hauteur relative $\Delta Z$ entre le véhicule et l'ouvrier \cite{Sabatini_2014}. Nous avons également développé une bibliothèque logicielle dédiée permettant de "tarer" (calibrer le zéro) ces capteurs à la demande, garantissant un point de référence fiable en positionnant le tag utilisé pour l'étalonnage à la même hauteur que le hub lors de l'installation du système.
+
+\textbf{Utilité relative et nuances des capteurs de pression :}
+L'ajout de ces baromètres n'est pertinent que parce que l'erreur de l'UWB sur l'axe $Z$ est métrique (souvent $> 1$ mètre) en raison de la mauvaise GDOP. Le BMP581 offrant une précision relative théorique de 6Pa ($\pm 50$ cm de précision en altitude) pour une plage de 10kPa, nous avons mesuré concrètement une précision de $\pm 10$ cm, la pression apporte une contrainte absolue précieuse. À l'inverse, si nos ancres UWB étaient disposées de manière parfaitement tétraédrique autour de l'ouvrier, l'usage de la pression deviendrait redondant. 
+
+\subsection{Correction de l'inclinaison par l'IMU}
+
+Une fois la distance et l'altitude relative connues, il reste un obstacle majeur : le repère du véhicule (auquel sont attachées les ancres) n'est pas fixe. Si l'engin roule sur un terrain en pente ou lève une charge lourde, son châssis s'incline. Il faut donc dissocier le repère du véhicule du repère terrestre absolu.
+
+C'est ici qu'intervient la centrale inertielle (IMU) Bosch BMI088 intégrée au Hub. Son rôle est de calculer l'inclinaison du véhicule (roulis et tangage) par rapport au centre de la Terre. Pour y parvenir, l'IMU extrait le vecteur gravité unitaire $\vec{g}$.
+
+\textbf{Implémentation temps réel :}\\
+Le calcul de ce vecteur est confié à un filtre de Madgwick issu de la bibliothèque officiel de son inventeur \cite{bolder_flight_bmi088}. Cet algorithme de descente de gradient, optimisé pour les quaternions, est exécuté à une fréquence critique de 400~Hz \cite{Madgwick_2010}. Pour ne pas bloquer les autres opérations du Hub, cette tâche est assignée exclusivement au Cœur 0 du microcontrôleur ESP32. L'accès aux données calculées depuis le Cœur 1 s'effectue de manière sécurisée grâce à un \textit{Mutex} (verrou d'exclusion mutuelle), garantissant qu'aucune donnée n'est lue pendant qu'elle est mise à jour. Tout comme pour la pression, une fonction de tarage permet de définir le vecteur gravité initial lorsque l'engin est à plat lors de l'installation du système.
+
+\textbf{Limites théoriques du filtre de Madgwick :}\\
+Il est primordial de noter une faiblesse inhérente à ce filtrage, explicitement abordée dans les travaux fondateurs de Sebastian Madgwick. L'algorithme postule que l'accéléromètre ne mesure que la gravité à long terme \cite{Madgwick_2010}. Si le véhicule subit des accélérations linéaires intenses et prolongées (comme un freinage brusque d'un dumper), le vecteur gravité perçu sera temporairement faussé. L'algorithme confondra l'accélération inertielle avec la gravité, induisant une erreur d'inclinaison si le gain du filtre ($\beta$) n'est pas ajusté dynamiquement.
+
+\subsection{La théorie de la fusion}
+
+Si l'algorithme global était pleinement implémenté, il reposerait sur un modèle mathématique où la pression "sauve" l'UWB \cite{Heiligers_2020}. Dans le cas où une ancre est masquée (NLOS), le système passe de 4 à 3 distances exploitables. En UWB pur, la géométrie dégénère. Grâce à la pression différentielle qui verrouille l'axe $Z$, le problème tridimensionnel est projeté et réduit à une simple intersection de cercles en deux dimensions. L'algorithme peut ainsi continuer de suivre l'ouvrier avec une grande précision horizontale, démontrant la robustesse d'une approche multi-capteurs face aux environnements industriels chaotiques.
+
+% =========================================================================
+% FIN DE LA SECTION
+% =========================================================================

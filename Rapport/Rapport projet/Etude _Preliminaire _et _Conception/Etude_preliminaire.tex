@@ -1,0 +1,165 @@
+
+%------------------------------------------------
+
+\subsection{Contact}
+
+\input{Partie_commune/contact.tex}
+
+%------------------------------------------------
+\subsection{Gestion de projet}
+
+\subsubsection{Planification et organisation initiale}
+
+Pour notre projet, nous avons commencé par élaborer un diagramme de Gantt prévisionnel. Cette première étape, basée sur nos estimations, nous a permis de quantifier plus facilement la charge de travail à fournir sur ce mois et demi de développement et d'identifier les jalons principaux. Nous avons notamment mis en place des dates limites précises pour chaque tâche afin de nous assurer du bon avancement du projet. De plus, pour faciliter le travail en équipe et la communication, nous avons décidé de nous réunir tous les jours pour travailler ensemble en présentiel. Le distanciel n'a été appliqué que lorsque la situation l'obligeait.
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.5\columnwidth]{schema_Gantt.png} 
+\caption[Représentation chronologique du diagramme de Gantt prévisionnel]{Représentation chronologique du diagramme de Gantt prévisionnel}
+\label{fig:schema-gantt}
+\end{figure}
+
+\subsubsection{Planification détaillée et jalons du projet}
+
+Pour structurer notre travail, nous avons donc établi un diagramme de Gantt prévisionnel couvrant la période du 11 mai au 25 juin 2026. La représentation chronologique de ce planning est visible sur la Figure \ref{fig:schema-gantt}, tandis que la liste détaillée des tâches et de leurs dates d'échéance est résumée dans la Figure \ref{fig:tableau-gantt}.
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.3\columnwidth]{Liste_Gantt.png} 
+\caption[Liste détaillée des tâches prévisionnelles et de leurs dates d'échéance]{Liste détaillée des tâches prévisionnelles et de leurs dates d'échéance}
+\label{fig:tableau-gantt}
+\end{figure}
+
+Ce planning prévisionnel était divisé en plusieurs grandes phases. Dans un premier temps, la phase d'initialisation et de conception (prévue du 11 au 18 mai) avait pour but d'identifier les problèmes, de définir les besoins et de choisir le matériel adéquat. Ensuite, la phase de développement parallèle (prévue du 19 mai au 8 juin) devait nous permettre d'avancer simultanément sur les réalisations matérielles (Hardware) et logicielles (Software). Enfin, la dernière phase à partir du 9 juin était dédiée à la réalisation du prototype, aux tests du système, ainsi qu'à la finalisation de nos livrables annexes.
+
+Cependant, lors de la réalisation, ces délais n'ont pas pu être strictement respectés. Tout d'abord, la phase d'initialisation et de conception s'est prolongée d’une semaine dû au contexte de notre projet. Nous avons dû élargir nos recherches et revoir le choix de nos composants pour nous adapter.
+
+Ensuite, la phase de développement parallèle a été plus longue que prévu. En effet, nous n'avons pas reçu nos composants à temps, ce qui a décalé le début de nos implémentations physiques et nous a obligés à adapter notre rythme de travail.
+
+Par conséquent, le temps alloué à la phase de tests et à la finalisation de nos livrables s'est retrouvé beaucoup plus court qu'estimé initialement. Malgré ce délai réduit, nous avons réussi à nous réorganiser pour achever l'ensemble des rendus et valider le fonctionnement du système avant la journée des projets le 25 juin 2026.
+
+
+\subsubsection{Phasage et répartition des rôles}
+
+La répartition des rôles s'est faite de manière pragmatique, en fonction des tâches à accomplir. Durant les deux premières semaines, nous avons mis en place le cahier des charges fonctionnel et technique en collaboration avec GTM OUEST. Une fois celui-ci réalisé, nous avons commencé la recherche et la liste des composants à acheter.
+
+Une fois que nous avons été d'accord sur le choix des composants et sur la direction que devait prendre le projet, nous avons partagé le travail en fonction des appétences de chacun, ce qui répondait au mieux à l'avancement global avec une équipe polyvalente pour éviter tout retard ou point de blocage potentiel. Nous avons toutefois veillé à ce que chaque membre du groupe puisse ressortir du projet en ayant acquis de nouvelles connaissances. La répartition s'est articulée ainsi :
+
+\begin{itemize}
+\item \textbf{Pôle Électronique :} Benoît et Jérémy ont pris en charge la conception électrique, le routage des cartes, la fabrication ainsi que leur mise en œuvre.
+\item \textbf{Pôle Informatique :} Hugues et Maxime se sont concentrés sur le développement logiciel ainsi que sur le développement d'algorithmes mathématiques nécessaires au projet.
+\item \textbf{Pôle polyvalent :} Clarisse et Naïm ont adopté un rôle plus polyvalent. Ils sont intervenus en renfort sur les différents pôles selon les besoins, en plus de prendre en charge la modélisation 3D des boîtiers et d'assurer le lien entre l'équipe projet et l'entreprise. Ils ont également géré la réalisation des tâches annexes essentielles au projet, telles que la rédaction du rapport d'éthique et la conception du poster.
+\end{itemize}
+
+Cette mise en place fractionnée, où les membres étaient concentrés sur une partie spécifique, a permis d'atteindre un niveau d'expertise dans chaque domaine technique sans pour autant prendre le moindre retard. Bien entendu, cette organisation n'était pas purement exhaustive ni cloisonnée : une fois la partie électronique et les tâches annexes finalisées, l'ensemble du groupe s'est mobilisé sur la partie informatique pour clôturer le développement.
+
+
+\subsection{Cahier des charges fonctionnel}
+
+\subsubsection{Présentation générale et objectifs}
+Le projet VigiZone a pour objectif principal d'assurer la sécurité des ouvriers sur les chantiers en prévenant les collisions mortelles entre les employés et les engins de chantier.
+Une zone de sécurité doit pouvoir être délimitée au préalable autour de l’engin.
+Le système embarqué doit être capable de localiser les piétons autour d'une machine et d'alerter à la fois le conducteur et le piéton en cas de pénétration dans la zone dangereuse.
+
+\subsubsection{Architecture du système}
+Le dispositif VigiZone repose sur une architecture structurée autour de trois sous-systèmes interdépendants :
+Le hub central : unité centrale avec écran et alarme, située dans la cabine de l'engin, qui calcule les distances et déclenche les alarmes.
+Le boîtier véhicule (ancres) : capteurs disposés sur l'engin pour la localisation des ouvriers.
+Le boîtier ouvrier (tag) : équipement de protection individuelle porté par l'ouvrier sur son casque doté d’une alarme.
+
+\subsubsection{Détails du rôle des sous-systèmes}
+
+Le rôle du hub central est de fusionner les données et de calculer des distances par trilatération grâce aux informations captées par chaque ancre. En cas d'intrusion dans un périmètre critique, une alarme sonore prévient immédiatement le conducteur de la machine, et transmet au tag de l’ouvrier l’ordre d’activer l’alarme sonore également. 
+Un écran dans la cabine affiche la position du tag détecté par rapport à l’engin. Le système est alimenté directement par la batterie du véhicule. Afin de permettre aux tags ouvriers de se mettre régulièrement en veille, la distance relative à la zone de sécurité est transmise aux différents tags régulièrement. L’appairage Wi-fi avec l’application mobile se lance grâce au bouton de mise en route lorsque le système est déjà allumé. 
+Si un tag ouvrier est détecté dans la zone correspondant au véhicule même, il est considéré comme étant celui du conducteur et ne déclenche pas l’alarme. Le hub détecte toujours la présence d’un conducteur via son tag. Si le conducteur est absent pendant plus de deux heures, le système coupe son alimentation, et doit être rallumé grâce à un bouton-poussoir lors de la prochaine utilisation.
+
+Le rôle des ancres autour du véhicule est de localiser le tag ouvrier et de transmettre les données par câble.
+
+Le rôle du tag ouvrier est de prévenir l’ouvrier par alarme sonore un risque de collision avec un engin. L’alarme sonore doit être assez puissante pour garantir que l'ouvrier entend l'alerte malgré le bruit ambiant du chantier. Le dispositif est ultra-compact et accroché au casque ou à la ceinture par clips ou aimants. Il est alimenté par une batterie avec un système de recharge sans fil, évitant l'usure de connecteurs mécaniques en milieu poussiéreux. Il n’a pas de bouton pour éviter un arrêt volontaire ou involontaire et s’allume dès qu’il n’est pas en charge. Le tag se met en veille profonde la plupart du temps en fonction de sa distance à la zone de sécurité du véhicule le plus proche. Son autonomie serait donc entre 8h et 48h en fonction de la distance par rapport à un véhicule.
+
+\subsubsection{Installation et étalonnage}
+Les quatre ancres doivent être positionnées aussi loin que possible les unes des autres sur l’armature du véhicule, aimantées par exemple, avec un environnement le plus dégagé possible en direction de la zone à détecter. Elles sont reliées en série par un câble transportant l’alimentation et la communication par quatre fils.
+Afin de fonctionner correctement l’unité centrale a besoin de mesurer avec précision : la distance entre chaque ancre du véhicule afin de calculer la position des tags et l’inclinaison par rapport à la gravité. Ces deux premières mesures devraient être accessibles directement, mais requièrent potentiellement un étalonnage ponctuel en fonction de la masse métallique du véhicule.
+
+\subsubsection{Applications mobiles}
+Le système est muni d’une application mobile permettant la visualisation en temps réel des détections en cours, et de l’état des appareils (batterie, distances, alarme) à des fins de maintenance. Il sera également possible à tout moment de récupérer les journaux du système des dernières 48h en cas d’accident afin d’apporter des preuves quant à une défaillance ou non du système. La connexion au système se fera par Wi-fi dans un rayon de 5 mètres autour de l’unité centrale.
+
+\subsubsection{Contraintes physiques et environnementales}
+Tous les boîtiers doivent être étanches et résistants aux chocs pour ne pas être endommagés face aux conditions extérieures comme l’eau, la pluie, la poussière, la boue ou encore des projections de béton. De plus, il doit fonctionner pour des températures allant de -20°C à +60°C selon les environnements ainsi que les périodes de l’année.
+
+\subsubsection{Estimation budgétaire}
+Le coût total du matériel pour la validation du système est estimé à environ 600 €.
+
+
+\subsection{Choix de la technologie}
+
+Lors de nos premières réunions avec GTM OUEST, la consigne de départ était qu'il fallait idéalement trouver une solution pour protéger les ouvriers sans avoir à les équiper d'un dispositif supplémentaire (sans EPI). Nous avons donc d'abord exploré des technologies capables de détecter des personnes non équipées de manière passive, comme le LiDAR couplé à une caméra IA, ou encore le radar millimétrique (mmWave).
+
+
+Cependant, nous nous sommes très vite heurtés à plusieurs problématiques. D'un côté, le LiDAR offre une vue volumétrique en 3D, mais c'est une solution extrêmement chère et surtout très sensible à la visibilité, ce qui pose un énorme problème sur un chantier rempli de poussière ou d'obstacles. De l'autre côté, le radar millimétrique demandait une expertise technique beaucoup trop élevée pour réussir à différencier un humain d'une simple masse métallique. En plus de ça, le coût matériel était trop important pour notre budget (autour de 1500€).
+
+
+Face à ces coûts très élevés et à la complexité technique du traitement d'image, nous avons réalisé que les solutions sans EPI n'étaient tout simplement pas viables pour nous. Nous avons donc décidé de changer d'approche et d'accepter d'équiper les ouvriers du chantier avec un dispositif. Cela nous a naturellement amenés à comparer deux autres technologies : la RFID active et l'Ultra Wide Band (UWB).
+
+
+À la base, la RFID semblait intéressante car elle est très simple à mettre en place et peu coûteuse. Mais le problème majeur de cette technologie est qu'elle ne fait que créer une sorte de "bulle" de détection globale à 360° autour de l'engin. Sa précision se base uniquement sur l'intensité du signal reçu, ce qui la rend très imprécise. C'était insuffisant pour nous, car nous avions vraiment besoin de connaître la position exacte de l'ouvrier pour délimiter nos zones de sécurité.
+
+
+C'est pour cela que nous avons finalement choisi d'utiliser la technologie UWB. Même si cela oblige l'ouvrier à porter un capteur avec une batterie qu'il faut penser à recharger, ses avantages prenaient largement le dessus. La précision de la position est très élevée et fiable, car l'UWB se base sur le temps de vol du signal. De plus, c'est un signal robuste qui traverse bien les obstacles. Enfin, le coût matériel restait tout à fait modéré (environ 250€ pour la base et 40€ par tag), tout en nous laissant une complexité technique très gérable, centrée principalement sur le traitement de nos algorithmes de trilatération.
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.8\columnwidth]{tableau_choix_tech.png}
+\caption[Tableau comparatif des différentes technologies étudiées]{Tableau comparatif des différentes technologies étudiées}
+\label{fig:choix_tech}
+\end{figure}
+
+\subsection{Projets similaires existants}
+
+Avant de concevoir VigiZone, nous avons analysé les produits déjà disponibles sur le marché. Cette étude nous a permis de confronter les solutions existantes aux contraintes réelles du chantier. 
+
+Les systèmes d'alarme sonore classiques, comme les bips de recul, restent la norme sur la majorité des engins. Cependant, leur efficacité est limitée car les ouvriers finissent par ne plus faire attention à ces sons dans le bruit constant du chantier, ce qui rend ces systèmes moins fiables. D'un autre côté, les solutions basées sur la vision par ordinateur ou l'intelligence artificielle offrent une précision élevée, mais se heurtent à la réalité du terrain. Les conditions environnementales difficiles (poussière, boue, faible luminosité) entraînent régulièrement une dégradation de la vision des capteurs, en plus d'un coût d'acquisition très élevé qui freine leur déploiement.
+
+Nos recherches nous ont conduits à identifier des systèmes basés sur la technologie Ultra Wide Band, tels que le KYD.42 de CAD.42. Cette analyse a confirmé la pertinence de nos orientations technologiques : l'utilisation de l'UWB permet de combiner une haute précision de positionnement avec une grande robustesse face aux obstacles, contrairement à la RFID active qui se limite à une détection de proximité imprécise.
+
+La découverte tardive de ces solutions industrielles a été un point de validation technique pour notre projet. Nous avons ainsi pu confirmer que nos choix, comme l'utilisation de l'UWB, des algorithmes de lissage du périmètre de sécurité et d'une interface en cabine, sont cohérents avec les standards actuels du marché. Cela nous a permis d'aboutir à un système fonctionnel qui répond aux besoins de GTM OUEST.
+
+
+\subsection{Outils et environnement de travail}
+
+Pour réaliser ce projet, nous avons choisi des outils qui nous permettent de gérer toute la chaîne, du schéma électronique au code embarqué.
+
+\subsubsection{Outils de collaboration} 
+Dans un premier temps, nous avons mis en place un espace Google Drive \cite{Google_Drive} permettant à chaque membre du groupe de déposer son travail. Cependant, au vu de la nature technique du projet, nous nous sommes très vite dirigés vers GitHub \cite{GitHub}. Cet environnement s'est avéré beaucoup plus adapté pour la gestion de notre projet et le versioning, ce qui nous a permis de gagner un temps précieux. GitHub \cite{GitHub} nous a principalement permis d'avoir un espace de travail à plusieurs dans un environnement de programmation et de schématisation, que ce soit pour KiCad ou VS Code, ce qui n'était pas permis par Google Drive \cite{Google_Drive}. L'arborescence de notre espace de travail ainsi que la gestion de nos différents fichiers (rapport, codes, schémas) sont illustrées sur la Figure \ref{fig:GitHub}. 
+\begin{itemize} 
+    \item \textit{Historique :} Nous enregistrons chaque modification. Pour le debug, nous pouvons facilement identifier quelle est la dernière version fonctionelle et qui a effectué quel changement et quand. 
+    \item \textit{Travail en groupe :} Nous pouvons avancer sur l'électronique, le code ou la mécanique en parallèle sans nous gêner. Mais aussi travailler sur le même fichier depuis deux ordinateurs. 
+    \item \textit{Sauvegarde :} Tout est stocké et versionné, ce qui nous permet de ne pas perdre nos fichier accidentellement, et de régulièrement avoir des points de sauvegarde dans l'avancement du projet. 
+\end{itemize} 
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.8\columnwidth]{github_gestion_projet.png}
+\caption[Interface du dépôt GitHub utilisé pour le travail collaboratif]{Interface du dépôt GitHub utilisé pour le travail collaboratif}
+\label{fig:GitHub}
+\end{figure}
+
+
+
+\subsubsection{Développement et code}
+\begin{itemize}
+    \item \textbf{PlatformIO \cite{plateformio}:} Intégré à VS Code, c'est l'outil que nous utilisons pour programmer nos microcontrôleurs.
+    \begin{itemize}
+        \item \textit{Gestion multi-projets :} Nous passons d'une configuration à l'autre (Hub ou ancres) via les fichiers \texttt{platformio.ini}, ce qui nous évite des erreurs.
+        \item \textit{Bibliothèques :} Elles sont téléchargées et mises à jour automatiquement.
+        \item \textit{Git :} Nous voyons les infos de version directement dans l'interface, ce qui nous permet de suivre nos modifications en temps réel.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Conception électronique et mécanique}
+\begin{itemize}
+    \item \textbf{KiCad \cite{KiCad} :} Nous l'utilisons pour toute la partie électronique. Nous avons créé nos propres composants, routé nos cartes et préparé les fichiers de fabrication. Cela nous a permis d'intégrer précisément des modules comme les CMS ou le module UWB.
+    \item \textbf{Autodesk Fusion 360 \cite{Fusion360}:}  Pour la partie 3D, nous utilisons Autodesk Fusion 360. Nous importons le modèle STEP depuis KiCad pour concevoir le boîtier autour de la carte, ce qui nous permet de caler les fixations et les ouvertures au millimètre. Nous avons choisi ce logiciel car sa version gratuite est complète pour notre utilisation et il nous a été conseillé pour ce type de conception.
+    \item \textbf{Bambu Studio \cite{Bambu_Studio}:} Pour l'impression 3D, nous l'utilisons pour configurer nos pièces, vérifier la structure avant impression et lancer la fabrication sur les machines de l'ESIEE.
+\end{itemize}
+
