@@ -2,13 +2,13 @@
 
 # VigiZone : Prévention des collisions engins-piétons sur chantiers
 
-**Prix du meilleur projet technique** lors de la Journée des Projets E3 2026 à l'ESIEE Paris ! 
 ![L'équipe VigiZone lors de la remise du prix](Media/remise_prix_meilleur_projet_technique_esiee_paris.jpeg)
-[Découvrir le Jour des Projets (JdP)](https://jdp.esiee.fr)
+*Remise du prix du meilleur projet technique lors du [Jour des Projets](https://jdp.esiee.fr) E3 2026 à ESIEE Paris*
 
 ### Membres de l'équipe
 
-*Dans l'ordre de droite à gauche :*
+Nous étions une équipe de 6 étudiants en 1ère année du cycle ingénieur à ESIEE Paris
+*dans l'ordre de droite à gauche :*
 * Hugues JOUHAUD
 * Naïm BEN-RAÏES
 * Benoît DE KEYN
@@ -16,7 +16,7 @@
 * Clarisse BLONDEL
 * Jérémy FOUILLOUX
 
-Réalisé en mai-juin 2026 à ESIEE Paris. Prix décerné par M. Denis BUREAU (tout à gauche), professeur d'informatique à ESIEE Paris.
+ Suivis par notre tutrice **Mme Ting WANG**, assistante professeur de robotique à ESIEE PARIS, nous avons reçu le prix du meilleur projet technique de la part du jury technique **M. Denis BUREAU** (tout à gauche sur la photo), professeur d'informatique à ESIEE Paris.
 
 **[Lire le rapport complet du projet VigiZone (PDF)](https://drive.google.com/uc?export=download&id=16rXCA4nlOrGEzkfiPZYJjSept83bqB7f)**
 
