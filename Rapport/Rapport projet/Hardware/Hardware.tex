@@ -816,6 +816,10 @@ Suite à ce schéma, nous avons pu mettre en place le PCB de la carte, soit la F
 \label{fig:PCB-ouvrier}
 \end{figure}
 
+Les différentes nuances sur ce layout, sont tout d'abord le placement. il était important de mettre le Buzzer ainsi
+que la led à des emplacements pouvant accueillir la membrane (et donc pas trop proche du bord).
+la deuxième grosse spécificités, est la mise en placde de pad  au lieu de bornier. En effet, nous avons pris partis
+de souder directement un connecteur de batterie, pour faciliter le branchement ainsi que le changement de celle-ci.
 
 \subsection{réalisation PCB}
 
@@ -824,9 +828,62 @@ Après quelque complications technique sur les formats des fichier, il fut conve
 une gravure chimique (gain de temps) au lieu d'une gravure à l'anglaise.
 Cela à donné lieu à 6 cartes PCB prêtes à êtres soudés.
 
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.8\columnwidth]{carte-hub.jpg} 
+\caption[PCB hub]{PCB hub}
+\label{fig:PCB-hub}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.6\columnwidth]{carte-hub-verso.jpg} 
+\caption[PCB hub verso]{PCB hub verso}
+\label{fig:PCB-hub-verso}
+\end{figure}
 
 \subsection{Soudure PCB}
 
-\subsection{Test Physique}
+Une fois les cartes prêtes, nous somme passé à la soudure des cartes. Le matériel de l'école étant limité,
+ nous avons utilisé le matériel de l'équipe.
+La soudure commence par la mise en place des composant les plus petits,
+ soit les TCAN  ou encore certains condensateur, pour aller jusqu'au plus gros composants,
+  tels que l'abaisseur de tension ou bien les ESP32.
+
+Lors de la soudure, nous nous sommes heurté à de nombreux problèmes liés aux cartes.
+
+Tout d'abord, l'école n'est pas capable de mettre en place des vias, ni du vernis, de la sérigraphie
+ou encore des pads métalisés.
+
+Ce fut donc un long travail, pour remplir les vias, réussir à mettre en place les soudures,
+non pas d'un coté mais des deux cotés, ce qui n'a d'ailleurs pas été possible partout. Par exemple 
+les borniers ne sont pas soudable en top avec des pads non métallisés.
+
+Nous avons donc du mettre en place des petits fils pour la connection de certains composants,
+De plus nous nous somme rendus compte d'une inversion de sens, sur les pins de l'ESP32 des ancres,
+ce qui nous a valu de couper quelque pistes. 
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.6\columnwidth]{soudure-benoit-naim.jpg} 
+\caption[soudure-benoit-naim]{soudure-benoit-naim}
+\label{fig:soudure-benoit-naim}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.6\columnwidth]{soudure-benoit.jpg} 
+\caption[soudure-benoit]{soudure-benoit}
+\label{fig:soudure-benoit}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.6\columnwidth]{soudure-benoit-v2.jpg} 
+\caption[soudure-benoit-v2]{soudure-benoit-v2m}
+\label{fig:soudure-benoit-v2}
+\end{figure}
+
+
 
 \subsection{Résultat final}
