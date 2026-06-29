@@ -1,4 +1,4 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{5A-XL4015-DC-DC-Abaisser-Alimentation}
 Az-Delivery.
@@ -16,6 +16,14 @@ componentsearchengine.
 EasyEDA.
 \newblock https://easyeda.com.
 
+\bibitem{bouton_poussoir_PV6F240SS-311}
+E.Switch.
+\newblock {\em Bouton Poussoir PV6F240SS-311 Data Sheet}, 2009.
+
+\bibitem{TCAN1051-Q1}
+Texas Instruments.
+\newblock {\em TCAN1051-Q1 Data Sheet}, 2021.
+
 \bibitem{LCSC}
 LCSC.
 \newblock https://www.lcsc.com.
@@ -31,6 +39,10 @@ Mouser.
 \bibitem{OKI-78SR_Series}
 Murata power solutions.
 \newblock {\em OKI-78SR Series Data Sheet}, 2023.
+
+\bibitem{DSY2Y_Series}
+Sanyou.
+\newblock {\em DSY2Y Series Data Sheet}.
 
 \bibitem{CMT-8504-100-SMT-TR}
 Same Sky.

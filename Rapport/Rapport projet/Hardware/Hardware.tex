@@ -64,7 +64,7 @@ Pour se faire, nous nous sommes appuyés sur le cahier des charges réalisé à 
 \input{Hardware/choixcomposant.tex}
 
 
-\lipsum[11] % Dummy text
+
 
 \subsection{Hub}
 
@@ -106,6 +106,7 @@ le connecteur Roover ou encore l'abaisseur de tension \cite{5A-XL4015-DC-DC-Abai
 
 Une fois la recherche de tout les composants terminé, nous avons mis en place une librairie kicad propre au projet.
 Celle-ci permet d'avoir une banque de donnée commune à toutes les cartes et éviter de potentiel problème de PATH.
+Cela nous donne une librairie composé de tous les composants comme nous pouvons le voir sur la Figure \ref{fig: lib_Kicad}.
 
 \begin{figure}[!ht]
 \centering 
@@ -114,7 +115,7 @@ Celle-ci permet d'avoir une banque de donnée commune à toutes les cartes et é
 \label{fig: lib_Kicad}
 \end{figure}
 
-\subsubsection{Conception de schéma}
+\subsubsection{Conception du schéma d'alimentation}
 
 Une fois tout les composants prêts, nous avons commencé le schéma électronique.
 Celui-ci se découpe en quatre partie plus ou moins indépendantes que nous allons étudier.
@@ -127,14 +128,509 @@ La première étape que nous allons étudier est la partie alimentation :
 \label{fig:sch-alim-hub}
 \end{figure}
 
+La carte du hub vise à être alimenté par la batterie de l'engin sur lequel elle se trouve.
+La batterie sortant du 12V, il faut pouvoir réussir à s'en servir. Mais il s'avère qu'il n'existe 
+aucun microcontroleurs qui puisse supporter du 12V, le max étant 5V ou 3.3V. Nous avons donc mis en place
+un abaisseur de tension 12V->5V de la serie OKI-78SR  \cite{OKI-78SR_Series}.
+Mais en regardant de plus près la Datasheet, on remarque que celui-ci ne peut fournir que 4W,
+cela ne pose pas de problème dans la plupart des cas, mais dans le notre si.
+Alimenter la carte Hub, revient non seulement à alimenter la carte la plus gourmande en énergie, et celle avec le plus de composant,
+mais surtout d'alimenter également l'écran , qui consomme à lui tout seul 2.5W.
+Pour éviter tout risque, nous avons donc pris la décision de passer sur un modèle plus puissant
+à savoir le 5A-XL4015-DC-DC  \cite{5A-XL4015-DC-DC-Abaisser-Alimentation}. Celui-ci est capable de fournir plus de 30Watts
+ce qui est largement suiffisant pour notre utilisation.
+nous avons pris le 5A-XL4015-DC-DC  \cite{5A-XL4015-DC-DC-Abaisser-Alimentation}, car étant le seul assez puissant que nous avions sous la main,
+mais il est évident que celui-ci est très puissant inutilement.
+Il est donc fortement envisageable de modifier le choix de l'abaisseur pour une potentielle v2 du prototype,
+qui serait plus compacte et adapté a notre usage.
+
+\bigskip
+Comme nous le montre la figure \ref{fig:sch-alim-hub}, l'entrée du 12V dans l'abaisseur de tension
+ce fais à l'aide d'un relais DSY2Y-S-205H \cite{DSY2Y_Series}. Nous avons décidé de mettre en place
+un relais connecté en permanence au 12V et qui est activé à l'aide d'une broche GPIO.
+Le principe est de pouvoir décider d'alimenter ou non la carte et tout ce qui en découle à l'aide de ce relais.
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.3\columnwidth]{sch-datasheet-relais.png} 
+\caption[Extrait de la Datasheet du D DSY2Y-S-205H]{Extrait de la Datasheet du D DSY2Y-S-205H}
+\label{fig:sch-datasheet-relais}
+\end{figure}
+
+Sur le schéma de la figure \ref{fig:sch-alim-hub}, Com\_1 et Com\_2 réprésente les deux languettes 
+qui passe de NC\_1 et NC\_2 (Naturellement Closed) à NO\_1 et NO\_2 (naturellement open), lorsque qu'un courant passe dans la 
+bobine ( coil\_1  et  coil\_2), ce qui crée un champs magnétique et fais bouger les languettes.
+Nous avons donc la bobine qui est connecté en permanence au +5V. mais qui est connecté à la masse à l'aide d'un 
+transistor 2N2222 
+%\cite{2N}
+Celui-ci est controlé à l'aide d'une broche du GPIO et de le résistance $R_7 = 1\text{ k}\Omega$.  
+
+\subsubsection*{1. Calcul de fonctionnement du transistor $Q_1$}
+
+Pour valider le fonctionnement en commutation du transistor $Q_1$ (\texttt{2N2222B}) qui pilote la bobine du relais, 
+il convient d'effectuer l'étude théorique de sa saturation à partir des caractéristiques électriques des composants du circuit.
+
+\subsubsection*{Données initiales}
+\begin{itemize}
+    \item \textbf{ ESP32-WROVER} 
+    \begin{itemize}
+        \item Tension GPIO : $V_{in} = 3{,}3\text{ V}$
+        \item Résistance de base ($R_7$) : $R_7 = 1\text{ k}\Omega $
+    \end{itemize}
+    \item \textbf{Transistor bipolaire (2N2222B) :}
+    \begin{itemize}
+        \item Tension de saturation base-émetteur : $V_{BE,sat} \approx 0{,}7\text{ V}$
+        \item Tension de saturation collecteur-émetteur: $V_{CE,sat} \approx 0{,}2\text{ V}$
+        \item Gain en courant statique minimal en saturation ($h_{FE,min}$) : $\approx 75$
+    \end{itemize}
+    \item \textbf{Bobine du relais :}
+    \begin{itemize}
+        \item Tension d'alimentation : $V_{CC} = 5\text{ V}$
+        \item Résistance interne de la bobine : $R_{bobine} = 167\ \Omega$
+    \end{itemize}
+\end{itemize}
 
 
-\subsection{Ancre}
+Lorsque le transistor est saturé, il est assimilable à un interrupteur fermé. La tension à ses bornes chute à sa 
+valeur de saturation $V_{CE,sat}$. Le courant nominal $I_C$ traversant la charge est alors défini par la loi d'Ohm :
+\begin{equation}
+    I_C = \frac{V_{CC} - V_{CE,sat}}{R_{bobine}}
+\end{equation}
+
+En appliquant les valeurs numériques :
+\begin{equation}
+    I_C = \frac{5\text{ V} - 0{,}2\text{ V}}{167\ \Omega} = \frac{4{,}8\text{ V}}{167\ \Omega} \approx 0{,}0287\text{ A} \approx 28{,}7\text{ mA}
+\end{equation}
+
+Le transistor doit donc pouvoir absorber un courant d'environ $28{,}7\text{ mA}$ sur son collecteur pour
+ permettre le basculement du relais.
+
+ \bigskip
+
+Le courant de commande injecté par la broche GPIO à travers la résistance de protection $R_7$ est déterminé 
+en soustrayant la barrière de potentiel de la jonction base-émetteur ($V_{BE,sat}$) :
+\begin{equation}
+    I_B = \frac{V_{in} - V_{BE,sat}}{R_7}
+\end{equation}
+
+Soit numériquement :
+\begin{equation}
+    I_B = \frac{3{,}3\text{ V} - 0{,}7\text{ V}}{1000\ \Omega} = \frac{2{,}6\text{ V}}{1000\ \Omega} = 0{,}0026\text{ A} = 2{,}6\text{ mA}
+\end{equation}
+
+La broche GPIO fournit ainsi un courant de $2{,}6\text{ mA}$ à la base du transistor.
+
+\bigskip
+Pour s'assurer du blocage et de la saturation complets en mode de commutation, deux critères complémentaires sont vérifiés :
+
+\paragraph{Méthode par le courant de base minimal ($I_{B,min}$)} 
+Le courant de base minimal théorique requis pour saturer le transistor sous un courant de collecteur de $28{,}7\text{ mA}$ 
+est fonction de son gain minimal :
+\begin{equation}
+    I_{B,min} = \frac{I_C}{h_{FE,min}} = \frac{28{,}7\text{ mA}}{75} \approx 0{,}38\text{ mA}
+\end{equation}
+Le courant injecté réel ($I_B = 2{,}6\text{ mA}$) étant très largement supérieur au minimum requis ($0{,}38\text{ mA}$), 
+la condition de saturation $I_B > I_{B,min}$ est validée.
+
+\paragraph{Méthode par le gain forcé ($\beta_{forcé}$)} 
+Le gain forcé, imposé par les composants périphériques du montage, se calcule comme suit :
+\begin{equation}
+    \beta_{forcé} = \frac{I_C}{I_B} = \frac{28{,}7\text{ mA}}{2{,}6\text{ mA}} \approx 11
+\end{equation}
+Les règles de l'art en ingénierie électronique préconisent l'usage d'un gain forcé proche de $10$ 
+pour s'affranchir des dispersions de fabrication des transistors et des dérives thermiques. 
+
+\bigskip
+Avec un gain forcé calculé de $\approx 11$ (très proche de la valeur idéale) et un courant 
+de base réel environ sept fois supérieur au strict minimum requis, le transistor $Q_1$ 
+se trouve dans un état de saturation franche et robuste. Le choix de la résistance
+ $R_7 = 1\text{ k}\Omega$ est donc optimal.
 
 
+ \subsubsection*{2. Rôle de la diode de roue libre $D_3$}
+
+La diode $D_3$, positionnée en parallèle avec la bobine du relais, est un composant 
+de protection indispensable dans ce type de montage en commutation. 
+Elle remplit la fonction de \textit{diode de roue libre} (ou \textit{flyback diode}). 
+Son rôle est de protéger le transistor $Q_1$ contre les surtensions destructrices induites 
+lors de son blocage.
+
+\bigskip
+La bobine du relais se comporte électriquement comme une inductance ($L$). Une propriété 
+fondamentale d'une inductance est son opposition à toute variation brutale du courant qui 
+la traverse, accumulant de l'énergie sous forme d'un champ magnétique :
+\begin{itemize}
+    \item \textbf{À l'état passant :} Le courant circule dans la bobine et le transistor $Q_1$ conduit normalement.
+    \item \textbf{Au blocage du transistor :} Lorsque la broche GPIO repasse à $0\text{ V}$, le transistor $Q_1$ s'ouvre instantanément pour interrompre le courant. 
+    \item \textbf{Génération de la surtension :} Le courant ne pouvant s'annuler instantanément dans l'inductance, la rupture brutale ($di/dt$) provoque l'inversion de la polarité aux bornes de la bobine et génère une force électromotrice induite élevée, régie par la loi de Lenz-Faraday :
+    \begin{equation}
+        e = -L \frac{di}{dt}
+    \end{equation}
+\end{itemize}
+Sans protection, cette surtension inverse se répercute directement sur le collecteur du 
+transistor $Q_1$, pouvant atteindre plusieurs centaines de volts. Cette valeur dépassant
+ largement la tension de claquage maximale admissible du composant (\texttt{2N2222B}), 
+ elle entraîne sa destruction immédiate par claquage.
+
+\bigskip
+La diode $D_3$ est branchée en inverse par rapport à la tension d'alimentation normale
+ de $5\text{ V}$, ce qui signifie qu'elle est bloquée et ne consomme aucun courant
+  lorsque le relais est activé.
+
+Cependant, au moment précis où le transistor s'ouvre :
+\begin{enumerate}
+    \item La bobine inverse sa polarité pour tenter de maintenir la continuité du courant.
+    \item Cette inversion de potentiel rend la diode $D_3$ passante (polarisation en direct).
+    \item Le pic de courant induit est alors dérivé à travers la diode, circulant en boucle fermée au sein du dipôle formé par la bobine et la diode jusqu'à la dissipation complète de l'énergie magnétique sous forme thermique.
+\end{enumerate}
+
+ \bigskip
+La diode $D_3$ agit comme un bouclier  de décharge. En limitant la tension aux bornes
+ du transistor à sa propre tension de seuil en direct ($\approx 0{,}7\text{ V}$), 
+ elle sécurise efficacement le transistor $Q_1$ ainsi que la sortie GPIO du microcontrôleur
+  contre tout retour de surtension dangereux.
+
+\bigskip
+
+Tout cela fonctionne très bien, a condition que la broche GPIO puisse être à l'état haut.
+Pour cela nous avons mis en place un bouton que vous pouvez voir sur la figure \ref{fig:sch-alim-hub}.
+Représenté par les borniers $U_6$ et $U_7$, le bouton poussoir PV6F240SS-311 \cite{bouton_poussoir_PV6F240SS-311},
+est directement connecté au 12V de la batterie. Celui-ci permet d'alimenter le microcontroleur.
+
+\subsubsection*{3. Interface et conditionnement de l'entrée du bouton poussoir}
+
+Le bloc connecté au bornier à vis \texttt{U6} (bouton poussoir PV6F240SS-311 \cite{bouton_poussoir_PV6F240SS-311})
+ sert d'interface d'adaptation de niveau et de protection entre une tension d'entrée externe élevée ($V_{in} = 12\text{ V}$) 
+ et une broche d'entrée numérique (GPIO) du microcontrôleur, dont la tension admissible maximale est de $3{,}3\text{ V}$. 
+ Cette interface repose sur l'association des résistances $R_4$, $R_6$ et de la diode $D_2$.
+
+\bigskip
+Lorsque le bouton poussoir est actionné, la tension d'alimentation globale $V_{in} = 12\text{ V}$ est appliquée en entrée du montage. 
+Afin de ne pas détruire la broche du microcontrôleur, les résistances $R_4$ et $R_6$ sont configurées en pont diviseur de tension.
+ La tension convertie $V_{GPIO}$ envoyée vers le microcontrôleur est exprimée par la relation suivante :
+\begin{equation}
+    V_{GPIO} = V_{in} \cdot \frac{R_6}{R_4 + R_6}
+\end{equation}
+
+En injectant les valeurs numériques du schéma ($R_4 = 10\text{ k}\Omega$ et $R_6 = 3{,}3\text{ k}\Omega$) :
+\begin{equation}
+    V_{GPIO} = 12\text{ V} \cdot \frac{3{,}3\text{ k}\Omega}{10\text{ k}\Omega + 3{,}3\text{ k}\Omega} = 12 \cdot \frac{3{,}3}{13{,}3} \approx 2{,}98\text{ V}
+\end{equation}
+
+La tension obtenue d'environ $2{,}98\text{ V}$ est parfaitement calibrée : 
+elle est supérieure au seuil minimal requis pour valider un niveau logique haut (\texttt{HIGH}) 
+tout en restant inférieure à la limite stricte de $3{,}3\text{ V}$. 
+
+De plus, lorsque le bouton poussoir est relâché, la résistance $R_6$ remplit la fonction de résistance de rappel
+ à la masse (\textit{pull-down}), garantissant un niveau logique bas (\texttt{LOW}) stable à $0\text{ V}$ en 
+ évitant tout état flottant induit par des bruits parasites.
+
+\bigskip
+Le bouton poussoir étant déporté sur un connecteur physique (\texttt{U6}), les lignes de liaison filaires sont sujettes à des perturbations électromagnétiques, 
+des décharges électrostatiques ou des pics de surtension liés directement à la batterie du véhicule, qui ne délivrent pas toujours extacement $V_{in} = 12\text{ V}$.
+ La diode $D_2$ (\texttt{FR107}), connectée entre la ligne de signal  et le rail d'alimentation $+5\text{ V}$ , fait office de diode d'écrêtage:
+
+\begin{itemize}
+    \item \textbf{Fonctionnement normal :} La tension sur la ligne étant de $\approx 2{,}98\text{ V}$, la diode $D_2$ est polarisée en inverse. Elle est donc bloquée et n'interfère pas avec le signal.
+    \item \textbf{Fonctionnement en cas de surtension :} Si un pic de tension transitoire supérieur à $5\text{ V} + V_F \approx 5{,}7\text{ V}$ apparaît sur la ligne, la diode $D_2$ devient passante en direct. Elle ponte et dérive le surplus de courant destructeur vers le rail $+5\text{ V}$, verrouillant la tension maximale vue par le microcontrôleur à une valeur sûre.
+\end{itemize}
+
+Dans ce scénario de défaillance, la résistance $R_4$ ($10\text{ k}\Omega$) joue un rôle additionnel de limitation de courant. 
+Le courant de défaut maximal traversant la diode est bridé à une valeur hautement sécurisée :
+\begin{equation}
+    I_{clamping} = \frac{V_{in} - (5\text{ V} + 0{,}7\text{ V})}{R_4} = \frac{12\text{ V} - 5{,}7\text{ V}}{10000\ \Omega} = 0{,}63\text{ mA}
+\end{equation}
+
+\bigskip
+Ce sous-ensemble assure une double fonction essentielle à la robustesse de la carte électronique. 
+Le couple $R_4$/$R_6$ réalise l'atténuation d'amplitude nécessaire à la lecture numérique d'un signal
+ $12\text{ V}$ par un processeur $3{,}3\text{ V}$, tandis que la diode $D_2$ immunise l'entrée contre 
+ les agressions électriques externes.
 
 
+ \bigskip
+
+ Pour finir, on retrouve sur $U_7$ une résistance $R_2$ ($150\text{}\Omega$) connecté à un GPIO. $U_7$
+ est relié à la LED du bouton, et necessite 1.8V. (la gestion de la LED est géré logiciellement).
 %------------------------------------------------
+
+\subsubsection{Conception du schéma buzzer}
+
+Une autre partie de la carte du hub est le buzzer. En effer, il fais est au coeur même du dispositif,
+étant l'un des deux éléments étant capables de prévenir le conducteur, l'autre étant l'écran.
+Il est donc primordial que le buzzer fonctionne parfaitement. Pour cela, nous avons mis en place le schéma suivant :
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.8\columnwidth]{sch-buzzer-hub.png} 
+\caption[schéma du buzzer sur la carte Hub]{schéma du buzzer sur la carte Hub}
+\label{fig:sch-buzzer-hub}
+\end{figure}
+
+
+
+L'activation du buzzer \texttt{LS1} ($12\text{ V}$) nécessite une puissance électrique qu'une broche GPIO de
+ microcontrôleur ($3{,}3\text{ V}$) ne peut délivrer directement. La commande est donc déléguée au
+ transistor  $Q_2$ (\texttt{2N2222}) configuré en commutation. Ce circuit est  stabilisé par 
+ la résistance de base $R_3$ et la diode de protection $D_1$.
+ Il s'agit d'un cas très similaire au transitor $Q_1$ de l'alimentation du relais, vu précédamment,
+ Je considère donc comme acquis certaine notion et simplifie l'explication.
+
+\subsubsection*{1. Limitation du courant}
+La jonction base-émetteur du transistor $Q_2$ se comportant comme une diode à commutation directe, 
+sa tension de seuil en saturation est d'environ $V_{BE(sat)} \approx 0{,}7\text{ V}$. 
+L'insertion de la résistance $R_3 = 1\text{ k}\Omega$ permet d'injecter un courant de base $I_B$ 
+calibré pour assurer la saturation complète du transistor.
+
+
+Le courant de commande de base injecté lors d'un niveau logique haut ($V_{GPIO} = 3{,}3\text{ V}$) se calcule par la loi d'Ohm :
+\begin{equation}
+    I_B = \frac{V_{GPIO} - V_{BE(sat)}}{R_3}
+\end{equation}
+
+En appliquant les valeurs de l'application numérique :
+\begin{equation}
+    I_B = \frac{3{,}3\text{ V} - 0{,}7\text{ V}}{1000\ \Omega} = \frac{2{,}6\text{ V}}{1000\ \Omega} = 2{,}6\text{ mA}
+\end{equation}
+
+Cette valeur de $2{,}6\text{ mA}$ respecte le fonctionnement des broches de sortie du microcontrôleur
+ tout en fournissant l'intensité nécessaire pour saturer fermement le transistor \texttt{2N2222}
+  vis-à-vis du courant collecteur requis par le buzzer.
+
+\subsubsection*{2. Protection contre les surtensions }
+Le buzzer \texttt{LS1} intègre un transducteur magnétique assimilable à une bobine. 
+le courant traversant une inductance ne peut pas s'annuler de manière instantanée.
+Lorsque le signal de commande retombe à $0\text{ V}$, le transistor $Q_2$ se bloque subitement, 
+ouvrant le circuit de puissance. À cet instant précis, la rupture brutale du courant ($dt \to 0$) 
+provoque l'apparition d'un transitoire très élevée ($v_L = L \frac{di}{dt}$) au nœud du collecteur.
+ Sans $D_1$, cette surtension dépasserait la tension maximale admissible du transistor, 
+ provoquant un claquage destructeur par effet d'avalanche.
+
+La diode $D_1$ (\texttt{FR107}), montée en parallèle inversée, résout ce problème sous la forme 
+d'une \textit{diode de roue libre} :
+\begin{itemize}
+    \item \textbf{À l'état saturé (Buzzer actif) :} La tension aux bornes du buzzer est proche de $12\text{ V}$. La cathode de la diode étant reliée au rail $+12\text{ V}$, la diode $D_1$ est polarisée en inverse. Elle est bloquée et se comporte comme un circuit ouvert.
+    \item \textbf{À l'instant du blocage (Buzzer coupé) :} L'inversion de tension générée par l'inductance force la polarisation de $D_1$ en direct. La diode devient passante et offre un chemin de conduction fermé au courant résiduel stocké sous forme d'énergie magnétique. L'énergie se dissipe en boucle interne à travers la diode et la résistance parasite de la bobine.
+\end{itemize}
+
+L'activation de la diode $D_1$ verrouille (\textit{clame}) de fait le potentiel du collecteur 
+de $Q_2$ à une valeur de sécurité maximale équivalente à :
+\begin{equation}
+    V_{C(max)} = V_{in} + V_F \approx 12\text{ V} + 0{,}7\text{ V} = 12{,}7\text{ V}
+\end{equation}
+
+ La résistance $R_3$ assure l'interfaçage de commande bas courant en amont du commutateur, 
+ tandis que la diode $D_1$ immunise l'étage de puissance contre les phénomènes inductifs inverses en aval,
+  protégeant ainsi l'intégrité du transistor $Q_2$.
+
+
+\subsubsection{Conception du schéma TCAN}
+
+Un autre point majeur de la carte Hub, est son système de communication avec les ancres.
+Pour communiquer avec les ancre nous avons pris la solution TCAN, mais cette solution
+necessite plusieurs mise en places structurelles. que nous allons analyser.
+
+\begin{figure}[H]
+\centering 
+\includegraphics[width=0.8\columnwidth]{sch-TCAN-hub.png} 
+\caption[schéma de la communication CAN du Hub]{schéma de la communication CAN du Hub}
+\label{fig:sch-TCAN-hub}
+\end{figure}
+
+Le point central de cette communication, est le Tranceiver-CAN TCAN1051-Q1 \cite{TCAN1051-Q1},
+que l'on peut voir sur la Figure \ref{fig:sch-TCAN-hub}. Son rôle principal est d'assurer 
+l'adaptation des niveaux de tension entre le contrôleur logique et les lignes physiques 
+différentielles du bus CAN.
+ Pour cela, il communique à l'aide d'UART avec le micro controleur, c'est à dire qu'il utilise
+ les broches TX et RX : 
+
+ \begin{itemize}
+    \item \textbf{Broche 1 (TXD - Transmit Data) :} Cette entrée reçoit le flux de données série logique provenant de la broche de transmission du microcontrôleur pour le convertir en signal différentiel sur le bus.
+    \item \textbf{Broche 4 (RXD - Receive Data) :} Cette sortie renvoie les données lues sur le bus différentiel vers la broche de réception du microcontrôleur, après remise au niveau logique approprié.
+ \end{itemize}
+
+Celui-ci est alimenté en 5V mais recoit également du 3.3V,
+Bien que le symbole indique \texttt{NC} (\textit{No Connect}), la broche est physiquement
+câblée au rail \textbf{+3.3V} et associée à un condensateur. Sur les composants modernes
+, cette broche sert d'entrée de référence d'alimentation logique ($V_{IO}$).
+Elle permet d'adapter les tensions des signaux logiques (TXD/RXD) pour communiquer directement
+avec un microcontrôleur fonctionnant en  $3.3\text{ V}$, éliminant ainsi le besoin de circuits
+ de conversion de niveau externes, ce qui est notre cas.
+
+ \bigskip 
+
+ et de l'autre coté du composant, on retrouve les trois broches primordiales pour la communication CAN, qui sont les
+ suivantes : 
+
+\begin{itemize}
+    \item \textbf{Broche 6 (CANL - CAN Low) :} Ligne basse du bus différentiel.
+    \item \textbf{Broche 7 (CANH - CAN High) :} Ligne haute du bus différentiel.
+    \item \textbf{Broche 8 (S - Standby / Select) :} Broche de sélection de mode. Elle est reliée à la masse \texttt{GNDREF} via une résistance de pull-down $R_3 = 4.7\text{ k}\Omega$. Un niveau bas sur cette broche force le transceiver à opérer en mode normal (haute vitesse). La résistance $R_1$ garantit que le composant reste actif par défaut, même si le microcontrôleur ne pilote pas activement cette broche.
+\end{itemize}
+
+La stabilité des lignes d'alimentation est cruciale pour éviter l'injection de bruit sur le bus de données. 
+Trois condensateurs de découplage sont installés. $C_1$ / $C_2$ sont  Connectés en parallèle entre le rail 
+\textbf{+5V} et \texttt{GNDREF}, au plus près de la broche 3 (VCC). Ils filtrent les parasites haute fréquence 
+et fournissent les pointes de courant locales instantanées lors des commutations d'état sur le bus.
+$C_4$ est quant à lui connecté entre le rail \textbf{+3.3V} et \texttt{GNDREF}, il stabilise l'alimentation 
+de référence de l'interface d'E/S logique (Broche 5).
+
+Nous nous somme basé sur les recommandations de la Datasheet du TCAN \cite{TCAN1051-Q1}, en fonction
+de nos besoin ainsi que le modèle utilisé. Figure \ref{fig:Datasheet-TCAN}
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.4\columnwidth]{Datasheet-TCAN.png} 
+\caption[Example Datasheet du TCAN]{Example Datasheet du TCAN}
+\label{fig:Datasheet-TCAN}
+\end{figure}
+
+
+Pour prévenir les phénomènes de réflexion de signal en bout de ligne, 
+un bus CAN doit être fermé à ses deux extrémités physiques par une résistance
+correspondant à l'impédance caractéristique du câble (généralement $  120\text{}\Omega$).
+Nous pouvons constater sur la Figure \ref{fig:sch-TCAN-hub} la mise en oeuvre de cette protection.
+ Nous avons donc mis en place sur la communication CAN, 
+$R_5$ et $JP_1$ pour éviter de potentielles écho sur la ligne de communication.
+
+\begin{itemize}
+    \item \textbf{Résistance $R_5$  :} Résistance de terminaison normalisée.
+    \item \textbf{Cavalier $JP_1$  :} Ce cavalier permet d'activer ou de désactiver la présence de la résistance sur la ligne.
+    \item \textbf{Règle d'usage :} Si ce Hub se trouve physiquement à l'extrémité du réseau CAN, le cavalier $JP_1$ doit être inséré (fermé) pour connecter $R_5$ en dérivation entre CANH et CANL. S'il s'agit d'un nœud intermédiaire, le cavalier doit rester ouvert pour ne pas surcharger l'impédance totale du bus (qui doit rester égale à $  60\text{}\Omega$, soit deux terminaisons de $  120\text{}\Omega$ en parallèle sur tout le réseau).
+\end{itemize}
+
+
+À l'extrême droite du schéma, deux connecteurs de type bornier à vis (\texttt{DB301V-5.0-2P}), dont $U_9$, sont câblés en parallèle :
+\begin{itemize}
+    \item La \textbf{Broche 1} de chaque connecteur est reliée à la ligne générale \textbf{CANH}.
+    \item La \textbf{Broche 2} de chaque connecteur est reliée à la ligne générale \textbf{CANL}.
+\end{itemize}
+Cette mise en parallèle directe permet d'implémenter facilement une topologie en chaîne. Le câble de bus principal entre par l'un des connecteurs et ressort par le second vers le nœud suivant. Cela évite la création de dérivations en étoile trop longues, qui sont de fréquentes sources de problème d'impédance et d'erreurs de communication à des débits élevés.
+
+\subsubsection{Conception des Capteurs}
+
+La dernière partie de la carte, concerne la récupérations de données sur différents capteurs.
+Un extrait du schéma est représenté sur la Figure \ref{fig:sch-BMP-BMIO-ESP32-ecran-hub}.
+
+\begin{figure}[H]
+\centering 
+\includegraphics[width=0.8\columnwidth]{sch-BMP-BMIO-ESP32-ecran-hub.png} 
+\caption[schéma de communication BMIO/BMP/Ecran du Hub]{schéma de communication BMIO/BMP/Ecran du Hub}
+\label{fig:sch-BMP-BMIO-ESP32-ecran-hub}
+\end{figure}
+
+Sur la Figure \ref{fig:sch-BMP-BMIO-ESP32-ecran-hub}, on peut constater 4 éléments. Celui tout a droite représente
+La carte ESP32-WROVER du hub, celle qui s'occupe de récuperer toutes les données, aussi bien des capteurs
+que du bus CAN. il est alimenté en 5V, et sors du 3.3V sur ces GPIO.
+
+\bigskip
+Le point intéressant à remarquer, est le mode de communication des capteurs, le BMP581 \cite{BMP581}, communique
+en SPI et le BMIO88 \cite{} communique également en SPI. Nous somme donc en droit de nous demander pourquoi
+les deux ne communique pas sur les même broches, sachant que la force du SPI est de pouvoir mettre plusieurs
+esclaves avec un seul maitre.
+
+Le protocole \textbf{SPI} (\textit{Serial Peripheral Interface}) est un bus de communication série synchrone développé 
+par Motorola au milieu des années 1980. Il est conçu pour des communications à courte distance,
+ principalement entre microcontrôleurs et circuits intégrés périphériques.
+
+Le SPI fonctionne selon une architecture \textbf{Maître-Esclave} (\textit{Master-Slave}) et opère en 
+mode \textbf{Full-Duplex}, ce qui signifie que les données peuvent être envoyées et reçues simultanément.
+Une liaison SPI standard repose sur quatre lignes de signaux logiques :
+
+\begin{itemize}
+    \item \textbf{SCLK (Serial Clock) :} L'horloge générée exclusivement par le maître. Elle cadence la transmission des données bit par bit.
+    \item \textbf{MOSI (Master Out Slave In) / SDO (Serial Data Out) :} La ligne de transmission de données du maître vers l'esclave.
+    \item \textbf{MISO (Master In Slave Out) / SDI (Serial Data In) :} La ligne de transmission de données de l'esclave vers le maître.
+    \item \textbf{SS / CS (Slave Select / Chip Select) :} Activée généralement à l'état bas (\textit{Active Low}), cette ligne est pilotée par le maître pour sélectionner l'esclave avec lequel il souhaite communiquer.
+\end{itemize}
+
+
+La synchronisation des données par rapport au signal d'horloge est définie par deux paramètres configurables :
+\begin{itemize}
+    \item \textbf{CPOL (Clock Polarity) :} Définit l'état de repos de l'horloge.
+    \begin{itemize}
+        \item $CPOL = 0$ : L'horloge est à l'état bas ($0$) au repos.
+        \item $CPOL = 1$ : L'horloge est à l'état haut ($1$) au repos.
+    \end{itemize}
+    \item \textbf{CPHA (Clock Phase) :} Définit le front d'horloge sur lequel la donnée est capturée.
+    \begin{itemize}
+        \item $CPHA = 0$ : Échantillonnage sur le premier front (front actif).
+        \item $CPHA = 1$ : Échantillonnage sur le second front (front de retour au repos).
+    \end{itemize}
+\end{itemize}
+
+La combinaison de ces deux paramètres donne naissance aux 4 modes standardisés résumés dans le tableau suivant :
+
+\begin{table}[h!]
+\centering
+\caption{Matrice des Modes SPI}
+\label{tab:modes_spi}
+\begin{tabular}{ccccc}
+\toprule
+\textbf{Mode} & \textbf{CPOL} & \textbf{CPHA} & \textbf{Front d'Échantillonnage} & \textbf{Front de Commutation} \\
+\midrule
+0 & 0 & 0 & Montant (repos bas) & Descendant \\
+1 & 0 & 1 & Descendant (repos bas) & Montant \\
+2 & 1 & 0 & Descendant (repos haut) & Montant \\
+3 & 1 & 1 & Montant (repos haut) & Descendant \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+Lorsque le maître doit contrôler plusieurs périphériques, deux configurations physiques sont possibles :
+
+
+Chaque esclave possède sa propre ligne dédié $SS_x$ reliée au maître. Les lignes $SCLK$, $MOSI$ et $MISO$ sont partagées. 
+\begin{itemize}
+    \item \textbf{Avantage :} Communication directe et sélective avec n'importe quel esclave.
+    \item \textbf{Inconvénient :} Consommation importante de broches d'E/S (\textit{GPIO}) sur le maître ($N$ esclaves nécessitent $N$ lignes $SS$).
+\end{itemize}
+
+
+La broche $MOSI$ du maître est connectée au $MOSI$ de l'esclave 1. Le $MISO$ de l'esclave 1 est connecté au $MOSI$ de l'esclave 2, et ainsi de suite. Le $MISO$ du dernier esclave retourne au $MISO$ du maître. Une seule ligne $SS$ commune active tous les esclaves en même temps.
+\begin{itemize}
+    \item \textbf{Avantage :} Utilisation d'une seule ligne $SS$ quel que soit le nombre d'esclaves.
+    \item \textbf{Inconvénient :} Les données doivent traverser tous les esclaves, ce qui ralentit le rafraîchissement global et complique le protocole logiciel.
+\end{itemize}
+
+
+
+\begin{itemize}
+    \item Débit de données très élevé (facilement supérieur à \text{50 Mbps}).
+    \item Protocole matériel simple, pas de surcharge logicielle (\textit{overhead}) liée à des en-têtes ou des adresses comme en $I^2C$.
+    \item Support natif du Full-Duplex.
+\end{itemize}
+
+
+\begin{itemize}
+    \item Nécessite plus de fils que l'$I^2C$ (qui n'en utilise que 2).
+    \item Pas de protocole d'acquittement matériel (le maître ne sait pas si l'esclave a bien reçu le signal).
+    \item Limité aux courtes distances sur carte électronique en raison de la sensibilité du signal d'horloge $SCLK$ aux capacités parasites.
+\end{itemize}
+
+
+
+
+
+
+La réponse est assez simple, le BMIO nous permet de connaitre le vecteur gravité
+en temps réel, et nous voulons le connaitre le plus rapidement et souvent possible. Si jamais les deux capteurs
+etaient sur le même SPI, alors à certains moments, il serait impossible d'interroger le BMIO car L'ESP32
+serait entrain de communiquer avec le BMP581 \cite{BMP581}.
+Ils sont donc mis sur deux SPI différents pour minimiser le délai de réponse du BMIO.
+
+
+
+
+\bigskip
+
+Pour ce qui est du connecteur $J_1$ Grove-Mabee, il s'agit du connecteur permettant de relié l'écran au hub.
+Pour cela, nous utilisons le GPIO 32 et 32, en mode UART (Tx/Rx) pour communiquer les informations, avec une 
+alimentation 5V. 
+
+
+
 
 \subsection{Ouvrier}
 
