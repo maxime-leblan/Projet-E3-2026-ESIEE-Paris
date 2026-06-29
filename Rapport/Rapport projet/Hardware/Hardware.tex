@@ -1,55 +1,3 @@
-\cite{OKI-78SR_Series} % Example of a citation to a reference in the bibliography
-
-
-\lipsum[13] % Dummy text
-
-\begin{table}[hbt]
-\caption{Table of Grades}
-\centering
-\begin{tabular}{llr}
-\toprule
-\multicolumn{2}{c}{Name} \\
-\cmidrule(r){1-2}
-First name & Last Name & Grade \\
-\midrule
-John & Doe & $7.5$ \\
-Richard & Miles & $2$ \\
-\bottomrule
-\end{tabular}
-\label{tab:label}
-\end{table}
-
-Reference to Table~\vref{tab:label}. % The \vref command specifies the location of the reference
-
-Reference the figure composed of multiple subfigures as Figure~\vref{fig:esempio}. Reference one of the subfigures as Figure~\vref{fig:ipsum}. % The \vref command specifies the location of the reference
-
-\lipsum[15-18] % Dummy text
-
-\begin{figure}[tb]
-\centering
-\subfloat[A city market.]{\includegraphics[width=.45\columnwidth]{Lorem}} \quad
-\subfloat[Forest landscape.]{\includegraphics[width=.45\columnwidth]{Ipsum}\label{fig:ipsum}} \\
-\subfloat[Mountain landscape.]{\includegraphics[width=.45\columnwidth]{Dolor}} \quad
-\subfloat[A tile decoration.]{\includegraphics[width=.45\columnwidth]{Sit}}
-\caption[A number of pictures.]{A number of pictures with no common theme.} % The text in the square bracket is the caption for the list of figures while the text in the curly brackets is the figure caption
-\label{fig:esempio}
-\end{figure}
-\cite{CMT-8504-100-SMT-TR} % Example of a citation to a reference in the bibliography
-
-\begin{description}
-\item[Word] Definition
-\item[Concept] Explanation
-\item[Idea] Text
-\end{description}
-
-\lipsum[12] % Dummy text
-
-\begin{itemize}[noitemsep] % [noitemsep] removes whitespace between the items for a compact look
-\item First item in a list
-\item Second item in a list
-\item Third item in a list
-\end{itemize}
-
 
 \subsection{Introduction}
  
@@ -545,76 +493,13 @@ Une liaison SPI standard repose sur quatre lignes de signaux logiques :
 \end{itemize}
 
 
-La synchronisation des données par rapport au signal d'horloge est définie par deux paramètres configurables :
-\begin{itemize}
-    \item \textbf{CPOL (Clock Polarity) :} Définit l'état de repos de l'horloge.
-    \begin{itemize}
-        \item $CPOL = 0$ : L'horloge est à l'état bas ($0$) au repos.
-        \item $CPOL = 1$ : L'horloge est à l'état haut ($1$) au repos.
-    \end{itemize}
-    \item \textbf{CPHA (Clock Phase) :} Définit le front d'horloge sur lequel la donnée est capturée.
-    \begin{itemize}
-        \item $CPHA = 0$ : Échantillonnage sur le premier front (front actif).
-        \item $CPHA = 1$ : Échantillonnage sur le second front (front de retour au repos).
-    \end{itemize}
-\end{itemize}
-
-La combinaison de ces deux paramètres donne naissance aux 4 modes standardisés résumés dans le tableau suivant :
-
-\begin{table}[h!]
-\centering
-\caption{Matrice des Modes SPI}
-\label{tab:modes_spi}
-\begin{tabular}{ccccc}
-\toprule
-\textbf{Mode} & \textbf{CPOL} & \textbf{CPHA} & \textbf{Front d'Échantillonnage} & \textbf{Front de Commutation} \\
-\midrule
-0 & 0 & 0 & Montant (repos bas) & Descendant \\
-1 & 0 & 1 & Descendant (repos bas) & Montant \\
-2 & 1 & 0 & Descendant (repos haut) & Montant \\
-3 & 1 & 1 & Montant (repos haut) & Descendant \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-
-Lorsque le maître doit contrôler plusieurs périphériques, deux configurations physiques sont possibles :
-
-
-Chaque esclave possède sa propre ligne dédié $SS_x$ reliée au maître. Les lignes $SCLK$, $MOSI$ et $MISO$ sont partagées. 
-\begin{itemize}
-    \item \textbf{Avantage :} Communication directe et sélective avec n'importe quel esclave.
-    \item \textbf{Inconvénient :} Consommation importante de broches d'E/S (\textit{GPIO}) sur le maître ($N$ esclaves nécessitent $N$ lignes $SS$).
-\end{itemize}
-
-
-La broche $MOSI$ du maître est connectée au $MOSI$ de l'esclave 1. Le $MISO$ de l'esclave 1 est connecté au $MOSI$ de l'esclave 2, et ainsi de suite. Le $MISO$ du dernier esclave retourne au $MISO$ du maître. Une seule ligne $SS$ commune active tous les esclaves en même temps.
-\begin{itemize}
-    \item \textbf{Avantage :} Utilisation d'une seule ligne $SS$ quel que soit le nombre d'esclaves.
-    \item \textbf{Inconvénient :} Les données doivent traverser tous les esclaves, ce qui ralentit le rafraîchissement global et complique le protocole logiciel.
-\end{itemize}
-
-
-
-\begin{itemize}
-    \item Débit de données très élevé (facilement supérieur à \text{50 Mbps}).
-    \item Protocole matériel simple, pas de surcharge logicielle (\textit{overhead}) liée à des en-têtes ou des adresses comme en $I^2C$.
-    \item Support natif du Full-Duplex.
-\end{itemize}
-
-
-\begin{itemize}
-    \item Nécessite plus de fils que l'$I^2C$ (qui n'en utilise que 2).
-    \item Pas de protocole d'acquittement matériel (le maître ne sait pas si l'esclave a bien reçu le signal).
-    \item Limité aux courtes distances sur carte électronique en raison de la sensibilité du signal d'horloge $SCLK$ aux capacités parasites.
-\end{itemize}
 
 
 
 
 
 
-La réponse est assez simple, le BMIO nous permet de connaitre le vecteur gravité
+Pour revenir aux vrai sujet, le BMIO nous permet de connaitre le vecteur gravité
 en temps réel, et nous voulons le connaitre le plus rapidement et souvent possible. Si jamais les deux capteurs
 etaient sur le même SPI, alors à certains moments, il serait impossible d'interroger le BMIO car L'ESP32
 serait entrain de communiquer avec le BMP581 \cite{BMP581}.
@@ -629,8 +514,95 @@ Pour ce qui est du connecteur $J_1$ Grove-Mabee, il s'agit du connecteur permett
 Pour cela, nous utilisons le GPIO 32 et 32, en mode UART (Tx/Rx) pour communiquer les informations, avec une 
 alimentation 5V. 
 
+\bigskip
+
+Tous ces schémas, nous amène à un schéma global tel que la figure \ref{fig:sch-hub}
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=1\columnwidth]{sch-hub.png} 
+\caption[schéma du Hub]{schéma du Hub}
+\label{fig:sch-hub}
+\end{figure}
+
+Une fois le schéma validé, nous devons maintenant le passer de symbole complètement théorique,
+à quelque chose qui représente le circuit imprimé le plus fidèlement possible.
+Pour cela, nous utilisons le logiciels PCB de kiCad. 
 
 
+\section{Présentation Générale et Empilage (\textit{Stackup})}
+La vue de dessus issue de KiCad présente un circuit imprimé à \textbf{deux couches} (double face) à forte densité de fonctionnalités. Le code couleur standard de l'éditeur permet d'identifier immédiatement la structure de la carte :
+\begin{itemize}
+    \item \textbf{La couche supérieure (\texttt{F.Cu}, en rouge) :} Utilisée de manière prépondérante pour le routage de l'ensemble des pistes de puissance et des signaux logiques.
+    \item \textbf{La couche inférieure (\texttt{B.Cu}, en bleu) :} Entièrement configurée en zone de cuivre plane, agissant comme un plan de masse global (\texttt{GNDREF}).
+    \item \textbf{Le contour physique (\texttt{Edge.Cuts}, en magenta) :} Définit les dimensions physiques de la carte. On note également la présence de 4 trous de fixation normalisés (\texttt{MountingHole\_3.2mm\_M3}) aux quatre angles, correctement isolés des pistes actives.
+\end{itemize}
+
+\section{Analyse Dimensionnelle des Pistes (\textit{Track Width})}
+Le routage met en évidence une excellente application des règles de l'art concernant la différenciation des largeurs de pistes en fonction de leur rôle électrique (densité de courant et impédance).
+
+
+\subsection{Pistes de Puissance (Alimentation $12\text{ V}$ et $5\text{ V}$}
+Les pistes associées à l'alimentation principale (provenant des borniers à vis situés à gauche, transitant par les diodes \texttt{D1}, \texttt{D3} et alimentant le Buzzer 12V \texttt{LS1}) présentent une largeur très importante (estimée entre \textbf{$1\text{millimeter}$} et \textbf{$1.5\text{ millimeter}$}).
+\begin{itemize}
+    \item \textbf{Justification :} Le buzzer \texttt{LS1} et les charges inductives commutées consomment des pointes de courant non négligeables. Une piste large minimise la résistance linéique ($R = \rho \frac{L}{S}$), réduisant ainsi les chutes de tension ohmiques ($\Delta V = R \cdot I$) et l'échauffement des pistes par effet Joule.
+\end{itemize}
+
+\subsection{Pistes de Signaux Logiques et de Communication}
+Les pistes connectant le microcontrôleur central (\texttt{U1}) au contrôleur CAN (\texttt{U2}), au connecteur Grove (\texttt{J1}) et aux connecteurs supérieurs sont beaucoup plus fines (estimées entre \textbf{$0.25\text{ millimeter}$} et \textbf{$0.4\text{millimeter}$}).
+\begin{itemize}
+    \item \textbf{Justification :} Ces lignes transportent des signaux de commande à très faible courant (quelques milliampères). Réduire leur largeur permet un gain d'espace crucial pour passer entre les pastilles (\textit{pads}) des composants au pas de $0.25\text{ millimeter}$ sans violer les règles d'isolement (\textit{Clearance}).
+\end{itemize}
+
+\subsection{Géométrie et Angles de Routage}
+Toutes les pistes observées respectent scrupuleusement le routage à \textbf{$45\text{DEGREE}$}. Les angles droits ($90\text{DEGREE}$) sont totalement proscrits. Cela évite l'effet de "piège à acide" lors de la gravure chimique industrielle du cuivre et limite les ruptures brutales d'impédance électromagnétique.
+
+\section{Stratégie de Placement des Composants (\textit{Floorplanning})}
+Le placement des composants suit une logique fonctionnelle rigoureuse qui optimise le câblage externe et limite le bruit interne :
+\begin{itemize}
+    \item \textbf{Centralisation de l'intelligence (\texttt{U1}) :} Le support du microcontrôleur (format type Arduino Nano à 30 broches) est positionné au centre, équilibré pour distribuer les signaux vers la périphérie de manière homogène.
+    \item \textbf{Périphérie des interfaces (Connecteurs) :} Tous les borniers à vis (\texttt{U10, U3, U6, U7} en haut à gauche ; \texttt{U4, U9} en haut à droite) ainsi que le connecteur autodétrompé Grove (\texttt{J1}) sont alignés sur les bords de la carte. Cela facilite grandement le raccordement des faisceaux de câbles sans survoler les composants sensibles.
+    \item \textbf{Proximité du découplage (\texttt{C2, C4}) :} Les condensateurs de filtrage CMS pour le transceiver CAN (\texttt{U2}) sont placés à l'immédiate proximité de ses broches d'alimentation. Cela réduit l'inductance parasite des pistes, garantissant l'efficacité du filtrage des harmoniques hautes fréquences.
+\end{itemize}
+
+\section{Gestion du Plan de Masse et des Vias}
+L'un des points forts de cette conception réside dans la gestion de la compatibilité électromagnétique (CEM) via la couche inférieure.
+
+\subsection{Plan de Masse Continu (\texttt{B.Cu})}
+La zone bleue représente un plan de masse plein et continu. Un plan de masse uniforme offre une impédance de retour extrêmement faible pour les courants de signal, ce qui réduit drastiquement les surfaces de boucles inductives et l'émission de parasites.
+
+\subsection{Freins Thermiques (\textit{Thermal Reliefs})}
+En observant attentivement les connexions à la masse (par exemple, la broche 2 du bloc \texttt{GNDREF} à gauche ou la broche 4 en bas à gauche), on s'aperçoit que les pastilles ne sont pas noyées directement dans la masse solide, mais connectées via une croix de cuivre.
+\begin{itemize}
+    \item \textbf{Rôle :} Ces structures sont des \textbf{freins thermiques}. Lors du soudage, ils empêchent la chaleur du fer à souder de se dissiper instantanément dans tout le plan de masse de la carte. Sans cela, la pastille n'atteindrait pas la température de fusion de l'étain, provoquant une "soudure sèche" défectueuse.
+\end{itemize}
+
+\subsection{Routage Monocouche des Signaux et Rareté des Vias}
+Fait remarquable sur ce tracé : la quasi-totalité des pistes de signal reste cantonnée sur la couche supérieure rouge (\texttt{F.Cu}). Il y a très peu de trous de passage (\textit{Vias}) de signal. 
+\begin{itemize}
+    \item \textbf{Avantage :} Le plan de masse inférieur bleu n'est pratiquement pas "sectionné" ou fragmenté par des pistes de détournement. Un plan de masse non coupé garantit qu'aucun courant de retour ne doit faire de long détour, évitant ainsi la création d'antennes dipolaires involontaires.
+\end{itemize}
+
+\section{Synthèse des Règles de Conception Appliquées}
+Le tableau suivant résume les bonnes pratiques identifiées sur votre layout KiCad :
+
+\begin{table}[h!]
+\centering
+\caption{Synthèse des choix technologiques du PCB}
+\label{tab:synthese_pcb}
+\begin{tabular}{lll}
+\toprule
+\textbf{Paramètre} & \textbf{Style Observé} & \textbf{Objectif Technique} \\
+\midrule
+Stackup & 2 couches (\texttt{F.Cu} + \texttt{B.Cu}) & Optimisation coût / performance CEM \\
+Routage Alimentation & Pistes larges ($1.2\text{ millimeter}$+) & Faible résistance, support d'intensité (Buzzer) \\
+Routage Signaux & Pistes fines ($0.3\text{ millimeter}$) & Densité spatiale, respect de la \textit{Clearance} \\
+Angles de pistes & À $45\text{DEGREE}$ uniquement & Intégrité du signal, fabricabilité chimique \\
+Plan de masse & Continu sur la face \texttt{B.Cu} & Blindage CEM, réduction des impédances de retour \\
+Pads de masse & Connexion en croix (\textit{Thermal Relief}) & Soudabilité parfaite à la main ou au four \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Ouvrier}
 
