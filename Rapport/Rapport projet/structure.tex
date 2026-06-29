@@ -99,4 +99,8 @@ pdfproducer={LaTeX with hyperref and ClassicThesis} % PDF producer
 %	COMMANDS
 %---------------------------------------------------------------------------------------
 
+% Permet d'écrire un intervalle d'entiers [|...,...|]
 \DeclarePairedDelimiterX{\ie}[2]{\llbracket}{\rrbracket}{#1\mkern1.5mu;\mkern1.5mu#2}
+
+% Permet d'écrire la norme d'un nombre ||...||
+\newcommand{\norme}[1]{\left\lVert #1 \right\rVert}
