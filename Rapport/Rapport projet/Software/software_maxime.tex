@@ -11,6 +11,58 @@ Afin d'être capable d'estimer avec précision la position du compagnon en temps
 \bigskip % Pour sauter une ligne
 Nous allons donc dans un premier temps nous intéresser à l'implémentation du repère en lui-même et du programme de visualisation du repère que nous avons utilisé pour vérifier le bon fonctionnement de nos différents algorithmes mathématiques de manipulation d'objets au sein d'espaces vectoriels.
 
+Mais avant d'étudier ce premier aspect, voici un apperçu global du fonctionnement de l'algorithme de chaque sous-système de notre prototype dans la partie ci-dessous.
+\newpage
+\subsection{Organigrammes des sous-systèmes}
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=1\columnwidth]{organigramme_hub_init.png} 
+\caption[Programme d'initialisation du hub]{Programme d'initialisation du hub}
+\end{figure}
+
+\newpage
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=1\columnwidth]{organigramme_hub_principal.png} 
+\caption[Programme principal du hub]{Programme principal du hub}
+\end{figure}
+
+\newpage
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=1\columnwidth]{organigramme_ancre_init.png} 
+\caption[Programme d'initialisation d'une ancre]{Programme d'initialisation d'une ancre}
+\end{figure}
+
+\newpage
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.7\columnwidth]{organigramme_ancre_principal.png} 
+\caption[Programme principal d'une ancre]{Programme principal d'une ancre}
+\end{figure}
+
+\newpage
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.5\columnwidth]{organigramme_tag_init.png} 
+\caption[Programme d'initialisation d'un tag]{Programme d'initialisation d'un tag}
+\end{figure}
+
+\newpage
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.7\columnwidth]{organigramme_tag_principal.png} 
+\caption[Programme principal d'un tag]{Programme principal d'un tag}
+\end{figure}
+
+\newpage
+
 \subsection{Repère du Hub en trois dimensions}
 
 L'objectif étant de déterminer de la manière la plus exacte possible la position d'un Tag par rapport à notre engin de chantier, il faut donc que notre système utilise un repère auquel le Hub pourrait se réferrer pour pouvoir positionner les Ancres fixées sur le véhicule, les Tags des compagnons ainsi que la zone de sécurité autour du véhicule.
@@ -47,6 +99,12 @@ Afin de pouvoir mieux visualiser la représentation des positions des Ancres et 
 
 
 \subsection{Algorithme de Trilatération}
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.5\columnwidth]{illustration_trilateration.png} 
+\caption[Illustration de la trilatération dans un espace en 3D]{Illustration de la trilatération dans un espace en 3D}
+\end{figure}
 
 Le choix de la technologie UWB ayant été effectué par notre équipe, nous savons donc que notre système est capable de récupérer les distances entre chaque ancre et chaque tag comportant un module UWB. Seulement, pour pouvoir répondre au cahier des charges que nous avons établi, notre système a besoin de pouvoir situer de la manière la plus précise et la plus conforme à la réalité possible la position relative de l'ouvrier par rapport au véhicule et à sa zone de sécurité.
 C'est pourquoi nous avons effectué différentes recherches pour établir la liste des algorithmes existants qui seraient les plus aptes à répondre à notre problématique tout en étant capable d'exploiter au mieux les données récoltées par notre système. La technologie UWB existant depuis plusieurs décennies, nous avons donc pu obtenir une quantité importante d'articles traitant notre problème de calcul d'une position dans un repère en trois dimensions, et l'algorithme qui est le plus ressorti est celui de la Trilatération par la méthode des Moindres Carrés.
@@ -327,8 +385,6 @@ Comme évoqué précédemment, l'algorithme de \emph{Multidimensional Scaling} a
    \item On définit à tour de rôle une ancre statique, et on envoie un message aux trois autres pour qu'elle passe en mode tag.
    \item On attend de recevoir un tableau contenant les 3 distances entre chaque ancre.
 \end{itemize}
-
-\textbf{<RAJOUTER ORGANIGRAMME HUB>}
 
 Cependant, la précision des mesures des distances entre les ancres n'ayant pas été très pointue lors de nos premiers tests (le taux d'erreurs pour les mesures oscillait entre 25\% et 50\%), nous avons pour le moment décidé de proposer à l'utilisateur de saisir manuellement les distances entre chaque ancre. L'algorithme de collecte des distances dépicté ci-dessus nécéssiterait une phase de développement plus importante avant d'envisager son utilisation au sein de notre système.
 

@@ -2,9 +2,7 @@
 % SECTION : CHOIX DES COMPOSANTS ET ARCHITECTURE MATÉRIELLE
 % =========================================================================
 
-\subsection{Choix des Composants et Architecture Matérielle}
-
-\subsubsection{Philosophie de Conception et Topologie Globale}
+\subsection{Philosophie de Conception et Topologie Globale}
 
 La conception matérielle du système VigiZone a été guidée par un pragmatisme industriel imposé par les délais stricts du projet et les capacités de fabrication disponibles. Le matériel de l'école étant limité pour la gravure de circuits imprimés (PCB) analogiques complexes à micro-pistes, nous avons pris le parti d'éviter les conceptions électroniques de bas niveau \cite{Slides_Choix}. Notre architecture repose donc sur l'intégration de modules pré-assemblés qui gèrent eux-mêmes leur régulation interne, soudés ensuite sur des PCB porteurs personnalisés \cite{Slides_Choix}. Bien que cette approche modulaire induise un encombrement physique légèrement supérieur à celui d'un design dédié, elle garantit une fiabilité analogique sans avoir à passer du temps à faire des calculs, surtout. Cette sécurité électronique nous a permis de concentrer nos efforts sur la validation des algorithmes critiques de sécurité dans le délai imparti de six semaines \cite{Desc_Projet}.
 
@@ -17,40 +15,40 @@ La conception matérielle du système VigiZone a été guidée par un pragmatism
 
 \bigskip
 
-% -------------------------------------------------------------------------
-\subsubsection{Composant Transversal : Transistor de Commutation (NPN 2N2222)}
-
-Afin de rationaliser l'architecture et de limiter les coûts, les éléments de commutation de puissance partagés entre les différents sous-systèmes ont été standardisés autour du transistor bipolaire NPN 2N2222. Ce composant, largement disponible dans les stocks de l'école, offre un gain en courant qui permet de saturer la jonction avec un très faible appel sur la base (via une résistance de 1~k$\Omega$) \cite{2N2222, Desc_Projet}. Cette caractéristique est essentielle pour respecter la limite stricte de tirage des broches GPIO de nos microcontrôleurs, tout en laissant passer la puissance requise pour activer des relais ou des buzzers \cite{XIAO_nRF52840}. Dans l'optique d'une version industrialisée, ce composant imposant une chute de tension intrinsèque ($V_{CE(sat)}$) devrait être remplacé par un transistor MOSFET à état logique (comme le BSS138). Sa résistance interne quasi nulle ($R_{DS(on)}$) permettrait de transmettre la totalité de la tension aux actionneurs \cite{BSS138}.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\textwidth]{2N222_complete.png}
-    \caption{Vues du transistor de commutation NPN 2N2222.}
-    \label{fig:2n2222_img}
-\end{figure}
-
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|p{6cm}|p{8cm}|}
-        \hline
-        \textbf{Caractéristique / Fonctionnalité} & \textbf{Spécification} \\
-        \hline
-        Tension Collecteur-Émetteur ($V_{CEO}$) & 40 Vdc \\
-        \hline
-        Courant Collecteur Continu ($I_C$) & 600 mAdc \\
-        \hline
-        Gain en courant DC ($h_{FE}$) & 100 à 300 (à $I_C = 150\text{ mA}$) \\
-        \hline
-        Dissipation totale du dispositif ($P_D$) & 625 mW \\
-        \hline
-    \end{tabular}
-    \caption{Spécifications électriques du transistor NPN P2N2222A \cite{2N2222}.}
-    \label{tab:specs_2n2222}
-\end{table}
+% Jeremy -------------------------------------------------------------------------
+% \subsection{Composant Transversal : Transistor de Commutation (NPN 2N2222)}
+% 
+% Afin de rationaliser l'architecture et de limiter les coûts, les éléments de commutation de puissance partagés entre les différents sous-systèmes ont été standardisés autour du transistor bipolaire NPN 2N2222. Ce composant, largement disponible dans les stocks de l'école, offre un gain en courant qui permet de saturer la jonction avec un très faible appel sur la base (via une résistance de 1~k$\Omega$) \cite{2N2222, Desc_Projet}. Cette caractéristique est essentielle pour respecter la limite stricte de tirage des broches GPIO de nos microcontrôleurs, tout en laissant passer la puissance requise pour activer des relais ou des buzzers \cite{XIAO_nRF52840}. Dans l'optique d'une version industrialisée, ce composant imposant une chute de tension intrinsèque ($V_{CE(sat)}$) devrait être remplacé par un transistor MOSFET à état logique (comme le BSS138). Sa résistance interne quasi nulle ($R_{DS(on)}$) permettrait de transmettre la totalité de la tension aux actionneurs \cite{BSS138}.
+% 
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.5\textwidth]{2N222_complete.png}
+%     \caption{Vues du transistor de commutation NPN 2N2222.}
+%     \label{fig:2n2222_img}
+% \end{figure}
+% 
+% \begin{table}[H]
+%     \centering
+%     \begin{tabular}{|p{6cm}|p{8cm}|}
+%         \hline
+%         \textbf{Caractéristique / Fonctionnalité} & \textbf{Spécification} \\
+%         \hline
+%         Tension Collecteur-Émetteur ($V_{CEO}$) & 40 Vdc \\
+%         \hline
+%         Courant Collecteur Continu ($I_C$) & 600 mAdc \\
+%         \hline
+%         Gain en courant DC ($h_{FE}$) & 100 à 300 (à $I_C = 150\text{ mA}$) \\
+%         \hline
+%         Dissipation totale du dispositif ($P_D$) & 625 mW \\
+%         \hline
+%     \end{tabular}
+%     \caption{Spécifications électriques du transistor NPN P2N2222A \cite{2N2222}.}
+%     \label{tab:specs_2n2222}
+% \end{table}
 
 \newpage
 % -------------------------------------------------------------------------
-\subsubsection{Sous-Système 1 : L'Équipement de Protection Individuelle (Tag Ouvrier)}
+\subsection{Sous-Système 1 : L'Équipement de Protection Individuelle (Tag Ouvrier)}
 
 Ce sous-système, destiné à être porté sur le casque de l'employé, est soumis à des contraintes drastiques d'encombrement, de poids et de consommation d'énergie.
 
@@ -102,9 +100,9 @@ Le cœur logique du tag est une carte Seeed Studio XIAO nRF52840. Son architectu
         \hline
         BAT+ / BAT- & Batterie Li-Po 3.7V 500mAh \\
         \hline
-        D1 (P0.03) & Base du transistor 2N2222 (Buzzer) \\
+        D1 (P0.03) & Sortie logique pour le Buzzer \\
         \hline
-        D2 (P0.28) & Anode de la LED rouge 3mm (via résistance 1K) \\
+        D2 (P0.28) & Sortie logique pour la LED rouge \\
         \hline
         D6 (Tx) / D7 (Rx) & UART1 RX / TX du module MaUWB \\
         \hline
@@ -164,19 +162,19 @@ Notre choix final s'est donc porté sur le module MaUWB de Makerfabs \cite{Slide
     \centering
     \begin{tabular}{|l|l|}
         \hline
-        \textbf{Broche} & \textbf{Broche cible / Composant cible} \\
+        \textbf{Broche} & \textbf{Connexion XIAO} \\
         \hline
-        3V3 & 3V3 (XIAO) \\
+        3V3 & Bus 3V3 \\
         \hline
-        GND & GND (XIAO) \\
+        GND & Masse commune \\
         \hline
-        UART1 TX & D7 (P1.12) Rx (XIAO) \\
+        UART1 TX & D7 Rx (P1.12) \\
         \hline
-        UART1 RX & D6 (P1.11) Tx (XIAO) \\
+        UART1 RX & D6 Tx(P1.11) \\
         \hline
-        UART2 RX & D0 (P0.02) (XIAO) \\
+        UART2 RX & D0 (P0.02) \\
         \hline
-        Tout le reste & Non connecté \\
+        Autres & Non connecté \\
         \hline
     \end{tabular}
     \caption{Brochage du module MaUWB-DW3000 dans le Tag ouvrier.}
@@ -227,21 +225,21 @@ Indépendant du système UWB, l'axe vertical est verrouillé par un capteur de p
     \centering
     \begin{tabular}{|l|l|}
         \hline
-        \textbf{Broche} & \textbf{Broche cible / Composant cible} \\
+        \textbf{Broche} & \textbf{Connexion XIAO} \\
         \hline
-        VCC (VDD) & 3V3 (XIAO) \\
+        VCC & Bus 3V3 \\
         \hline
-        GND & GND (XIAO) \\
+        GND & Masse commune \\
         \hline
-        SCL & D8 (P1.13) SCK (XIAO) \\
+        SCL (SCK) & D8 SCK (P1.13) \\
         \hline
-        SDA (SDI) & D10 (P1.15) MOSI (XIAO) \\
+        SDA (MOSI) & D10 MOSI (P1.15) \\
         \hline
-        SDO & D9 (P1.14) MISO (XIAO) \\
+        SDO (MISO) & D9 MISO (P1.14) \\
         \hline
-        CS (CSB) & D3 (P0.29) CSB (XIAO) \\
+        CS (CSB) & D3 (P0.29) \\
         \hline
-        INT & D4 (P0.04) INT (XIAO) \\
+        INT & D4 (P0.04) \\
         \hline
     \end{tabular}
     \caption{Brochage du baromètre BMP581 utilisé en mode SPI dans le Tag.}
@@ -311,35 +309,36 @@ L'alerte sonore de l'ouvrier est actuellement gérée par un buzzer magnétique 
         \hline
         Volume sonore & 100 dB (à une fréquence de 4000 Hz) \\
         \hline
-        Technologie Piézoélectrique & NON (Composant magnétique) \\
+        Piézoélectrique & NON (Composant magnétique) \\
         \hline
     \end{tabular}
     \caption{Spécifications de l'avertisseur sonore Same Sky \cite{CMT-8504-100-SMT-TR}.}
     \label{tab:specs_buzzer}
 \end{table}
 
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|l|l|}
-        \hline
-        \textbf{Broche} & \textbf{Broche cible / Composant cible} \\
-        \hline
-        Borne (+) & Bus +12V (Hub) ou PAD BAT+ en 3.7V (Tag) \\
-        \hline
-        Borne (-) & Collecteur (C) (Transistor 2N2222) \\
-        \hline
-        \multicolumn{2}{|c|}{\textit{Diode de roue libre FR107 montée en antiparallèle}} \\
-        \hline
-        Anode (Sans trait) & Borne (-) du Buzzer \\
-        \hline
-        Cathode (Avec trait) & Borne (+) du Buzzer \\
-        \hline
-    \end{tabular}
-    \caption{Brochage standardisé de l'avertisseur sonore et de sa diode de protection.}
-    \label{tab:pinout_buzzer}
-\end{table}
-
-\textbf{Note sur le câblage de protection :} Une diode de roue libre (FR107) est montée en antiparallèle directement sur les bornes du buzzer. L'anode est connectée à la Borne (-) et la cathode à la Borne (+). Ce câblage est indispensable pour court-circuiter l'énergie résiduelle de la bobine du buzzer et éviter que le transistor 2N2222 ne grille à l'ouverture du circuit.
+% Jeremy
+% \begin{table}[H]
+%     \centering
+%     \begin{tabular}{|l|l|}
+%         \hline
+%         \textbf{Broche} & \textbf{Broche cible / Composant cible} \\
+%         \hline
+%         Borne (+) & Bus +12V (Hub) ou PAD BAT+ en 3.7V (Tag) \\
+%         \hline
+%         Borne (-) & Collecteur (C) (Transistor 2N2222) \\
+%         \hline
+%         \multicolumn{2}{|c|}{\textit{Diode de roue libre FR107 montée en antiparallèle}} \\
+%         \hline
+%         Anode (Sans trait) & Borne (-) du Buzzer \\
+%         \hline
+%         Cathode (Avec trait) & Borne (+) du Buzzer \\
+%         \hline
+%     \end{tabular}
+%     \caption{Brochage standardisé de l'avertisseur sonore et de sa diode de protection.}
+%     \label{tab:pinout_buzzer}
+% \end{table}
+% 
+% \textbf{Note sur le câblage de protection :} Une diode de roue libre (FR107) est montée en antiparallèle directement sur les bornes du buzzer. L'anode est connectée à la Borne (-) et la cathode à la Borne (+). Ce câblage est indispensable pour court-circuiter l'énergie résiduelle de la bobine du buzzer et éviter que le transistor 2N2222 ne grille à l'ouverture du circuit.
 
 \begin{figure}[H]
     \centering
@@ -357,7 +356,7 @@ L'alerte sonore de l'ouvrier est actuellement gérée par un buzzer magnétique 
 
 \newpage
 % -------------------------------------------------------------------------
-\subsubsection{Sous-Système 2 : Le Hub Central (Le Cerveau)}
+\subsection{Sous-Système 2 : Le Hub Central (Le Cerveau)}
 
 Situé dans la cabine de l'engin, le Hub centralise les données du réseau périphérique, calcule les distances et interagit avec le conducteur \cite{Desc_Projet}.
 
@@ -642,7 +641,7 @@ La traduction des signaux logiques du contrôleur TWAI de l'ESP32 vers le résea
 
 \newpage
 % -------------------------------------------------------------------------
-\subsubsection{Sous-Système 3 : Le Réseau Périphérique (Les Ancres)}
+\subsection{Sous-Système 3 : Le Réseau Périphérique (Les Ancres)}
 
 \paragraph{Logique Télémétrique (Makerfabs ESP32-S3 + UWB)}
 
@@ -753,7 +752,7 @@ Par exemple, si l'on prend une longueur probable de $L = 30$ mètres sur un gros
 
 \newpage
 % -------------------------------------------------------------------------
-\subsubsection{Bloc d'Énergie et Auto-Maintien (Système Relais-Bouton-Alimentation)}
+\subsection{Bloc d'Énergie et Auto-Maintien (Système Relais-Bouton-Alimentation)}
 
 \begin{figure}[H]
     \centering
@@ -890,7 +889,7 @@ En aval du relais se trouve l'abaisseur de tension (Buck). Initialement, nous av
 
 \newpage
 % -------------------------------------------------------------------------
-\subsubsection{Problèmes Rencontrés et Adaptations Matérielles}
+\subsection{Problèmes Rencontrés et Adaptations Matérielles}
 
 La philosophie de conception basée sur des modules pré-assemblés nous a permis de gagner un temps précieux, mais n'a pas été exempte de difficultés physiques d'intégration. Plusieurs obstacles techniques nous ont contraints à réaliser des modifications matérielles (hacks) directement sur les cartes de développement.
 
