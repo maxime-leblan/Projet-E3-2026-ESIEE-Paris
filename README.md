@@ -8,15 +8,15 @@
 
 ### Membres de l'équipe
 
-*Dans l'ordre de gauche à droite :*
-* Jérémy FOUILLOUX
-* Clarisse BLONDEL
-* Maxime LE BLAN
-* Benoît DE KEYN
-* Naïm BEN-RAÏES
+*Dans l'ordre de droite à gauche :*
 * Hugues JOUHAUD
+* Naïm BEN-RAÏES
+* Benoît DE KEYN
+* Maxime LE BLAN
+* Clarisse BLONDEL
+* Jérémy FOUILLOUX
 
-Réalisé en mai-juin 2026 à ESIEE Paris
+Réalisé en mai-juin 2026 à ESIEE Paris. Prix décerné par M. Denis BUREAU (tout à gauche), professeur d'informatique à ESIEE Paris.
 
 **[Lire le rapport complet du projet VigiZone (PDF)](https://drive.google.com/uc?export=download&id=16rXCA4nlOrGEzkfiPZYJjSept83bqB7f)**
 
