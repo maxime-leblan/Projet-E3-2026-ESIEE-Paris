@@ -520,71 +520,100 @@ Tous ces schémas, nous amène à un schéma global tel que la figure \ref{fig:s
 
 \begin{figure}[!ht]
 \centering 
-\includegraphics[width=1\columnwidth]{sch-hub.png} 
+\includegraphics[width=0.8\columnwidth]{sch-hub.png} 
 \caption[schéma du Hub]{schéma du Hub}
 \label{fig:sch-hub}
 \end{figure}
 
+\subsubsection*{Placement composant}
 Une fois le schéma validé, nous devons maintenant le passer de symbole complètement théorique,
 à quelque chose qui représente le circuit imprimé le plus fidèlement possible.
-Pour cela, nous utilisons le logiciels PCB de kiCad. 
+Pour cela, nous utilisons le logiciel PCB de kiCad. 
 
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=1\columnwidth]{PCB-Hub-placement.png} 
+\caption[Placement des composants]{Placement des composants}
+\label{fig:PCB-Hub-placement}
+\end{figure}
 
-\section{Présentation Générale et Empilage (\textit{Stackup})}
-La vue de dessus issue de KiCad présente un circuit imprimé à \textbf{deux couches} (double face) à forte densité de fonctionnalités. Le code couleur standard de l'éditeur permet d'identifier immédiatement la structure de la carte :
-\begin{itemize}
-    \item \textbf{La couche supérieure (\texttt{F.Cu}, en rouge) :} Utilisée de manière prépondérante pour le routage de l'ensemble des pistes de puissance et des signaux logiques.
-    \item \textbf{La couche inférieure (\texttt{B.Cu}, en bleu) :} Entièrement configurée en zone de cuivre plane, agissant comme un plan de masse global (\texttt{GNDREF}).
-    \item \textbf{Le contour physique (\texttt{Edge.Cuts}, en magenta) :} Définit les dimensions physiques de la carte. On note également la présence de 4 trous de fixation normalisés (\texttt{MountingHole\_3.2mm\_M3}) aux quatre angles, correctement isolés des pistes actives.
-\end{itemize}
-
-\section{Analyse Dimensionnelle des Pistes (\textit{Track Width})}
-Le routage met en évidence une excellente application des règles de l'art concernant la différenciation des largeurs de pistes en fonction de leur rôle électrique (densité de courant et impédance).
-
-
-\subsection{Pistes de Puissance (Alimentation $12\text{ V}$ et $5\text{ V}$}
-Les pistes associées à l'alimentation principale (provenant des borniers à vis situés à gauche, transitant par les diodes \texttt{D1}, \texttt{D3} et alimentant le Buzzer 12V \texttt{LS1}) présentent une largeur très importante (estimée entre \textbf{$1\text{millimeter}$} et \textbf{$1.5\text{ millimeter}$}).
-\begin{itemize}
-    \item \textbf{Justification :} Le buzzer \texttt{LS1} et les charges inductives commutées consomment des pointes de courant non négligeables. Une piste large minimise la résistance linéique ($R = \rho \frac{L}{S}$), réduisant ainsi les chutes de tension ohmiques ($\Delta V = R \cdot I$) et l'échauffement des pistes par effet Joule.
-\end{itemize}
-
-\subsection{Pistes de Signaux Logiques et de Communication}
-Les pistes connectant le microcontrôleur central (\texttt{U1}) au contrôleur CAN (\texttt{U2}), au connecteur Grove (\texttt{J1}) et aux connecteurs supérieurs sont beaucoup plus fines (estimées entre \textbf{$0.25\text{ millimeter}$} et \textbf{$0.4\text{millimeter}$}).
-\begin{itemize}
-    \item \textbf{Justification :} Ces lignes transportent des signaux de commande à très faible courant (quelques milliampères). Réduire leur largeur permet un gain d'espace crucial pour passer entre les pastilles (\textit{pads}) des composants au pas de $0.25\text{ millimeter}$ sans violer les règles d'isolement (\textit{Clearance}).
-\end{itemize}
-
-\subsection{Géométrie et Angles de Routage}
-Toutes les pistes observées respectent scrupuleusement le routage à \textbf{$45\text{DEGREE}$}. Les angles droits ($90\text{DEGREE}$) sont totalement proscrits. Cela évite l'effet de "piège à acide" lors de la gravure chimique industrielle du cuivre et limite les ruptures brutales d'impédance électromagnétique.
-
-\section{Stratégie de Placement des Composants (\textit{Floorplanning})}
+La première étape consiste à placer les composants sur la carte de manière intelligente.
+Comme nous pouvons le voir sur la Figure \ref{fig:PCB-Hub-placement}, 
 Le placement des composants suit une logique fonctionnelle rigoureuse qui optimise le câblage externe et limite le bruit interne :
 \begin{itemize}
-    \item \textbf{Centralisation de l'intelligence (\texttt{U1}) :} Le support du microcontrôleur (format type Arduino Nano à 30 broches) est positionné au centre, équilibré pour distribuer les signaux vers la périphérie de manière homogène.
+    \item \textbf{Centralisation de l'intelligence (\texttt{U1}) :} Le support du microcontrôleur est positionné au centre, équilibré pour distribuer les signaux vers la périphérie de manière homogène.
     \item \textbf{Périphérie des interfaces (Connecteurs) :} Tous les borniers à vis (\texttt{U10, U3, U6, U7} en haut à gauche ; \texttt{U4, U9} en haut à droite) ainsi que le connecteur autodétrompé Grove (\texttt{J1}) sont alignés sur les bords de la carte. Cela facilite grandement le raccordement des faisceaux de câbles sans survoler les composants sensibles.
     \item \textbf{Proximité du découplage (\texttt{C2, C4}) :} Les condensateurs de filtrage CMS pour le transceiver CAN (\texttt{U2}) sont placés à l'immédiate proximité de ses broches d'alimentation. Cela réduit l'inductance parasite des pistes, garantissant l'efficacité du filtrage des harmoniques hautes fréquences.
+    \item \textbf{Proximité du 12V  :} Tout les composants prenant du 12V sont concentrés en une zone, pour éviter que du 12V ne se balade sur toute la carte.
 \end{itemize}
 
-\section{Gestion du Plan de Masse et des Vias}
-L'un des points forts de cette conception réside dans la gestion de la compatibilité électromagnétique (CEM) via la couche inférieure.
+\bigskip
 
-\subsection{Plan de Masse Continu (\texttt{B.Cu})}
-La zone bleue représente un plan de masse plein et continu. Un plan de masse uniforme offre une impédance de retour extrêmement faible pour les courants de signal, ce qui réduit drastiquement les surfaces de boucles inductives et l'émission de parasites.
+\subsubsection*{Routage Top}
 
-\subsection{Freins Thermiques (\textit{Thermal Reliefs})}
-En observant attentivement les connexions à la masse (par exemple, la broche 2 du bloc \texttt{GNDREF} à gauche ou la broche 4 en bas à gauche), on s'aperçoit que les pastilles ne sont pas noyées directement dans la masse solide, mais connectées via une croix de cuivre.
-\begin{itemize}
-    \item \textbf{Rôle :} Ces structures sont des \textbf{freins thermiques}. Lors du soudage, ils empêchent la chaleur du fer à souder de se dissiper instantanément dans tout le plan de masse de la carte. Sans cela, la pastille n'atteindrait pas la température de fusion de l'étain, provoquant une "soudure sèche" défectueuse.
-\end{itemize}
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.8\columnwidth]{PCB-Hub-top.png} 
+\caption[Mise en place du routage Top]{Mise en place du routage Top}
+\label{fig:PCB-Hub-top}
+\end{figure}
 
-\subsection{Routage Monocouche des Signaux et Rareté des Vias}
-Fait remarquable sur ce tracé : la quasi-totalité des pistes de signal reste cantonnée sur la couche supérieure rouge (\texttt{F.Cu}). Il y a très peu de trous de passage (\textit{Vias}) de signal. 
-\begin{itemize}
-    \item \textbf{Avantage :} Le plan de masse inférieur bleu n'est pratiquement pas "sectionné" ou fragmenté par des pistes de détournement. Un plan de masse non coupé garantit qu'aucun courant de retour ne doit faire de long détour, évitant ainsi la création d'antennes dipolaires involontaires.
-\end{itemize}
 
-\section{Synthèse des Règles de Conception Appliquées}
-Le tableau suivant résume les bonnes pratiques identifiées sur votre layout KiCad :
+Une fois le placement des composants réalisés, il faut mettre en place le routage.
+Pour cela, il existe des règles à respecté.
+Toutes les pistes doivent respecter le routage à \text{$45\text{ DEGREE}$}. 
+Les angles droits ($90\text{ DEGREE}$) sont totalement proscrits. Cela évite l'effet de "piège à acide"
+lors de la gravure chimique industrielle du cuivre et limite les ruptures brutales d'impédance électromagnétique.
+
+Les pistes associées à l'alimentation principale (provenant des borniers à vis situés à gauche, transitant par les diodes \texttt{D1}, \texttt{D3} et alimentant le Buzzer 12V \texttt{LS1}) présentent une largeur très importante de  \textbf{$1\text{ millimeter}$}).
+Le buzzer \texttt{LS1} et les charges inductives commutées consomment des pointes de courant non négligeables. Une piste large minimise la résistance linéique ($R = \rho \frac{L}{S}$), réduisant ainsi les chutes de tension ohmiques ($\Delta V = R \cdot I$) et l'échauffement des pistes par effet Joule.
+
+Les pistes connectant le microcontrôleur central (\texttt{U1}) au contrôleur CAN
+ (\texttt{U2}), au connecteur Grove (\texttt{J1}) et aux connecteurs supérieurs sont
+  beaucoup plus fines ( \textbf{$0.4\text{ millimeter}$} et \textbf{$0.8\text{millimeter}$}).
+
+ Ces lignes transportent des signaux de commande à très faible courant
+  (quelques milliampères). Réduire leur largeur permet un gain d'espace crucial 
+  pour passer entre les pastilles (\textit{pads}) des composants au pas de
+   $0.4\text{ millimeter}$ sans violer les règles d'isolement.
+
+
+\subsubsection*{Routage Bottom}
+
+Le routage bottom suis les mêmes règles de conception que celui Top, à trois exception 
+près que je vais détailler.
+
+\begin{figure}[H]
+\centering 
+\includegraphics[width=0.8\columnwidth]{PCB-Hub-bottom.png} 
+\caption[Mise en place du routage bottom]{Mise en place du routage bottom}
+\label{fig:PCB-Hub-bottom}
+\end{figure}
+
+La zone bleue représente un plan de masse plein et continu. Un plan de masse uniforme
+ offre une impédance de retour extrêmement faible pour les courants de signal,
+  ce qui réduit drastiquement les surfaces de boucles inductives et l'émission de 
+  parasites.
+En observant attentivement les connexions à la masse
+ (par exemple, la broche 2 du bloc \texttt{GNDREF} à gauche ou la broche 4 en bas à gauche),
+ on s'aperçoit que les pastilles ne sont pas noyées directement dans la masse solide,
+  mais connectées via une croix de cuivre.
+Ces structures sont des \text{freins thermiques}. 
+Lors du soudage, ils empêchent la chaleur du fer à souder de se dissiper instantanément
+ dans tout le plan de masse de la carte. Sans cela, la pastille n'atteindrait pas 
+ la température de fusion de l'étain, provoquant une "soudure sèche" défectueuse.
+\bigskip
+
+ la quasi-totalité des pistes de signal reste cantonnée sur la couche supérieure rouge 
+ (\texttt{F.Cu}). Il y a très peu de trous de passage (\textit{Vias}) de signal vers
+ le bottom (les pistes bleus). 
+
+Le plan de masse inférieur bleu n'est pratiquement pas "sectionné" ou
+ fragmenté par des pistes de détournement. Un plan de masse non coupé garantit
+  qu'aucun courant de retour ne doit faire de long détour, évitant ainsi la création
+   d'antennes dipolaires involontaires.
+
+Le tableau suivant résume les bonnes pratiques de la carte :
 
 \begin{table}[h!]
 \centering
@@ -595,14 +624,43 @@ Le tableau suivant résume les bonnes pratiques identifiées sur votre layout Ki
 \textbf{Paramètre} & \textbf{Style Observé} & \textbf{Objectif Technique} \\
 \midrule
 Stackup & 2 couches (\texttt{F.Cu} + \texttt{B.Cu}) & Optimisation coût / performance CEM \\
-Routage Alimentation & Pistes larges ($1.2\text{ millimeter}$+) & Faible résistance, support d'intensité (Buzzer) \\
-Routage Signaux & Pistes fines ($0.3\text{ millimeter}$) & Densité spatiale, respect de la \textit{Clearance} \\
-Angles de pistes & À $45\text{DEGREE}$ uniquement & Intégrité du signal, fabricabilité chimique \\
+Routage Alimentation & Pistes larges ($1\text{ millimeter}$+) & Faible résistance, support d'intensité (Buzzer) \\
+Routage Signaux & Pistes fines ($0.4\text{ millimeter}$) & Densité spatiale \\
+Angles de pistes & À $45\text{ DEGREE}$ uniquement & Intégrité du signal, fabricabilité chimique \\
 Plan de masse & Continu sur la face \texttt{B.Cu} & Blindage CEM, réduction des impédances de retour \\
 Pads de masse & Connexion en croix (\textit{Thermal Relief}) & Soudabilité parfaite à la main ou au four \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsubsection*{Layout complet}
+
+Une fois tout le travail réalisé, il ne restz plus qu'a vérifier qu'il n'y a aucune erreur de RDC
+de vérifier la sérigraphie(pas notre cas, car l'école ne sais pas faire de sérigraphie),
+ ou encore la bonne liaisons des entre différentes pastilles.
+
+ Cela nous permet d'avoir la Figure \ref{fig:PCB-Hub-fini}
+
+ \begin{figure}[H]
+\centering 
+\includegraphics[width=0.8\columnwidth]{PCB-Hub-fini.png} 
+\caption[Layout final du hub]{Layout final du hub}
+\label{fig:PCB-Hub-fini}
+\end{figure}
+
+Ainsi que la modélisation 3D comme le montre Figure \ref{fig:PCB-Hub-3D}
+
+\begin{figure}[H]
+\centering 
+\includegraphics[width=0.8\columnwidth]{PCB-Hub-3D.png} 
+\caption[Layout final du hub en 3D]{Layout final du hub en 3D}
+\label{fig:PCB-Hub-3D}
+\end{figure}
+
+
+\subsection{Ancre}
+
+Le schéma pour l'ancre est plus simple s
 
 \subsection{Ouvrier}
 
