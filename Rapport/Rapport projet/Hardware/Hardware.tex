@@ -641,7 +641,7 @@ de vérifier la sérigraphie(pas notre cas, car l'école ne sais pas faire de s�
 
  Cela nous permet d'avoir la Figure \ref{fig:PCB-Hub-fini}
 
- \begin{figure}[H]
+\begin{figure}[H]
 \centering 
 \includegraphics[width=0.8\columnwidth]{PCB-Hub-fini.png} 
 \caption[Layout final du hub]{Layout final du hub}
@@ -660,15 +660,230 @@ Ainsi que la modélisation 3D comme le montre Figure \ref{fig:PCB-Hub-3D}
 
 \subsection{Ancre}
 
-Le schéma pour l'ancre est plus simple s
+Le schéma pour l'ancre est plus simple, soit la Figure \ref{fig:sch-ancre}
+
+\begin{figure}[H]
+\centering 
+\includegraphics[width=1\columnwidth]{sch-ancre.png} 
+\caption[Layout final du hub]{Layout final du hub}
+\label{fig:sch-ancre}
+\end{figure}
+
+On y retrouve le tout le module TCAN que l'on avait Figure \ref{fig:sch-TCAN-hub},
+ avec le TCAN1051-Q1 \cite{TCAN1051-Q1}.
+
+la seule nouveauté réside dans le nouveau microcontroleurs, mais qui n'impacte que la partie
+logiciel, et le nouvel abaisseur de tension, qui est un OKI-78SR \cite{OKI-78SR_Series}.
+Compact et facile à mettre en oeuvre, il s'agit d'un abaisseur 12V->5V.
+De plus, on retrouve un condensateur 10uF, donc plus gros que d'habitude, pour éviter,
+tout potentiel arret de l'ESP32. Les ancres étant alimentés en 12V par le bus CAN, et pouvant aller 
+à une distance de plus de 50M. il est plus prudent de mettre un condensateur de découplage pour parer tout problème.
+
+\bigskip
+
+Cela donne lieu à la Figure \ref{fig:PCB-ancre}.
+les règles de conception et la manières de faire sont les mêmes, avec les bornier
+du même côté, la le plan de masse le plus uniforme possible ou encore la taille des piste
+d'alimentation.
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.7\columnwidth]{PCB-ancre.png} 
+\caption[Layout final de l'ancre]{Layout final de l'ancre}
+\label{fig:PCB-ancre}
+\end{figure}
+
+\begin{figure}[H]
+\centering 
+\includegraphics[width=0.7\columnwidth]{PCB-ancre-3D.png} 
+\caption[3D de l'ancre]{3D  de l'ancre}
+\label{fig:PCB-ancre-3D}
+\end{figure}
+
 
 \subsection{Ouvrier}
 
+Pour l'ouvrier, le schéma éléctrique est différent sur plusieurs aspects.
+Comme  dit précédemment, nous cherchons à faire la carte la plus petite possible,
+le tout alimenté à l'aide d'une batterie. 
+Nous avons donc mis en place le schéma suivant, représenté sur la Figure \ref{}
+
+\begin{figure}[H]
+\centering 
+\includegraphics[width=0.7\columnwidth]{sch-ouvrier.png} 
+\caption[schéma de l'ouvrier]{schéma de l'ouvrier}
+\label{fig:sch-ouvrier}
+\end{figure}
+
+
+Le schéma répertorié met en œuvre un nœud capteur intelligent articulé autour
+ d'un microcontrôleur \textbf{Seeed Studio XIAO\_nRF52840} \cite{XIAO_nRF52840}. 
+ Ce module pilote un capteur de pression barométrique haute précision (\textbf{BMP581}) \cite{BMP581},
+  un système d'alerte sonore (Buzzer) \cite{CMT-8504-100-SMT-TR}, un indicateur visuel (LED) 
+  et s'interface avec un module UWB \cite{UWB-AT-Module} .
+
+\bigskip
+
+Le composant central \textbf{U1} (\texttt{XIAO\_nRF52840})\cite{XIAO_nRF52840} 
+gère l'ensemble des périphériques via ses lignes d'Entrées/Sorties Générales (GPIO)
+ sous une tension logique de $3.3\text{ V}$ :
+\begin{itemize}
+    \item \textbf{Bus SPI dédié (Capteur U2) :} Broches \texttt{P1.13\_D8\_SCK} , \texttt{P1.14\_D9\_MISO} , \texttt{P1.15\_D10\_MOSI}  et \texttt{P0.05\_A5\_D5\_SCL}.
+    \item \textbf{Bus UART1 (Module d'extension) :} Broches \texttt{P1.11\_D6\_TX} et \texttt{P1.12\_D7\_RX}.
+    \item \textbf{Commandes Tout-Ou-Rien (TOR) :} Broche \texttt{P0.29\_A3\_D3} pour la LED et \texttt{P0.28\_A2\_D2} pour le buzzer.
+\end{itemize}
+
+
+Le composant \textbf{U2} est un capteur environnemental configuré ici en mode de communication \textbf{SPI} à 4 fils. 
+\begin{itemize}
+    \item La broche \texttt{CSB} (Pin 6) reçoit le signal de sélection du microcontrôleur. Lorsqu'elle est tirée à l'état bas, le circuit logique interne du BMP581 active ses buffers SPI.
+    \item La broche \texttt{INT} (Pin 5) est reliée à la broche \texttt{P0.03\_A1\_D1} de la XIAO. Elle permet au capteur de lever une interruption matérielle pour signaler au processeur qu'une nouvelle mesure de pression ou de température est disponible, évitant ainsi un cycle de scrutation consommateur d'énergie.
+\end{itemize}
+
+La LED \textbf{D2} est pilotée en logique directe par la broche \texttt{P0.29\_A3\_D3}.
+
+\subsubsection*{Modélisation Mathématique}
+D'après la loi des mailles appliquée à la branche de la LED :
+\begin{equation}
+    V_{OH} - V_{R3} - V_f = 0 \implies V_{OH} - (R_3 \cdot I_{LED}) - V_f = 0
+\end{equation}
+Où :
+\begin{itemize}
+    \item $V_{OH} = 3.3\text{ V}$ : Tension de sortie à l'état haut de la XIAO.
+    \item $V_f \approx 1.8\text{ V}$ : Chute de tension directe de la LED.
+    \item $R_3 = 1000\,\Omega$ : Valeur de la résistance.
+\end{itemize}
+
+\subsubsection*{Calcul du Courant Électrique}
+En isolant le courant $I_{LED}$, on obtient :
+\begin{equation}
+    I_{LED} = \frac{V_{OH} - V_f}{R_3} = \frac{3.3 - 1.8}{1000} =  1.5\text{ milliAmpère}
+\end{equation}
+Un courant de $1.5\text{ milliAmpère}$ est amplement suffisant pour assurer la visibilité d'une LED
+ témoin moderne à haute efficacité, tout en minimisant la consommation globale du système
+\bigskip
+
+Le buzzer \textbf{LS2} (\texttt{CMT-8504-100-SMT-TR}) \cite{CMT-8504-100-SMT-TR} est un composant magnétique. 
+Sa consommation de courant instantanée dépasse la capacité de courant d'une broche GPIO d'un microcontrôleur.
+nous  avons donc intégré un transistor NPN \textbf{Q1} (\texttt{2N2222B}) \cite{2N2222} agissant comme 
+un interrupteur électronique saturé.
+
+\subsubsection*{Calcul du Courant de Base et Vérification de la Saturation}
+Pour que le transistor fonctionne en régime de commutation (bloqué/saturé), 
+le courant de base $I_B$ injecté doit être suffisant pour garantir que la tension
+ collecteur-émetteur s'effondre à sa valeur minimale $V_{CE(sat)} \approx  0.2\text{ V}$.
+
+La fiche technique du buzzer indique une consommation nominale $I_C \approx 40{\text{milliAmpères}}$ sous  $3.3\text{V}$. 
+Pour assurer une saturation forte et stable malgré les dispersions de fabrication, les règles de l'art imposent 
+un gain de saturation dit \textit{forcé} : $\beta_{sat} = 10 \text{ à } 20$.
+ Choisissons un coefficient de sécurité prudent de $\beta_{sat} = 15$.
+
+Le courant de base théorique requis est :
+\begin{equation}
+    I_{B(theorique)} = \frac{I_C}{\beta_{sat}} = \frac{ 40\text{ milliAmpère}}{15} \approx  2.67\text{ milliAmpère}
+\end{equation}
+
+Calculons maintenant le courant de base réel fourni par la résistance $R_1 = \text{680}{\Omega}$ présente sur le schéma :
+\begin{equation}
+    I_{B(reel)} = \frac{V_{OH} - V_{BE(sat)}}{R_1}
+\end{equation}
+Où $V_{BE(sat)} \approx  0.7\text{ V}$ correspond à la tension de seuil de la jonction Base-Émetteur du transistor 2N2222B saturé.
+\begin{equation}
+    I_{B(reel)} = \frac{3.3 - 0.7}{680} = \frac{2.6}{680} \approx  3.82\text{ milliAmpère}
+\end{equation}
+
+
+Puisque $I_{B(reel)} ( 3.82\text{ milliAmpère}) > I_{B(theorique)} ( 2.67\text{ milliAmpère})$,
+ le transistor \textbf{Q1} est \textbf{parfaitement et profondément saturé}.
+  La tension aux bornes du buzzer sera maximale ($V_{LS2} = 3.3 - V_{CE(sat)} \approx  3.1\text{ V}$), 
+  garantissant un volume sonore optimal.
+
+\subsubsection*{Rôle de la Diode de Roue Libre (D1)}
+Le buzzer possédant une nature inductive (bobine interne), l'interruption brutale du courant par
+ le blocage du transistor engendrerait une force contre-électromotrice violente définie par la loi de Lenz-Faraday
+ vu précédemment, dans le Hub. 
+
+
+\subsubsection*{Layout Ouvrier}
+
+Suite à ce schéma, nous avons pu mettre en place le PCB de la carte, soit la Figure \ref{fig:PCB-ouvrier}
+
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.8\columnwidth]{PCB-ouvrier.png} 
+\caption[Layout final de l'ouvrier]{Layout final de l'ouvrier}
+\label{fig:PCB-ouvrier}
+\end{figure}
+
+Les différentes nuances sur ce layout, sont tout d'abord le placement. il était important de mettre le Buzzer ainsi
+que la led à des emplacements pouvant accueillir la membrane (et donc pas trop proche du bord).
+la deuxième grosse spécificités, est la mise en placde de pad  au lieu de bornier. En effet, nous avons pris partis
+de souder directement un connecteur de batterie, pour faciliter le branchement ainsi que le changement de celle-ci.
 
 \subsection{réalisation PCB}
 
+Une fois toutes les cartes prêtes, nous avons concaté Mr Pinto Carlos, enseignant en charge de la fabrication PCB.
+Après quelque complications technique sur les formats des fichier, il fut convenu
+une gravure chimique (gain de temps) au lieu d'une gravure à l'anglaise.
+Cela à donné lieu à 6 cartes PCB prêtes à êtres soudés.
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.8\columnwidth]{carte-hub.jpg} 
+\caption[PCB hub]{PCB hub}
+\label{fig:PCB-hub}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.6\columnwidth]{carte-hub-verso.jpg} 
+\caption[PCB hub verso]{PCB hub verso}
+\label{fig:PCB-hub-verso}
+\end{figure}
+
 \subsection{Soudure PCB}
 
-\subsection{Test Physique}
+Une fois les cartes prêtes, nous somme passé à la soudure des cartes. Le matériel de l'école étant limité,
+ nous avons utilisé le matériel de l'équipe.
+La soudure commence par la mise en place des composant les plus petits,
+ soit les TCAN  ou encore certains condensateur, pour aller jusqu'au plus gros composants,
+  tels que l'abaisseur de tension ou bien les ESP32.
+
+Lors de la soudure, nous nous sommes heurté à de nombreux problèmes liés aux cartes.
+
+Tout d'abord, l'école n'est pas capable de mettre en place des vias, ni du vernis, de la sérigraphie
+ou encore des pads métalisés.
+
+Ce fut donc un long travail, pour remplir les vias, réussir à mettre en place les soudures,
+non pas d'un coté mais des deux cotés, ce qui n'a d'ailleurs pas été possible partout. Par exemple 
+les borniers ne sont pas soudable en top avec des pads non métallisés.
+
+Nous avons donc du mettre en place des petits fils pour la connection de certains composants,
+De plus nous nous somme rendus compte d'une inversion de sens, sur les pins de l'ESP32 des ancres,
+ce qui nous a valu de couper quelque pistes. 
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.6\columnwidth]{soudure-benoit-naim.jpg} 
+\caption[soudure-benoit-naim]{soudure-benoit-naim}
+\label{fig:soudure-benoit-naim}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.6\columnwidth]{soudure-benoit.jpg} 
+\caption[soudure-benoit]{soudure-benoit}
+\label{fig:soudure-benoit}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.6\columnwidth]{soudure-benoit-v2.jpg} 
+\caption[soudure-benoit-v2]{soudure-benoit-v2m}
+\label{fig:soudure-benoit-v2}
+\end{figure}
+
+
 
 \subsection{Résultat final}
