@@ -20,30 +20,43 @@
 
 \subsection{Cahier des charges fonctionnel}
 
-\lipsum[4] % Dummy text
-
-\begin{equation}
-\cos^3 \theta =\frac{1}{4}\cos\theta+\frac{3}{4}\cos 3\theta
-\label{eq:refname2}
-\end{equation}
-
-\lipsum[5] % Dummy text
-
-\begin{definition}[Gauss] 
-To a mathematician it is obvious that
-$\int_{-\infty}^{+\infty}
-e^{-x^2}\,dx=\sqrt{\pi}$. 
-\end{definition} 
-
-\begin{theorem}[Pythagoras]
-The square of the hypotenuse (the side opposite the right angle) is equal to the sum of the squares of the other two sides.
-\end{theorem}
-
-\begin{proof} 
-We have that $\log(1)^2 = 2\log(1)$.
-But we also have that $\log(-1)^2=\log(1)=0$.
-Then $2\log(-1)=0$, from which the proof.
-\end{proof}
-
-
 \subsection{Cahier des charges Techniques}
+
+\subsection{Outils et environnement de travail}
+
+Pour réaliser ce projet, nous avons choisi des outils qui nous permettent de gérer toute la chaîne, du schéma électronique au code embarqué.
+
+\subsubsection{Outils de collaboration} 
+Dans un premier temps, nous avons mis en place un espace Google Drive \cite{Google_Drive} permettant à chaque membre du groupe de déposer son travail. Cependant, au vu de la nature technique du projet, nous nous sommes très vite dirigés vers GitHub \cite{GitHub}. Cet environnement s'est avéré beaucoup plus adapté pour la gestion de notre projet et le versioning, ce qui nous a permis de gagner un temps précieux. GitHub \cite{GitHub} nous a principalement permis d'avoir un espace de travail à plusieurs dans un environnement de programmation et de schématisation, que ce soit pour KiCad ou VS Code, ce qui n'était pas permis par Google Drive \cite{Google_Drive}. L'arborescence de notre espace de travail ainsi que la gestion de nos différents fichiers (rapport, codes, schémas) sont illustrées sur la Figure \ref{fig:GitHub}. 
+\begin{itemize} 
+    \item \textit{Historique :} Nous enregistrons chaque modification. Pour le debug, nous pouvons facilement identifier quelle est la dernière version fonctionelle et qui a effectué quel changement et quand. 
+    \item \textit{Travail en groupe :} Nous pouvons avancer sur l'électronique, le code ou la mécanique en parallèle sans nous gêner. Mais aussi travailler sur le même fichier depuis deux ordinateurs. 
+    \item \textit{Sauvegarde :} Tout est stocké et versionné, ce qui nous permet de ne pas perdre nos fichier accidentellement, et de régulièrement avoir des points de sauvegarde dans l'avancement du projet. 
+\end{itemize} 
+
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.8\columnwidth]{github_gestion_projet.png}
+\caption[Interface du dépôt GitHub utilisé pour le travail collaboratif]{Interface du dépôt GitHub utilisé pour le travail collaboratif}
+\label{fig:GitHub}
+\end{figure}
+
+
+
+\subsubsection{Développement et code}
+\begin{itemize}
+    \item \textbf{PlatformIO :} Intégré à VS Code, c'est l'outil que nous utilisons pour programmer nos microcontrôleurs.
+    \begin{itemize}
+        \item \textit{Gestion multi-projets :} Nous passons d'une configuration à l'autre (Hub ou ancres) via les fichiers \texttt{platformio.ini}, ce qui nous évite des erreurs.
+        \item \textit{Bibliothèques :} Elles sont téléchargées et mises à jour automatiquement.
+        \item \textit{Git :} Nous voyons les infos de version directement dans l'interface, ce qui nous permet de suivre nos modifications en temps réel.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Conception électronique et mécanique}
+\begin{itemize}
+    \item \textbf{KiCad \cite{KiCad} :} Nous l'utilisons pour toute la partie électronique. Nous avons créé nos propres composants, routé nos cartes et préparé les fichiers de fabrication. Cela nous a permis d'intégrer précisément des modules comme les CMS ou le module UWB.
+    \item \textbf{Autodesk Fusion 360 \cite{Fusion360}:}  Pour la partie 3D, nous utilisons Autodesk Fusion 360. Nous importons le modèle STEP depuis KiCad pour concevoir le boîtier autour de la carte, ce qui nous permet de caler les fixations et les ouvertures au millimètre. Nous avons choisi ce logiciel car sa version gratuite est complète pour notre utilisation et il nous a été conseillé pour ce type de conception.
+    \item \textbf{Bambu Studio \cite{Bambu_Studio}:} Pour l'impression 3D, nous l'utilisons pour configurer nos pièces, vérifier la structure avant impression et lancer la fabrication sur les machines de l'ESIEE.
+\end{itemize}
+
