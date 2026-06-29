@@ -1,0 +1,27 @@
+\newpage
+\subsubsection{Protocoles Wi-Fi et UART}
+
+L'ESP32 intégré à l'écran agit comme une passerelle matérielle et logicielle entre l'interface utilisateur web et le Hub principal, en s'appuyant sur deux canaux de communication : l'UART et le Wi-Fi.
+
+\paragraph{Communication matérielle UART}
+La liaison série entre l'écran et le Hub s'effectue sur le port \texttt{Serial2} (RX : broche 19, TX : broche 20) à une vitesse de \texttt{115200 bauds}. 
+
+L'intégralité des échanges de données se fait au format JSON. Certaines trames, notamment celles contenant la géométrie de calibration, étant particulièrement volumineuses, les mémoires tampons matérielles et logicielles ont été étendues à 4096 octets via \texttt{Serial2.setRxBufferSize()} et \texttt{uart\_buffer.reserve()}. Une sécurité anti-débordement est implémentée : si le buffer se remplit sans recevoir le caractère de fin de chaîne (\texttt{'\textbackslash n'}), les données sont purgées pour éviter un crash mémoire.
+
+Le démultiplexage analyse le champ \texttt{"type"} du JSON reçu pour orienter le traitement :
+\begin{itemize}
+    \item \texttt{tags} : Actualise l'affichage radar en temps réel (coordonnées et état d'alerte des tags).
+    \item \texttt{calib\_geometry} : Réceptionne les 64 sommets du polygone et la position des ancres matérielles.
+    \item \texttt{discovered\_tags} : Liste les identifiants UWB détectés lors de la calibration.
+\end{itemize}
+
+Un \textit{timeout} surveille continuellement l'état de la liaison. Si aucune trame JSON valide n'est reçue pendant plus de 5 secondes, la connexion est considérée perdue. Par sécurité, l'écran masque alors l'intégralité des positions affichées pour ne pas induire le conducteur en erreur avec des données obsolètes.
+
+\paragraph{Point d'accès Wi-Fi et Serveur Web}
+Pour la communication externe (avec le smartphone ou la tablette), l'ESP32 génère un point d'accès Wi-Fi nommé \texttt{MaTouch\_Radar}. Ce réseau est protégé par un mot de passe (défini sur \texttt{12345678}) afin de restreindre l'accès à la configuration aux seules personnes autorisées sur le chantier. Mais le mot de passe peut être modifié dans le code source pour s'adapter aux exigences de sécurité du client.
+
+Le serveur web, déployé sur le port 80 via la librairie \texttt{ESPAsyncWebServer}, assure deux fonctions distinctes :
+\begin{itemize}
+    \item \textbf{Hébergement des ressources sur SD :} L'ESP32 n'utilise pas sa mémoire Flash interne (SPIFFS/LittleFS) pour héberger l'application. Les routes du serveur web sont explicitement configurées pour servir l'interface HTML (\texttt{index.html}) et manipuler les fichiers de persistance (\texttt{calibrations.json}, \texttt{warnings.csv}) directement depuis la carte micro-SD. Cela libère la mémoire interne et offre une capacité de journalisation étendue.
+    \item \textbf{Translation de protocoles (Passerelle HTTP/UART) :} Le serveur web intercepte les requêtes HTTP POST envoyées par l'utilisateur (par exemple, pour lancer ou annuler une calibration). Il traduit ces requêtes en documents JSON et les transmet immédiatement au Hub via l'UART. Ce procédé garantit une isolation stricte entre le trafic réseau Wi-Fi et les opérations de calcul du Hub.
+\end{itemize}
