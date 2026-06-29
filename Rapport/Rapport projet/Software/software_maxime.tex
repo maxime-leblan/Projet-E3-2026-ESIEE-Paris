@@ -3,15 +3,15 @@
 Afin d'être capable d'estimer avec précision la position du compagnon en temps réel tout en étant capable de retranscrire l'information le plus rapidement possible et de la manière la plus exacte, nous avons divisé le travail à effectuer sur la partie software en plusieurs parties :
 
 \begin{itemize}
-    \item L'implémentation d'un repère virtuel en trois dimensions permettant au Hub de se représenter l'emplacement des Ancres, des Tags portés par les compagnons ainsi que la délimitation de la zone de sécurité de l'engin.
+    \item L'implémentation d'un repère virtuel en trois dimensions permettant au hub de se représenter l'emplacement des ancres, des tags portés par les compagnons ainsi que la délimitation de la zone de sécurité de l'engin.
     \item La recherche puis l'implémentation d'algorithmes dont l'objectif est de situer précisément dans le repère du Hub la position des compagnons ainsi que la distance de chacun d'entre eux par rapport à l'engin de chantier.
-    \item L'écriture d'un programme de retranscription visuel du repère virtuel du Hub sur l'écran du conducteur de l'engin de chantier afin de pouvoir visualiser toutes les informations collectées par le Hub de la manière la plus concise et claire possible. Ce programme doit également permettre au conducteur de pouvoir personnaliser la zone de sécurité de l'engin quand il le souhaite, ce qui implique une interface utilisateur simple et épurée.
-    \item L'implémentation des programmes permettant de faire communiquer les microcontroleurs ESP32-S3 (Ancres et Tags) avec l'ESP32-WROVER-E (Hub) ainsi que des programmes permettant de faire la liaison entre les librairies contenant les algorithmes de calcul mathématiques liés au repère en trois dimensions et le Hub.
+    \item L'écriture d'un programme de retranscription visuel du repère virtuel du Hub sur l'écran du conducteur de l'engin de chantier afin de pouvoir visualiser toutes les informations collectées par le hub de la manière la plus concise et claire possible. Ce programme doit également permettre au conducteur de pouvoir personnaliser la zone de sécurité de l'engin quand il le souhaite, ce qui implique une interface utilisateur simple et épurée.
+    \item L'implémentation des programmes permettant de faire communiquer les microcontrôleurs ESP32-S3 (ancres et tags) avec l'ESP32-WROVER-E (hub) ainsi que des programmes permettant de faire la liaison entre les librairies contenant les algorithmes de calcul mathématiques liés au repère en trois dimensions et le hub.
 \end{itemize}
 \bigskip % Pour sauter une ligne
 Nous allons donc dans un premier temps nous intéresser à l'implémentation du repère en lui-même et du programme de visualisation du repère que nous avons utilisé pour vérifier le bon fonctionnement de nos différents algorithmes mathématiques de manipulation d'objets au sein d'espaces vectoriels.
 
-Mais avant d'étudier ce premier aspect, voici un apperçu global du fonctionnement de l'algorithme de chaque sous-système de notre prototype dans la partie ci-dessous.
+Mais avant d'étudier ce premier aspect, voici un aperçu global du fonctionnement de l'algorithme de chaque sous-système de notre prototype dans la partie ci-dessous.
 \newpage
 \subsection{Organigrammes des sous-systèmes}
 
@@ -65,13 +65,13 @@ Mais avant d'étudier ce premier aspect, voici un apperçu global du fonctionnem
 
 \subsection{Repère du Hub en trois dimensions}
 
-L'objectif étant de déterminer de la manière la plus exacte possible la position d'un Tag par rapport à notre engin de chantier, il faut donc que notre système utilise un repère auquel le Hub pourrait se réferrer pour pouvoir positionner les Ancres fixées sur le véhicule, les Tags des compagnons ainsi que la zone de sécurité autour du véhicule.
+L'objectif étant de déterminer de la manière la plus exacte possible la position d'un tag par rapport à notre engin de chantier, il faut donc que notre système utilise un repère auquel le hub pourrait se référer pour pouvoir positionner les ancres fixées sur le véhicule, les tags des compagnons ainsi que la zone de sécurité autour du véhicule.
 
 Pour l'implémentation de ce dispositif, nous avons dans un premier temps rédigé une librairie allégée dénommée {\ttfamily{V3.h}} permettant de représenter des vecteurs en trois dimensions, puis nous avons utilisé le paradigme de la \uline{Programmation Orientée Objets (POO)} afin de modéliser les classes suivantes :
 
 \begin{itemize}
-    \item {\ttfamily{\textbf{UWBModule}}} : Cette classe permet de représenter à la fois les Tags ainsi que les Ancres en stockant comme information pour chaque module son identifiant et sa position.
-    \item {\ttfamily{\textbf{UWBModuleList}}} : Cette classe stocke plusieurs module UWB dans une même structure de données, permettant ainsi d'effectuer des manipulations sur l'ensemble des Ancres et des Tags connus du Hub. Afin de garantir un accès efficace aux données, la structure de données de dictionnaire native en {\ttfamily{C++ <unordered\_map.h>}} a été utilisée afin de garantir un accès aux données avec une complexité temporelle en {\emph{O(1)}}.
+    \item {\ttfamily{\textbf{UWBModule}}} : Cette classe permet de représenter à la fois les tags ainsi que les ancres en stockant comme information pour chaque module son identifiant et sa position.
+    \item {\ttfamily{\textbf{UWBModuleList}}} : Cette classe stocke plusieurs module UWB dans une même structure de données, permettant ainsi d'effectuer des manipulations sur l'ensemble des ancres et des tags connus du hub. Afin de garantir un accès efficace aux données, la structure de données de dictionnaire native en {\ttfamily{C++ <unordered\_map.h>}} a été utilisée afin de garantir un accès aux données avec une complexité temporelle en {\emph{O(1)}}.
 \end{itemize}
 \bigskip
 <Inclure un schéma représentant la structure des 2 classes>
@@ -80,7 +80,7 @@ Pour l'implémentation de ce dispositif, nous avons dans un premier temps rédig
 Pour la librairie {\ttfamily{V3.h}}, nous avons uniquement implémenté les fonctions mathématiques de base dont nous avions besoin afin de limiter la place prise par la librairie sur la Flash des ESP32. Nous avons donc écris le code des fonctions suivantes :
 
 \begin{itemize}
-    \item {\ttfamily{\textbf{getNormalised()}}} : Renvoie le vecteur normalisé du vecteur sur lequel la méthode a été appelé.
+    \item {\ttfamily{\textbf{getNormalised()}}} : Renvoie le vecteur normalisé du vecteur sur lequel la méthode a été appelée.
     \item {\ttfamily{\textbf{prodScal(const V3 \& a, const V3 \& b)}}} : Renvoie le produit scalaire canonique en trois dimensions du vecteur {\ttfamily{a}} et le vecteur {\ttfamily{b}}.
     \item {\ttfamily{\textbf{prodScal2D(const V3 \& a, const V3 \& b)}}} : Renvoie le produit scalaire canonique en deux dimensions du vecteur {\ttfamily{a}} et le vecteur {\ttfamily{b}}.
     \item {\ttfamily{\textbf{prodVect(const V3 \& a, const V3 \& b)}}} : Renvoie le produit vectoriel du vecteur {\ttfamily{a}} et le vecteur {\ttfamily{b}}. 
@@ -106,8 +106,8 @@ Afin de pouvoir mieux visualiser la représentation des positions des Ancres et 
 \caption[Illustration de la trilatération dans un espace en 3D]{Illustration de la trilatération dans un espace en 3D}
 \end{figure}
 
-Le choix de la technologie UWB ayant été effectué par notre équipe, nous savons donc que notre système est capable de récupérer les distances entre chaque ancre et chaque tag comportant un module UWB. Seulement, pour pouvoir répondre au cahier des charges que nous avons établi, notre système a besoin de pouvoir situer de la manière la plus précise et la plus conforme à la réalité possible la position relative de l'ouvrier par rapport au véhicule et à sa zone de sécurité.
-C'est pourquoi nous avons effectué différentes recherches pour établir la liste des algorithmes existants qui seraient les plus aptes à répondre à notre problématique tout en étant capable d'exploiter au mieux les données récoltées par notre système. La technologie UWB existant depuis plusieurs décennies, nous avons donc pu obtenir une quantité importante d'articles traitant notre problème de calcul d'une position dans un repère en trois dimensions, et l'algorithme qui est le plus ressorti est celui de la Trilatération par la méthode des Moindres Carrés.
+Le choix de la technologie UWB ayant été effectué par notre équipe, nous savons donc que notre système est capable de récupérer les distances entre chaque ancre et chaque tag comportant un module UWB. Seulement, pour pouvoir répondre au cahier des charges que nous avons établi, notre système a besoin de pouvoir situer de la manière la plus précise et la plus conforme à la réalité la position relative de l'ouvrier par rapport au véhicule et à sa zone de sécurité.
+C'est pourquoi nous avons effectué différentes recherches pour établir la liste des algorithmes existants qui seraient les plus aptes à répondre à notre problématique tout en étant capables d'exploiter au mieux les données récoltées par notre système. La technologie UWB existant depuis plusieurs décennies, nous avons donc pu obtenir une quantité importante d'articles traitant notre problème de calcul d'une position dans un repère en trois dimensions, et l'algorithme qui est le plus ressorti est celui de la Trilatération par la méthode des Moindres Carrés.
 
 Le premier article de recherche ayant retenu notre attention est intitulé \emph{Lübeck University of Applied Sciences: Technical Report 2015} de Mathias Pelka. Ce court article se focalise principalement sur la résolution mathématique d'un système comportant les quatres équations des sphères ayant pour rayon la distance entre une des quatres ancres et le tag de l'ouvrier. Il fournit également un exemple d'implémentation de cet algorithme avec MATHLAB.
 
@@ -177,12 +177,12 @@ $\begin{pmatrix}
     x \\
     y \\
     z
-\end{pmatrix}$ et $A$ la matrice contenant les coefficients du membre gauche des équations, et $B$ la matrice contenant le membre de droite des équations du système, on obtiens l'équation matricielle suivante :
+\end{pmatrix}$ et $A$ la matrice contenant les coefficients du membre gauche des équations, et $B$ la matrice contenant le membre de droite des équations du système, on obtient l'équation matricielle suivante :
 \begin{equation}
     AX=B \Rightarrow X=A^{-1}B
 \end{equation}
 
-Cette équation nous permet donc de déterminer les coordonnées du tag par un simple calcul matriciel. Cependant, ce système admet une solution uniquement dans le cas où les distances $d_i$ qui ont été mesurées sont exactes. Or nos distances ayant été mesurées par des modules UWB qui possèdent une certaine incertitude sur leur mesure en fonction de leur calibrage, l'utilisation de cette équation n'est pas envisageable dans un cas pratique comme le notre où les mesures risquent d'être souvent inexactes.
+Cette équation nous permet donc de déterminer les coordonnées du tag par un simple calcul matriciel. Cependant, ce système admet une solution uniquement dans le cas où les distances $d_i$ qui ont été mesurées sont exactes. Or nos distances ayant été mesurées par des modules UWB qui possèdent une certaine incertitude sur leur mesure en fonction de leur calibrage, l'utilisation de cette équation n'est pas envisageable dans un cas pratique comme le nôtre où les mesures risquent d'être souvent inexactes.
 
 La seconde solution s'offrant à nous est donc d'introduire une matrice de bruit $R$ tel que :
 
@@ -278,7 +278,7 @@ On peut ensuite isoler $X$ pour en déduire les coordonnées finales du tag ouvr
 
 \subsubsection{Implémentation de l'algorithme}
 
-Pour pouvoir mettre en oeuvre cet algorithme dans le code de notre projet, nous avons créé la librairie {\ttfamily{Trilateration.h}}. Cette librairie utilise la librairie {\ttfamily{Eigen}} qui est spécialement optimisé pour les calculs matriciels en {\ttfamily{C++}} afin de limiter la complexité temporelle et spatial de ces calculs. Notre librairie {\ttfamily{Trilateration.h}} contient donc les fonctions suivantes :
+Pour pouvoir mettre en oeuvre cet algorithme dans le code de notre projet, nous avons créé la librairie {\ttfamily{Trilateration.h}}. Cette librairie utilise la librairie {\ttfamily{Eigen}} qui est spécialement optimisée pour les calculs matriciels en {\ttfamily{C++}} afin de limiter la complexité temporelle et spatiale de ces calculs. Notre librairie {\ttfamily{Trilateration.h}} contient donc les fonctions suivantes :
 
 \begin{itemize}
    \item {\ttfamily{initMatrixA()}} : Cette fonction initialise la matrice $A$ de l'équation $(13)$ dans la variable globale {\ttfamily{gA}}.
@@ -288,11 +288,9 @@ Pour pouvoir mettre en oeuvre cet algorithme dans le code de notre projet, nous 
 
 Nous venons donc de voir la méthode utilisée par notre système pour déterminer la position exacte du tag dans le repère virtuel du hub. Cependant, comme précisé dans l'introduction de la méthode, nous avons besoin de connaître les coordonnées de chaque ancres $(x_i, y_i, z_i)$ dans le repère virtuel du hub. Pour que les distances entre les ancres sur le véhicule de chantier correspondent avec les distances entre les ancres dans le repère virtuel du hub, nous devons donc implémenter un algorithme chargé de déterminer les coordonnées de chaque ancre. C'est ce que nous allons donc aborder dans la partie suivante.
 
-\textbf{<RAJOUTER DES IMAGES>}
-
 \subsection{Algorithme de Multidimensional Scaling}
 
-L'algorithme de \emph{Multidimensional Scaling} consiste pour résumer à appliquer l'algorithme de la descente de gradient en prenant comme fonction de coût la fonction \emph{Stress} dont l'élaboration et l'utilisation sont explicitées par le mathématicien J. B. KRUSKAL dans son article paru en 1964 intitulé \emph{Multidimensional scaling by optimizing goodness of fit to a nonmetric hypothesis}. Un résumé de l'ensemble des recherches autour de cet algorithme a été élaboré dans l'article intitulé \emph{The Past, Present, and Future of Multidimensional Scaling}, co-écris par Patrick J.F. Groenen et Ingwer Borg et paru en 2013. 
+L'algorithme de \emph{Multidimensional Scaling} consiste pour résumer à appliquer l'algorithme de la descente de gradient en prenant comme fonction de coût la fonction \emph{Stress} dont l'élaboration et l'utilisation sont explicitées par le mathématicien J. B. KRUSKAL dans son article paru en 1964 intitulé \emph{Multidimensional scaling by optimizing goodness of fit to a nonmetric hypothesis}. Un résumé de l'ensemble des recherches autour de cet algorithme a été élaboré dans l'article intitulé \emph{The Past, Present, and Future of Multidimensional Scaling}, coécrit par Patrick J.F. Groenen et Ingwer Borg et paru en 2013. 
 
 Pour résumer, l'objectif de cet algorithme au sein de notre système est de déterminer, à chaque itération de celui-ci, si les distances entre chaque ancre calculées à l'aide des coordonnées des ancres du repère virtuel stocké dans le hub correspondent bien aux distances mesurées par les modules UWB des ancres. Si ce n'est pas le cas, l'algorithme va légèrement modifier les positions de chaque ancre dans le repère du hub pour que les distances calculées par le hub se rapprochent le plus possible des distances réelles entre les ancres.
 
@@ -324,7 +322,7 @@ On peut ensuite calculer le gradient par rapport à $X_i$ de la distance $\hat{d
 
 $$\nabla_{X_i} \hat{d}_{ij}(X) = \nabla_{X_i} \|X_i - X_j\|_2 = \frac{X_i - X_j}{\|X_i - X_j\|_2}$$
 
-On réinjecte le résultat dans l'équation d'origine, ce qui nous donne l'équation finale suivante : 
+On injecte le résultat dans l'équation d'origine, ce qui nous donne l'équation finale suivante : 
 
 \begin{equation}
    \nabla_{X_i} E(X) = \sum_{j \neq i} \left( \hat{d}_{ij}(X) - d_{ij} \right) \cdot \frac{X_i - X_j}{\|X_i - X_j\|_2}
@@ -336,7 +334,7 @@ $$X_i^{(k+1)} = X_i^{(k)} - \alpha \cdot \nabla_{X_i} E(X^{(k)})$$
 
 \subsubsection{Implémentation de l'algorithme}
 
-Afin de simplifier les calculs effectués par l'ESP32-WROVER-E du hub lors de l'exécution de l'algorithme, nous avons réécris l'équation $(13)$ de la manière suivante dans notre programme :
+Afin de simplifier les calculs effectués par l'ESP32-WROVER-E du hub lors de l'exécution de l'algorithme, nous avons réécrit l'équation $(13)$ de la manière suivante dans notre programme :
 
 $$\nabla_{X_i} E(X) = \sum_{j \neq i} (X_i - X_j) \cdot \left( \frac{\hat{d}_{ij}(X) - d_{ij}}{\hat{d}_{ij}(X)} \right)$$
 
@@ -356,7 +354,7 @@ Voici un exemple visuel du résultat de l'algorithme lors de son utilisation pou
 \caption[Calibrage des Ancres JDP (repère virtuel)]{Reconstitution de la position des ancres par l'algorithme de \emph{Multidimensional Scaling}}
 \end{figure}
 
-Comme évoqué précédemment, l'algorithme de \emph{Multidimensional Scaling} a besoin de connaître les distances entre chaque ancres pour pouvoir effectuer la descente de gradient. Nous avons donc écris dans un premier temps un algorithme permettant de récupérer les distances entre chaque ancre en exécutant la méthode suivante en boucle :
+Comme évoqué précédemment, l'algorithme de \emph{Multidimensional Scaling} a besoin de connaître les distances entre chaque ancre pour pouvoir effectuer la descente de gradient. Nous avons donc écrit dans un premier temps un algorithme permettant de récupérer les distances entre chaque ancre en exécutant la méthode suivante en boucle :
 
 \bigskip
 
@@ -374,8 +372,6 @@ Comme évoqué précédemment, l'algorithme de \emph{Multidimensional Scaling} a
    \end{itemize}
 \end{itemize}
 
-\textbf{<RAJOUTER ORGANIGRAMME ANCRES>}
-
 \bigskip
 
 \textbf{Pour le hub :}
@@ -386,12 +382,11 @@ Comme évoqué précédemment, l'algorithme de \emph{Multidimensional Scaling} a
    \item On attend de recevoir un tableau contenant les 3 distances entre chaque ancre.
 \end{itemize}
 
-Cependant, la précision des mesures des distances entre les ancres n'ayant pas été très pointue lors de nos premiers tests (le taux d'erreurs pour les mesures oscillait entre 25\% et 50\%), nous avons pour le moment décidé de proposer à l'utilisateur de saisir manuellement les distances entre chaque ancre. L'algorithme de collecte des distances dépicté ci-dessus nécéssiterait une phase de développement plus importante avant d'envisager son utilisation au sein de notre système.
+Cependant, la précision des mesures des distances entre les ancres n'ayant pas été très pointue lors de nos premiers tests (le taux d'erreurs pour les mesures oscillait entre 25\% et 50\%), nous avons pour le moment décidé de proposer à l'utilisateur de saisir manuellement les distances entre chaque ancre. L'algorithme de collecte des distances dépicté ci-dessus nécessiterait une phase de développement plus importante avant d'envisager son utilisation au sein de notre système.
 
 \bigskip
 
 Nous avons donc explicité dans cette partie l'algorithme de \emph{Multidimensional Scaling} permettant d'initialiser les positions des ancres au sein du repère virtuel du hub. Nous étudierons par la suite l'algorithme de modélisation et de lissage de la zone de sécurité. Cependant, cet algorithme ayant également comme tâche la transmission des coordonnées des points formant la zone de sécurité dans un repère en deux dimensions à l'écran, il est nécessaire d'effectuer une projection des coordonnées 3D des points dans un repère en deux dimensions. Afin d'éviter l'exécution systématique d'un algorithme de projection des points sur le plan $(\vec{x}, \vec{y})$ du repère virtuel du hub, nous avons préféré écrire un algorithme de changement de base non seulement afin de limiter le temps de calcul de la fonction de projection, mais aussi dans le but de simplifier les programmes d'échanges de données entre le hub et l'écran. Nous allons donc étudier cet algorithme de changement de base dans la partie suivante.
-\textbf{<RAJOUTER SCREEN APPLI DISTANCES>}
 
 \subsection{Algorithme de changement de repère}
 
@@ -406,7 +401,7 @@ Nous allons donc ici détailler brièvement l'algorithme utilisé pour le change
 
 \subsubsection{Démonstration}
 
-Afin d'effectuer un changement de repère pour passer du repère basé sur le plan des ancres au repère du plan de la zone de sécurité (qui est donc le plan du véhicule), nous avons besoin de connaître le vecteur normal à ce plan qui constituera l'axe $Z$ de notre nouvelle base. Nous pouvons construire ce vecteur à partir des coefficients $(a, b, c)\in \mathbb{R}^3$ de l'équation du plan de la zone de sécuirté, dont l'obtention sera précisée dans la partie \emph{Modélisation et lissage de la zone de sécurité}.
+Afin d'effectuer un changement de repère pour passer du repère basé sur le plan des ancres au repère du plan de la zone de sécurité (qui est donc le plan du véhicule), nous avons besoin de connaître le vecteur normal à ce plan qui constituera l'axe $Z$ de notre nouvelle base. Nous pouvons construire ce vecteur à partir des coefficients $(a, b, c)\in \mathbb{R}^3$ de l'équation du plan de la zone de sécurité, dont l'obtention sera précisée dans la partie \emph{Modélisation et lissage de la zone de sécurité}.
 
 Soit $n=$$\begin{pmatrix}
     a \\
