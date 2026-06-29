@@ -289,13 +289,13 @@ Voici un exemple visuel du résultat de l'algorithme lors de son utilisation pou
 \begin{figure}[!ht]
 \centering 
 \includegraphics[width=0.7\columnwidth]{placement_ancres_jdp.jpg} 
-\caption[calibrage Ancres JDP]{Placement réelle des ancres lors du \uline{Jour des Projets}}
+\caption[Calibrage des Ancres JDP]{Placement réelle des ancres lors du \uline{Jour des Projets}}
 \end{figure}
 
 \begin{figure}[!ht]
 \centering 
 \includegraphics[width=0.7\columnwidth]{calibrage_ancres.png} 
-\caption[calibrage Ancres JDP (repère virtuel)]{Reconstitution de la position des ancres par l'algorithme de \emph{Multidimensional Scaling}}
+\caption[Calibrage des Ancres JDP (repère virtuel)]{Reconstitution de la position des ancres par l'algorithme de \emph{Multidimensional Scaling}}
 \end{figure}
 
 Comme évoqué précédemment, l'algorithme de \emph{Multidimensional Scaling} a besoin de connaître les distances entre chaque ancres pour pouvoir effectuer la descente de gradient. Nous avons donc écris dans un premier temps un algorithme permettant de récupérer les distances entre chaque ancre en exécutant la méthode suivante en boucle :
@@ -405,19 +405,19 @@ Nous pouvons voir l'exécutions de ces différentes étapes à travers les image
 \begin{figure}[!ht]
 \centering 
 \includegraphics[width=0.7\columnwidth]{chgt_base_1.png} 
-\caption[translation]{Translation de l'épicentre des ancres en $(0, 0, 0)$}
+\caption[Translation de l'épicentre des ancres]{Translation de l'épicentre des ancres en $(0, 0, 0)$}
 \end{figure}
 
 \begin{figure}[!ht]
 \centering 
 \includegraphics[width=0.7\columnwidth]{chgt_base_2.png} 
-\caption[avant chgt de repere]{Repère virtuel du hub avant le changement de base}
+\caption[Repère virtuel du hub avant le changement de base]{Repère virtuel du hub avant le changement de base}
 \end{figure}
 
 \begin{figure}[!ht]
 \centering 
 \includegraphics[width=0.7\columnwidth]{chgt_base_3.png} 
-\caption[apres chgt de repere]{Repère virtuel du hub après le changement de base}
+\caption[Repère virtuel du hub après le changement de base]{Repère virtuel du hub après le changement de base}
 \end{figure}
 
 Nous allons maintenant expliciter le déroulement de l'algorithme utilisé par le hub afin de modéliser une zone de sécurité qu'il peut utiliser pour calculer la distance entre un tag et celle-ci et qu'il peut transmettre à l'écran pour que celui-ci puisse afficher des informations utiles au conducteur du véhicule.

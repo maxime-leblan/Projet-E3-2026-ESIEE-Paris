@@ -1,0 +1,30 @@
+\newpage
+\subsection{Protocoles de communications}
+
+Dans les sous-parties précédentes, nous avons abordé en détail le fonctionnement et l'implémentation des différents algorithmes utilisés par le hub afin de mettre en place son repère virtuel et pour déterminer la position du tag par rapport au véhicule. Cependant, pour le bon fonctionnement de notre système, le hub a régulièrement besoin de requérir des informations des ancres, ainsi que de transmettre des ordres et des données à la fois aux ancres et aux tags. De plus, nous devons également prendre en compte le type de matériel que nous avons choisi d'utiliser afin d'adapter nos protocoles aux technologies utilisées. Étant donné que nous avons relié par CAN les ancres au hub et que les tags peuvent communiquer avec les ancres par UWB, nous avons donc deux protocoles à mettre en place, que nous allons vous présenter dans ce qui suit.
+
+\subsubsection{Protocole CAN}
+
+Pour pouvoir exploiter la communication CAN que nous avons installé dans notre système, nous avons choisi d'utiliser la librairie {\ttfamily \textbf{driver/twai.h}} afin de pouvoir gérer les trames de données envoyées au plus proche du hardware.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{Attribut} & \textbf{Taille} & \textbf{Contenu}\\
+        \hline
+        \text{.identifier} & \text{11 à 29 bits} & \text{type de message + identifiant du destinataire ou de l'émetteur}\\
+        \hline
+        \text{.extd} & \text{8 bits} & \text{0 indique que .identifier est codé sur 11 bits, 1 indique qu'il est codé sur 29 bits}\\
+        \hline
+        \text{.rtr} & \text{8 bits} & \text{0 indique une trame de données classique, 1 indique une trame de données étendue}\\
+        \hline
+        \text{.data_length_code} & \text{8 bits} & \text{indique la longueur du message transporté}\\
+        \hline
+        \text{.data} & \text{64 bits} & \text{contient le message à envoyer de type {\ttfamily \textbf{struct}}}\\
+        \hline
+    \end{tabular}
+    \caption{Structure d'une trame CAN}
+\end{table}
+
+\subsubsection{Protocole UWB}
