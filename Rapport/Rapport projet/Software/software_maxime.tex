@@ -282,9 +282,61 @@ Afin de simplifier les calculs effectués par l'ESP32-WROVER-E du hub lors de l'
 
 $$\nabla_{X_i} E(X) = \sum_{j \neq i} (X_i - X_j) \cdot \left( \frac{\hat{d}_{ij}(X) - d_{ij}}{\hat{d}_{ij}(X)} \right)$$
 
-Nous avons donc utilisé cette équation dans notre programme implémentant l'algorithme de \emph{Multidimensional Scaling}, avec comme paramètres $n=1000$ et $\alpha=0.01$. Nous avons créé la librairie {\ttfamily{GridLibrary.hpp}} dans laquelle nous avons implémenté l'algorithme dans la fonction {\ttfamily{initAnchorsCoordinatesWithGD}}.
+Nous avons donc utilisé cette équation dans notre programme implémentant l'algorithme de \emph{Multidimensional Scaling}, avec comme paramètres $n=1000$ et $\alpha=0.01$. Nous avons créé la librairie {\ttfamily{GridLibrary.hpp}} dans laquelle nous avons implémenté l'algorithme dans la fonction {\ttfamily{initAnchors\allowbreak CoordinatesWithGD}}.
 
-\textbf{<RAJOUTER DES IMAGES>}
+Voici un exemple visuel du résultat de l'algorithme lors de son utilisation pour le placement des ancres pendant le \uline{Jour des Projet} de l'ESIEE Paris :
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.7\columnwidth]{placement_ancres_jdp.jpg} 
+\caption[calibrage Ancres JDP]{Placement réelle des ancres lors du \uline{Jour des Projets}}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.7\columnwidth]{calibrage_ancres.png} 
+\caption[calibrage Ancres JDP (repère virtuel)]{Reconstitution de la position des ancres par l'algorithme de \emph{Multidimensional Scaling}}
+\end{figure}
+
+Comme évoqué précédemment, l'algorithme de \emph{Multidimensional Scaling} a besoin de connaître les distances entre chaque ancres pour pouvoir effectuer la descente de gradient. Nous avons donc écris dans un premier temps un algorithme permettant de récupérer les distances entre chaque ancre en exécutant la méthode suivante en boucle :
+
+\bigskip
+
+\textbf{Pour les ancres :}
+
+\begin{itemize}
+   \item On vérifie si le Hub nous a envoyé un message pour nous avertir que la phase d'initialisation de la position des ancres est terminée. Si c'est le cas, on arrête le programme d'initialisation, sinon on lance la phase d'initialisation suivante : 
+   \item \begin{itemize}
+      \item On attend de recevoir un signal du hub pour nous indiquer que l'on doit se transformer en tag.
+      \item Si on s'est transformé en tag : 
+      \item \begin{itemize}
+         \item On vérifie que le hub ne nous a pas demandé de nous transformer en ancre. Si on a bien reçu un message, on arrête la phase courante d'initialisation et on repasse en mode ancre. Sinon, on effectue l'action ci dessous : 
+         \item On envoie la distance entre nous et la seule ancre toujours en mode ancre sur les quatres (l'ancre statique)
+      \end{itemize}
+   \end{itemize}
+\end{itemize}
+
+\textbf{<RAJOUTER ORGANIGRAMME ANCRES>}
+
+\bigskip
+
+\textbf{Pour le hub :}
+
+\begin{itemize}
+   \item On envoie un message à toutes les ancres pour signifier que la phase d'initialisation de la position des ancres commence.
+   \item On définit à tour de rôle une ancre statique, et on envoie un message aux trois autres pour qu'elle passe en mode tag.
+   \item On attend de recevoir un tableau contenant les 3 distances entre chaque ancre.
+\end{itemize}
+
+\textbf{<RAJOUTER ORGANIGRAMME HUB>}
+
+Cependant, la précision des mesures des distances entre les ancres n'ayant pas été très pointue lors de nos premiers tests (le taux d'erreurs pour les mesures oscillait entre 25\% et 50\%), nous avons pour le moment décidé de proposer à l'utilisateur de saisir manuellement les distances entre chaque ancre. L'algorithme de collecte des distances dépicté ci-dessus nécéssiterait une phase de développement plus importante avant d'envisager son utilisation au sein de notre système.
+
+\bigskip
+
+Nous avons donc explicité dans cette partie l'algorithme de \emph{Multidimensional Scaling} permettant d'initialiser les positions des ancres au sein du repère virtuel du hub. Nous étudierons par la suite l'algorithme de modélisation et de lissage de la zone de sécurité. Cependant, cet algorithme ayant également comme tâche la transmission des coordonnées des points formant la zone de sécurité dans un repère en deux dimensions à l'écran, il est nécessaire d'effectuer une projection des coordonnées 3D des points dans un repère en deux dimensions. Afin d'éviter l'exécution systématique d'un algorithme de projection des points sur le plan $(\vec{x}, \vec{y})$ du repère virtuel du hub, nous avons préféré écrire un algorithme de changement de base non seulement afin de limiter le temps de calcul de la fonction de projection, mais aussi dans le but de simplifier les programmes d'échanges de données entre le hub et l'écran. Nous allons donc étudier cet algorithme de changement de base dans la partie suivante.
+\textbf{<RAJOUTER SCREEN APPLI DISTANCES>}
 
 \subsection{Algorithme de changement de base}
 
+Comme introduit précédemment, nous avons besoin de l'algorithme de changement de base à la fois pour réduire le temps de calcul de la fonction de projection et à la fois pour simplifier les échanges de données entre le hub et l'écran. Étant donné que nous comptions également mettre les ancres ainsi que la représentation du véhicule équipé de notre système au centre de l'écran, nous avons besoin non seulement que le repère virtuel du hub soit exactement le repère du plan du véhicule, mais également que l'épicentre des ancres se situe au centre de notre repère afin de pouvoir aisément les afficher au centre de l'écran.
