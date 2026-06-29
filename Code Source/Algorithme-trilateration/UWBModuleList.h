@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <map>
 
 #include "UWBModule.h"
 
@@ -27,6 +28,18 @@ class UWBModuleList
     int size();
 
     /*
+    Renvoie un dictionnaire contenant la liste des positions des modules de la liste avec chaque position d'un module
+    associé à son identifiant
+    */
+    std::map<int, V3> giveModulePositionList() const;
+
+    /**
+     * Renvoie une chaîne de caractères permettant de représenter la liste de module textuellement
+     * @return Une chaîne de type [(<id_0>, <position_0>), (<id_1>, <position_1>),...,(<id_n>, <position_n>)] ou [] si elle est vide
+     */
+    string toString();
+
+    /*
     Renvoie le module associé à l'identifiant passé en paramètre
     pId - identifiant du module que l'on veut récupérer
     */
@@ -47,6 +60,11 @@ class UWBModuleList
     pId - identifiant du module que l'on veut 
     */
     void addModule(int pId, UWBModule pModule);
+
+    /**
+     * Efface tout le contenu de la liste des modules
+     */
+    void clearAll();
 
     /*
     Modifie la position du module dont l'identifiant est passé en paramètre

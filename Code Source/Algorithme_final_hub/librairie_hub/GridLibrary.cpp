@@ -1,5 +1,22 @@
 #include "GridLibrary.hpp"
 
+V3 giveEpicenterPosition(UWBModuleList pAnchors)
+{
+    std::map<int, V3> vModulePositionList = pAnchors.giveModulePositionList();
+
+    V3 vEpicenterPosition = V3(0.0f, 0.0f, 0.0f);
+
+    // on calcule l'épicentre des ancres (correspond à la moyenne des coordonnées des ancres)
+    for (auto it = vModulePositionList.begin(); it != vModulePositionList.end(); it++)
+    {
+        vEpicenterPosition += it->second;
+    }
+
+    vEpicenterPosition = vEpicenterPosition / (vModulePositionList.size());
+
+    return vEpicenterPosition;
+}
+
 vector<V3> applyRotationOnPoints(vector<V3> pPoints, Eigen::Matrix<float, 3, 3> pRotationalMatrix)
 {
     vector<V3> vNewPoints;
@@ -12,118 +29,173 @@ vector<V3> applyRotationOnPoints(vector<V3> pPoints, Eigen::Matrix<float, 3, 3> 
     return vNewPoints;
 }
 
+vector<V3> changeCoordinateSystem(vector<V3> pPoints, V3 pNewBasisVector)
+{
+    // on récupère le premier vecteur unitaire de la nouvelle base qui sera perpendiculaire au plan (X, Y) de notre repère
+    V3 vFirstAxisVector = pNewBasisVector.getNormalized();
+
+    // on choisit un vecteur arbitraire t en fonction de la valeur de l'abscisse du vecteur du premier axe
+    V3 vTempVector;
+    if (abs(vFirstAxisVector.getX()) < 0.9)
+    {
+        vTempVector = V3(1, 0, 0);
+    }
+    else
+    {
+        vTempVector = V3(0, 1, 0);
+    }
+
+    // on calcule les coordonnées du vecteur du 2e axe en faisant le produit vectoriel des 2 vecteurs précédents
+    V3 vSecondAxisVector = prodVect(vFirstAxisVector, vTempVector);
+    vSecondAxisVector.normalize();
+
+    // on en déduit le 3e axe en calculant le produit vectoriel des 2 premiers axes
+    V3 vThirdAxisVector = prodVect(vFirstAxisVector, vSecondAxisVector);
+    vThirdAxisVector.normalize();
+
+    // on construit la matrice de passage pour passer tous les points dans la nouvelle base
+    Eigen::Matrix<float, 3, 3> vTransitionMatrix;
+    vTransitionMatrix << vSecondAxisVector.getX(), vSecondAxisVector.getY(), vSecondAxisVector.getZ(),
+                        vThirdAxisVector.getX(), vThirdAxisVector.getY(), vThirdAxisVector.getZ(),
+                        vFirstAxisVector.getX(), vFirstAxisVector.getY(), vFirstAxisVector.getZ();
+
+    // on calcule les nouvelles coordonnées de tous les points
+    vector<V3> vNewPoints;
+    V3 vNewCurrentPoint;
+
+    for (int i = 0; i < pPoints.size(); i++)
+    {
+        vNewCurrentPoint = vTransitionMatrix * pPoints[i];
+        vNewPoints.push_back(vNewCurrentPoint);
+    }
+
+    return vNewPoints;
+}
+
+void alignAnchorsCoordinatesWithGridOrigin(UWBModuleList & pAnchors)
+{
+    vector<int> vAnchorsIdList = pAnchors.giveModuleIdList();
+
+    V3 vEpicenterPosition = giveEpicenterPosition(pAnchors);
+
+    // on en déduit le vecteur translation
+    V3 vTranslationVector = -vEpicenterPosition;
+    V3 vNewAnchorPosition;
+
+    // on parcourt pAnchors pour mettre à jour les positions de chaque ancre après la translation
+    for (int i = 0; i < vAnchorsIdList.size(); i++)
+    {
+        vNewAnchorPosition = pAnchors.getModule(vAnchorsIdList[i]).getPosition() + vTranslationVector;
+        pAnchors.setModulePosition(vAnchorsIdList[i], vNewAnchorPosition);
+    }
+}
+
 void initAnchorsCoordinates(UWBModuleList & pAnchors, unordered_map<string, float> pDistances)
 {
-    // on récupère les véritables identifiants des ancres, auquels on accédera par les indices de la liste de 0 à 3
+    // on récupère les véritables identifiants des ancres (0 à 3)
     vector<int> vAnchorIdList = pAnchors.giveModuleIdList();
-    // on trie la liste pour ensuite pouvoir obtenir les bonnes distances dans pDistances car les clés sont de la forme : "12"
     sort(vAnchorIdList.begin(), vAnchorIdList.end());
 
-    // on fixe les coordonnées de la première ancre à (0, 0, 0)
+    // Ancre 1 (0,0,0)
     pAnchors.setModulePosition(vAnchorIdList[0], V3(0, 0, 0));
 
-    // on fixe les coodonnées de la deuxième ancre à (d1_2, 0, 0) avec d1_2 la distance entre l'ancre 1 et l'ancre 2
-    string vDistanceBtwA1andA2Id = to_string(vAnchorIdList[0]) + to_string(vAnchorIdList[1]);
+    // Ancre 2
+    string vDistanceBtwA1andA2Id = to_string(vAnchorIdList[0] + 1) + to_string(vAnchorIdList[1] + 1);
     float vD1to2 = pDistances[vDistanceBtwA1andA2Id];
     pAnchors.setModulePosition(vAnchorIdList[1], V3(vD1to2, 0, 0));
 
-    // on fixe les coordonnées de la troisième ancre à (x3, y3, 0) en déterminant x3 et y3 à l'aide du théorème de Pythagore
-    string vDistanceBtwA1andA3Id = to_string(vAnchorIdList[0]) + to_string(vAnchorIdList[2]);
+    // Ancre 3
+    string vDistanceBtwA1andA3Id = to_string(vAnchorIdList[0] + 1) + to_string(vAnchorIdList[2] + 1);
     float vD1to3 = pDistances[vDistanceBtwA1andA3Id];
-    string vDistanceBtwA2andA3Id = to_string(vAnchorIdList[1]) + to_string(vAnchorIdList[2]);
+    string vDistanceBtwA2andA3Id = to_string(vAnchorIdList[1] + 1) + to_string(vAnchorIdList[2] + 1);
     float vD2to3 = pDistances[vDistanceBtwA2andA3Id];
 
     float vX3 = (vD1to2 * vD1to2 + vD1to3 * vD1to3 - vD2to3 * vD2to3) / (2 * vD1to2);
-    float vY3 = sqrt(vD1to3 * vD1to3 - vX3 * vX3);
-
+    float vY3 = sqrt(abs(vD1to3 * vD1to3 - vX3 * vX3)); // Sécurité abs() ajoutée
     pAnchors.setModulePosition(vAnchorIdList[2], V3(vX3, vY3, 0));
 
-    // on fixe les coordonnées de la quatrième ancre à (x4, y4, z4) avec un système d'équation prenant en compte toutes les distances
-    string vDistanceBtwA1andA4Id = to_string(vAnchorIdList[0]) + to_string(vAnchorIdList[3]);
+    // Ancre 4
+    string vDistanceBtwA1andA4Id = to_string(vAnchorIdList[0] + 1) + to_string(vAnchorIdList[3] + 1);
     float vD1to4 = pDistances[vDistanceBtwA1andA4Id];
-    string vDistanceBtwA2andA4Id = to_string(vAnchorIdList[1]) + to_string(vAnchorIdList[3]); 
+    string vDistanceBtwA2andA4Id = to_string(vAnchorIdList[1] + 1) + to_string(vAnchorIdList[3] + 1); 
     float vD2to4 = pDistances[vDistanceBtwA2andA4Id];
-    string vDistanceBtwA3andA4Id = to_string(vAnchorIdList[2]) + to_string(vAnchorIdList[3]); 
+    string vDistanceBtwA3andA4Id = to_string(vAnchorIdList[2] + 1) + to_string(vAnchorIdList[3] + 1); 
     float vD3to4 = pDistances[vDistanceBtwA3andA4Id];
 
     float vX4 = (vD1to2 * vD1to2 + vD1to4 * vD1to4 - vD2to4 * vD2to4) / (2 * vD1to2);
     float vY4 = (vD1to4 * vD1to4 - vD3to4 * vD3to4 + vX3 * vX3 + vY3 * vY3 - 2 * vX3 * vX4) / (2 * vY3);
-    float vZ4 = sqrt(vD1to4 * vD1to4 - vX4 * vX4 - vY4 * vY4);
+    float vZ4 = sqrt(abs(vD1to4 * vD1to4 - vX4 * vX4 - vY4 * vY4)); // Sécurité abs() ajoutée
 
     pAnchors.setModulePosition(vAnchorIdList[3], V3(vX4, vY4, vZ4));
 }
 
 void initAnchorsCoordinatesWithGD(UWBModuleList & pAnchors, unordered_map<string, float> pDistances, int pIter, float pAlpha)
 {
-    // on utilise l'algorithme standard pour que les ancres ait déjà une position proche de la réalité
-    // initAnchorsCoordinates(pAnchors, pDistances);
-
-    // on récupère les véritables identifiants des ancres, auquels on accédera par les indices de la liste de 0 à 3
     vector<int> vAnchorIdList = pAnchors.giveModuleIdList();
-    // on trie la liste pour ensuite pouvoir obtenir les bonnes distances dans pDistances car les clés sont de la forme : "12"
     sort(vAnchorIdList.begin(), vAnchorIdList.end());
 
-    // on donne des positions arbitraire et probablement fausses aux ancres
-    pAnchors.setModulePosition(vAnchorIdList[0], V3(0, 0, 0));
-    pAnchors.setModulePosition(vAnchorIdList[1], V3(1, 0, 0)); 
-    pAnchors.setModulePosition(vAnchorIdList[2], V3(1, 1, 0)); 
-    pAnchors.setModulePosition(vAnchorIdList[3], V3(1, 1, 1)); 
+    int vAnchorAmount = vAnchorIdList.size();
+    string vKey;
 
-    for (int vIter = 0; vIter < pIter; vIter++)
+    for (int iter = 0; iter < pIter; iter++)
     {
-        // enregistrement des positions actuelles des ancres dans une liste
-        vector<V3> vPos(4);
-        for (int i = 0; i < 4; i++) {
-            vPos[i] = pAnchors.getModule(vAnchorIdList[i]).getPosition();
-        }
+        vector<V3> vGradients(vAnchorAmount, V3(0, 0, 0));
 
-        // Tableau pour accumuler les gradients de chaque ancre
-        vector<V3> vGradients = { V3(0,0,0), V3(0,0,0), V3(0,0,0), V3(0,0,0) };
-
-        // Calcul des gradients pour chaque noeud
-        // La fonction de coût est la somme des (d_ij_mesurée - d_ij_calculée)^2
-        for (int i = 0; i < 4; i++)
+        // 1. Calcul des forces (gradients) pour chaque paire d'ancres
+        for (int i = 0; i < vAnchorAmount; i++)
         {
-            for (int j = 0; j < 4; j++)
+            for (int j = 0; j < vAnchorAmount; j++)
             {
                 if (i == j) continue;
 
-                // Récupération de la clé de distance ("12", "23", etc.) avec l'ID plus petit en premier
-                string vKey = (i < j) ? (to_string(vAnchorIdList[i]) + to_string(vAnchorIdList[j])) 
-                                      : (to_string(vAnchorIdList[j]) + to_string(vAnchorIdList[i]));
+                // Identifiants internes compris entre 0 et 3
+                int minId = min(vAnchorIdList[i], vAnchorIdList[j]);
+                int maxId = max(vAnchorIdList[i], vAnchorIdList[j]);
                 
-                float vDistMesuree = pDistances[vKey];
-                
-                V3 vVectDiff = vPos[i] - vPos[j];
-                float vDistCalculee = vVectDiff.norm();
+                // Transformation magique : id de 0 à 3 convertis en clés textuelles de 1 à 4 ("12", "13", etc.)
+                vKey = to_string(minId + 1) + to_string(maxId + 1);
 
-                // Éviter la division par zéro si deux points se superposent par erreur
-                if (vDistCalculee > 1e-4f) 
-                {
-                    V3 vVectUnitaire = vVectDiff.getNormalized();
-                    
-                    // Dérivée partielle du Stress par rapport à la position P_i :
-                    // Grad = -2 * (d_mesurée - d_calculée) * (Vecteur_Unitaire_j_vers_i)
-                    vGradients[i] = vGradients[i] - 2.0f * (vDistMesuree - vDistCalculee) * vVectUnitaire;
+                // Si la clé n'est pas dans le dictionnaire, on passe au suivant
+                if (pDistances.find(vKey) == pDistances.end()) continue;
+
+                float vGoalDistance = pDistances[vKey];
+                V3 posI = pAnchors.giveModulePositionList()[vAnchorIdList[i]];
+                V3 posJ = pAnchors.giveModulePositionList()[vAnchorIdList[j]];
+
+                V3 diff = posI - posJ;
+                float vCurrentDistance = diff.norm();
+
+                // Sécurité anti-division par zéro
+                if (vCurrentDistance < 0.001f) {
+                    diff = V3((float)rand()/RAND_MAX, (float)rand()/RAND_MAX, (float)rand()/RAND_MAX);
+                    vCurrentDistance = diff.norm();
                 }
+
+                // Formule de gradient optimisée et stable
+                float vError = (vCurrentDistance - vGoalDistance) / vCurrentDistance;
+                vGradients[i] += diff * vError;
             }
         }
 
-        // Mise à jour des positions (P = P - alpha * Gradient)
-        for (int i = 1; i < 4; i++)
+        // 2. Application du déplacement avec respect des contraintes géométriques du repère virtuel
+        for (int i = 0; i < vAnchorAmount; i++)
         {
-            V3 vNewPos = vPos[i] - (vGradients[i] * pAlpha);
-            
-            // APPLICATION DES CONTRAINTES DE REPÈRE :
-            if (i == 1) // Ancre 2 : on force y et z à 0 (axe X)
+            V3 vCurrentPos = pAnchors.giveModulePositionList()[vAnchorIdList[i]];
+            V3 vNewPos = vCurrentPos - (vGradients[i] * (pAlpha / vAnchorAmount));
+
+            if (i == 0) // Ancre 0 : Bloquée à l'origine (0,0,0)
+            {
+                vNewPos = V3(0.0f, 0.0f, 0.0f);
+            }
+            else if (i == 1) // Ancre 1 : Alignée strictement sur l'axe X (y=0, z=0)
             {
                 vNewPos = V3(vNewPos.x, 0.0f, 0.0f);
             }
-            else if (i == 2) // Ancre 3 : on force z à 0 (plan XY)
+            else if (i == 2) // Ancre 2 : Contrainte sur le plan XY (z=0)
             {
                 vNewPos = V3(vNewPos.x, vNewPos.y, 0.0f);
             }
-            // L'Ancre 4 (i == 3) reste totalement libre en 3D (x, y, z)
+            // Ancre 3 : Libre de se déplacer en 3D (x,y,z)
 
             pAnchors.setModulePosition(vAnchorIdList[i], vNewPos);
         }

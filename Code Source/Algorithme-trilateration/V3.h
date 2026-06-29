@@ -32,6 +32,7 @@ struct V3
 	float getX() const { return x; }
 	float getY() const { return y; }
 	float getZ() const { return z; }
+	string toString() const {return "(" + to_string(x) + ", " + to_string(y) + ", " + to_string(z) + ")"; }
 
 	/*
 	Renvoie la coordonnée numéro pNumber
@@ -46,7 +47,9 @@ bool operator == (const V3 & a, const V3 & b);
 
 // red�finition des op�rateurs standards
 
+V3& operator += (V3& a, const V3& b);
 V3 operator + (const V3 & a, const V3 & b);
+string operator + (string a, const V3 & b);
 V3 operator - (const V3 & a, const V3 & b);
 V3 operator * (float      a, const V3 & b);
 V3 operator * (const V3 & a, float      b);

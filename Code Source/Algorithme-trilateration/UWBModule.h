@@ -30,7 +30,14 @@ class UWBModule
     UWBModule();
 
     /*
-    Constructeur par défaut de la classe. Attribut une position du module
+    Constructeur par défaut de la classe. Attribut un identifiant au module, et donne (0, 0, 0) comme
+    position par défaut au module.
+    pId - identifiant du module
+    */
+    UWBModule(int pId);
+
+    /*
+    Constructeur par défaut de la classe. Attribut une position et un identifiant au module
     pPosition - position du module dans le repère
     pId - identifiant du module
     */
@@ -40,6 +47,12 @@ class UWBModule
     Renvoie l'identifiant du module
     */
     int getId() const;
+
+    /**
+     * Renvoie une chaîne de caractère permettant de représenter textuellement un module UWB
+     * @return (<id>, <position>)
+     */
+    string toString();
 
     /*
     Renvoie la position du module

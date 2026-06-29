@@ -7,6 +7,36 @@ int UWBModuleList::size()
     return aUWBModuleList.size();
 }
 
+std::map<int, V3> UWBModuleList::giveModulePositionList() const
+{
+    std::map<int, V3> vModulePositionList;
+
+    for (auto it = aUWBModuleList.begin(); it != aUWBModuleList.end(); it++)
+    {
+        vModulePositionList[it->first] = it->second.getPosition();
+    }
+
+    return vModulePositionList;    
+}
+
+string UWBModuleList::toString()
+{
+    string vString = "[";
+
+    for (auto it = aUWBModuleList.begin(); it != aUWBModuleList.end(); it++)
+    {
+        vString += (it->second).toString() + ", ";
+    }
+
+    if (vString.size() > 1)
+    {
+        vString.pop_back();
+        vString.pop_back();
+    }
+
+    return vString + "]";
+}
+
 UWBModule UWBModuleList::getModule(int pId)
 {
     return aUWBModuleList[pId];
@@ -15,6 +45,11 @@ UWBModule UWBModuleList::getModule(int pId)
 void UWBModuleList::addModule(int pId, UWBModule pModule)
 {
     aUWBModuleList[pId] = pModule;
+}
+
+void UWBModuleList::clearAll()
+{
+    aUWBModuleList.clear();
 }
 
 void UWBModuleList::setModulePosition(int pModuleId, V3 pNewPosition)
@@ -46,5 +81,6 @@ vector<int> UWBModuleList::giveModuleIdList()
         vModuleIdList.push_back(it->first);
     }
 
+    std::sort(vModuleIdList.begin(), vModuleIdList.end());
     return vModuleIdList;
 }
