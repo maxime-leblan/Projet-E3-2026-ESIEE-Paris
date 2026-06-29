@@ -52,7 +52,14 @@ La conception matérielle du système VigiZone a été guidée par un pragmatism
 
 Ce sous-système, destiné à être porté sur le casque de l'employé, est soumis à des contraintes drastiques d'encombrement, de poids et de consommation d'énergie.
 
-\paragraph{Microcontrôleur Autonome (Seeed Studio XIAO nRF52840)}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{tag_ouvrier_composants.png}
+    \caption{Architecture matérielle du dispositif porté par l'employé, centré sur la XIAO nRF52840, intégrant la charge Qi, la télémétrie UWB, l'altimétrie et l'alerte sonore.}
+    \label{fig:tag_ouvrier}
+\end{figure}
+
+\subsubsection{Microcontrôleur Autonome (Seeed Studio XIAO nRF52840)}
 
 Le cœur logique du tag est une carte Seeed Studio XIAO nRF52840. Son architecture ARM Cortex-M4F surclasse nettement un ESP32 en matière d'ultra-basse consommation \cite{XIAO_nRF52840}. Cette efficacité est vitale pour exploiter un algorithme de \textit{dynamic polling}, permettant au tag de se placer en veille profonde de manière adaptative et de garantir une autonomie de 8 à 48 heures selon sa proximité avec l'engin \cite{Desc_Projet}. La carte intègre nativement un système de gestion de batterie (BMS), simplifiant la recharge de la batterie Li-Po de 500~mAh \cite{XIAO_nRF52840, Slides_Choix}. 
 
@@ -88,7 +95,7 @@ Le cœur logique du tag est une carte Seeed Studio XIAO nRF52840. Son architectu
         BMS (Gestionnaire de batterie) intégré & OUI \\
         \hline
     \end{tabular}
-    \caption{Spécifications techniques du microcontrôleur XIAO nRF52840 \cite{XIAO_nRF52840, Nano_nRF52840_PS}.}
+    \caption{Spécifications techniques du microcontrôleur XIAO nRF52840 \cite{XIAO_nRF52840}.}
     \label{tab:specs_xiao}
 \end{table}
 
@@ -119,10 +126,10 @@ Le cœur logique du tag est une carte Seeed Studio XIAO nRF52840. Son architectu
     \label{tab:pinout_xiao}
 \end{table}
 
-\paragraph{Indicateur Visuel (LED Rouge 3mm)}
+\subsubsection{Indicateur Visuel (LED Rouge 3mm)}
 Afin de communiquer avec l'utilisateur, une LED rouge de 3~mm a été ajoutée pour être insérée dans un trou percé à travers la paroi du tag. Pilotée par le microcontrôleur, elle signale une batterie faible, indique la recharge en cours, et émet un clignotement de maintien en vie (\textit{keep-alive}) confirmant le bon fonctionnement du dispositif.
 
-\paragraph{Télémétrie Spatiale (Makerfabs MaUWB-DW3000)}
+\subsubsection{Télémétrie Spatiale (Makerfabs MaUWB-DW3000)}
 
 Le choix du composant assurant la technologie UWB a nécessité une longue phase d'évaluation. Initialement, l'utilisation d'une puce Qorvo DW3000 nue avait été envisagée, mais son absence d'antenne intégrée exigeait un design RF hors de notre portée matérielle. Nous nous sommes ensuite tournés vers le module BU03 (Ai-Thinker) qui intègre une antenne \cite{Slides_Choix}. Cependant, l'utilisation de ce module nécessitait de mesurer le temps de vol directement via le bus SPI et d'être codé à partir de peu de ressources disponibles : les exemples d'utilisation trouvés se limitaient exclusivement à la mesure de distance entre deux modules uniques, ce qui était insuffisant pour notre architecture complexe. 
 
@@ -183,7 +190,7 @@ Notre choix final s'est donc porté sur le module MaUWB de Makerfabs \cite{Slide
 
 \textbf{Note sur le câblage :} La broche \texttt{UART2 RX} est connectée au GPIO \texttt{D0} de la carte XIAO. Elle sert à faire un reset matériel du module si elle est maintenue à l'état bas pendant trois secondes, et permet également de le sortir de son mode veille (\textit{sleep mode}).
 
-\paragraph{Altimétrie Barométrique (Bosch BMP581)}
+\subsubsection{Altimétrie Barométrique (Bosch BMP581)}
 
 Indépendant du système UWB, l'axe vertical est verrouillé par un capteur de pression Bosch BMP581 \cite{BMP581}. Ce capteur intègre une nouvelle technologie développée par Bosch permettant d'effectuer un sur-échantillonnage (\textit{oversampling}) matériel paramétrable via l'écriture de registres spécifiques. De plus, la puce effectue en interne une mesure précise de la température afin de compenser les dérives et d'améliorer considérablement la précision finale \cite{BMP581}. Son bruit extrêmement faible ($< 0.001\text{ hPa}$) permet d'obtenir une précision relative suffisante pour détecter des variations de pression infimes, traduisibles par une estimation de l'altitude fiable à une dizaine de centimètres près \cite{BMP581}.
 
@@ -247,7 +254,7 @@ Indépendant du système UWB, l'axe vertical est verrouillé par un capteur de p
 \end{table}
 
 
-\paragraph{Étanchéité et Recharge}
+\subsubsection{Étanchéité et Recharge}
 
 \textbf{Le Récepteur de Charge Sans Fil (Qi Adafruit)}
 
@@ -286,7 +293,15 @@ Les environnements de chantier imposant une forte présence de poussière et d'e
 
 La seule perméabilité volontaire du boîtier est assurée par une membrane ePTFE Amphenol LTW \cite{Slides_Choix}. Celle-ci garantit une étanchéité totale aux liquides tout en laissant l'air s'équilibrer lentement pour le capteur de pression. Outre son rôle contre l'humidité, cette membrane agit comme un filtre mécanique indispensable pour lisser les chocs de pression soudains liés aux rafales de vent ou aux mouvements brusques de l'ouvrier, qui viendraient inévitablement fausser le calcul altimétrique du baromètre \cite{Desc_Projet, Slides_Choix}.
 
-\paragraph{Avertisseur Sonore (Buzzer)}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{amphenol_membrane.png}
+    \caption{Membrane ePTFE Amphenol LTW (issu de la datasheet)}
+    \label{fig:membrane_img}
+\end{figure}
+
+\newpage
+\subsubsection{Avertisseur Sonore (Buzzer)}
 
 L'alerte sonore de l'ouvrier est actuellement gérée par un buzzer magnétique de la marque Same Sky. Pris de court par le temps lors de la conception du prototype, nous avons sélectionné un composant capable d'émettre au moins 85~dB et tolérant une alimentation directe en 3.7V \cite{Slides_Choix, CMT-8504-100-SMT-TR}. Nous nous sommes rapidement rendu compte que ce choix n'était pas assez puissant pour un environnement industriel bruyant et qu'il consommait excessivement par rapport à un dispositif piézoélectrique. Le composant idéal s'avère être un disque piézoélectrique, qui consommerait dix fois moins d'énergie. Notre objectif acoustique étant d'abaisser la fréquence au maximum pour rendre le son moins strident, plus audible et moins sujet à l'atténuation dans l'air, nous envisagerions un disque exploitant le diamètre maximum raisonnable pour notre boîtier (soit 3~cm). Une telle dimension permettrait d'atteindre une fréquence de résonance optimale d'environ 2500~Hz.
 
@@ -339,20 +354,13 @@ L'alerte sonore de l'ouvrier est actuellement gérée par un buzzer magnétique 
 % \end{table}
 % 
 % \textbf{Note sur le câblage de protection :} Une diode de roue libre (FR107) est montée en antiparallèle directement sur les bornes du buzzer. L'anode est connectée à la Borne (-) et la cathode à la Borne (+). Ce câblage est indispensable pour court-circuiter l'énergie résiduelle de la bobine du buzzer et éviter que le transistor 2N2222 ne grille à l'ouverture du circuit.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{tag_ouvrier_composants.png}
-    \caption{Architecture matérielle du dispositif porté par l'employé, centré sur la XIAO nRF52840, intégrant la charge Qi, la télémétrie UWB, l'altimétrie et l'alerte sonore.}
-    \label{fig:tag_ouvrier}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{systeme_buzzer.png}
-    \caption{Circuit standard de commutation d'un actionneur inductif par transistor NPN, incluant la diode de roue libre de protection.}
-    \label{fig:systeme_buzzer}
-\end{figure}
+%
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.8\textwidth]{systeme_buzzer.png}
+%     \caption{Circuit standard de commutation d'un actionneur inductif par transistor NPN, incluant la diode de roue libre de protection.}
+%     \label{fig:systeme_buzzer}
+% \end{figure}
 
 \newpage
 % -------------------------------------------------------------------------
@@ -360,7 +368,7 @@ L'alerte sonore de l'ouvrier est actuellement gérée par un buzzer magnétique 
 
 Situé dans la cabine de l'engin, le Hub centralise les données du réseau périphérique, calcule les distances et interagit avec le conducteur \cite{Desc_Projet}.
 
-\paragraph{Interface Graphique et Enregistreur (MaTouch 7" ESP32-S3)}
+\subsubsection{Interface Graphique et Enregistreur (MaTouch 7" ESP32-S3)}
 
 Initialement, nous avions l'intention d'utiliser un simple écran piloté par le hub directement. Nous avons rapidement réalisé que le traitement du flux vidéo exigeait une puissance de calcul colossale et imposait une communication SPI à haut débit mobilisant de multiples câbles pour garantir une résolution acceptable. Or, le WROVER devait déjà dédier ses deux blocs SPI matériels aux capteurs critiques, et nous ne disposions plus d'assez de broches. Voulant à tout prix conserver un faisceau de câblage restreint (deux fils pour les données et deux fils pour l'alimentation), nous avons pivoté vers un écran 7 pouces intégrant son propre processeur ESP32-S3 \cite{MaTouch_7}. Le protocole I2C étant incapable de couvrir de longues distances de manière fiable, et le SPI exigeant trop de fils, nous avons logiquement choisi l'UART pour assurer la communication asynchrone entre le Hub et l'écran. 
 
@@ -415,7 +423,7 @@ L'écran embarque également un lecteur de carte SD faisant office de boîte noi
     \label{tab:pinout_matouch}
 \end{table}
 
-\paragraph{Unité de Traitement Temps Réel (ESP32 WROVER DevKit-C)}
+\subsubsection{Unité de Traitement Temps Réel (ESP32 WROVER DevKit-C)}
 
 Le traitement mathématique est confié à un ESP32 WROVER dont l'architecture double-cœur est exploitée rigoureusement \cite{ESP32_WROVER}. Le Cœur 0, habituellement dédié au Wi-Fi et au Bluetooth (inutilisés ici), est entièrement réaffecté aux tâches temporelles. La lecture des capteurs, l'exécution du filtre de Madgwick, les calculs de calibration de l'IMU et de la pression, ainsi que l'écriture du Mutex ne prennent que 90~$\mu$s sur un cycle de 2.5~ms (soit 400~Hz). Cette optimisation libère 96\% de la charge de ce cœur pour la gestion fluide des paquets CAN et UART. Le Cœur 1 est ainsi réservé pour l'exécution ininterrompue des algorithmes mathématiques et de l'arbre décisionnel.
 
@@ -482,7 +490,7 @@ Le traitement mathématique est confié à un ESP32 WROVER dont l'architecture d
     \label{tab:pinout_wrover}
 \end{table}
 
-\paragraph{Référentiel Altimétrique (Bosch BMP581)}
+\subsubsection{Référentiel Altimétrique (Bosch BMP581)}
 
 Le Hub embarque son propre baromètre BMP581, rigoureusement identique à celui du tag ouvrier (dont les caractéristiques de bruit et de précision ont été détaillées précédemment) pour garantir la symétrie des mesures différentielles \cite{BMP581}. Au sein du WROVER, l'interfaçage de ce capteur a nécessité un remappage logiciel du bus HSPI vers de nouvelles broches GPIO. Cette modification a été imposée par des contraintes matérielles liées à la séquence de démarrage de l'ESP32 (\textit{strapping boot}), car le bus HSPI natif monopolise la broche GPIO12, dont l'état au démarrage dicte la tension interne de la mémoire flash. Y connecter un capteur SPI aurait risqué de perturber ou d'empêcher le démarrage du microcontrôleur.
 
@@ -516,7 +524,7 @@ Le Hub embarque son propre baromètre BMP581, rigoureusement identique à celui 
     \label{tab:pinout_bmp581_hub}
 \end{table}
 
-\paragraph{Centrale Inertielle (Bosch BMI088)}
+\subsubsection{Centrale Inertielle (Bosch BMI088)}
 
 Afin de corriger l'inclinaison du véhicule, le référentiel gravitaire est fourni par la centrale inertielle Bosch BMI088. Plébiscité dans l'ingénierie des drones professionnels pour sa fiabilité reconnue et sa non-dérive, ce composant est particulièrement adapté aux environnements subissant les vibrations intenses des engins de chantier \cite{BMI088}. Son raccordement physique exploite le bus VSPI natif du microcontrôleur pour assurer les transferts ultra-rapides exigés par la fréquence d'échantillonnage de 400~Hz.
 
@@ -575,7 +583,7 @@ Afin de corriger l'inclinaison du véhicule, le référentiel gravitaire est fou
 
 \textbf{Note sur le câblage :} La présence de deux broches "Chip Select" (\texttt{CSB1} et \texttt{CSB2}) est due à l'architecture physique du BMI088. Bien qu'il s'agisse d'un composant unique, il encapsule en réalité deux puces distinctes (le gyroscope et l'accéléromètre) qui doivent être interrogées séparément sur le même bus VSPI matériel.
 
-\paragraph{Transceiver CAN (TCAN1051V-Q1)}
+\subsubsection{Transceiver CAN (TCAN1051V-Q1)}
 
 La traduction des signaux logiques du contrôleur TWAI de l'ESP32 vers le réseau différentiel du véhicule est assurée par le transceiver TCAN1051V-Q1 \cite{TCAN1051-Q1}.
 
@@ -643,7 +651,7 @@ La traduction des signaux logiques du contrôleur TWAI de l'ESP32 vers le résea
 % -------------------------------------------------------------------------
 \subsection{Sous-Système 3 : Le Réseau Périphérique (Les Ancres)}
 
-\paragraph{Logique Télémétrique (Makerfabs ESP32-S3 + UWB)}
+\subsubsection{Logique Télémétrique (Makerfabs ESP32-S3 + UWB)}
 
 En réalité, nous avions besoin des modules MaUWB-DW3000 seuls pour nos ancres, mais les fournisseurs ne vendaient que la carte de développement complète les intégrant. Nous avons donc acheté ces cartes par nécessité \cite{Slides_Choix}. Le choix d'un processeur ESP32-S3 est technologiquement surdimensionné : l'objectif de l'ancre consiste simplement à faire du \textit{polling} (interrogation continue) sur le port UART du capteur UWB pour rafraîchir les distances, et à transmettre ces valeurs via le bus CAN lors d'une requête du Hub. Un microcontrôleur d'entrée de gamme extrêmement abordable (tel qu'un STM32G0 ou un ATmega) aurait amplement suffi pour cette tâche. Néanmoins, l'écran OLED intégré à la carte nous a offert un confort précieux pour déboguer les mesures sur le terrain. De plus, avant la réception des PCB finaux et en l'absence de réseau CAN opérationnel, la connectivité Wi-Fi de l'ESP32 nous a permis de tester et valider les protocoles de communication entre le Hub et les ancres de manière anticipée.
 
@@ -688,7 +696,7 @@ En réalité, nous avions besoin des modules MaUWB-DW3000 seuls pour nos ancres,
     \label{tab:pinout_ancre_uwb}
 \end{table}
 
-\paragraph{Régulation Locale (Murata OKI-78SR-5)}
+\subsubsection{Régulation Locale (Murata OKI-78SR-5)}
 
 Le réseau d'ancres reçoit une alimentation globale de 12V, qui est abaissée au sein de chaque boîtier. Le régulateur DC-DC Murata OKI-78SR génère un 5V très stable localement \cite{OKI-78SR_Series}. L'avantage majeur de ce composant à découpage est sa tolérance : il accepte de fonctionner parfaitement même si la tension d'entrée s'effondre jusqu'à 7V, autorisant ainsi une chute de tension importante dans la ligne sans jamais compromettre le fonctionnement de l'électronique embarquée \cite{OKI-78SR_Series, Slides_Choix}.
 
@@ -733,7 +741,7 @@ Le réseau d'ancres reçoit une alimentation globale de 12V, qui est abaissée a
     \label{tab:pinout_oki}
 \end{table}
 
-\paragraph{Câblage Industriel, Chute de Tension et Connectique (UNITRONIC LiYCY)}
+\subsubsection{Câblage Industriel, Chute de Tension et Connectique (UNITRONIC LiYCY)}
 
 Le réseau physique repose sur un câble blindé, ignifugé et torsadé, doté d'une section conductrice de $S = 4 \times 0.34\text{ mm}^2$ \cite{UNITRONIC_LiYCY}. L'acheminement de la puissance sur le châssis induit inexorablement une perte énergétique, dictée par la loi de Pouillet. La chute de tension $\Delta U$ évolue de manière linéaire avec la longueur du câble $L$ selon la formule :
 
@@ -893,16 +901,16 @@ En aval du relais se trouve l'abaisseur de tension (Buck). Initialement, nous av
 
 La philosophie de conception basée sur des modules pré-assemblés nous a permis de gagner un temps précieux, mais n'a pas été exempte de difficultés physiques d'intégration. Plusieurs obstacles techniques nous ont contraints à réaliser des modifications matérielles (hacks) directement sur les cartes de développement.
 
-\paragraph{Récupération des modules UWB pour les Tags}
+\subsubsection{Récupération des modules UWB pour les Tags}
 Comme mentionné précédemment, la pénurie de modules nus MaUWB-DW3000 nous a obligés à acquérir des cartes de développement complètes ESP32-S3 de Makerfabs. S'il était judicieux de les utiliser telles quelles pour le réseau d'ancres du véhicule, leur taille était totalement incompatible avec l'équipement de l'ouvrier (Tag). Nous avons donc dû dessouder minutieusement le module UWB de la carte mère Makerfabs à l'aide d'une station à air chaud, pour ensuite le ressouder directement sur le circuit imprimé personnalisé de notre Tag, qui était piloté par la carte XIAO nRF52840. Bien que cette méthode ait considérablement augmenté le coût unitaire du composant, c'était la seule solution viable pour obtenir le matériel dans les temps impartis.
 
-\paragraph{Connectique de débogage du Hub (ESP32 WROVER)}
+\subsubsection{Connectique de débogage du Hub (ESP32 WROVER)}
 Lors de l'assemblage physique du Hub dans la cabine, la disposition des composants sur le circuit imprimé a posé un problème majeur : le connecteur micro-USB natif de l'ESP32 WROVER, indispensable pour programmer et déboguer la carte, s'est retrouvé physiquement bloqué par un potentiomètre. Pour contourner ce problème d'accès, nous avons tenté de souder une deuxième prise micro-USB déportée sur l'autre face de la carte. Au cours de cette manipulation délicate, le convertisseur UART-vers-USB intégré a été irrémédiablement endommagé. Pour sauver le cerveau du système, nous avons été contraints de dessouder un convertisseur UART sain d'une autre carte de développement (NodeMCU) pour venir le greffer sur l'ESP32 WROVER. Cette greffe s'est avérée fonctionnelle et a permis de rétablir la communication série.
 
-\paragraph{Programmation des Ancres Makerfabs}
+\subsubsection{Programmation des Ancres Makerfabs}
 La carte de développement Makerfabs utilisée pour les ancres possède deux ports USB Type-C distincts : l'un relié au convertisseur USB-TTL (UART), l'autre offrant un accès natif à l'USB de l'ESP32. Cette particularité nous a causé de multiples soucis de développement. Lors de l'utilisation du port USB natif, la carte effectuait parfois des "programmations fantômes" où le code semblait téléversé, mais le moniteur série ne s'affichait pas et l'écran OLED ne se mettait pas à jour. La résolution de ce problème a nécessité d'imposer un processus strict consistant à utiliser exclusivement le port USB-TTL pour le téléversement et le moniteur série.
 
-\paragraph{Déportation de l'alimentation de l'écran MaTouch}
+\subsubsection{Déportation de l'alimentation de l'écran MaTouch}
 L'écran autonome du Hub requérant une alimentation stable en 5V, nous souhaitions utiliser la liaison filaire (port Grove) qui servait déjà à l'UART pour acheminer cette énergie. Or, le connecteur Grove de l'écran est conçu pour fournir du 3.3V en sortie, et non pour recevoir du 5V. Nous avons donc opéré une modification matérielle sur l'écran : la piste de sortie 3.3V a été sectionnée au cutter de précision et remplacée par un pont filaire soudé directement vers l'entrée des diodes de protection du port USB-C. Cette astuce transforme le connecteur de données en une entrée 5V sécurisée. L'alimentation injectée permet au Hub d'alimenter l'écran tout en conservant la protection matérielle si un ordinateur y est simultanément branché pour le débogage, isolant ainsi parfaitement les sources de tension.
 
 % =========================================================================
