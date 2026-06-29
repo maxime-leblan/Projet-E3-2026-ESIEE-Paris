@@ -337,6 +337,87 @@ Cependant, la précision des mesures des distances entre les ancres n'ayant pas 
 Nous avons donc explicité dans cette partie l'algorithme de \emph{Multidimensional Scaling} permettant d'initialiser les positions des ancres au sein du repère virtuel du hub. Nous étudierons par la suite l'algorithme de modélisation et de lissage de la zone de sécurité. Cependant, cet algorithme ayant également comme tâche la transmission des coordonnées des points formant la zone de sécurité dans un repère en deux dimensions à l'écran, il est nécessaire d'effectuer une projection des coordonnées 3D des points dans un repère en deux dimensions. Afin d'éviter l'exécution systématique d'un algorithme de projection des points sur le plan $(\vec{x}, \vec{y})$ du repère virtuel du hub, nous avons préféré écrire un algorithme de changement de base non seulement afin de limiter le temps de calcul de la fonction de projection, mais aussi dans le but de simplifier les programmes d'échanges de données entre le hub et l'écran. Nous allons donc étudier cet algorithme de changement de base dans la partie suivante.
 \textbf{<RAJOUTER SCREEN APPLI DISTANCES>}
 
-\subsection{Algorithme de changement de base}
+\subsection{Algorithme de changement de repère}
 
-Comme introduit précédemment, nous avons besoin de l'algorithme de changement de base à la fois pour réduire le temps de calcul de la fonction de projection et à la fois pour simplifier les échanges de données entre le hub et l'écran. Étant donné que nous comptions également mettre les ancres ainsi que la représentation du véhicule équipé de notre système au centre de l'écran, nous avons besoin non seulement que le repère virtuel du hub soit exactement le repère du plan du véhicule, mais également que l'épicentre des ancres se situe au centre de notre repère afin de pouvoir aisément les afficher au centre de l'écran.
+Comme introduit précédemment, nous avons besoin de l'algorithme de changement de base à la fois pour réduire le temps de calcul de la fonction de projection et à la fois pour simplifier les échanges de données entre le hub et l'écran. Étant donné que nous comptions également mettre les ancres ainsi que la représentation du véhicule équipé de notre système au centre de l'écran, nous avons besoin non seulement que le repère virtuel du hub soit exactement le repère du plan du véhicule, mais également que l'épicentre des ancres se situe au centre de notre repère afin de pouvoir aisément les afficher au centre de l'écran. C'est pour cette raison que nous avons réparti l'algorithme de changement de repère en deux parties :
+
+\begin{itemize}
+   \item {\ttfamily \textbf{giveEpicenterPosition}} : Calcule et renvoie les coordonnées de l'épicentre des ancres qui correspond au vecteur utilisé pour la translation des ancres vers l'origine du repère tel que leur nouvel épicentre ait pour coordonnées $(0, 0, 0)$. La fonction renvoie donc $\frac{\sum_{i=1}^{4}X_i}{4}$.
+   \item {\ttfamily \textbf{changeCoordinateSystem}} : Calcule la matrice utilisée pour le changement de base et applique celui-ci sur tous les points passés en paramètre de la fonction.
+\end{itemize}
+
+Nous allons donc ici détailler brièvement l'algorithme utilisé pour le changement de base de tous les points enregistrés dans le repère virtuel du hub dans la fonction {\ttfamily \textbf{changeCoordinateSystem}}.
+
+\subsubsection{Démonstration}
+
+Afin d'effectuer un changement de repère pour passer du repère basé sur le plan des ancres au repère du plan de la zone de sécurité (qui est donc le plan du véhicule), nous avons besoin de connaître le vecteur normal à ce plan qui constituera l'axe $Z$ de notre nouvelle base. Nous pouvons construire ce vecteur à partir des coefficients $(a, b, c)\in \mathbb{R}^3$ de l'équation du plan de la zone de sécuirté, dont l'obtention sera précisée dans la partie \emph{Modélisation et lissage de la zone de sécurité}.
+
+Soit $n=$$\begin{pmatrix}
+    a \\
+    b \\
+    c
+\end{pmatrix}$ le vecteur normal au plan de la zone de sécurité. Nous pouvons tout simplement définir le vecteur directeur $w$ de l'axe $Z$ tel que :
+
+$$w=\frac{n}{\norme{n}_2}$$
+
+Pour créer le second vecteur de la base, il nous suffit de prendre un vecteur arbitraire non-colinéaire à $w$ puis de calculer le produit vectoriel des deux vecteurs. Pour ce faire, on définit le vecteur $t$ de la manière suivante : 
+
+\[
+t = 
+\begin{cases}
+   (1, 0, 0) & \text{si } |w_x| < 0.9 \\
+   (0, 1, 0) & \text{sinon}
+\end{cases}
+\]
+
+On calcule ensuite le vecteur directeur $u$ de l'axe $X$ :
+
+$$u=\frac{t \wedge w}{\norme{t \wedge w}}$$
+
+On peut donc enfin déterminer le vecteur $v$ de l'axe $Y$ à l'aide des deux vecteurs précédents :
+
+$$v=\frac{w \wedge u}{\norme{w \wedge u}}$$
+
+On peut donc en déduire la matrice de changement de base suivante :
+
+$$M=\begin{pmatrix}
+   u_x & u_y & u_z \\
+   v_x & v_y & v_z \\
+   w_x & w_y & w_z
+\end{pmatrix}$$
+
+Pour obtenir les nouvelles coordonnées $X'$ d'un point $X$ dans notre nouvelle base, il suffit d'effectuer le calcul ci-dessous :
+
+$$X'=MX$$
+
+\subsubsection{Implémentation de l'algorithme}
+
+L'algorithme de changement de repère final que nous avons implémenté dans notre système se structure donc de la manière suivante :
+
+\begin{itemize}
+   \item On déplace l'épicentre des ancres aux coordonnées $(0, 0, 0)$ à l'aide de la fonction {\ttfamily \textbf{giveEpicenterPosition}}.
+   \item On lance le programme de \emph{Modélisation et lissage de la zone de sécurité} pour pouvoir récupérer les coordonnées des points constituants la zone de sécurité.
+   \item On applique la fonction de changement de base {\ttfamily \textbf{changeCoordinateSystem}} sur tous les points composant la zone de sécurité ainsi que les ancres.
+\end{itemize}
+
+Nous pouvons voir l'exécutions de ces différentes étapes à travers les images ci-contre :
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.7\columnwidth]{chgt_base_1.png} 
+\caption[translation]{Translation de l'épicentre des ancres en $(0, 0, 0)$}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.7\columnwidth]{chgt_base_2.png} 
+\caption[avant chgt de repere]{Repère virtuel du hub avant le changement de base}
+\end{figure}
+
+\begin{figure}[!ht]
+\centering 
+\includegraphics[width=0.7\columnwidth]{chgt_base_3.png} 
+\caption[apres chgt de repere]{Repère virtuel du hub après le changement de base}
+\end{figure}
+
+Nous allons maintenant expliciter le déroulement de l'algorithme utilisé par le hub afin de modéliser une zone de sécurité qu'il peut utiliser pour calculer la distance entre un tag et celle-ci et qu'il peut transmettre à l'écran pour que celui-ci puisse afficher des informations utiles au conducteur du véhicule.
