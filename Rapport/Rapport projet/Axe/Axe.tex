@@ -1,0 +1,33 @@
+Nous ne citerons pas tous les axes d'amélioration car il en existe beaucoup, mais voici
+une liste non exhaustive de certains points à améliorer.
+\bigskip
+
+Tout d'abord, il faut savoir que celui-ci n'est pas fini. Il manque
+encore certaines fonctionnalités telles que la mise en œuvre d'une zone de sécurité
+dynamique en fonction de la vitesse du véhicule.
+L'accéléromètre a été implanté sur la carte, mais le code non.
+
+Le coût du prototype peut également être réduit de manière conséquente. À l'heure actuelle,
+le projet atteint les 600 euros, mais cela s'explique par des fournisseurs imposés.
+Le prix de certains composants est donc monté à 75 euros au lieu de 35 euros (le tout x5).
+
+Les délais étant très serrés, il manque également de nombreuses fonctionnalités, tant sur le principe
+de détection des ouvriers que sur l'application web. 
+
+L'impression PCB est également à améliorer, pour passer de cartes prototypes à de vraies cartes industrielles.
+Cela permettrait d'éviter de potentiels court-circuits grâce au vernis, les problèmes de soudure et d'offrir un gain de temps.
+Nous aurions également une facilité de debug grâce à la sérigraphie.
+
+Un autre point d'amélioration serait la mise en œuvre de plots anti-vibrations sur les cartes.
+Cela permettrait de réduire les chocs sur les cartes lorsque le véhicule est en activité.
+
+Nous avons également pensé à la mise en place de gaines thermo-rétractables au niveau des bus CAN,
+pour assurer une étanchéité de nos câbles.
+
+Il est également envisageable de revoir certains composants, tels que l'abaisseur XL0415 \cite{XL0415}, qui 
+se trouve être surdimensionné pour la carte et les besoins de celle-ci.
+
+Un autre point important est la mise en place des ancres. Dans son fonctionnement idéal,
+les ancres arrivent à connaitres leurs positions par rapport au plan entre elles.
+Mais à l'heure actuelle, l'emplacement des ancres se fais en hard, n'ayant pas eu le temps
+de mettre en place le code. 
