@@ -1,43 +1,39 @@
-
 \subsection{Introduction}
  
-Le projet Vigizone demande une architecture matérielle complexe qui ne peut être réalisée par une ou plusieurs cartes toute faites.
+Le projet Vigizone demande une architecture matérielle complexe qui ne peut être réalisée par une ou plusieurs cartes toutes faites.
 Il est donc nécessaire de concevoir une carte électronique sur mesure pour répondre aux besoins du projet.
 Les cartes doivent être capables de gérer les différents capteurs et actionneurs nécessaires au fonctionnement du système, tout en respectant les contraintes de taille, de consommation d'énergie et de coût.
-Pour se faire, nous nous sommes appuyés sur le cahier des charges réalisé à l'aide de GTM OUEST, pour la conception technique.
+Pour ce faire, nous nous sommes appuyés sur le cahier des charges réalisé à l'aide de GTM OUEST pour la conception technique.
 
 %------------------------------------------------
 
 \subsection{Choix des composants}
 \input{Hardware/choixcomposant.tex}
 
-
-
-
 \subsection{Hub}
 
 \subsubsection{Choix du logiciel}
 Une fois les composants choisis, il est temps de passer à la conception de la carte
-qui acceuillera tous les composants nécessaires au fonctionnement du système.
-La premiere étape consiste en le choix du logiciel de conception de PCB.
+qui accueillera tous les composants nécessaires au fonctionnement du système.
+La première étape consiste à choisir le logiciel de conception de PCB.
 Pour ce projet, nous avons choisi le logiciel KiCad, qui est un logiciel libre et open source.
-Nous avions hésité avec Proteus, car celui-ci possède des fonctionnalités très intéressantes notamment pour de la simulation ou encore pour du routage.
-Mais tout le monde  n'ayant pas licence dans le groupe, et avec une recommandation de l'école, d'utiliser ce logiciel, nous nous somme rabattu sur KiCad.
+Nous avions hésité avec Proteus, car celui-ci possède des fonctionnalités très intéressantes, notamment pour la simulation ou encore pour du routage.
+Mais tout le monde n'ayant pas de licence dans le groupe, et suite à la recommandation de l'école d'utiliser ce logiciel, nous nous sommes rabattus sur KiCad.
 
 \subsubsection{Librairie}
 
 Pour la conception du schéma, nous avons d'abord mis en place un suivi des composants,
-qui visent à savoir quels sont les composants mis sur le schéma, ainsi que ceux donc l'empreinte est manquante.
+qui vise à savoir quels sont les composants mis sur le schéma, ainsi que ceux dont l'empreinte est manquante.
 
 \begin{figure}[!ht]
 \centering 
 \includegraphics[width=0.8\columnwidth]{mise_en_oeuvre.png} 
-\caption[extrait du tableau de suivi]{extrait du tableau de suivi }
+\caption[Extrait du tableau de suivi]{Extrait du tableau de suivi}
 \label{fig: mise en oeuvre}
 \end{figure}
 
-Pour récupérer les différents empreintes/symboles, nous avons utilisés plusieurs banque de données spécialisés,
-tels que : 
+Pour récupérer les différentes empreintes/symboles, nous avons utilisé plusieurs banques de données spécialisées,
+telles que : 
 
 \begin{itemize}
     \item Mouser \cite{Mouser}
@@ -46,15 +42,15 @@ tels que :
     \item LCSC \cite{LCSC}
 \end{itemize}
 
-Cela nous à permis d'avoir la majeure partie des empreintes/symboles.
-Cependant, certains composants très spécifique sont difficilement trouvable, voir inexistant.
-Pour palier à ce problème, KiCad intègre une création de composant, avec une précision allant jusqu'au nanomètre.
-Nous avons pu grâce à cette outil, refaire l'empreinte du BMP581 \cite{BMP581}, le module UWB \cite{UWB-AT-Module},
-le connecteur Roover ou encore l'abaisseur de tension \cite{5A-XL4015-DC-DC-Abaisser-Alimentation}.
+Cela nous a permis d'avoir la majeure partie des empreintes/symboles.
+Cependant, certains composants très spécifiques sont difficilement trouvables, voire inexistants.
+Pour pallier ce problème, KiCad intègre un outil de création de composants avec une précision allant jusqu'au nanomètre.
+Nous avons pu, grâce à cet outil, refaire l'empreinte du BMP581 \cite{BMP581}, du module UWB \cite{UWB-AT-Module},
+du connecteur Roover ou encore de l'abaisseur de tension \cite{5A-XL4015-DC-DC-Abaisser-Alimentation}.
 
-Une fois la recherche de tout les composants terminé, nous avons mis en place une librairie kicad propre au projet.
-Celle-ci permet d'avoir une banque de donnée commune à toutes les cartes et éviter de potentiel problème de PATH.
-Cela nous donne une librairie composé de tous les composants comme nous pouvons le voir sur la Figure \ref{fig: lib_Kicad}.
+Une fois la recherche de tous les composants terminée, nous avons mis en place une librairie KiCad propre au projet.
+Celle-ci permet d'avoir une banque de données commune à toutes les cartes et d'éviter de potentiels problèmes de PATH.
+Cela nous donne une librairie composée de tous les composants, comme nous pouvons le voir sur la Figure \ref{fig: lib_Kicad}.
 
 \begin{figure}[!ht]
 \centering 
@@ -65,53 +61,52 @@ Cela nous donne une librairie composé de tous les composants comme nous pouvons
 
 \subsubsection{Conception du schéma d'alimentation}
 
-Une fois tout les composants prêts, nous avons commencé le schéma électronique.
-Celui-ci se découpe en quatre partie plus ou moins indépendantes que nous allons étudier.
-La première étape que nous allons étudier est la partie alimentation : 
+Une fois tous les composants prêts, nous avons commencé le schéma électronique.
+Celui-ci se découpe en quatre parties plus ou moins indépendantes que nous allons étudier.
+La première partie que nous allons étudier est la section alimentation : 
 
 \begin{figure}[!ht]
 \centering 
 \includegraphics[width=0.8\columnwidth]{sch-alim-hub.png} 
-\caption[Partie Alimention de la carte hub]{Partie Alimention de la carte hub}
+\caption[Partie alimentation de la carte Hub]{Partie alimentation de la carte Hub}
 \label{fig:sch-alim-hub}
 \end{figure}
 
-La carte du hub vise à être alimenté par la batterie de l'engin sur lequel elle se trouve.
-La batterie sortant du 12V, il faut pouvoir réussir à s'en servir. Mais il s'avère qu'il n'existe 
-aucun microcontroleurs qui puisse supporter du 12V, le max étant 5V ou 3.3V. Nous avons donc mis en place
-un abaisseur de tension 12V->5V de la serie OKI-78SR  \cite{OKI-78SR_Series}.
-Mais en regardant de plus près la Datasheet, on remarque que celui-ci ne peut fournir que 4W,
-cela ne pose pas de problème dans la plupart des cas, mais dans le notre si.
-Alimenter la carte Hub, revient non seulement à alimenter la carte la plus gourmande en énergie, et celle avec le plus de composant,
-mais surtout d'alimenter également l'écran , qui consomme à lui tout seul 2.5W.
-Pour éviter tout risque, nous avons donc pris la décision de passer sur un modèle plus puissant
-à savoir le 5A-XL4015-DC-DC  \cite{5A-XL4015-DC-DC-Abaisser-Alimentation}. Celui-ci est capable de fournir plus de 30Watts
-ce qui est largement suiffisant pour notre utilisation.
-nous avons pris le 5A-XL4015-DC-DC  \cite{5A-XL4015-DC-DC-Abaisser-Alimentation}, car étant le seul assez puissant que nous avions sous la main,
-mais il est évident que celui-ci est très puissant inutilement.
-Il est donc fortement envisageable de modifier le choix de l'abaisseur pour une potentielle v2 du prototype,
-qui serait plus compacte et adapté a notre usage.
+La carte du Hub est destinée à être alimentée par la batterie de l'engin sur lequel elle se trouve.
+La batterie fournissant du 12V, il faut réussir à s'en servir. Or, il s'avère qu'il n'existe 
+aucun microcontrôleur capable de supporter du 12V, le maximum étant de 5V ou 3.3V. Nous avons donc mis en place
+un abaisseur de tension 12V $\rightarrow$ 5V de la série OKI-78SR \cite{OKI-78SR_Series}.
+Mais en regardant de plus près la datasheet, on remarque que celui-ci ne peut fournir que 4W.
+Cela ne pose pas de problème dans la plupart des cas, mais dans le nôtre, si.
+Alimenter la carte Hub revient non seulement à alimenter la carte la plus gourmande en énergie et celle qui comporte le plus de composants,
+mais surtout à alimenter également l'écran, qui consomme à lui tout seul 2.5W.
+Pour éviter tout risque, nous avons donc pris la décision de passer sur un modèle plus puissant,
+à savoir le 5A-XL4015-DC-DC \cite{5A-XL4015-DC-DC-Abaisser-Alimentation}. Celui-ci est capable de fournir plus de 30 Watts,
+ce qui est largement suffisant pour notre utilisation.
+Nous avons choisi le 5A-XL4015-DC-DC \cite{5A-XL4015-DC-DC-Abaisser-Alimentation} car c'était le seul modèle assez puissant que nous avions sous la main,
+mais il est évident qu'il est inutilement trop puissant.
+Il est donc fortement envisageable de modifier le choix de l'abaisseur pour une potentielle V2 du prototype,
+qui serait plus compacte et adaptée à notre usage.
 
 \bigskip
-Comme nous le montre la figure \ref{fig:sch-alim-hub}, l'entrée du 12V dans l'abaisseur de tension
-ce fais à l'aide d'un relais DSY2Y-S-205H \cite{DSY2Y_Series}. Nous avons décidé de mettre en place
+Comme le montre la Figure \ref{fig:sch-alim-hub}, l'entrée du 12V dans l'abaisseur de tension
+se fait à l'aide d'un relais DSY2Y-S-205H \cite{DSY2Y_Series}. Nous avons décidé de mettre en place
 un relais connecté en permanence au 12V et qui est activé à l'aide d'une broche GPIO.
-Le principe est de pouvoir décider d'alimenter ou non la carte et tout ce qui en découle à l'aide de ce relais.
+Le principe est de pouvoir décider d'alimenter ou non la carte, et tout ce qui en découle, à l'aide de ce relais.
 
 \begin{figure}[!ht]
 \centering 
 \includegraphics[width=0.3\columnwidth]{sch-datasheet-relais.png} 
-\caption[Extrait de la Datasheet du D DSY2Y-S-205H]{Extrait de la Datasheet du D DSY2Y-S-205H}
+\caption[Extrait de la datasheet du DSY2Y-S-205H]{Extrait de la datasheet du DSY2Y-S-205H}
 \label{fig:sch-datasheet-relais}
 \end{figure}
 
-Sur le schéma de la figure \ref{fig:sch-alim-hub}, Com\_1 et Com\_2 réprésente les deux languettes 
-qui passe de NC\_1 et NC\_2 (Naturellement Closed) à NO\_1 et NO\_2 (naturellement open), lorsque qu'un courant passe dans la 
-bobine ( coil\_1  et  coil\_2), ce qui crée un champs magnétique et fais bouger les languettes.
-Nous avons donc la bobine qui est connecté en permanence au +5V. mais qui est connecté à la masse à l'aide d'un 
-transistor 2N2222 
-%\cite{2N}
-Celui-ci est controlé à l'aide d'une broche du GPIO et de le résistance $R_7 = 1\text{ k}\Omega$.  
+Sur le schéma de la Figure \ref{fig:sch-alim-hub}, Com\_1 et Com\_2 représentent les deux languettes 
+qui passent de NC\_1 et NC\_2 (\textit{Normally Closed}) à NO\_1 et NO\_2 (\textit{Normally Open}) lorsqu'un courant passe dans la 
+bobine (coil\_1 et coil\_2), ce qui crée un champ magnétique et fait bouger les languettes.
+La bobine est donc connectée en permanence au +5V, mais elle est reliée à la masse à l'aide d'un 
+transistor 2N2222.
+Celui-ci est contrôlé à l'aide d'une broche du GPIO et de la résistance $R_7 = 1\text{ k}\Omega$.  
 
 \subsubsection*{1. Calcul de fonctionnement du transistor $Q_1$}
 
@@ -120,15 +115,15 @@ il convient d'effectuer l'étude théorique de sa saturation à partir des carac
 
 \subsubsection*{Données initiales}
 \begin{itemize}
-    \item \textbf{ ESP32-WROVER} 
+    \item \textbf{ESP32-WROVER} 
     \begin{itemize}
         \item Tension GPIO : $V_{in} = 3{,}3\text{ V}$
-        \item Résistance de base ($R_7$) : $R_7 = 1\text{ k}\Omega $
+        \item Résistance de base ($R_7$) : $R_7 = 1\text{ k}\Omega$
     \end{itemize}
     \item \textbf{Transistor bipolaire (2N2222B) :}
     \begin{itemize}
         \item Tension de saturation base-émetteur : $V_{BE,sat} \approx 0{,}7\text{ V}$
-        \item Tension de saturation collecteur-émetteur: $V_{CE,sat} \approx 0{,}2\text{ V}$
+        \item Tension de saturation collecteur-émetteur : $V_{CE,sat} \approx 0{,}2\text{ V}$
         \item Gain en courant statique minimal en saturation ($h_{FE,min}$) : $\approx 75$
     \end{itemize}
     \item \textbf{Bobine du relais :}
@@ -137,7 +132,6 @@ il convient d'effectuer l'étude théorique de sa saturation à partir des carac
         \item Résistance interne de la bobine : $R_{bobine} = 167\ \Omega$
     \end{itemize}
 \end{itemize}
-
 
 Lorsque le transistor est saturé, il est assimilable à un interrupteur fermé. La tension à ses bornes chute à sa 
 valeur de saturation $V_{CE,sat}$. Le courant nominal $I_C$ traversant la charge est alors défini par la loi d'Ohm :
@@ -151,9 +145,9 @@ En appliquant les valeurs numériques :
 \end{equation}
 
 Le transistor doit donc pouvoir absorber un courant d'environ $28{,}7\text{ mA}$ sur son collecteur pour
- permettre le basculement du relais.
+permettre le basculement du relais.
 
- \bigskip
+\bigskip
 
 Le courant de commande injecté par la broche GPIO à travers la résistance de protection $R_7$ est déterminé 
 en soustrayant la barrière de potentiel de la jonction base-émetteur ($V_{BE,sat}$) :
@@ -192,10 +186,9 @@ pour s'affranchir des dispersions de fabrication des transistors et des dérives
 Avec un gain forcé calculé de $\approx 11$ (très proche de la valeur idéale) et un courant 
 de base réel environ sept fois supérieur au strict minimum requis, le transistor $Q_1$ 
 se trouve dans un état de saturation franche et robuste. Le choix de la résistance
- $R_7 = 1\text{ k}\Omega$ est donc optimal.
+$R_7 = 1\text{ k}\Omega$ est donc optimal.
 
-
- \subsubsection*{2. Rôle de la diode de roue libre $D_3$}
+\subsubsection*{2. Rôle de la diode de roue libre $D_3$}
 
 La diode $D_3$, positionnée en parallèle avec la bobine du relais, est un composant 
 de protection indispensable dans ce type de montage en commutation. 
@@ -217,13 +210,13 @@ la traverse, accumulant de l'énergie sous forme d'un champ magnétique :
 \end{itemize}
 Sans protection, cette surtension inverse se répercute directement sur le collecteur du 
 transistor $Q_1$, pouvant atteindre plusieurs centaines de volts. Cette valeur dépassant
- largement la tension de claquage maximale admissible du composant (\texttt{2N2222B}), 
- elle entraîne sa destruction immédiate par claquage.
+largement la tension de claquage maximale admissible du composant (\texttt{2N2222B}), 
+elle entraîne sa destruction immédiate par claquage.
 
 \bigskip
 La diode $D_3$ est branchée en inverse par rapport à la tension d'alimentation normale
- de $5\text{ V}$, ce qui signifie qu'elle est bloquée et ne consomme aucun courant
-  lorsque le relais est activé.
+de $5\text{ V}$, ce qui signifie qu'elle est bloquée et ne consomme aucun courant
+lorsque le relais est activé.
 
 Cependant, au moment précis où le transistor s'ouvre :
 \begin{enumerate}
@@ -233,29 +226,28 @@ Cependant, au moment précis où le transistor s'ouvre :
 \end{enumerate}
 
  \bigskip
-La diode $D_3$ agit comme un bouclier  de décharge. En limitant la tension aux bornes
- du transistor à sa propre tension de seuil en direct ($\approx 0{,}7\text{ V}$), 
- elle sécurise efficacement le transistor $Q_1$ ainsi que la sortie GPIO du microcontrôleur
-  contre tout retour de surtension dangereux.
+La diode $D_3$ agit comme un bouclier de décharge. En limitant la tension aux bornes
+du transistor à sa propre tension de seuil en direct ($\approx 0{,}7\text{ V}$), 
+elle sécurise efficacement le transistor $Q_1$ ainsi que la sortie GPIO du microcontrôleur
+contre tout retour de surtension dangereux.
 
 \bigskip
+Tout cela fonctionne très bien, à condition que la broche GPIO puisse être à l'état haut.
+Pour cela, nous avons mis en place un bouton que vous pouvez voir sur la Figure \ref{fig:sch-alim-hub}.
+Représenté par les borniers $U_6$ et $U_7$, le bouton-poussoir PV6F240SS-311 \cite{bouton_poussoir_PV6F240SS-311}
+est directement connecté au 12V de la batterie. Celui-ci permet d'alimenter le microcontrôleur.
 
-Tout cela fonctionne très bien, a condition que la broche GPIO puisse être à l'état haut.
-Pour cela nous avons mis en place un bouton que vous pouvez voir sur la figure \ref{fig:sch-alim-hub}.
-Représenté par les borniers $U_6$ et $U_7$, le bouton poussoir PV6F240SS-311 \cite{bouton_poussoir_PV6F240SS-311},
-est directement connecté au 12V de la batterie. Celui-ci permet d'alimenter le microcontroleur.
+\subsubsection*{3. Interface et conditionnement de l'entrée du bouton-poussoir}
 
-\subsubsection*{3. Interface et conditionnement de l'entrée du bouton poussoir}
-
-Le bloc connecté au bornier à vis \texttt{U6} (bouton poussoir PV6F240SS-311 \cite{bouton_poussoir_PV6F240SS-311})
- sert d'interface d'adaptation de niveau et de protection entre une tension d'entrée externe élevée ($V_{in} = 12\text{ V}$) 
- et une broche d'entrée numérique (GPIO) du microcontrôleur, dont la tension admissible maximale est de $3{,}3\text{ V}$. 
- Cette interface repose sur l'association des résistances $R_4$, $R_6$ et de la diode $D_2$.
+Le bloc connecté au bornier à vis \texttt{U6} (bouton-poussoir PV6F240SS-311 \cite{bouton_poussoir_PV6F240SS-311})
+sert d'interface d'adaptation de niveau et de protection entre une tension d'entrée externe élevée ($V_{in} = 12\text{ V}$) 
+et une broche d'entrée numérique (GPIO) du microcontrôleur, dont la tension admissible maximale est de $3{,}3\text{ V}$. 
+Cette interface repose sur l'association des résistances $R_4$, $R_6$ et de la diode $D_2$.
 
 \bigskip
-Lorsque le bouton poussoir est actionné, la tension d'alimentation globale $V_{in} = 12\text{ V}$ est appliquée en entrée du montage. 
+Lorsque le bouton-poussoir est actionné, la tension d'alimentation globale $V_{in} = 12\text{ V}$ est appliquée en entrée du montage. 
 Afin de ne pas détruire la broche du microcontrôleur, les résistances $R_4$ et $R_6$ sont configurées en pont diviseur de tension.
- La tension convertie $V_{GPIO}$ envoyée vers le microcontrôleur est exprimée par la relation suivante :
+La tension convertie $V_{GPIO}$ envoyée vers le microcontrôleur est exprimée par la relation suivante :
 \begin{equation}
     V_{GPIO} = V_{in} \cdot \frac{R_6}{R_4 + R_6}
 \end{equation}
@@ -269,14 +261,14 @@ La tension obtenue d'environ $2{,}98\text{ V}$ est parfaitement calibrée :
 elle est supérieure au seuil minimal requis pour valider un niveau logique haut (\texttt{HIGH}) 
 tout en restant inférieure à la limite stricte de $3{,}3\text{ V}$. 
 
-De plus, lorsque le bouton poussoir est relâché, la résistance $R_6$ remplit la fonction de résistance de rappel
- à la masse (\textit{pull-down}), garantissant un niveau logique bas (\texttt{LOW}) stable à $0\text{ V}$ en 
- évitant tout état flottant induit par des bruits parasites.
+De plus, lorsque le bouton-poussoir est relâché, la résistance $R_6$ remplit la fonction de résistance de rappel
+à la masse (\textit{pull-down}), garantissant un niveau logique bas (\texttt{LOW}) stable à $0\text{ V}$ en 
+évitant tout état flottant induit par des bruits parasites.
 
 \bigskip
-Le bouton poussoir étant déporté sur un connecteur physique (\texttt{U6}), les lignes de liaison filaires sont sujettes à des perturbations électromagnétiques, 
-des décharges électrostatiques ou des pics de surtension liés directement à la batterie du véhicule, qui ne délivrent pas toujours extacement $V_{in} = 12\text{ V}$.
- La diode $D_2$ (\texttt{FR107}), connectée entre la ligne de signal  et le rail d'alimentation $+5\text{ V}$ , fait office de diode d'écrêtage:
+Le bouton-poussoir étant déporté sur un connecteur physique (\texttt{U6}), les lignes de liaison filaires sont sujettes à des perturbations électromagnétiques, 
+des décharges électrostatiques ou des pics de surtension liés directement à la batterie du véhicule, qui ne délivre pas toujours exactement $V_{in} = 12\text{ V}$.
+La diode $D_2$ (\texttt{FR107}), connectée entre la ligne de signal et le rail d'alimentation $+5\text{ V}$, fait office de diode d'écrêtage :
 
 \begin{itemize}
     \item \textbf{Fonctionnement normal :} La tension sur la ligne étant de $\approx 2{,}98\text{ V}$, la diode $D_2$ est polarisée en inverse. Elle est donc bloquée et n'interfère pas avec le signal.
@@ -292,44 +284,39 @@ Le courant de défaut maximal traversant la diode est bridé à une valeur haute
 \bigskip
 Ce sous-ensemble assure une double fonction essentielle à la robustesse de la carte électronique. 
 Le couple $R_4$/$R_6$ réalise l'atténuation d'amplitude nécessaire à la lecture numérique d'un signal
- $12\text{ V}$ par un processeur $3{,}3\text{ V}$, tandis que la diode $D_2$ immunise l'entrée contre 
- les agressions électriques externes.
+$12\text{ V}$ par un processeur $3{,}3\text{ V}$, tandis que la diode $D_2$ immunise l'entrée contre 
+les agressions électriques externes.
 
-
- \bigskip
-
- Pour finir, on retrouve sur $U_7$ une résistance $R_2$ ($150\text{}\Omega$) connecté à un GPIO. $U_7$
- est relié à la LED du bouton, et necessite 1.8V. (la gestion de la LED est géré logiciellement).
+\bigskip
+Pour finir, on retrouve sur $U_7$ une résistance $R_2$ ($150\,\Omega$) connectée à un GPIO. $U_7$
+est relié à la LED du bouton et nécessite 1.8V (la gestion de la LED est gérée logiciellement).
 %------------------------------------------------
 
 \subsubsection{Conception du schéma buzzer}
 
-Une autre partie de la carte du hub est le buzzer. En effer, il fais est au coeur même du dispositif,
-étant l'un des deux éléments étant capables de prévenir le conducteur, l'autre étant l'écran.
+Une autre partie de la carte du Hub est le buzzer. En effet, il est au cœur même du dispositif,
+étant l'un des deux éléments capables de prévenir le conducteur, l'autre étant l'écran.
 Il est donc primordial que le buzzer fonctionne parfaitement. Pour cela, nous avons mis en place le schéma suivant :
 
 \begin{figure}[!ht]
 \centering 
 \includegraphics[width=0.8\columnwidth]{sch-buzzer-hub.png} 
-\caption[schéma du buzzer sur la carte Hub]{schéma du buzzer sur la carte Hub}
+\caption[Schéma du buzzer sur la carte Hub]{Schéma du buzzer sur la carte Hub}
 \label{fig:sch-buzzer-hub}
 \end{figure}
 
-
-
 L'activation du buzzer \texttt{LS1} ($12\text{ V}$) nécessite une puissance électrique qu'une broche GPIO de
- microcontrôleur ($3{,}3\text{ V}$) ne peut délivrer directement. La commande est donc déléguée au
- transistor  $Q_2$ (\texttt{2N2222}) configuré en commutation. Ce circuit est  stabilisé par 
- la résistance de base $R_3$ et la diode de protection $D_1$.
- Il s'agit d'un cas très similaire au transitor $Q_1$ de l'alimentation du relais, vu précédamment,
- Je considère donc comme acquis certaine notion et simplifie l'explication.
+microcontrôleur ($3{,}3\text{ V}$) ne peut délivrer directement. La commande est donc déléguée au
+transistor $Q_2$ (\texttt{2N2222}) configuré en commutation. Ce circuit est stabilisé par 
+la résistance de base $R_3$ et la diode de protection $D_1$.
+Il s'agit d'un cas très similaire au transistor $Q_1$ de l'alimentation du relais vu précédemment.
+Je considère donc comme acquises certaines notions et je simplifie l'explication.
 
 \subsubsection*{1. Limitation du courant}
 La jonction base-émetteur du transistor $Q_2$ se comportant comme une diode à commutation directe, 
 sa tension de seuil en saturation est d'environ $V_{BE(sat)} \approx 0{,}7\text{ V}$. 
 L'insertion de la résistance $R_3 = 1\text{ k}\Omega$ permet d'injecter un courant de base $I_B$ 
 calibré pour assurer la saturation complète du transistor.
-
 
 Le courant de commande de base injecté lors d'un niveau logique haut ($V_{GPIO} = 3{,}3\text{ V}$) se calcule par la loi d'Ohm :
 \begin{equation}
@@ -342,17 +329,17 @@ En appliquant les valeurs de l'application numérique :
 \end{equation}
 
 Cette valeur de $2{,}6\text{ mA}$ respecte le fonctionnement des broches de sortie du microcontrôleur
- tout en fournissant l'intensité nécessaire pour saturer fermement le transistor \texttt{2N2222}
-  vis-à-vis du courant collecteur requis par le buzzer.
+tout en fournissant l'intensité nécessaire pour saturer fermement le transistor \texttt{2N2222}
+vis-à-vis du courant collecteur requis par le buzzer.
 
-\subsubsection*{2. Protection contre les surtensions }
+\subsubsection*{2. Protection contre les surtensions}
 Le buzzer \texttt{LS1} intègre un transducteur magnétique assimilable à une bobine. 
-le courant traversant une inductance ne peut pas s'annuler de manière instantanée.
+Le courant traversant une inductance ne peut pas s'annuler de manière instantanée.
 Lorsque le signal de commande retombe à $0\text{ V}$, le transistor $Q_2$ se bloque subitement, 
 ouvrant le circuit de puissance. À cet instant précis, la rupture brutale du courant ($dt \to 0$) 
-provoque l'apparition d'un transitoire très élevée ($v_L = L \frac{di}{dt}$) au nœud du collecteur.
- Sans $D_1$, cette surtension dépasserait la tension maximale admissible du transistor, 
- provoquant un claquage destructeur par effet d'avalanche.
+provoque l'apparition d'une surtension transitoire très élevée ($v_L = L \frac{di}{dt}$) au nœud du collecteur.
+Sans $D_1$, cette surtension dépasserait la tension maximale admissible du transistor, 
+provoquant un claquage destructeur par effet d'avalanche.
 
 La diode $D_1$ (\texttt{FR107}), montée en parallèle inversée, résout ce problème sous la forme 
 d'une \textit{diode de roue libre} :
@@ -367,47 +354,45 @@ de $Q_2$ à une valeur de sécurité maximale équivalente à :
     V_{C(max)} = V_{in} + V_F \approx 12\text{ V} + 0{,}7\text{ V} = 12{,}7\text{ V}
 \end{equation}
 
- La résistance $R_3$ assure l'interfaçage de commande bas courant en amont du commutateur, 
- tandis que la diode $D_1$ immunise l'étage de puissance contre les phénomènes inductifs inverses en aval,
-  protégeant ainsi l'intégrité du transistor $Q_2$.
-
+La résistance $R_3$ assure l'interfaçage de commande bas courant en amont du commutateur, 
+tandis que la diode $D_1$ immunise l'étage de puissance contre les phénomènes inductifs inverses en aval,
+protégeant ainsi l'intégrité du transistor $Q_2$.
 
 \subsubsection{Conception du schéma TCAN}
 
-Un autre point majeur de la carte Hub, est son système de communication avec les ancres.
-Pour communiquer avec les ancre nous avons pris la solution TCAN, mais cette solution
-necessite plusieurs mise en places structurelles. que nous allons analyser.
+Un autre point majeur de la carte Hub est son système de communication avec les ancres.
+Pour communiquer avec les ancres, nous avons choisi la solution TCAN, mais celle-ci
+nécessite plusieurs mises en place structurelles que nous allons analyser.
 
 \begin{figure}[H]
 \centering 
 \includegraphics[width=0.8\columnwidth]{sch-TCAN-hub.png} 
-\caption[schéma de la communication CAN du Hub]{schéma de la communication CAN du Hub}
+\caption[Schéma de la communication CAN du Hub]{Schéma de la communication CAN du Hub}
 \label{fig:sch-TCAN-hub}
 \end{figure}
 
-Le point central de cette communication, est le Tranceiver-CAN TCAN1051-Q1 \cite{TCAN1051-Q1},
+Le point central de cette communication est le transceiver CAN TCAN1051-Q1 \cite{TCAN1051-Q1},
 que l'on peut voir sur la Figure \ref{fig:sch-TCAN-hub}. Son rôle principal est d'assurer 
 l'adaptation des niveaux de tension entre le contrôleur logique et les lignes physiques 
 différentielles du bus CAN.
- Pour cela, il communique à l'aide d'UART avec le micro controleur, c'est à dire qu'il utilise
- les broches TX et RX : 
+Pour cela, il communique via une liaison UART avec le microcontrôleur, c'est-à-dire qu'il utilise
+les broches TX et RX : 
 
  \begin{itemize}
     \item \textbf{Broche 1 (TXD - Transmit Data) :} Cette entrée reçoit le flux de données série logique provenant de la broche de transmission du microcontrôleur pour le convertir en signal différentiel sur le bus.
     \item \textbf{Broche 4 (RXD - Receive Data) :} Cette sortie renvoie les données lues sur le bus différentiel vers la broche de réception du microcontrôleur, après remise au niveau logique approprié.
  \end{itemize}
 
-Celui-ci est alimenté en 5V mais recoit également du 3.3V,
+Celui-ci est alimenté en 5V, mais reçoit également du 3.3V.
 Bien que le symbole indique \texttt{NC} (\textit{No Connect}), la broche est physiquement
-câblée au rail \textbf{+3.3V} et associée à un condensateur. Sur les composants modernes
-, cette broche sert d'entrée de référence d'alimentation logique ($V_{IO}$).
+câblée au rail \textbf{+3.3V} et associée à un condensateur. Sur les composants modernes, 
+cette broche sert d'entrée de référence d'alimentation logique ($V_{IO}$).
 Elle permet d'adapter les tensions des signaux logiques (TXD/RXD) pour communiquer directement
-avec un microcontrôleur fonctionnant en  $3.3\text{ V}$, éliminant ainsi le besoin de circuits
- de conversion de niveau externes, ce qui est notre cas.
+avec un microcontrôleur fonctionnant en $3.3\text{ V}$, éliminant ainsi le besoin de circuits
+de conversion de niveau externes, ce qui est notre cas.
 
  \bigskip 
-
- et de l'autre coté du composant, on retrouve les trois broches primordiales pour la communication CAN, qui sont les
+Et de l'autre côté du composant, on retrouve les trois broches primordiales pour la communication CAN, qui sont les
  suivantes : 
 
 \begin{itemize}
@@ -417,69 +402,66 @@ avec un microcontrôleur fonctionnant en  $3.3\text{ V}$, éliminant ainsi le be
 \end{itemize}
 
 La stabilité des lignes d'alimentation est cruciale pour éviter l'injection de bruit sur le bus de données. 
-Trois condensateurs de découplage sont installés. $C_1$ / $C_2$ sont  Connectés en parallèle entre le rail 
+Trois condensateurs de découplage sont installés. $C_1$ / $C_2$ sont connectés en parallèle entre le rail 
 \textbf{+5V} et \texttt{GNDREF}, au plus près de la broche 3 (VCC). Ils filtrent les parasites haute fréquence 
 et fournissent les pointes de courant locales instantanées lors des commutations d'état sur le bus.
 $C_4$ est quant à lui connecté entre le rail \textbf{+3.3V} et \texttt{GNDREF}, il stabilise l'alimentation 
 de référence de l'interface d'E/S logique (Broche 5).
 
-Nous nous somme basé sur les recommandations de la Datasheet du TCAN \cite{TCAN1051-Q1}, en fonction
-de nos besoin ainsi que le modèle utilisé. Figure \ref{fig:Datasheet-TCAN}
+Nous nous sommes basés sur les recommandations de la datasheet du TCAN \cite{TCAN1051-Q1}, en fonction
+de nos besoins ainsi que du modèle utilisé (voir Figure \ref{fig:Datasheet-TCAN}).
 
 \begin{figure}[!ht]
 \centering 
 \includegraphics[width=0.4\columnwidth]{Datasheet-TCAN.png} 
-\caption[Example Datasheet du TCAN]{Example Datasheet du TCAN}
+\caption[Exemple de datasheet du TCAN]{Exemple de datasheet du TCAN}
 \label{fig:Datasheet-TCAN}
 \end{figure}
 
-
 Pour prévenir les phénomènes de réflexion de signal en bout de ligne, 
 un bus CAN doit être fermé à ses deux extrémités physiques par une résistance
-correspondant à l'impédance caractéristique du câble (généralement $  120\text{}\Omega$).
-Nous pouvons constater sur la Figure \ref{fig:sch-TCAN-hub} la mise en oeuvre de cette protection.
- Nous avons donc mis en place sur la communication CAN, 
-$R_5$ et $JP_1$ pour éviter de potentielles écho sur la ligne de communication.
+correspondant à l'impédance caractéristique du câble (généralement $120\,\Omega$).
+Nous pouvons constater sur la Figure \ref{fig:sch-TCAN-hub} la mise en œuvre de cette protection.
+Nous avons donc mis en place, sur la communication CAN, $R_5$ et $JP_1$ pour éviter de potentiels échos sur la ligne de communication.
 
 \begin{itemize}
-    \item \textbf{Résistance $R_5$  :} Résistance de terminaison normalisée.
-    \item \textbf{Cavalier $JP_1$  :} Ce cavalier permet d'activer ou de désactiver la présence de la résistance sur la ligne.
-    \item \textbf{Règle d'usage :} Si ce Hub se trouve physiquement à l'extrémité du réseau CAN, le cavalier $JP_1$ doit être inséré (fermé) pour connecter $R_5$ en dérivation entre CANH et CANL. S'il s'agit d'un nœud intermédiaire, le cavalier doit rester ouvert pour ne pas surcharger l'impédance totale du bus (qui doit rester égale à $  60\text{}\Omega$, soit deux terminaisons de $  120\text{}\Omega$ en parallèle sur tout le réseau).
+    \item \textbf{Résistance $R_5$ :} Résistance de terminaison normalisée.
+    \item \textbf{Cavalier $JP_1$ :} Ce cavalier permet d'activer ou de désactiver la présence de la résistance sur la ligne.
+    \item \textbf{Règle d'usage :} Si ce Hub se trouve physiquement à l'extrémité du réseau CAN, le cavalier $JP_1$ doit être inséré (fermé) pour connecter $R_5$ en dérivation entre CANH et CANL. S'il s'agit d'un nœud intermédiaire, le cavalier doit rester ouvert pour ne pas surcharger l'impédance totale du bus (qui doit rester égale à $60\,\Omega$, soit deux terminaisons de $120\,\Omega$ en parallèle sur tout le réseau).
 \end{itemize}
-
 
 À l'extrême droite du schéma, deux connecteurs de type bornier à vis (\texttt{DB301V-5.0-2P}), dont $U_9$, sont câblés en parallèle :
 \begin{itemize}
     \item La \textbf{Broche 1} de chaque connecteur est reliée à la ligne générale \textbf{CANH}.
     \item La \textbf{Broche 2} de chaque connecteur est reliée à la ligne générale \textbf{CANL}.
 \end{itemize}
-Cette mise en parallèle directe permet d'implémenter facilement une topologie en chaîne. Le câble de bus principal entre par l'un des connecteurs et ressort par le second vers le nœud suivant. Cela évite la création de dérivations en étoile trop longues, qui sont de fréquentes sources de problème d'impédance et d'erreurs de communication à des débits élevés.
+Cette mise en parallèle directe permet d'implémenter facilement une topologie en chaîne. Le câble de bus principal entre par l'un des connecteurs et ressort par le second vers le nœud suivant. Cela évite la création de dérivations en étoile trop longues, qui sont de fréquentes sources de problèmes d'impédance et d'erreurs de communication à des débits élevés.
 
 \subsubsection{Conception des Capteurs}
 
-La dernière partie de la carte, concerne la récupérations de données sur différents capteurs.
+La dernière partie de la carte concerne la récupération de données sur différents capteurs.
 Un extrait du schéma est représenté sur la Figure \ref{fig:sch-BMP-BMIO-ESP32-ecran-hub}.
 
 \begin{figure}[H]
 \centering 
 \includegraphics[width=0.8\columnwidth]{sch-BMP-BMIO-ESP32-ecran-hub.png} 
-\caption[schéma de communication BMIO/BMP/Ecran du Hub]{schéma de communication BMIO/BMP/Ecran du Hub}
+\caption[Schéma de communication BMIO/BMP/Écran du Hub]{Schéma de communication BMIO/BMP/Écran du Hub}
 \label{fig:sch-BMP-BMIO-ESP32-ecran-hub}
 \end{figure}
 
-Sur la Figure \ref{fig:sch-BMP-BMIO-ESP32-ecran-hub}, on peut constater 4 éléments. Celui tout a droite représente
-La carte ESP32-WROVER du hub, celle qui s'occupe de récuperer toutes les données, aussi bien des capteurs
-que du bus CAN. il est alimenté en 5V, et sors du 3.3V sur ces GPIO.
+Sur la Figure \ref{fig:sch-BMP-BMIO-ESP32-ecran-hub}, on peut constater 4 éléments. Celui tout à droite représente
+la carte ESP32-WROVER du Hub, celle qui s'occupe de récupérer toutes les données, aussi bien des capteurs
+que du bus CAN. Il est alimenté en 5V et sort du 3.3V sur ses GPIO.
 
 \bigskip
-Le point intéressant à remarquer, est le mode de communication des capteurs, le BMP581 \cite{BMP581}, communique
-en SPI et le BMIO88 \cite{} communique également en SPI. Nous somme donc en droit de nous demander pourquoi
-les deux ne communique pas sur les même broches, sachant que la force du SPI est de pouvoir mettre plusieurs
-esclaves avec un seul maitre.
+Le point intéressant à remarquer est le mode de communication des capteurs : le BMP581 \cite{BMP581} communique
+en SPI et le BMIO88 \cite{} communique également en SPI. Nous sommes donc en droit de nous demander pourquoi
+les deux ne communiquent pas sur les mêmes broches, sachant que la force du SPI est de pouvoir connecter plusieurs
+esclaves avec un seul maître.
 
 Le protocole \textbf{SPI} (\textit{Serial Peripheral Interface}) est un bus de communication série synchrone développé 
 par Motorola au milieu des années 1980. Il est conçu pour des communications à courte distance,
- principalement entre microcontrôleurs et circuits intégrés périphériques.
+principalement entre microcontrôleurs et circuits intégrés périphériques.
 
 Le SPI fonctionne selon une architecture \textbf{Maître-Esclave} (\textit{Master-Slave}) et opère en 
 mode \textbf{Full-Duplex}, ce qui signifie que les données peuvent être envoyées et reçues simultanément.
@@ -492,43 +474,31 @@ Une liaison SPI standard repose sur quatre lignes de signaux logiques :
     \item \textbf{SS / CS (Slave Select / Chip Select) :} Activée généralement à l'état bas (\textit{Active Low}), cette ligne est pilotée par le maître pour sélectionner l'esclave avec lequel il souhaite communiquer.
 \end{itemize}
 
-
-
-
-
-
-
-
-Pour revenir aux vrai sujet, le BMIO nous permet de connaitre le vecteur gravité
-en temps réel, et nous voulons le connaitre le plus rapidement et souvent possible. Si jamais les deux capteurs
-etaient sur le même SPI, alors à certains moments, il serait impossible d'interroger le BMIO car L'ESP32
-serait entrain de communiquer avec le BMP581 \cite{BMP581}.
-Ils sont donc mis sur deux SPI différents pour minimiser le délai de réponse du BMIO.
-
-
-
+Pour revenir au vrai sujet, le BMIO nous permet de connaître le vecteur gravité
+en temps réel, et nous voulons le connaître le plus rapidement et le plus souvent possible. Si jamais les deux capteurs
+étaient sur le même bus SPI, il serait alors impossible d'interroger le BMIO à certains moments, car l'ESP32
+serait en train de communiquer avec le BMP581 \cite{BMP581}.
+Ils sont donc placés sur deux bus SPI différents pour minimiser le délai de réponse du BMIO.
 
 \bigskip
-
-Pour ce qui est du connecteur $J_1$ Grove-Mabee, il s'agit du connecteur permettant de relié l'écran au hub.
-Pour cela, nous utilisons le GPIO 32 et 32, en mode UART (Tx/Rx) pour communiquer les informations, avec une 
+Pour ce qui est du connecteur $J_1$ Grove-Mabee, il s'agit du connecteur permettant de relier l'écran au Hub.
+Pour cela, nous utilisons les GPIO 32 et 33, en mode UART (Tx/Rx) pour communiquer les informations, avec une 
 alimentation 5V. 
 
 \bigskip
-
-Tous ces schémas, nous amène à un schéma global tel que la figure \ref{fig:sch-hub}
+Tous ces schémas nous amènent à un schéma global, tel que présenté sur la Figure \ref{fig:sch-hub}.
 
 \begin{figure}[!ht]
 \centering 
 \includegraphics[width=0.8\columnwidth]{sch-hub.png} 
-\caption[schéma du Hub]{schéma du Hub}
+\caption[Schéma du Hub]{Schéma du Hub}
 \label{fig:sch-hub}
 \end{figure}
 
-\subsubsection*{Placement composant}
-Une fois le schéma validé, nous devons maintenant le passer de symbole complètement théorique,
+\subsubsection*{Placement des composants}
+Une fois le schéma validé, nous devons maintenant passer d'un symbole complètement théorique
 à quelque chose qui représente le circuit imprimé le plus fidèlement possible.
-Pour cela, nous utilisons le logiciel PCB de kiCad. 
+Pour cela, nous utilisons le logiciel PCB de KiCad. 
 
 \begin{figure}[!ht]
 \centering 
@@ -539,12 +509,12 @@ Pour cela, nous utilisons le logiciel PCB de kiCad.
 
 La première étape consiste à placer les composants sur la carte de manière intelligente.
 Comme nous pouvons le voir sur la Figure \ref{fig:PCB-Hub-placement}, 
-Le placement des composants suit une logique fonctionnelle rigoureuse qui optimise le câblage externe et limite le bruit interne :
+le placement des composants suit une logique fonctionnelle rigoureuse qui optimise le câblage externe et limite le bruit interne :
 \begin{itemize}
     \item \textbf{Centralisation de l'intelligence (\texttt{U1}) :} Le support du microcontrôleur est positionné au centre, équilibré pour distribuer les signaux vers la périphérie de manière homogène.
     \item \textbf{Périphérie des interfaces (Connecteurs) :} Tous les borniers à vis (\texttt{U10, U3, U6, U7} en haut à gauche ; \texttt{U4, U9} en haut à droite) ainsi que le connecteur autodétrompé Grove (\texttt{J1}) sont alignés sur les bords de la carte. Cela facilite grandement le raccordement des faisceaux de câbles sans survoler les composants sensibles.
     \item \textbf{Proximité du découplage (\texttt{C2, C4}) :} Les condensateurs de filtrage CMS pour le transceiver CAN (\texttt{U2}) sont placés à l'immédiate proximité de ses broches d'alimentation. Cela réduit l'inductance parasite des pistes, garantissant l'efficacité du filtrage des harmoniques hautes fréquences.
-    \item \textbf{Proximité du 12V  :} Tout les composants prenant du 12V sont concentrés en une zone, pour éviter que du 12V ne se balade sur toute la carte.
+    \item \textbf{Proximité du 12V :} Tous les composants prenant du 12V sont concentrés en une seule zone, pour éviter que du 12V ne se balade sur toute la carte.
 \end{itemize}
 
 \bigskip
@@ -558,29 +528,27 @@ Le placement des composants suit une logique fonctionnelle rigoureuse qui optimi
 \label{fig:PCB-Hub-top}
 \end{figure}
 
-
-Une fois le placement des composants réalisés, il faut mettre en place le routage.
-Pour cela, il existe des règles à respecté.
-Toutes les pistes doivent respecter le routage à \text{$45\text{ DEGREE}$}. 
-Les angles droits ($90\text{ DEGREE}$) sont totalement proscrits. Cela évite l'effet de "piège à acide"
+Une fois le placement des composants réalisé, il faut mettre en place le routage.
+Pour cela, il existe des règles à respecter.
+Toutes les pistes doivent respecter le routage à $45^\circ$. 
+Les angles droits ($90^\circ$) sont totalement proscrits. Cela évite l'effet de « piège à acide »
 lors de la gravure chimique industrielle du cuivre et limite les ruptures brutales d'impédance électromagnétique.
 
-Les pistes associées à l'alimentation principale (provenant des borniers à vis situés à gauche, transitant par les diodes \texttt{D1}, \texttt{D3} et alimentant le Buzzer 12V \texttt{LS1}) présentent une largeur très importante de  \textbf{$1\text{ millimeter}$}).
+Les pistes associées à l'alimentation principale (provenant des borniers à vis situés à gauche, transitant par les diodes \texttt{D1}, \texttt{D3} et alimentant le Buzzer 12V \texttt{LS1}) présentent une largeur très importante de $1\text{ mm}$.
 Le buzzer \texttt{LS1} et les charges inductives commutées consomment des pointes de courant non négligeables. Une piste large minimise la résistance linéique ($R = \rho \frac{L}{S}$), réduisant ainsi les chutes de tension ohmiques ($\Delta V = R \cdot I$) et l'échauffement des pistes par effet Joule.
 
 Les pistes connectant le microcontrôleur central (\texttt{U1}) au contrôleur CAN
- (\texttt{U2}), au connecteur Grove (\texttt{J1}) et aux connecteurs supérieurs sont
-  beaucoup plus fines ( \textbf{$0.4\text{ millimeter}$} et \textbf{$0.8\text{millimeter}$}).
+(\texttt{U2}), au connecteur Grove (\texttt{J1}) et aux connecteurs supérieurs sont
+beaucoup plus fines ($0.4\text{ mm}$ et $0.8\text{ mm}$).
 
- Ces lignes transportent des signaux de commande à très faible courant
-  (quelques milliampères). Réduire leur largeur permet un gain d'espace crucial 
-  pour passer entre les pastilles (\textit{pads}) des composants au pas de
-   $0.4\text{ millimeter}$ sans violer les règles d'isolement.
-
+Ces lignes transportent des signaux de commande à très faible courant
+(quelques milliampères). Réduire leur largeur permet un gain d'espace crucial 
+pour passer entre les pastilles (\textit{pads}) des composants au pas de
+$0.4\text{ mm}$ sans violer les règles d'isolement.
 
 \subsubsection*{Routage Bottom}
 
-Le routage bottom suis les mêmes règles de conception que celui Top, à trois exception 
+Le routage bottom suit les mêmes règles de conception que le routage top, à trois exceptions 
 près que je vais détailler.
 
 \begin{figure}[H]
@@ -591,27 +559,27 @@ près que je vais détailler.
 \end{figure}
 
 La zone bleue représente un plan de masse plein et continu. Un plan de masse uniforme
- offre une impédance de retour extrêmement faible pour les courants de signal,
-  ce qui réduit drastiquement les surfaces de boucles inductives et l'émission de 
-  parasites.
+offre une impédance de retour extrêmement faible pour les courants de signal,
+ce qui réduit drastiquement les surfaces de boucles inductives et l'émission de 
+parasites.
 En observant attentivement les connexions à la masse
- (par exemple, la broche 2 du bloc \texttt{GNDREF} à gauche ou la broche 4 en bas à gauche),
- on s'aperçoit que les pastilles ne sont pas noyées directement dans la masse solide,
-  mais connectées via une croix de cuivre.
-Ces structures sont des \text{freins thermiques}. 
+(par exemple, la broche 2 du bloc \texttt{GNDREF} à gauche ou la broche 4 en bas à gauche),
+on s'aperçoit que les pastilles ne sont pas noyées directement dans la masse solide,
+mais connectées via une croix de cuivre.
+Ces structures sont des \textit{freins thermiques}. 
 Lors du soudage, ils empêchent la chaleur du fer à souder de se dissiper instantanément
- dans tout le plan de masse de la carte. Sans cela, la pastille n'atteindrait pas 
- la température de fusion de l'étain, provoquant une "soudure sèche" défectueuse.
+dans tout le plan de masse de la carte. Sans cela, la pastille n'atteindrait pas 
+la température de fusion de l'étain, provoquant une « soudure sèche » défectueuse.
 \bigskip
 
- la quasi-totalité des pistes de signal reste cantonnée sur la couche supérieure rouge 
- (\texttt{F.Cu}). Il y a très peu de trous de passage (\textit{Vias}) de signal vers
- le bottom (les pistes bleus). 
+La quasi-totalité des pistes de signal reste cantonnée sur la couche supérieure rouge 
+(\texttt{F.Cu}). Il y a très peu de trous de passage (\textit{vias}) de signal vers
+le bottom (les pistes bleues). 
 
-Le plan de masse inférieur bleu n'est pratiquement pas "sectionné" ou
- fragmenté par des pistes de détournement. Un plan de masse non coupé garantit
-  qu'aucun courant de retour ne doit faire de long détour, évitant ainsi la création
-   d'antennes dipolaires involontaires.
+Le plan de masse inférieur bleu n'est pratiquement pas « sectionné » ou
+fragmenté par des pistes de détournement. Un plan de masse non coupé garantit
+qu'aucun courant de retour ne doit faire de long détour, évitant ainsi la création
+d'antennes dipolaires involontaires.
 
 Le tableau suivant résume les bonnes pratiques de la carte :
 
@@ -624,9 +592,9 @@ Le tableau suivant résume les bonnes pratiques de la carte :
 \textbf{Paramètre} & \textbf{Style Observé} & \textbf{Objectif Technique} \\
 \midrule
 Stackup & 2 couches (\texttt{F.Cu} + \texttt{B.Cu}) & Optimisation coût / performance CEM \\
-Routage Alimentation & Pistes larges ($1\text{ millimeter}$+) & Faible résistance, support d'intensité (Buzzer) \\
-Routage Signaux & Pistes fines ($0.4\text{ millimeter}$) & Densité spatiale \\
-Angles de pistes & À $45\text{ DEGREE}$ uniquement & Intégrité du signal, fabricabilité chimique \\
+Routage Alimentation & Pistes larges ($1\text{ mm}$+) & Faible résistance, support d'intensité (Buzzer) \\
+Routage Signaux & Pistes fines ($0.4\text{ mm}$) & Densité spatiale \\
+Angles de pistes & À $45^\circ$ uniquement & Intégrité du signal, fabricabilité chimique \\
 Plan de masse & Continu sur la face \texttt{B.Cu} & Blindage CEM, réduction des impédances de retour \\
 Pads de masse & Connexion en croix (\textit{Thermal Relief}) & Soudabilité parfaite à la main ou au four \\
 \bottomrule
@@ -635,11 +603,11 @@ Pads de masse & Connexion en croix (\textit{Thermal Relief}) & Soudabilité parf
 
 \subsubsection*{Layout complet}
 
-Une fois tout le travail réalisé, il ne restz plus qu'a vérifier qu'il n'y a aucune erreur de RDC
-de vérifier la sérigraphie(pas notre cas, car l'école ne sais pas faire de sérigraphie),
- ou encore la bonne liaisons des entre différentes pastilles.
+Une fois tout le travail réalisé, il ne reste plus qu'à vérifier qu'il n'y a aucune erreur de DRC (Design Rule Check), 
+à vérifier la sérigraphie (ce qui n'est pas notre cas, car l'école ne sait pas faire de sérigraphie),
+ou encore la bonne liaison entre les différentes pastilles.
 
- Cela nous permet d'avoir la Figure \ref{fig:PCB-Hub-fini}
+Cela nous permet d'obtenir la Figure \ref{fig:PCB-Hub-fini}.
 
 \begin{figure}[H]
 \centering 
@@ -648,7 +616,7 @@ de vérifier la sérigraphie(pas notre cas, car l'école ne sais pas faire de s�
 \label{fig:PCB-Hub-fini}
 \end{figure}
 
-Ainsi que la modélisation 3D comme le montre Figure \ref{fig:PCB-Hub-3D}
+Ainsi que la modélisation 3D comme le montre la Figure \ref{fig:PCB-Hub-3D}.
 
 \begin{figure}[H]
 \centering 
@@ -657,33 +625,31 @@ Ainsi que la modélisation 3D comme le montre Figure \ref{fig:PCB-Hub-3D}
 \label{fig:PCB-Hub-3D}
 \end{figure}
 
-
 \subsection{Ancre}
 
-Le schéma pour l'ancre est plus simple, soit la Figure \ref{fig:sch-ancre}
+Le schéma pour l'ancre est plus simple, soit la Figure \ref{fig:sch-ancre} :
 
 \begin{figure}[H]
 \centering 
 \includegraphics[width=1\columnwidth]{sch-ancre.png} 
-\caption[Layout final du hub]{Layout final du hub}
+\caption[Layout final de l'ancre]{Layout final de l'ancre}
 \label{fig:sch-ancre}
 \end{figure}
 
-On y retrouve le tout le module TCAN que l'on avait Figure \ref{fig:sch-TCAN-hub},
- avec le TCAN1051-Q1 \cite{TCAN1051-Q1}.
+On y retrouve tout le module TCAN que l'on avait sur la Figure \ref{fig:sch-TCAN-hub},
+avec le TCAN1051-Q1 \cite{TCAN1051-Q1}.
 
-la seule nouveauté réside dans le nouveau microcontroleurs, mais qui n'impacte que la partie
-logiciel, et le nouvel abaisseur de tension, qui est un OKI-78SR \cite{OKI-78SR_Series}.
-Compact et facile à mettre en oeuvre, il s'agit d'un abaisseur 12V->5V.
-De plus, on retrouve un condensateur 10uF, donc plus gros que d'habitude, pour éviter,
-tout potentiel arret de l'ESP32. Les ancres étant alimentés en 12V par le bus CAN, et pouvant aller 
-à une distance de plus de 50M. il est plus prudent de mettre un condensateur de découplage pour parer tout problème.
+La seule nouveauté réside dans le nouveau microcontrôleur, qui n'impacte que la partie
+logicielle, et dans le nouvel abaisseur de tension, qui est un OKI-78SR \cite{OKI-78SR_Series}.
+Compact et facile à mettre en œuvre, il s'agit d'un abaisseur 12V $\rightarrow$ 5V.
+De plus, on retrouve un condensateur de $10\,\mu\text{F}$, donc plus gros que d'habitude, pour éviter
+tout potentiel arrêt de l'ESP32. Les ancres étant alimentées en 12V par le bus CAN, et pouvant se situer 
+à une distance de plus de 50 mètres, il est plus prudent de mettre un condensateur de découplage pour parer tout problème.
 
 \bigskip
-
 Cela donne lieu à la Figure \ref{fig:PCB-ancre}.
-les règles de conception et la manières de faire sont les mêmes, avec les bornier
-du même côté, la le plan de masse le plus uniforme possible ou encore la taille des piste
+Les règles de conception et la manière de faire sont les mêmes, avec les borniers
+du même côté, un plan de masse le plus uniforme possible ou encore la taille des pistes
 d'alimentation.
 
 \begin{figure}[!ht]
@@ -696,43 +662,39 @@ d'alimentation.
 \begin{figure}[H]
 \centering 
 \includegraphics[width=0.7\columnwidth]{PCB-ancre-3D.png} 
-\caption[3D de l'ancre]{3D  de l'ancre}
+\caption[3D de l'ancre]{3D de l'ancre}
 \label{fig:PCB-ancre-3D}
 \end{figure}
 
-
 \subsection{Ouvrier}
 
-Pour l'ouvrier, le schéma éléctrique est différent sur plusieurs aspects.
-Comme  dit précédemment, nous cherchons à faire la carte la plus petite possible,
-le tout alimenté à l'aide d'une batterie. 
-Nous avons donc mis en place le schéma suivant, représenté sur la Figure \ref{}
+Pour l'ouvrier, le schéma électrique est différent sur plusieurs aspects.
+Comme dit précédemment, nous cherchons à faire la carte la plus petite possible,
+le tout étant alimenté à l'aide d'une batterie. 
+Nous avons donc mis en place le schéma suivant, représenté sur la Figure \ref{fig:sch-ouvrier}.
 
 \begin{figure}[H]
 \centering 
 \includegraphics[width=0.7\columnwidth]{sch-ouvrier.png} 
-\caption[schéma de l'ouvrier]{schéma de l'ouvrier}
+\caption[Schéma de l'ouvrier]{Schéma de l'ouvrier}
 \label{fig:sch-ouvrier}
 \end{figure}
 
-
 Le schéma répertorié met en œuvre un nœud capteur intelligent articulé autour
- d'un microcontrôleur \textbf{Seeed Studio XIAO\_nRF52840} \cite{XIAO_nRF52840}. 
- Ce module pilote un capteur de pression barométrique haute précision (\textbf{BMP581}) \cite{BMP581},
-  un système d'alerte sonore (Buzzer) \cite{CMT-8504-100-SMT-TR}, un indicateur visuel (LED) 
-  et s'interface avec un module UWB \cite{UWB-AT-Module} .
+d'un microcontrôleur \textbf{Seeed Studio XIAO\_nRF52840} \cite{XIAO_nRF52840}. 
+Ce module pilote un capteur de pression barométrique de haute précision (\textbf{BMP581}) \cite{BMP581},
+un système d'alerte sonore (Buzzer) \cite{CMT-8504-100-SMT-TR}, un indicateur visuel (LED) 
+et s'interface avec un module UWB \cite{UWB-AT-Module}.
 
 \bigskip
-
-Le composant central \textbf{U1} (\texttt{XIAO\_nRF52840})\cite{XIAO_nRF52840} 
+Le composant central \textbf{U1} (\texttt{XIAO\_nRF52840}) \cite{XIAO_nRF52840} 
 gère l'ensemble des périphériques via ses lignes d'Entrées/Sorties Générales (GPIO)
- sous une tension logique de $3.3\text{ V}$ :
+sous une tension logique de $3.3\text{ V}$ :
 \begin{itemize}
-    \item \textbf{Bus SPI dédié (Capteur U2) :} Broches \texttt{P1.13\_D8\_SCK} , \texttt{P1.14\_D9\_MISO} , \texttt{P1.15\_D10\_MOSI}  et \texttt{P0.05\_A5\_D5\_SCL}.
+    \item \textbf{Bus SPI dédié (Capteur U2) :} Broches \texttt{P1.13\_D8\_SCK}, \texttt{P1.14\_D9\_MISO}, \texttt{P1.15\_D10\_MOSI} et \texttt{P0.05\_A5\_D5\_SCL}.
     \item \textbf{Bus UART1 (Module d'extension) :} Broches \texttt{P1.11\_D6\_TX} et \texttt{P1.12\_D7\_RX}.
     \item \textbf{Commandes Tout-Ou-Rien (TOR) :} Broche \texttt{P0.29\_A3\_D3} pour la LED et \texttt{P0.28\_A2\_D2} pour le buzzer.
 \end{itemize}
-
 
 Le composant \textbf{U2} est un capteur environnemental configuré ici en mode de communication \textbf{SPI} à 4 fils. 
 \begin{itemize}
@@ -757,57 +719,54 @@ Où :
 \subsubsection*{Calcul du Courant Électrique}
 En isolant le courant $I_{LED}$, on obtient :
 \begin{equation}
-    I_{LED} = \frac{V_{OH} - V_f}{R_3} = \frac{3.3 - 1.8}{1000} =  1.5\text{ milliAmpère}
+    I_{LED} = \frac{V_{OH} - V_f}{R_3} = \frac{3.3 - 1.8}{1000} = 1.5\text{ mA}
 \end{equation}
-Un courant de $1.5\text{ milliAmpère}$ est amplement suffisant pour assurer la visibilité d'une LED
- témoin moderne à haute efficacité, tout en minimisant la consommation globale du système
+Un courant de $1.5\text{ mA}$ est amplement suffisant pour assurer la visibilité d'une LED
+témoin moderne à haute efficacité, tout en minimisant la consommation globale du système.
 \bigskip
 
 Le buzzer \textbf{LS2} (\texttt{CMT-8504-100-SMT-TR}) \cite{CMT-8504-100-SMT-TR} est un composant magnétique. 
-Sa consommation de courant instantanée dépasse la capacité de courant d'une broche GPIO d'un microcontrôleur.
-nous  avons donc intégré un transistor NPN \textbf{Q1} (\texttt{2N2222B}) \cite{2N2222} agissant comme 
+Sa consommation de courant instantanée dépasse la capacité en courant d'une broche GPIO d'un microcontrôleur.
+Nous avons donc intégré un transistor NPN \textbf{Q1} (\texttt{2N2222B}) \cite{2N2222} agissant comme 
 un interrupteur électronique saturé.
 
 \subsubsection*{Calcul du Courant de Base et Vérification de la Saturation}
 Pour que le transistor fonctionne en régime de commutation (bloqué/saturé), 
 le courant de base $I_B$ injecté doit être suffisant pour garantir que la tension
- collecteur-émetteur s'effondre à sa valeur minimale $V_{CE(sat)} \approx  0.2\text{ V}$.
+collecteur-émetteur s'effondre à sa valeur minimale $V_{CE(sat)} \approx 0.2\text{ V}$.
 
-La fiche technique du buzzer indique une consommation nominale $I_C \approx 40{\text{milliAmpères}}$ sous  $3.3\text{V}$. 
+La fiche technique du buzzer indique une consommation nominale $I_C \approx 40\text{ mA}$ sous $3.3\text{V}$. 
 Pour assurer une saturation forte et stable malgré les dispersions de fabrication, les règles de l'art imposent 
 un gain de saturation dit \textit{forcé} : $\beta_{sat} = 10 \text{ à } 20$.
- Choisissons un coefficient de sécurité prudent de $\beta_{sat} = 15$.
+Choisissons un coefficient de sécurité prudent de $\beta_{sat} = 15$.
 
 Le courant de base théorique requis est :
 \begin{equation}
-    I_{B(theorique)} = \frac{I_C}{\beta_{sat}} = \frac{ 40\text{ milliAmpère}}{15} \approx  2.67\text{ milliAmpère}
+    I_{B(theorique)} = \frac{I_C}{\beta_{sat}} = \frac{40\text{ mA}}{15} \approx 2.67\text{ mA}
 \end{equation}
 
-Calculons maintenant le courant de base réel fourni par la résistance $R_1 = \text{680}{\Omega}$ présente sur le schéma :
+Calculons maintenant le courant de base réel fourni par la résistance $R_1 = 680\,\Omega$ présente sur le schéma :
 \begin{equation}
     I_{B(reel)} = \frac{V_{OH} - V_{BE(sat)}}{R_1}
 \end{equation}
-Où $V_{BE(sat)} \approx  0.7\text{ V}$ correspond à la tension de seuil de la jonction Base-Émetteur du transistor 2N2222B saturé.
+Où $V_{BE(sat)} \approx 0.7\text{ V}$ correspond à la tension de seuil de la jonction Base-Émetteur du transistor 2N2222B saturé.
 \begin{equation}
-    I_{B(reel)} = \frac{3.3 - 0.7}{680} = \frac{2.6}{680} \approx  3.82\text{ milliAmpère}
+    I_{B(reel)} = \frac{3.3 - 0.7}{680} = \frac{2.6}{680} \approx 3.82\text{ mA}
 \end{equation}
 
-
-Puisque $I_{B(reel)} ( 3.82\text{ milliAmpère}) > I_{B(theorique)} ( 2.67\text{ milliAmpère})$,
- le transistor \textbf{Q1} est \textbf{parfaitement et profondément saturé}.
-  La tension aux bornes du buzzer sera maximale ($V_{LS2} = 3.3 - V_{CE(sat)} \approx  3.1\text{ V}$), 
-  garantissant un volume sonore optimal.
+Puisque $I_{B(reel)} (3.82\text{ mA}) > I_{B(theorique)} (2.67\text{ mA})$,
+le transistor \textbf{Q1} est \textbf{parfaitement et profondément saturé}.
+La tension aux bornes du buzzer sera maximale ($V_{LS2} = 3.3 - V_{CE(sat)} \approx 3.1\text{ V}$), 
+garantissant un volume sonore optimal.
 
 \subsubsection*{Rôle de la Diode de Roue Libre (D1)}
 Le buzzer possédant une nature inductive (bobine interne), l'interruption brutale du courant par
- le blocage du transistor engendrerait une force contre-électromotrice violente définie par la loi de Lenz-Faraday
- vu précédemment, dans le Hub. 
-
+le blocage du transistor engendrerait une force contre-électromotrice violente, définie par la loi de Lenz-Faraday
+vue précédemment pour le Hub. 
 
 \subsubsection*{Layout Ouvrier}
 
-Suite à ce schéma, nous avons pu mettre en place le PCB de la carte, soit la Figure \ref{fig:PCB-ouvrier}
-
+Suite à ce schéma, nous avons pu mettre en place le PCB de la carte, soit la Figure \ref{fig:PCB-ouvrier}.
 
 \begin{figure}[!ht]
 \centering 
@@ -816,74 +775,163 @@ Suite à ce schéma, nous avons pu mettre en place le PCB de la carte, soit la F
 \label{fig:PCB-ouvrier}
 \end{figure}
 
-Les différentes nuances sur ce layout, sont tout d'abord le placement. il était important de mettre le Buzzer ainsi
-que la led à des emplacements pouvant accueillir la membrane (et donc pas trop proche du bord).
-la deuxième grosse spécificités, est la mise en placde de pad  au lieu de bornier. En effet, nous avons pris partis
-de souder directement un connecteur de batterie, pour faciliter le branchement ainsi que le changement de celle-ci.
+Les différentes nuances sur ce layout concernent tout d'abord le placement. Il était important de placer le buzzer ainsi
+que la LED à des emplacements pouvant accueillir la membrane (et donc pas trop proches du bord).
+La deuxième grosse spécificité est la mise en place de pads au lieu de borniers. En effet, nous avons pris le parti
+de souder directement un connecteur de batterie, pour faciliter le branchement ainsi que le remplacement de celle-ci.
 
-\subsection{réalisation PCB}
+\subsection{Réalisation du PCB}
 
-Une fois toutes les cartes prêtes, nous avons concaté Mr Pinto Carlos, enseignant en charge de la fabrication PCB.
-Après quelque complications technique sur les formats des fichier, il fut convenu
+Une fois toutes les cartes prêtes, nous avons contacté M. Carlos Pinto, enseignant en charge de la fabrication des PCB.
+Après quelques complications techniques sur les formats des fichiers, il a été convenu de procéder à
 une gravure chimique (gain de temps) au lieu d'une gravure à l'anglaise.
-Cela à donné lieu à 6 cartes PCB prêtes à êtres soudés.
+Cela a donné lieu à 6 cartes PCB prêtes à être soudées.
 
 \begin{figure}[!ht]
 \centering 
 \includegraphics[width=0.8\columnwidth]{carte-hub.jpg} 
-\caption[PCB hub]{PCB hub}
+\caption[PCB Hub]{PCB Hub}
 \label{fig:PCB-hub}
 \end{figure}
 
 \begin{figure}[!ht]
 \centering 
 \includegraphics[width=0.6\columnwidth]{carte-hub-verso.jpg} 
-\caption[PCB hub verso]{PCB hub verso}
+\caption[PCB Hub verso]{PCB Hub verso}
 \label{fig:PCB-hub-verso}
 \end{figure}
 
-\subsection{Soudure PCB}
+\subsection{Soudure du PCB}
 
-Une fois les cartes prêtes, nous somme passé à la soudure des cartes. Le matériel de l'école étant limité,
- nous avons utilisé le matériel de l'équipe.
-La soudure commence par la mise en place des composant les plus petits,
- soit les TCAN  ou encore certains condensateur, pour aller jusqu'au plus gros composants,
-  tels que l'abaisseur de tension ou bien les ESP32.
+Une fois les cartes prêtes, nous sommes passés à leur soudure. Le matériel de l'école étant limité,
+nous avons utilisé le matériel de l'équipe.
+La soudure commence par la mise en place des composants les plus petits,
+soit les TCAN ou encore certains condensateurs, pour aller jusqu'aux plus gros composants,
+tels que l'abaisseur de tension ou bien les ESP32.
 
-Lors de la soudure, nous nous sommes heurté à de nombreux problèmes liés aux cartes.
+Lors de la soudure, nous nous sommes heurtés à de nombreux problèmes liés aux cartes.
 
-Tout d'abord, l'école n'est pas capable de mettre en place des vias, ni du vernis, de la sérigraphie
-ou encore des pads métalisés.
+Tout d'abord, l'école n'est pas capable de réaliser des vias, ni de mettre du vernis, de la sérigraphie
+ou encore des pads métallisés.
 
-Ce fut donc un long travail, pour remplir les vias, réussir à mettre en place les soudures,
-non pas d'un coté mais des deux cotés, ce qui n'a d'ailleurs pas été possible partout. Par exemple 
-les borniers ne sont pas soudable en top avec des pads non métallisés.
+Ce fut donc un long travail pour remplir les vias et réussir à réaliser les soudures,
+non pas d'un seul côté, mais des deux côtés, ce qui n'a d'ailleurs pas été possible partout. Par exemple,
+les borniers ne sont pas soudables en face supérieure (top) avec des pads non métallisés.
 
-Nous avons donc du mettre en place des petits fils pour la connection de certains composants,
-De plus nous nous somme rendus compte d'une inversion de sens, sur les pins de l'ESP32 des ancres,
-ce qui nous a valu de couper quelque pistes. 
+Nous avons donc dû mettre en place de petits fils pour la connexion de certains composants.
+De plus, nous nous sommes rendus compte d'une inversion de sens sur les broches (pins) de l'ESP32 des ancres,
+ce qui nous a obligés à couper quelques pistes. 
 
 \begin{figure}[!ht]
 \centering 
-\includegraphics[width=0.6\columnwidth]{soudure-benoit-naim.jpg} 
-\caption[soudure-benoit-naim]{soudure-benoit-naim}
+\includegraphics[width=0.4\columnwidth]{soudure-benoit-naim.jpg} 
+\caption[Soudure Benoit Naim]{Soudure Benoit Naim}
 \label{fig:soudure-benoit-naim}
 \end{figure}
 
 \begin{figure}[!ht]
 \centering 
-\includegraphics[width=0.6\columnwidth]{soudure-benoit.jpg} 
-\caption[soudure-benoit]{soudure-benoit}
+\includegraphics[width=0.4\columnwidth]{soudure-benoit.jpg} 
+\caption[Soudure Benoit]{Soudure Benoit}
 \label{fig:soudure-benoit}
 \end{figure}
 
 \begin{figure}[!ht]
 \centering 
-\includegraphics[width=0.6\columnwidth]{soudure-benoit-v2.jpg} 
-\caption[soudure-benoit-v2]{soudure-benoit-v2m}
+\includegraphics[width=0.4\columnwidth]{soudure-benoit-v2.jpg} 
+\caption[Soudure Benoit V2]{Soudure Benoit V2}
 \label{fig:soudure-benoit-v2}
 \end{figure}
 
+\paragraph{Récupération des modules UWB pour les Tags}
+Comme mentionné précédemment, la pénurie de modules nus MaUWB-DW3000 nous a
+obligés à acquérir des cartes de développement complètes ESP32-S3 de chez Makerfabs.
+S'il était judicieux de les utiliser telles quelles pour le réseau d'ancres du véhicule,
+leur taille était totalement incompatible avec l'équipement de l'ouvrier (Tag). 
+Nous avons donc dû dessouder minutieusement le module UWB de la carte mère Makerfabs 
+à l'aide d'une station à air chaud, pour ensuite le ressouder directement sur le circuit
+imprimé personnalisé de notre Tag, qui était piloté par la carte XIAO nRF52840. Bien que 
+cette méthode ait considérablement augmenté le coût unitaire du composant, c'était la seule 
+solution viable pour obtenir le matériel dans les temps impartis.
 
+\begin{figure}[H]
+\centering 
+\includegraphics[width=0.4\columnwidth]{transposition_maUWB.png} 
+\caption[Transposition maUWB]{Transposition maUWB}
+\label{fig:transposition_maUWB}
+\end{figure}
+
+\paragraph{Connectique de débogage du Hub (ESP32 WROVER)}
+Lors de l'assemblage physique du Hub dans la cabine, la disposition des composants
+sur le circuit imprimé a posé un problème majeur : le connecteur micro-USB natif de
+l'ESP32 WROVER, indispensable pour programmer et déboguer la carte, s'est retrouvé 
+physiquement bloqué par un potentiomètre. Pour contourner ce problème d'accès, nous avons 
+tenté de souder une deuxième prise micro-USB déportée sur l'autre face de la carte. Au cours
+de cette manipulation délicate, le convertisseur UART-vers-USB intégré a été irrémédiablement 
+endommagé. Pour sauver le cerveau du système, nous avons été contraints de dessouder un convertisseur 
+UART sain d'une autre carte de développement (NodeMCU) pour venir le greffer sur l'ESP32 WROVER. Cette 
+greffe s'est avérée fonctionnelle et a permis de rétablir la communication série.
+
+\begin{figure}[H]
+\centering 
+\includegraphics[width=0.4\columnwidth]{uart_bridge_grille.png} 
+\caption[Pont UART grillé]{Pont UART grillé}
+\label{fig:uart_bridge_grille}
+\end{figure}
+
+\begin{figure}[H]
+\centering 
+\includegraphics[width=0.4\columnwidth]{micro_usb_deboggage_hub.png} 
+\caption[Micro USB débogage Hub]{Micro USB débogage Hub}
+\label{fig:micro_usb_deboggage_hub}
+\end{figure}   
+
+\paragraph{Déportation de l'alimentation de l'écran MaTouch}
+L'écran autonome du Hub requérant une alimentation stable en 5V, nous souhaitions utiliser 
+la liaison filaire (port Grove) qui servait déjà à l'UART pour acheminer cette énergie. Or, 
+le connecteur Grove de l'écran est conçu pour fournir du 3.3V en sortie, et non pour recevoir du 5V. 
+Nous avons donc opéré une modification matérielle sur l'écran : la piste de sortie 3.3V a été sectionnée 
+au cutter de précision et remplacée par un pont filaire soudé directement vers l'entrée des diodes de 
+protection du port USB-C. Cette astuce transforme le connecteur de données en une entrée 5V sécurisée. 
+L'alimentation injectée permet au Hub d'alimenter l'écran tout en conservant la protection matérielle si 
+un ordinateur y est simultanément branché pour le débogage, isolant ainsi parfaitement les sources de tension.
+
+\begin{figure}[H]
+\centering 
+\includegraphics[width=0.4\columnwidth]{grove_connecteur_hack.png} 
+\caption[Hack du connecteur Grove]{Hack du connecteur Grove}
+\label{fig:grove_connecteur_hack}
+\end{figure} 
+
+\subsubsection*{Perçages}
+
+Un dernier point fut le perçage des cartes en vue de l'intégration dans des boîtiers 3D. 
+Nous avons dû utiliser une perceuse à colonne pour réaliser le perçage des différents trous 
+sur la carte, prévus pour accueillir les vis choisies.
+
+\begin{figure}[H]
+\centering 
+\includegraphics[width=0.4\columnwidth]{percages-colonne.jpg} 
+\caption[Perçage sur colonne des cartes]{Perçage sur colonne des cartes}
+\label{fig:percages-colonne}
+\end{figure}
 
 \subsection{Résultat final}
+
+Tout ce travail nous a permis d'obtenir au final 6 circuits imprimés entièrement fonctionnels,
+ainsi que l'écran et une carte ouvrier se rechargeant par induction avec sa batterie, 
+comme le montrent les figures suivantes :
+
+\begin{figure}[H]
+\centering 
+\includegraphics[width=0.6\columnwidth]{cartes-finales.jpg} 
+\caption[Résultats des cartes finales]{Résultats des cartes finales}
+\label{fig:cartes-finales}
+\end{figure}
+
+\begin{figure}[H]
+\centering 
+\includegraphics[width=0.6\columnwidth]{carte-ouvrier.jpg} 
+\caption[Carte ouvrier avec chargeur + batterie]{Carte ouvrier avec chargeur + batterie}
+\label{fig:carte-ouvrier}
+\end{figure}
