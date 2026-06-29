@@ -8,19 +8,18 @@ La conception matérielle du système VigiZone a été guidée par un pragmatism
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{reseau_sous-systemes_distribution_courant.png}
+    \includegraphics[width=0.9\textwidth]{reseau_sous-systemes_distribution_courant.png}
     \caption{Vue d'ensemble simplifiée de la topologie en guirlande du véhicule montrant la distribution du bus d'alimentation 12V et du bus CAN entre le Hub et les 4 Ancres, ainsi que la liaison sans-fil UWB avec l'équipement de l'ouvrier.}
     \label{fig:topo_globale}
 \end{figure}
 
-\bigskip
 
 % Jeremy -------------------------------------------------------------------------
 % \subsection{Composant Transversal : Transistor de Commutation (NPN 2N2222)}
 % 
 % Afin de rationaliser l'architecture et de limiter les coûts, les éléments de commutation de puissance partagés entre les différents sous-systèmes ont été standardisés autour du transistor bipolaire NPN 2N2222.
-Ce composant, largement disponible dans les stocks de l'école, offre un gain en courant qui permet de saturer la jonction avec un très faible appel sur la base (via une résistance de 1~k$\Omega$) \cite{2N2222, Desc_Projet}. Cette caractéristique est essentielle pour respecter la limite stricte de tirage des broches GPIO de nos microcontrôleurs, tout en laissant passer la puissance requise pour activer des relais ou des buzzers \cite{XIAO_nRF52840}. Dans l'optique d'une version industrialisée, ce composant imposant une chute de tension intrinsèque ($V_{CE(sat)}$) devrait être remplacé par un transistor MOSFET à état logique (comme le BSS138). Sa résistance interne quasi nulle ($R_{DS(on)}$) permettrait de transmettre la totalité de la tension aux actionneurs \cite{BSS138}.
-
+% Ce composant, largement disponible dans les stocks de l'école, offre un gain en courant qui permet de saturer la jonction avec un très faible appel sur la base (via une résistance de 1~k$\Omega$) \cite{2N2222, Desc_Projet}. Cette caractéristique est essentielle pour respecter la limite stricte de tirage des broches GPIO de nos microcontrôleurs, tout en laissant passer la puissance requise pour activer des relais ou des buzzers \cite{XIAO_nRF52840}. Dans l'optique d'une version industrialisée, ce composant imposant une chute de tension intrinsèque ($V_{CE(sat)}$) devrait être remplacé par un transistor MOSFET à état logique (comme le BSS138). Sa résistance interne quasi nulle ($R_{DS(on)}$) permettrait de transmettre la totalité de la tension aux actionneurs \cite{BSS138}.
+%
 % \begin{figure}[H]
 %     \centering
 %     \includegraphics[width=0.5\textwidth]{2N222_complete.png}
@@ -62,6 +61,7 @@ Ce sous-système, destiné à être porté sur le casque de l'employé, est soum
     \label{fig:tag_ouvrier}
 \end{figure}
 
+\newpage
 \subsubsection{Alimentation et Gestion de l'Énergie}
 
 L'alimentation du dispositif est assurée par une batterie Li-Po de 3.7V offrant une capacité de 500~mAh. Ce dimensionnement vise à offrir le meilleur compromis entre autonomie, poids et encombrement afin de ne pas gêner le port de tête de l'ouvrier sur son casque.
@@ -74,11 +74,11 @@ L'alimentation du dispositif est assurée par une batterie Li-Po de 3.7V offrant
 \end{figure}
 
 Afin de préserver cette batterie, le tag exploite un algorithme de mise en veille dynamique (\textit{dynamic polling}). Le microcontrôleur s'endort entre deux mesures de distance, la durée de cette veille étant directement proportionnelle à la distance séparant l'ouvrier de la zone de sécurité. Plus l'ouvrier est loin, plus le tag dort longtemps, avec la certitude mathématique de se réveiller et d'être actif avant toute pénétration potentielle dans la zone dangereuse. Ce calcul sécuritaire se base sur la vitesse de course maximale d'un homme, fixée à 15~km/h par précaution.
-
+\bigskip
 Cependant, la consommation électrique du prototype matériel actuel reste problématique. En mode actif, l'ensemble consomme 80~mA sous 3.7V. En mode veille, la carte XIAO voit sa consommation chuter de manière exemplaire à 12~mA, mais nous avons découvert que la commande \texttt{AT+Sleep} envoyée au module UWB ne le place pas dans un véritable mode basse consommation. Elle se contente de couper la transmission radio, laissant le module consommer environ 30~mA. Au total, la consommation en veille du système stagne donc à 43~mA.
-
+\bigskip
 Avec une batterie de 500~mAh, l'autonomie plafonne ainsi à environ 6,25 heures en mode 100\% actif, et ne dépasserait pas 11,6 heures si le tag restait perpétuellement en mode veille. Ce n'est malheureusement pas suffisant pour couvrir de longues journées sur un chantier.
-
+\bigskip
 Pour corriger ce défaut majeur dans une future itération, la solution requise consistera à ajouter un transistor MOSFET permettant de couper physiquement l'alimentation du module UWB lors des phases de sommeil. La consommation totale chuterait alors à $\le 12$~mA (la consommation de la XIAO seule), offrant une autonomie en veille d'au moins une quarantaine d'heures. Le temps de réveil à l'allumage du module UWB (environ 50~ms) serait simplement anticipé et déduit du temps de veille calculé par l'algorithme de \textit{polling}.
 
 \newpage
