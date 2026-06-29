@@ -83,6 +83,16 @@ Face à ces coûts très élevés et à la complexité technique du traitement d
 
 C'est pour cela que nous avons finalement choisi d'utiliser la technologie UWB. Même si cela oblige l'ouvrier à porter un capteur avec une batterie qu'il faut penser à recharger, ses avantages prenaient largement le dessus. La précision de la position est très élevée et fiable, car l'UWB se base sur le temps de vol du signal. De plus, c'est un signal robuste qui traverse bien les obstacles. Enfin, le coût matériel restait tout à fait modéré (environ 250€ pour la base et 40€ par tag), tout en nous laissant une complexité technique très gérable, centrée principalement sur le traitement de nos algorithmes de trilatération.
 
+\subsection{Projets similaires existants}
+
+Avant de concevoir VigiZone, nous avons analysé les produits déjà disponibles sur le marché. Cette étude nous a permis de confronter les solutions existantes aux contraintes réelles du chantier. 
+
+Les systèmes d'alarme sonore classiques, comme les bips de recul, restent la norme sur la majorité des engins. Cependant, leur efficacité est limitée car les ouvriers finissent par ne plus faire attention à ces sons dans le bruit constant du chantier, ce qui rend ces systèmes moins fiables. D'un autre côté, les solutions basées sur la vision par ordinateur ou l'intelligence artificielle offrent une précision élevée, mais se heurtent à la réalité du terrain. Les conditions environnementales difficiles (poussière, boue, faible luminosité) entraînent régulièrement une dégradation de la vision des capteurs, en plus d'un coût d'acquisition très élevé qui freine leur déploiement.
+
+Nos recherches nous ont conduits à identifier des systèmes basés sur la technologie Ultra Wide Band, tels que le KYD.42 de CAD.42. Cette analyse a confirmé la pertinence de nos orientations technologiques : l'utilisation de l'UWB permet de combiner une haute précision de positionnement avec une grande robustesse face aux obstacles, contrairement à la RFID active qui se limite à une détection de proximité imprécise.
+
+La découverte tardive de ces solutions industrielles a été un point de validation technique pour notre projet. Nous avons ainsi pu confirmer que nos choix, comme l'utilisation de l'UWB, des algorithmes de lissage du périmètre de sécurité et d'une interface en cabine, sont cohérents avec les standards actuels du marché. Cela nous a permis d'aboutir à un système fonctionnel qui répond aux besoins de GTM OUEST.
+
 
 \subsection{Outils et environnement de travail}
 
