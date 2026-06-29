@@ -75,10 +75,15 @@ En ce qui concerne les différents types d'ordres envoyés par le hub, ceux-ci s
     \caption{Type d'ordres du hub par CAN}
 \end{table}
 
-Nous avons donc utilisé ces conventions de messagerie avant d'écrire toutes nos fonctions d'envoie, de réception et de décodage de message CAN au sein de notre système. 
-
-Nous allons maintenant traiter le cas des messages UWB, dont la structure était bien plus simple que celle du CAN.
+Nous avons donc utilisé ces conventions de messagerie avant d'écrire toutes nos fonctions d'envoie, de réception et de décodage de message CAN au sein de notre système. Nous allons maintenant traiter le cas des messages UWB, dont la structure était bien plus simple que celle du CAN.
 
 \subsubsection{Protocole UWB}
 
-En ce qui concerne l'UWB, nous avons pu utiliser les différentes commandes intégrées dans la STM32 des modules MaUWB de Makerfabs.
+En ce qui concerne l'UWB, nous avons pu utiliser les différentes commandes intégrées dans la STM32 des modules MaUWB de Makerfabs. Les seules données échangées entre les tags et le hub par l'intermédiaire des ancres pouvaient prendre uniquement la forme {\ttfamily \textbf{<id\_émetteur>:<id\_destinataire>\allowbreak:<type\_ordre\_int>:<eventuelle\_donnée\_int>}}. Les fonctions de traitement des messages UWB ont toutes été implémentées dans la librairie intitulée forme {\ttfamily \textbf{UWBMessageManager.hpp}} que nous avons créée. Les différents types de messages sont les suivants :
+
+
+\begin{itemize}
+    \item {\ttfamily \textbf{Ordre 1}} : Indique au tag que la calibration de la zone de sécurité a débuté, et que celui-ci doit donc envoyer ses distances aux ancres en continu.
+    \item {\ttfamily \textbf{Ordre 2}} : Indique au tag que la calibration de la zone de sécurité s'est terminé.
+    \item {\ttfamily \textbf{Ordre 3}} : Donne au tag sa distance par rapport à la zone de sécurité du véhicule.
+\end{itemize}
