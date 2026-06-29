@@ -1,0 +1,26 @@
+L'installation matérielle du dispositif sur l'engin de chantier est la première étape permettant de déployer le prototype. Ce processus se divise entre l'équipement extérieur de la machine pour les capteurs et l'aménagement intérieur de la cabine pour l'interface de contrôle.
+
+\subsubsection{Déploiement géométrique des ancres UWB}
+
+Pour permettre un calcul spatial en trois dimensions $(x, y, z)$, la disposition physique des quatre ancres UWB sur le véhicule doit respecter des critères de positionnement précis :
+
+\begin{itemize}
+    \item \textbf{Configuration en tétraèdre :} Les quatre ancres ne doivent pas être situées sur un même plan horizontal. Elles doivent former un tétraèdre dans l'espace (avec un décalage en hauteur). Cette configuration en relief est indispensable pour que le système puisse évaluer correctement la position du tag.
+    \item \textbf{Maximisation de l'espacement :} Les ancres doivent être fixées aux extrémités de la structure du véhicule (par exemple : aux quatre coins hauts et bas de la machine). Un espacement maximal réduit les incertitudes géométriques et optimise la précision des mesures.
+    \item \textbf{Dégagement du champ de vision :} La technologie radio UWB nécessite une ligne de vue directe entre les capteurs et l'environnement extérieur. Les modules doivent être placés de manière à ne pas être masqués par les éléments métalliques de l'engin (bras articulé, tourelle, godet) afin d'éviter le blocage ou la réflexion des signaux.
+\end{itemize}
+
+\subsubsection{Installation du Hub et de l'Interface en cabine}
+
+L'unité centrale de calcul (le Hub) et l'écran tactile d'interface sont installés à l'intérieur de la cabine du conducteur pour répondre aux critères suivants :
+
+\begin{itemize}
+    \item \textbf{Ergonomie et sécurité :} L'écran tactile est positionné dans le champ de vision du conducteur sans obstruer sa visibilité extérieure, permettant de consulter le radar et de percevoir immédiatement les alertes visuelles.
+    \item \textbf{Protection environnementale :} Le placement en cabine protège le Hub et l'écran des intempéries, de la poussière et des vibrations extrêmes subies par le châssis extérieur.
+\end{itemize}
+
+\subsubsection{Mise en route et procédure de calibration}
+
+Une fois le matériel en place, l'activation du système s'effectue par une pression sur un bouton d'alimentation unique. L'écran tactile s'allume alors automatiquement et affiche une instruction claire invitant l'opérateur à se connecter au réseau Wi-Fi local de l'écran pour configurer ou ajouter une configuration de véhicule.
+
+Pour paramétrer la zone de sécurité, l'utilisateur se connecte au point d'accès Wi-Fi avec son terminal mobile afin d'accéder à l'interface de configuration. Durant la phase d'enregistrement de la zone (marche de calibration autour de la machine avec le Tag), l'opérateur doit impérativement rester sur le même plan horizontal que le véhicule. Conserver cette régularité d'altitude au niveau du sol de référence est nécessaire pour que la géométrie de la zone de sécurité enregistrée soit plane et conforme au périmètre réel de l'engin, sans introduire de variations de hauteur aberrantes qui fausseraient la configuration initiale.
