@@ -8,7 +8,7 @@
 
 La conception matérielle du système VigiZone a été guidée par un pragmatisme industriel imposé par les délais stricts du projet et les capacités de fabrication disponibles. Le matériel de l'école étant limité pour la gravure de circuits imprimés (PCB) analogiques complexes à micro-pistes, nous avons pris le parti d'éviter les conceptions électroniques de bas niveau \cite{Slides_Choix}. Notre architecture repose donc sur l'intégration de modules pré-assemblés qui gèrent eux-mêmes leur régulation interne, soudés ensuite sur des PCB porteurs personnalisés \cite{Slides_Choix}. Bien que cette approche modulaire induise un encombrement physique légèrement supérieur à celui d'un design dédié, elle garantit une fiabilité matérielle immédiate. Cette sécurité électronique nous a permis de concentrer nos efforts sur la validation des algorithmes critiques de sécurité dans le délai imparti de six semaines \cite{Desc_Projet}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{reseau_sous-systemes_distribution_courant.png}
     \caption{Vue d'ensemble simplifiée de la topologie en guirlande du véhicule montrant la distribution du bus d'alimentation 12V et du bus CAN entre le Hub et les 4 Ancres, ainsi que la liaison sans-fil UWB avec l'équipement de l'ouvrier.}
@@ -20,9 +20,16 @@ La conception matérielle du système VigiZone a été guidée par un pragmatism
 % -------------------------------------------------------------------------
 \subsubsection{Composant Transversal : Transistor de Commutation (NPN 2N2222)}
 
-% [Note : Insérer ici les images Top/Bottom du 2N2222]
+Afin de rationaliser l'architecture et de limiter les coûts, les éléments de commutation de puissance partagés entre les différents sous-systèmes ont été standardisés autour du transistor bipolaire NPN 2N2222. Ce composant, largement disponible dans les stocks de l'école, offre un gain en courant qui permet de saturer la jonction avec un très faible appel sur la base (via une résistance de 1~k$\Omega$) \cite{2N2222, Desc_Projet}. Cette caractéristique est essentielle pour respecter la limite stricte de tirage des broches GPIO de nos microcontrôleurs, particulièrement la limite de 15~mA imposée par le nRF52840, tout en laissant passer la puissance requise pour activer des relais ou des buzzers \cite{XIAO_nRF52840}. Dans l'optique d'une version industrialisée, ce composant imposant une chute de tension intrinsèque ($V_{CE(sat)}$) devrait être remplacé par un transistor MOSFET à état logique (comme le BSS138). Sa résistance interne quasi nulle ($R_{DS(on)}$) permettrait de transmettre la totalité de la tension aux actionneurs \cite{BSS138}.
 
-\begin{table}[htbp]
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{2N222_complete.png}
+    \caption{Vues du transistor de commutation NPN 2N2222.}
+    \label{fig:2n2222_img}
+\end{figure}
+
+\begin{table}[H]
     \centering
     \begin{tabular}{|p{6cm}|p{8cm}|}
         \hline
@@ -41,7 +48,7 @@ La conception matérielle du système VigiZone a été guidée par un pragmatism
     \label{tab:specs_2n2222}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -58,8 +65,6 @@ La conception matérielle du système VigiZone a été guidée par un pragmatism
     \label{tab:pinout_2n2222}
 \end{table}
 
-Afin de rationaliser l'architecture et de limiter les coûts, les éléments de commutation de puissance partagés entre les différents sous-systèmes ont été standardisés autour du transistor bipolaire NPN 2N2222. Ce composant, largement disponible dans les stocks de l'école, offre un gain en courant qui permet de saturer la jonction avec un très faible appel sur la base (via une résistance de 1~k$\Omega$) \cite{2N2222, Desc_Projet}. Cette caractéristique est essentielle pour respecter la limite stricte de tirage des broches GPIO de nos microcontrôleurs, particulièrement la limite de 15~mA imposée par le nRF52840, tout en laissant passer la puissance requise pour activer des relais ou des buzzers \cite{XIAO_nRF52840}. Dans l'optique d'une version industrialisée, ce composant imposant une chute de tension intrinsèque ($V_{CE(sat)}$) devrait être remplacé par un transistor MOSFET à état logique (comme le BSS138). Sa résistance interne quasi nulle ($R_{DS(on)}$) permettrait de transmettre la totalité de la tension aux actionneurs \cite{BSS138}.
-
 \bigskip
 
 % -------------------------------------------------------------------------
@@ -68,9 +73,17 @@ Afin de rationaliser l'architecture et de limiter les coûts, les éléments de 
 Ce sous-système, destiné à être porté sur le casque de l'employé, est soumis à des contraintes drastiques d'encombrement, de poids et de consommation d'énergie.
 
 \paragraph{Microcontrôleur Autonome (XIAO nRF52840 Plus)}
-% [Note : Insérer ici les images Top/Bottom du XIAO nRF52840]
 
-\begin{table}[htbp]
+Le cœur logique du tag est une carte Seeed Studio XIAO nRF52840 Plus. Son architecture ARM Cortex-M4F surclasse nettement un ESP32 en matière d'ultra-basse consommation \cite{XIAO_nRF52840}. Cette efficacité est vitale pour exploiter un algorithme de \textit{dynamic polling}, permettant au tag de se placer en veille profonde de manière adaptative et de garantir une autonomie de 8 à 48 heures selon sa proximité avec l'engin \cite{Desc_Projet}. La carte intègre nativement un système de gestion de batterie (BMS), simplifiant la recharge de la batterie Li-Po de 500~mAh \cite{XIAO_nRF52840, Slides_Choix}. Afin de communiquer avec l'utilisateur, une LED rouge de 3~mm a été ajoutée pour être insérée dans un trou percé à travers la paroi du tag. Pilotée par le microcontrôleur, elle signale une batterie faible, indique la recharge en cours, et émet un clignotement de maintien en vie (\textit{keep-alive}) confirmant le bon fonctionnement du dispositif.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{XIAO_BLE_pinout.png}
+    \caption{Carte Seeed Studio XIAO nRF52840 Plus.}
+    \label{fig:xiao_img}
+\end{figure}
+
+\begin{table}[H]
     \centering
     \begin{tabular}{|p{6.5cm}|p{7.5cm}|}
         \hline
@@ -97,7 +110,7 @@ Ce sous-système, destiné à être porté sur le casque de l'employé, est soum
     \label{tab:specs_xiao}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -124,14 +137,19 @@ Ce sous-système, destiné à être porté sur le casque de l'employé, est soum
     \label{tab:pinout_xiao}
 \end{table}
 
-Le cœur logique du tag est une carte Seeed Studio XIAO nRF52840 Plus. Son architecture ARM Cortex-M4F surclasse nettement un ESP32 en matière d'ultra-basse consommation \cite{XIAO_nRF52840}. Cette efficacité est vitale pour exploiter un algorithme de \textit{dynamic polling}, permettant au tag de se placer en veille profonde de manière adaptative et de garantir une autonomie de 8 à 48 heures selon sa proximité avec l'engin \cite{Desc_Projet}. La carte intègre nativement un système de gestion de batterie (BMS), simplifiant la recharge de la batterie Li-Po de 500~mAh \cite{XIAO_nRF52840, Slides_Choix}. Afin de communiquer avec l'utilisateur, une LED rouge de 3~mm a été ajoutée pour être insérée dans un trou percé à travers la paroi du tag. Pilotée par le microcontrôleur, elle signale une batterie faible, indique la recharge en cours, et émet un clignotement de maintien en vie (\textit{keep-alive}) confirmant le bon fonctionnement du dispositif.
 
 \paragraph{Télémétrie Spatiale (Makerfabs MaUWB-DW3000)}
+
 Le choix du composant assurant la technologie UWB a nécessité une longue phase d'évaluation. Initialement, l'utilisation d'une puce Qorvo DW3000 nue avait été envisagée, mais son absence d'antenne intégrée exigeait un design RF hors de notre portée matérielle. Nous nous sommes ensuite tournés vers le module BU03 (Ai-Thinker) qui intègre une antenne \cite{Slides_Choix}. Cependant, l'utilisation de ce module nécessitait de mesurer le temps de vol directement via le bus SPI et de gérer entièrement la physique des ondes au sein d'un protocole radio codé de zéro. Les exemples d'utilisation disponibles pour le BU03 se limitaient exclusivement à la mesure de distance entre deux modules uniques, ce qui était insuffisant pour notre architecture complexe. Notre choix final s'est donc porté sur le module MaUWB de Makerfabs \cite{Slides_Choix}. Sa véritable valeur ajoutée réside dans l'intégration d'un microcontrôleur STM32, d'un amplificateur, et d'un firmware propriétaire régulièrement mis à jour \cite{UWB-AT-Module}. Ce système encapsule absolument toute la partie détection et mesure des distances en topologie multi-tags et multi-ancres. L'ensemble se pilote par de simples commandes AT transmises sur un port UART, sécurisant ainsi la robustesse logicielle du projet \cite{UWB-AT-Module}.
 
-% [Note : Insérer ici les images Top/Bottom du module UWB]
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{maUWB_both_view.png}
+    \caption{Vues du module UWB Makerfabs MaUWB-DW3000.}
+    \label{fig:mauwb_img}
+\end{figure}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|p{6.5cm}|p{7.5cm}|}
         \hline
@@ -154,7 +172,7 @@ Le choix du composant assurant la technologie UWB a nécessité une longue phase
     \label{tab:specs_mauwb}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|l|}
         \hline
@@ -171,7 +189,7 @@ Le choix du composant assurant la technologie UWB a nécessité une longue phase
     \label{tab:at_commands_uwb}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -185,7 +203,7 @@ Le choix du composant assurant la technologie UWB a nécessité une longue phase
         \hline
         UART1 RX & D6 (P1.11) Tx (XIAO) \\
         \hline
-        UART2 RX & D0 (P0.02) (XIAO) - \textit{Détourné pour Reset matériel} \\
+        UART2 RX & D0 (P0.02) (XIAO) \\
         \hline
         I2CSDA / I2CSCL / SWCLK / SWDIO & Non connecté \\
         \hline
@@ -194,10 +212,20 @@ Le choix du composant assurant la technologie UWB a nécessité une longue phase
     \label{tab:pinout_mauwb}
 \end{table}
 
-\paragraph{Altimétrie Barométrique (Bosch BMP581)}
-% [Note : Insérer ici les images Top/Bottom du BMP581]
+\textbf{Note sur le câblage :} Le branchement de la broche \texttt{UART2 RX} du module sur le GPIO \texttt{D0} de la XIAO est un détournement matériel astucieux. Le firmware du module UWB permet d'utiliser cette ligne de réception série secondaire pour déclencher un redémarrage (Hard Reset) ou un réveil matériel, ce qui évite de souder une broche physique dédiée au reset tout en permettant à la XIAO de réveiller l'UWB de sa veille profonde.
 
-\begin{table}[htbp]
+\paragraph{Altimétrie Barométrique (Bosch BMP581)}
+
+Indépendant du système UWB, l'axe vertical est verrouillé par un capteur de pression Bosch BMP581 \cite{BMP581}. Ce capteur intègre une nouvelle technologie développée par Bosch permettant d'effectuer un sur-échantillonnage (\textit{oversampling}) matériel paramétrable via l'écriture de registres spécifiques. De plus, la puce effectue en interne une mesure précise de la température afin de compenser les dérives et d'améliorer considérablement la précision finale \cite{BMP581}. Son bruit extrêmement faible ($< 0.001\text{ hPa}$) permet d'obtenir une précision relative suffisante pour détecter des variations de pression infimes, traduisibles par une estimation de l'altitude fiable à une dizaine de centimètres près \cite{BMP581}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{BMP581_both_view.png}
+    \caption{Vues du module barométrique Bosch BMP581.}
+    \label{fig:bmp581_img}
+\end{figure}
+
+\begin{table}[H]
     \centering
     \begin{tabular}{|p{6.5cm}|p{7.5cm}|}
         \hline
@@ -224,7 +252,7 @@ Le choix du composant assurant la technologie UWB a nécessité une longue phase
     \label{tab:specs_bmp581}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -249,14 +277,19 @@ Le choix du composant assurant la technologie UWB a nécessité une longue phase
     \label{tab:pinout_bmp581}
 \end{table}
 
-Indépendant du système UWB, l'axe vertical est verrouillé par un capteur de pression Bosch BMP581 \cite{BMP581}. Ce capteur intègre une nouvelle technologie développée par Bosch permettant d'effectuer un sur-échantillonnage (\textit{oversampling}) matériel paramétrable via l'écriture de registres spécifiques. De plus, la puce effectue en interne une mesure précise de la température afin de compenser les dérives et d'améliorer considérablement la précision finale \cite{BMP581}. Son bruit extrêmement faible ($< 0.001\text{ hPa}$) permet d'obtenir une précision relative suffisante pour détecter des variations de pression infimes, traduisibles par une estimation de l'altitude fiable à une dizaine de centimètres près \cite{BMP581}.
 
-\paragraph{Étanchéité et Recharge}
+\paragraph{Le Récepteur de Charge Sans Fil (Qi Adafruit)}
 
-\textbf{Le Récepteur de Charge Sans Fil (Qi Adafruit)}
-% [Note : Insérer ici l'image du chargeur Adafruit 1901]
+Les environnements de chantier imposant une forte présence de poussière et d'eau, l'utilisation d'un port USB traversant a été formellement rejetée. La recharge s'effectue par induction via un récepteur Qi Adafruit 1901. Ce module génère son propre 5V régulé et permet de recharger le tag à travers une coque parfaitement scellée, en utilisant des chargeurs sans fil standards (conçus pour les smartphones, par exemple) \cite{Adafruit_1901, Slides_Choix}. Pour une version industrielle, l'amélioration idéale consisterait à déployer un bac de chargement global sur le chantier : l'ouvrier n'aurait plus à aligner précisément son tag sur une base individuelle, mais se contenterait de le déposer dans le bac en fin de poste.
 
-\begin{table}[htbp]
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{Adafruit_charger_wireless.png}
+    \caption{Module récepteur de charge sans fil Adafruit 1901.}
+    \label{fig:adafruit_img}
+\end{figure}
+
+\begin{table}[H]
     \centering
     \begin{tabular}{|p{6cm}|p{8cm}|}
         \hline
@@ -277,18 +310,24 @@ Indépendant du système UWB, l'axe vertical est verrouillé par un capteur de p
     \label{tab:specs_adafruit1901}
 \end{table}
 
-Les environnements de chantier imposant une forte présence de poussière et d'eau, l'utilisation d'un port USB traversant a été formellement rejetée. La recharge s'effectue par induction via un récepteur Qi Adafruit 1901. Ce module génère son propre 5V régulé et permet de recharger le tag à travers une coque parfaitement scellée, en utilisant des chargeurs sans fil standards (conçus pour les smartphones, par exemple) \cite{Adafruit_1901, Slides_Choix}. Pour une version industrielle, l'amélioration idéale consisterait à déployer un bac de chargement global sur le chantier : l'ouvrier n'aurait plus à aligner précisément son tag sur une base individuelle, mais se contenterait de le déposer dans le bac en fin de poste.
-
 \bigskip
 \textbf{La Membrane ePTFE (Amphenol LTW)}
-% [Note : Insérer ici l'image de la membrane Amphenol]
 
 La seule perméabilité volontaire du boîtier est assurée par une membrane ePTFE Amphenol LTW \cite{Slides_Choix}. Celle-ci garantit une étanchéité totale aux liquides tout en laissant l'air s'équilibrer lentement pour le capteur de pression. Outre son rôle contre l'humidité, cette membrane agit comme un filtre mécanique indispensable pour lisser les chocs de pression soudains liés aux rafales de vent ou aux mouvements brusques de l'ouvrier, qui viendraient inévitablement fausser le calcul altimétrique du baromètre \cite{Desc_Projet, Slides_Choix}.
 
-\paragraph{Avertisseur Sonore (Buzzer)}
-% [Note : Insérer ici les images Top/Bottom du Buzzer]
 
-\begin{table}[htbp]
+\paragraph{Avertisseur Sonore (Buzzer)}
+
+L'alerte sonore de l'ouvrier est actuellement gérée par un buzzer magnétique de la marque Same Sky. Pris de court par le temps lors de la conception du prototype, nous avons sélectionné un composant capable d'émettre au moins 85~dB et tolérant une alimentation directe en 3.7V \cite{Slides_Choix, CMT-8504-100-SMT-TR}. Nous nous sommes rapidement rendu compte que ce choix par défaut n'était pas assez puissant pour un environnement industriel bruyant et qu'il consommait excessivement par rapport à un dispositif piézoélectrique. Le composant idéal s'avère être un disque piézoélectrique, qui consommerait dix fois moins d'énergie. Notre objectif acoustique étant d'abaisser la fréquence au maximum pour rendre le son moins strident, plus audible et moins sujet à l'atténuation dans l'air, nous envisagerions un disque exploitant le diamètre maximum raisonnable pour notre boîtier (soit 3~cm). Une telle dimension permettrait d'atteindre une fréquence de résonance optimale d'environ 2500~Hz.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{buzzer_complete.png}
+    \caption{Avertisseur sonore magnétique Same Sky.}
+    \label{fig:buzzer_img}
+\end{figure}
+
+\begin{table}[H]
     \centering
     \begin{tabular}{|p{6cm}|p{8cm}|}
         \hline
@@ -307,7 +346,7 @@ La seule perméabilité volontaire du boîtier est assurée par une membrane ePT
     \label{tab:specs_buzzer}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -317,29 +356,16 @@ La seule perméabilité volontaire du boîtier est assurée par une membrane ePT
         \hline
         Borne (-) & Collecteur (C) (Transistor 2N2222) \\
         \hline
-        \multicolumn{2}{|c|}{\textit{Diode de roue libre FR107 montée en antiparallèle}} \\
-        \hline
-        Anode (Sans trait) & Borne (-) du Buzzer \\
-        \hline
-        Cathode (Avec trait) & Borne (+) du Buzzer \\
-        \hline
     \end{tabular}
-    \caption{Brochage standardisé de l'avertisseur sonore et de sa diode de protection.}
+    \caption{Brochage de l'avertisseur sonore.}
     \label{tab:pinout_buzzer}
 \end{table}
 
-L'alerte sonore de l'ouvrier est actuellement gérée par un buzzer magnétique de la marque Same Sky. Pris de court par le temps lors de la conception du prototype, nous avons sélectionné un composant capable d'émettre au moins 85~dB et tolérant une alimentation directe en 3.7V \cite{Slides_Choix, CMT-8504-100-SMT-TR}. Nous nous sommes rapidement rendu compte que ce choix par défaut n'était pas assez puissant pour un environnement industriel bruyant et qu'il consommait excessivement par rapport à un dispositif piézoélectrique. Le composant idéal s'avère être un disque piézoélectrique, qui consommerait dix fois moins d'énergie. Notre objectif acoustique étant d'abaisser la fréquence au maximum pour rendre le son moins strident, plus audible et moins sujet à l'atténuation dans l'air, nous envisagerions un disque exploitant le diamètre maximum raisonnable pour notre boîtier (soit 3~cm). Une telle dimension permettrait d'atteindre une fréquence de résonance optimale d'environ 2500~Hz.
+\textbf{Note sur le câblage de protection :} Une diode de roue libre (FR107) est montée en antiparallèle directement sur les bornes du buzzer. L'anode est connectée à la Borne (-) et la cathode à la Borne (+). Ce câblage est indispensable pour court-circuiter l'énergie résiduelle de la bobine du buzzer et éviter que le transistor 2N2222 ne grille à l'ouverture du circuit.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{tag_ouvrier_composants.png}
-    \caption{Architecture matérielle du dispositif porté par l'employé, centré sur la XIAO nRF52840, intégrant la charge Qi, la télémétrie UWB, l'altimétrie et l'alerte sonore.}
-    \label{fig:tag_ouvrier}
-\end{figure}
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{systeme_buzzer.png}
+    \includegraphics[width=0.6\textwidth]{systeme_buzzer.png}
     \caption{Circuit standard de commutation d'un actionneur inductif par transistor NPN, incluant la diode de roue libre de protection.}
     \label{fig:systeme_buzzer}
 \end{figure}
@@ -352,9 +378,17 @@ L'alerte sonore de l'ouvrier est actuellement gérée par un buzzer magnétique 
 Situé dans la cabine de l'engin, le Hub centralise les données du réseau périphérique, calcule les distances et interagit avec le conducteur \cite{Desc_Projet}.
 
 \paragraph{Interface Graphique et Enregistreur (MaTouch 7" ESP32-S3)}
-% [Note : Insérer ici les images Top/Bottom du MaTouch 7"]
 
-\begin{table}[htbp]
+Initialement, le projet prévoyait l'acquisition d'un simple écran passif piloté par le Hub. Nous avons rapidement réalisé que le traitement du flux vidéo exigeait une puissance de calcul colossale et imposait une communication SPI à haut débit mobilisant de multiples câbles pour garantir une résolution acceptable. Or, le WROVER devait déjà dédier ses deux blocs SPI matériels aux capteurs critiques, et nous ne disposions plus d'assez de broches. Voulant à tout prix conserver un faisceau de câblage restreint (deux fils pour les données et deux fils pour l'alimentation), nous avons pivoté vers un écran 7 pouces intégrant son propre processeur ESP32-S3 \cite{MaTouch_7}. Le protocole I2C étant incapable de couvrir de longues distances de manière fiable, et le SPI exigeant trop de fils, nous avons logiquement choisi l'UART pour assurer la communication asynchrone entre le Hub et l'écran. L'écran embarque également un lecteur de carte SD faisant office de boîte noire pour stocker les journaux du système, facilitant ainsi le débogage et la maintenance sur le terrain \cite{MaTouch_7}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{maTouch_both_view.png}
+    \caption{Écran autonome Makerfabs MaTouch 7".}
+    \label{fig:matouch_img}
+\end{figure}
+
+\begin{table}[H]
     \centering
     \begin{tabular}{|p{6cm}|p{8cm}|}
         \hline
@@ -377,13 +411,13 @@ Situé dans la cabine de l'engin, le Hub centralise les données du réseau pér
     \label{tab:specs_matouch}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
         \textbf{Broche} & \textbf{Broche cible / Composant cible} \\
         \hline
-        USB-C 5V & Bus +5V (Hack Grove vers ligne d'alimentation) \\
+        USB-C 5V & Bus +5V (Ligne d'alimentation) \\
         \hline
         Bus GND & Masse Commune \\
         \hline
@@ -396,12 +430,20 @@ Situé dans la cabine de l'engin, le Hub centralise les données du réseau pér
     \label{tab:pinout_matouch}
 \end{table}
 
-Initialement, le projet prévoyait l'acquisition d'un simple écran passif piloté par le Hub. Nous avons rapidement réalisé que le traitement du flux vidéo exigeait une puissance de calcul colossale et imposait une communication SPI à haut débit mobilisant de multiples câbles pour garantir une résolution acceptable. Or, le WROVER devait déjà dédier ses deux blocs SPI matériels aux capteurs critiques, et nous ne disposions plus d'assez de broches. Voulant à tout prix conserver un faisceau de câblage restreint (deux fils pour les données et deux fils pour l'alimentation), nous avons pivoté vers un écran 7 pouces intégrant son propre processeur ESP32-S3 \cite{MaTouch_7}. Le protocole I2C étant incapable de couvrir de longues distances de manière fiable, et le SPI exigeant trop de fils, nous avons logiquement choisi l'UART pour assurer la communication asynchrone entre le Hub et l'écran. L'écran requérant une alimentation en 5V, nous avons opéré une modification matérielle sur son port Grove : la piste de sortie 3.3V a été sectionnée et remplacée par un fil soudé directement vers l'entrée des diodes de l'USB-C, transformant le connecteur en une entrée sécurisée. L'écran embarque également un lecteur de carte SD faisant office de boîte noire pour stocker les journaux du système, facilitant ainsi le débogage et la maintenance sur le terrain \cite{MaTouch_7}.
+\textbf{Note sur le câblage (Hack matériel) :} L'écran requérant une alimentation en 5V, nous avons opéré une modification matérielle sur son port Grove : la piste de sortie 3.3V a été sectionnée et remplacée par un fil soudé directement vers l'entrée des diodes de l'USB-C, transformant le connecteur en une entrée sécurisée. L'alimentation injectée directement sur la broche USB-C 5V permet au Hub d'alimenter l'écran tout en conservant la protection matérielle de la carte si un ordinateur y est simultanément branché pour le débogage (isolation des sources de tension).
 
 \paragraph{Unité de Traitement Temps Réel (ESP32 WROVER DevKit-C)}
-% [Note : Insérer ici les images Top/Bottom du WROVER]
 
-\begin{table}[htbp]
+Le traitement mathématique est confié à un ESP32 WROVER dont l'architecture double-cœur est exploitée rigoureusement \cite{ESP32_WROVER}. Le Cœur 0, habituellement dédié au Wi-Fi et au Bluetooth (inutilisés ici), est entièrement réaffecté aux tâches temporelles. La lecture des capteurs, l'exécution du filtre de Madgwick, les calculs de calibration et l'écriture du Mutex ne prennent que 90~$\mu$s sur un cycle de 2.5~ms (soit 400~Hz). Cette optimisation libère 96\% de la charge de ce cœur pour la gestion fluide des paquets CAN et UART. Le Cœur 1 est ainsi sanctuarisé pour l'exécution ininterrompue des algorithmes mathématiques et de l'arbre décisionnel.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{devkit_c_v4_pinout.png}
+    \caption{Carte de développement ESP32 WROVER.}
+    \label{fig:wrover_img}
+\end{figure}
+
+\begin{table}[H]
     \centering
     \begin{tabular}{|p{6cm}|p{8cm}|}
         \hline
@@ -424,7 +466,7 @@ Initialement, le projet prévoyait l'acquisition d'un simple écran passif pilot
     \label{tab:specs_wrover}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -453,12 +495,18 @@ Initialement, le projet prévoyait l'acquisition d'un simple écran passif pilot
     \label{tab:pinout_wrover}
 \end{table}
 
-Le traitement mathématique est confié à un ESP32 WROVER dont l'architecture double-cœur est exploitée rigoureusement \cite{ESP32_WROVER}. Le Cœur 0, habituellement dédié au Wi-Fi et au Bluetooth (inutilisés ici), est entièrement réaffecté aux tâches temporelles. La lecture des capteurs, l'exécution du filtre de Madgwick, les calculs de calibration et l'écriture du Mutex ne prennent que 90~$\mu$s sur un cycle de 2.5~ms (soit 400~Hz). Cette optimisation libère 96\% de la charge de ce cœur pour la gestion fluide des paquets CAN et UART. Le Cœur 1 est ainsi sanctuarisé pour l'exécution ininterrompue des algorithmes mathématiques et de l'arbre décisionnel.
-
 \paragraph{Référentiel Altimétrique (Bosch BMP581)}
-% [Note : Insérer ici les images Top/Bottom du BMP581]
 
-\begin{table}[htbp]
+Le Hub embarque son propre baromètre BMP581, rigoureusement identique à celui du tag ouvrier (dont les caractéristiques de bruit et de précision ont été détaillées précédemment) pour garantir la symétrie des mesures différentielles \cite{BMP581}. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{BMP581_both_view.png}
+    \caption{Module barométrique Bosch BMP581.}
+    \label{fig:bmp581_hub_img}
+\end{figure}
+
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -481,12 +529,20 @@ Le traitement mathématique est confié à un ESP32 WROVER dont l'architecture d
     \label{tab:pinout_bmp581_hub}
 \end{table}
 
-Le Hub embarque son propre baromètre BMP581, rigoureusement identique à celui du tag ouvrier (dont les caractéristiques de bruit et de précision ont été détaillées précédemment) pour garantir la symétrie des mesures différentielles \cite{BMP581}. Cependant, au sein du WROVER, l'interfaçage de ce capteur a nécessité un remappage logiciel du bus HSPI. Cette modification a été imposée par des contraintes matérielles liées à la séquence de démarrage de l'ESP32 (\textit{strapping boot}), car le bus HSPI natif monopolise la broche GPIO12, dont l'état au démarrage dicte la tension interne de la mémoire flash.
+\textbf{Note sur le câblage (Remappage HSPI) :} Au sein du WROVER, l'interfaçage de ce capteur a nécessité un remappage logiciel du bus HSPI vers de nouvelles broches GPIO. Cette modification a été imposée par des contraintes matérielles liées à la séquence de démarrage de l'ESP32 (\textit{strapping boot}), car le bus HSPI natif monopolise la broche GPIO12, dont l'état au démarrage dicte la tension interne de la mémoire flash. Y connecter un capteur SPI aurait risqué de perturber ou d'empêcher le démarrage du microcontrôleur.
 
 \paragraph{Centrale Inertielle (Bosch BMI088)}
-% [Note : Insérer ici les images Top/Bottom du BMI088]
 
-\begin{table}[htbp]
+Afin de corriger l'inclinaison du véhicule, le référentiel gravitaire est fourni par la centrale inertielle Bosch BMI088. Plébiscité dans l'ingénierie des drones professionnels pour sa non-dérive et sa fiabilité inébranlable, ce composant est particulièrement adapté aux environnements subissant les vibrations intenses des engins de chantier \cite{BMI088}. Son raccordement physique exploite le bus VSPI natif du microcontrôleur pour assurer les transferts ultra-rapides exigés par la fréquence d'échantillonnage de 400~Hz.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{BMI088_both_view.png}
+    \caption{Vues du module de centrale inertielle Bosch BMI088.}
+    \label{fig:bmi088_img}
+\end{figure}
+
+\begin{table}[H]
     \centering
     \begin{tabular}{|p{6cm}|p{8cm}|}
         \hline
@@ -511,7 +567,7 @@ Le Hub embarque son propre baromètre BMP581, rigoureusement identique à celui 
     \label{tab:specs_bmi088}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -532,12 +588,20 @@ Le Hub embarque son propre baromètre BMP581, rigoureusement identique à celui 
     \label{tab:pinout_bmi088}
 \end{table}
 
-Afin de corriger l'inclinaison du véhicule, le référentiel gravitaire est fourni par la centrale inertielle Bosch BMI088. Plébiscité dans l'ingénierie des drones professionnels pour sa non-dérive et sa fiabilité inébranlable, ce composant est particulièrement adapté aux environnements subissant les vibrations intenses des engins de chantier \cite{BMI088}. Son raccordement physique exploite le bus VSPI natif du microcontrôleur pour assurer les transferts ultra-rapides exigés par la fréquence d'échantillonnage de 400~Hz.
+\textbf{Note sur le câblage :} La présence de deux broches "Chip Select" (\texttt{CSB1} et \texttt{CSB2}) est due à l'architecture physique du BMI088. Bien qu'il s'agisse d'un composant unique, il encapsule en réalité deux puces distinctes (le gyroscope et l'accéléromètre) qui doivent être interrogées séparément sur le même bus VSPI matériel.
 
 \paragraph{Transceiver CAN (TCAN1051V-Q1)}
-% [Note : Insérer ici les images Top/Bottom du TCAN1051V-Q1]
 
-\begin{table}[htbp]
+La traduction des signaux logiques du contrôleur TWAI de l'ESP32 vers le réseau différentiel du véhicule est assurée par le transceiver TCAN1051V-Q1 \cite{TCAN1051-Q1}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{tcan_complete.png}
+    \caption{Transceiver CAN Texas Instruments TCAN1051V-Q1.}
+    \label{fig:tcan_img}
+\end{figure}
+
+\begin{table}[H]
     \centering
     \begin{tabular}{|p{6cm}|p{8cm}|}
         \hline
@@ -558,7 +622,7 @@ Afin de corriger l'inclinaison du véhicule, le référentiel gravitaire est fou
     \label{tab:specs_tcan}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -581,14 +645,7 @@ Afin de corriger l'inclinaison du véhicule, le référentiel gravitaire est fou
     \label{tab:pinout_tcan}
 \end{table}
 
-La traduction des signaux logiques du contrôleur TWAI de l'ESP32 vers le réseau différentiel du véhicule est assurée par le transceiver TCAN1051V-Q1 \cite{TCAN1051-Q1}. La sélection de la version comportant la lettre "V" est primordiale dans cette architecture : cette déclinaison intègre une entrée d'alimentation secondaire spécifique ($V_{IO}$) qui permet de décaler le niveau logique des seuils d'entrée et du signal de sortie RXD pour l'aligner parfaitement sur la tension de 3.3V du microcontrôleur, tout en propulsant le bus de puissance CAN en 5V \cite{TCAN1051-Q1}.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{hub_cabine_composants.png}
-    \caption{Organisation interne de l'unité de traitement centrale, mettant en évidence la répartition des bus de communication (UART, SPI, CAN) et le partage des tâches avec l'écran MaTouch.}
-    \label{fig:hub_cabine}
-\end{figure}
+\textbf{Note sur le câblage ($V_{IO}$) :} La sélection de la version comportant la lettre "V" est primordiale dans cette architecture : cette déclinaison intègre une entrée d'alimentation secondaire spécifique ($V_{IO}$) qui permet de décaler le niveau logique des seuils d'entrée et du signal de sortie RXD pour l'aligner parfaitement sur la tension de 3.3V du microcontrôleur. Cela protège l'ESP32 sans nécessiter aucun composant d'adaptation supplémentaire, tout en propulsant le bus de puissance CAN en 5V \cite{TCAN1051-Q1}. Par ailleurs, le forçage de la broche \texttt{8 (S)} à la masse empêche la puce de basculer en mode silencieux.
 
 \bigskip
 
@@ -596,9 +653,17 @@ La traduction des signaux logiques du contrôleur TWAI de l'ESP32 vers le résea
 \subsubsection{Sous-Système 3 : Le Réseau Périphérique (Les Ancres)}
 
 \paragraph{Logique Télémétrique (Makerfabs ESP32-S3 + UWB)}
-% [Note : Insérer ici les images Top/Bottom du module Makerfabs]
 
-\begin{table}[htbp]
+Contraints par les disponibilités fournisseurs, nous avons intégré de puissantes cartes de développement Makerfabs dans chaque ancre \cite{Slides_Choix}. Le choix d'un processeur ESP32-S3 est technologiquement surdimensionné : l'objectif de l'ancre consiste simplement à faire du \textit{polling} (interrogation continue) sur le port UART du capteur UWB pour rafraîchir les distances, et à transmettre ces valeurs via le bus CAN lors d'une requête du Hub. Un microcontrôleur d'entrée de gamme extrêmement abordable (tel qu'un STM32G0 ou un ATmega) aurait amplement suffi pour cette tâche. Néanmoins, l'écran OLED intégré à la carte nous a offert un confort précieux pour déboguer les mesures sur le terrain. De plus, avant la réception des PCB finaux et en l'absence de réseau CAN opérationnel, la connectivité Wi-Fi de l'ESP32 nous a permis de tester et valider les protocoles de communication entre le Hub et les ancres de manière anticipée.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{maUWB_ESP32_both_view.png}
+    \caption{Carte Makerfabs ESP32-S3 embarquant le module UWB pour les Ancres.}
+    \label{fig:mauwb_esp32_img}
+\end{figure}
+
+\begin{table}[H]
     \centering
     \begin{tabular}{|p{6cm}|p{8cm}|}
         \hline
@@ -615,7 +680,7 @@ La traduction des signaux logiques du contrôleur TWAI de l'ESP32 vers le résea
     \label{tab:specs_makerfabs_ancre}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -630,12 +695,18 @@ La traduction des signaux logiques du contrôleur TWAI de l'ESP32 vers le résea
     \label{tab:pinout_ancre_uwb}
 \end{table}
 
-Contraints par les disponibilités fournisseurs, nous avons intégré de puissantes cartes de développement Makerfabs dans chaque ancre \cite{Slides_Choix}. Le choix d'un processeur ESP32-S3 est technologiquement surdimensionné : l'objectif de l'ancre consiste simplement à faire du \textit{polling} (interrogation continue) sur le port UART du capteur UWB pour rafraîchir les distances, et à transmettre ces valeurs via le bus CAN lors d'une requête du Hub. Un microcontrôleur d'entrée de gamme extrêmement abordable (tel qu'un STM32G0 ou un ATmega) aurait amplement suffi pour cette tâche. Néanmoins, l'écran OLED intégré à la carte nous a offert un confort précieux pour déboguer les mesures sur le terrain. De plus, avant la réception des PCB finaux et en l'absence de réseau CAN opérationnel, la connectivité Wi-Fi de l'ESP32 nous a permis de tester et valider les protocoles de communication entre le Hub et les ancres de manière anticipée.
-
 \paragraph{Régulation Locale (Murata OKI-78SR-5)}
-% [Note : Insérer ici les images Top/Bottom de l'abaisseur]
 
-\begin{table}[htbp]
+Le réseau d'ancres reçoit une alimentation globale de 12V, qui est abaissée au sein de chaque boîtier. Le régulateur DC-DC Murata OKI-78SR génère un 5V très stable localement \cite{OKI-78SR_Series}. L'avantage majeur de ce composant à découpage est sa tolérance : il accepte de fonctionner parfaitement même si la tension d'entrée s'effondre jusqu'à 7V, autorisant ainsi une chute de tension importante dans la ligne sans jamais compromettre le fonctionnement de l'électronique embarquée \cite{OKI-78SR_Series, Slides_Choix}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{Abaisseur_OKI-5V_both_view.png}
+    \caption{Régulateur DC-DC Murata OKI-78SR-5.}
+    \label{fig:oki_img}
+\end{figure}
+
+\begin{table}[H]
     \centering
     \begin{tabular}{|p{6cm}|p{8cm}|}
         \hline
@@ -652,7 +723,7 @@ Contraints par les disponibilités fournisseurs, nous avons intégré de puissan
     \label{tab:specs_oki}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -669,8 +740,6 @@ Contraints par les disponibilités fournisseurs, nous avons intégré de puissan
     \label{tab:pinout_oki}
 \end{table}
 
-Le réseau d'ancres reçoit une alimentation globale de 12V, qui est abaissée au sein de chaque boîtier. Le régulateur DC-DC Murata OKI-78SR génère un 5V très stable localement \cite{OKI-78SR_Series}. L'avantage majeur de ce composant à découpage est sa tolérance : il accepte de fonctionner parfaitement même si la tension d'entrée s'effondre jusqu'à 7V, autorisant ainsi une chute de tension importante dans la ligne sans jamais compromettre le fonctionnement de l'électronique embarquée \cite{OKI-78SR_Series, Slides_Choix}.
-
 \paragraph{Câblage Industriel, Chute de Tension et Connectique (UNITRONIC LiYCY)}
 
 Le réseau physique repose sur un câble blindé, ignifugé et torsadé, doté d'une section conductrice de $4 \times 0.34\text{ mm}^2$ \cite{UNITRONIC_LiYCY}. L'acheminement de la puissance sur le châssis induit inexorablement une perte énergétique, dictée par la loi de Pouillet :
@@ -681,21 +750,14 @@ Le réseau physique repose sur un câble blindé, ignifugé et torsadé, doté d
 
 Pour une consommation électrique fixe du réseau d'ancres, mesurée en conditions réelles sur le terrain, la chute de tension évolue de manière linéaire avec la longueur du câble. À titre d'exemple, sur un déploiement de $L = 30\text{ mètres}$, avec une résistivité $\rho \approx 0.017\text{ }\Omega\cdot\text{mm}^2/\text{m}$, la résistance cumulée du cuivre génère une chute d'environ $\Delta U = 3\text{ Volts}$. La tension résiduelle aux bornes de la dernière ancre sera donc de 9V, une valeur confortablement supérieure à la limite critique des 7V exigés par le régulateur interne. Enfin, l'utilisation provisoire de borniers à vis traversant les boîtiers 3D devra idéalement laisser place à des connecteurs Weipu SF12 \cite{Weipu_SF12}. Leurs contacts à sertir sans soudure et leur conception "Push-Pull" lisse (empêchant l'accumulation de ciment) répondront parfaitement aux exigences d'étanchéité et de résistance aux vibrations des engins de BTP.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.8\textwidth]{ancre_vehicule_composants.png}
-    \caption{Architecture d'une ancre périphérique, montrant l'abaissement local de la tension et la traduction du signal série de la puce UWB vers le bus CAN différentiel.}
-    \label{fig:ancre_vehicule}
-\end{figure}
-
 \bigskip
 
 % -------------------------------------------------------------------------
 \subsubsection{Bloc d'Énergie et Auto-Maintien (Système Relais-Bouton-Alimentation)}
 
-% [Note : Insérer ici les images du Relais DSY2Y, du Bouton Poussoir et de l'Abaisseur]
+Ce bloc gère l'admission énergétique depuis la batterie de l'engin. L'allumage repose sur un système d'auto-maintien. Lors d'une pression sur le bouton lumineux, la tension de 12V réveille le régulateur. Un pont diviseur abaisse ce 12V à environ 2.9V pour que le GPIO 35 lise l'état physique du bouton. L'ESP32 active ensuite le relais électromécanique, dont les deux voies sont câblées en parallèle pour supporter la puissance \cite{DSY2Y_Series, Slides_Choix}. Le relais verrouille alors l'alimentation, et l'extinction devient purement logicielle en cas d'absence prolongée de conducteur \cite{Desc_Projet}. La lecture du bouton permet également d'attribuer des fonctions secondaires (comme l'activation du Wi-Fi pour un étalonnage via smartphone) en cas d'appui long \cite{Desc_Projet}.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -714,7 +776,14 @@ Pour une consommation électrique fixe du réseau d'ancres, mesurée en conditio
     \label{tab:pinout_bouton}
 \end{table}
 
-\begin{table}[htbp]
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{DSYS-S-relais.png}
+    \caption{Relais électromécanique Sanyou DSY2Y.}
+    \label{fig:relais_img}
+\end{figure}
+
+\begin{table}[H]
     \centering
     \begin{tabular}{|p{6cm}|p{8cm}|}
         \hline
@@ -737,7 +806,7 @@ Pour une consommation électrique fixe du réseau d'ancres, mesurée en conditio
     \label{tab:specs_relais}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -758,9 +827,18 @@ Pour une consommation électrique fixe du réseau d'ancres, mesurée en conditio
     \label{tab:pinout_relais}
 \end{table}
 
-Ce bloc gère l'admission énergétique depuis la batterie de l'engin. L'allumage repose sur un système d'auto-maintien. Lors d'une pression sur le bouton lumineux, la tension de 12V réveille le régulateur. Un pont diviseur abaisse ce 12V à environ 2.9V pour que le GPIO 35 lise l'état physique du bouton. L'ESP32 active ensuite le relais électromécanique, dont les deux voies sont câblées en parallèle pour supporter la puissance \cite{DSY2Y_Series, Slides_Choix}. Le relais verrouille alors l'alimentation, et l'extinction devient purement logicielle en cas d'absence prolongée de conducteur \cite{Desc_Projet}. La lecture du bouton permet également d'attribuer des fonctions secondaires (comme l'activation du Wi-Fi pour un étalonnage via smartphone) en cas d'appui long \cite{Desc_Projet}.
+\textbf{Note sur le câblage :} Le câblage redondant des broches d'entrée (\texttt{COM\_1} et \texttt{COM\_2}) et de sortie (\texttt{NO\_1} et \texttt{NO\_2}) permet de mettre en parallèle les deux contacts électromécaniques internes du relais. Le courant se divise ainsi entre les deux lames, doublant la capacité de charge thermique (de 1A à 2A sous 12V) pour supporter confortablement l'appel de puissance du système entier.
 
-\begin{table}[htbp]
+En aval du relais se trouve l'abaisseur de tension (Buck). Initialement, nous avions prévu d'utiliser le même régulateur de 5V 1.5A que pour les ancres, mais il s'est avéré beaucoup trop faible pour alimenter l'ensemble du Hub. Nous l'avons donc remplacé dans l'urgence par un régulateur réglable issu de nos stocks, un choix fonctionnel mais non optimal \cite{XL0415, Slides_Choix}. Pour une version industrielle, un stabilisateur isolé Meanwell de 12V devra être placé en amont de toute l'installation pour prendre en charge les batteries de véhicules de 12V ou 14V et filtrer les redoutables chutes et pics de tension générés par l'alternateur \cite{MeanWell_SD50A12, Desc_Projet}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{XL4015_both_view.png}
+    \caption{Module abaisseur de tension (Buck) XL4015.}
+    \label{fig:xl4015_img}
+\end{figure}
+
+\begin{table}[H]
     \centering
     \begin{tabular}{|p{6cm}|p{8cm}|}
         \hline
@@ -777,7 +855,7 @@ Ce bloc gère l'admission énergétique depuis la batterie de l'engin. L'allumag
     \label{tab:specs_xl4015}
 \end{table}
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \begin{tabular}{|l|l|}
         \hline
@@ -796,9 +874,7 @@ Ce bloc gère l'admission énergétique depuis la batterie de l'engin. L'allumag
     \label{tab:pinout_xl4015}
 \end{table}
 
-En aval du relais se trouve l'abaisseur de tension (Buck). Initialement, nous avions prévu d'utiliser le même régulateur de 5V 1.5A que pour les ancres, mais il s'est avéré beaucoup trop faible pour alimenter l'ensemble du Hub. Nous l'avons donc remplacé dans l'urgence par un régulateur réglable issu de nos stocks, un choix fonctionnel mais non optimal \cite{XL0415, Slides_Choix}. Pour une version industrielle, un stabilisateur isolé Meanwell de 12V devra être placé en amont de toute l'installation pour prendre en charge les batteries de véhicules de 12V ou 14V et filtrer les redoutables chutes et pics de tension générés par l'alternateur \cite{MeanWell_SD50A12, Desc_Projet}.
-
-\begin{figure}[htbp]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{systeme_relais-bouton-alimentation.png}
     \caption{Logique matérielle d'auto-maintien de l'énergie et gestion de l'allumage sécurisé.}
