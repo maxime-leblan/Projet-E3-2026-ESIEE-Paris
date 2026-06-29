@@ -38,7 +38,7 @@ VigiZone est un système embarqué de détection en temps réel conçu pour évi
 
 Face à ce danger, les systèmes d'alarme sonores classiques (comme les bips de recul) perdent en efficacité, car les ouvriers s'habituent au bruit ambiant. De leur côté, les solutions basées sur des caméras IA ou des capteurs LiDAR sont extrêmement coûteuses et voient leurs performances chuter dans des conditions difficiles (poussière, boue, faible luminosité). 
 
-![Schéma de trilatération autour d'une pelleteuse](Media/trilateration%20pelleteuse.png)
+<img src="Media/trilateration pelleteuse trans.png" alt="Schéma de trilatération autour d'une pelleteuse" width="50%">
 
 C'est pourquoi VigiZone s'appuie sur la technologie **Ultra Wide Band (UWB)** :
 * L'UWB offre une très haute précision de positionnement en se basant sur le temps de vol du signal.
